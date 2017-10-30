@@ -1,0 +1,86 @@
+# ------------
+# Merge BAMs
+# ------------
+def cmap__bam_chunks(cmap, wildcards, out_prefix='', out_suffix=''):
+    #
+    # Gets all the fastq chunknames from a Snakemake rule's wildcards. 
+    #
+    wc_dict = dict(wildcards.items())
+    return set([ str(
+                   out_prefix
+                 + _fastq_map[cmap.colindexes.sample_run] 
+                 + os.sep + _fastq_map[cmap.colindexes.sample_name]
+                 + os.sep + _fastq_map[cmap.colindexes.sample_name]
+                 + '_' + _fastq_map[cmap.colindexes.sample_number]
+                 + '_' + _fastq_map[cmap.colindexes.sample_lane]
+                 + '_' + _fastq_map[cmap.colindexes.sample_chunknb]
+                 + "{process}.bam"
+                 + out_suffix
+                ).format(**wc_dict)
+              for _fastq_map in cmap.query(**wc_dict)
+    ])
+
+MERGE_CMD = "java -jar MergeSamFiles.jar"
+rule merge_sample_bam_chunks:
+    input:
+        bam= lambda wildcards: cmap__bam_chunks(cmap, wildcards)
+    output:
+        primary= "BAM/{sample_name}{process}.bam",
+        bai= "BAM/{sample_name}{process}.bai"
+    wildcard_constraints:
+        sample_name=fh.FastqFile.fields_regex_dic['sample_name'],
+        sample_number=fh.FastqFile.fields_regex_dic['sample_number'],
+        sample_lane=fh.FastqFile.fields_regex_dic['sample_lane'],
+        sample_chunknb=fh.FastqFile.fields_regex_dic['sample_chunknb'],
+        process="(\.\w+)*"
+    run:
+        shell("""
+          mkdir -p BAM  # > {o[primary]}.log # DRY_RUN
+          if [[ `wc -w <<<"{i[bam]}"` -gt 1 ]]; then
+            {MERGE_CMD} {merge_prefixes} \
+              O={o[primary]} \
+              CREATE_INDEX=true \
+              MSD=true \
+              TMP_DIR=$TMPDIR \
+              VALIDATION_STRINGENCY=SILENT \
+             > {o[primary]}.log
+          else
+              link_install {i[bam]} {o[primary]} # >> {o[primary]}.log # DRY_RUN
+              ORIG_BAI=$(sed 's/bam/bai/g' <<< {i[bam]})
+              echo "[DOING else]"
+              [ -e $ORIG_BAI ] \
+                && link_install -f $ORIG_BAI $(sed 's/bam/bai/g' <<< {o[primary]}) \
+                || echo WARNING bai file $ORIG_BAI not found \ 
+                >&2 # >> {o[primary]}.log # DRY_RUN
+          fi  
+        """.format(i=input, o=output, merge_prefixes=" ".join([ "I=" + _prefix for _prefix in input.bam ])))
+
+
+def cmap__bam_sample_chunks(cmap, wildcards, out_prefix='', out_suffix=''):
+    #
+    # Gets the path of all expected sample bams.
+    #
+    wc_dict = dict(wildcards.items())
+    return set([ str(
+                   out_prefix
+                 + "BAM"
+                 + os.sep + _fastq_map[cmap.colindexes.sample_name]
+                 + "{process}.bam"
+                 + out_suffix
+                ).format(**wc_dict)
+              for _fastq_map in cmap.query(**wc_dict)
+    ])
+
+rule merge_all_bam_chunks:
+    input: 
+        cmap= fastq_samples_map,
+        bams= lambda wildcards: cmap__bam_sample_chunks(cmap, wildcards)
+    output: 
+        primary= "all_bam_chunks_merged{process}.done"
+    wildcard_constraints:
+        sample_name=fh.FastqFile.fields_regex_dic['sample_name'],
+        process="(\.\w+)*"
+    shell:"""
+      touch {output}
+    """
+
