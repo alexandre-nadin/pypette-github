@@ -1,0 +1,34 @@
+# ---------------------
+# Mapping fastq files
+# ---------------------
+rule fastq_files:
+    output: 
+        primary= "fastq_files.txt"
+    shell:"""
+      find {RAW_DATA_DIRS} -name '*.fastq.gz' > {output}
+    """ 
+
+rule fastq_samples:
+    #   
+    # Maps all the illumina filename metadata in a file.
+    #   
+    input: 
+        file="fastq_files.txt"
+    output: 
+        primary="fastq_samples.map"
+    run:
+        with open(input['file'], 'r') as files:
+            for _file in files:
+                ## Deduce file's run name
+                sample_run = get_run_from_filepath(_file, RAW_DATA_DIRS)
+
+                ## Get file's info
+                fastqfile = fh.FastqFile(_file.strip(), run_name=sample_run)
+
+                ## Write to output
+                with open(output['primary'], 'a') as fmap:
+                    fmap.write("{}{}".format(fastq_map_sep.join(
+                      [fastqfile.__dict__[_field] \
+                        for _field in list(fh.FastqFile.get_field_names())
+                      ]   
+                     ), os.linesep))
