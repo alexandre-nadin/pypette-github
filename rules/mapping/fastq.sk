@@ -15,6 +15,14 @@ rule fastq_files:
       find {RAW_DATA_DIRS} -name '*.fastq.gz' > {output}
     """ 
 
+def get_run_from_filepath(filename):
+    for _run in RUN_IDS:
+        run_path = os.sep.join([RUN_BASEDIR, _run, ''])
+        if filename.startswith(run_path):
+            return _run
+        else:
+           continue
+
 rule fastq_samples:
     #   
     # Maps all the illumina filename metadata in a file.
@@ -27,7 +35,7 @@ rule fastq_samples:
         with open(input['file'], 'r') as files:
             for _file in files:
                 ## Deduce file's run name
-                sample_run = get_run_from_filepath(_file, RAW_DATA_DIRS)
+                sample_run = get_run_from_filepath(_file)
 
                 ## Get file's info
                 fastqfile = fh.FastqFile(_file.strip(), run_name=sample_run)
