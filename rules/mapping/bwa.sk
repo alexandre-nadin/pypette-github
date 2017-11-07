@@ -1,0 +1,83 @@
+# ----------------
+# STAR alignment
+# ----------------
+# Align Parameters
+# snakemake -p RULE/FILE --use-conda # --cluster 'qsub' --jobs 9999 --latency-wait 10
+#snakemake -p run2/36258535_id/36258535_id_S10_L5_001.bam --cluster-config cluster.yaml  --cluster 'qsub -N {cluster.name} -l select={cluster.select}:ncpus={cluster.cores}:mem={cluster.mem}' --jobs 9999  --latency-wait 10
+BWA_CORES = 6
+BWA_REFERENCE_GENOME = ""
+
+def cmap__fastq_reads(cmap, wildcards, out_prefix='', out_suffix=''):
+    #
+    # Gets all the fastq chunknames from a Snakemake rule's wildcards. 
+    #
+    wc_dict = dict(wildcards.items())
+    return set([ str(
+                   out_prefix
+                 + _fastq_map[cmap.colindexes.sample_chunkname] 
+                 + out_suffix
+                ).format(**wc_dict)
+              for _fastq_map in cmap.query(**wc_dict)
+    ])
+
+out_chunk_bam_pattern="{sample_run}/{sample_name}/{sample_name}_{sample_number}_{sample_lane}_{sample_chunknb}{process}"
+#ruleorder: align_bwa_mem_samtools > align_bwa_mem_picard 
+ruleorder: align_bwa_mem_picard > align_bwa_mem_samtools
+rule align_bwa_mem_samtools:
+    input:
+        # samples_map = fastq_samples_map,
+        fastq_reads = lambda wildcards: cmap__fastq_reads(
+						cmap, 
+                    				wildcards, 
+ 						out_prefix="{sample_run}/{sample_name}/", 
+						out_suffix="{process}.fastq.gz")
+    output: 
+        primary = out_chunk_bam_pattern + ".bam"
+
+    wildcard_constraints:
+        sample_name=fh.FastqFile.fields_regex_dic['sample_name'],
+        sample_number=fh.FastqFile.fields_regex_dic['sample_number'],
+        sample_lane=fh.FastqFile.fields_regex_dic['sample_lane'],
+        sample_chunknb=fh.FastqFile.fields_regex_dic['sample_chunknb'],
+        process="(\.\w+)*"
+    shell:"""
+       # echo PBS -N bwamem -l select=1:ncpus=$(CORES)
+       condactivate #> {output[primary]}.out ## DRY_RUN
+       bwa mem -M \
+         -t {BWA_CORES} \
+         {BWA_REFERENCE_GENOME} \
+         {input[fastq_reads]} \
+         | samtools view -Su - \
+         | samtools sort -o {output[primary]}
+     """
+
+PICARD_SORTSAM_SORT_ORER = 'unsorted' # [ 'unsorted', 'queryname', 'coordinate', 'duplicate', 'unknown']
+rule align_bwa_mem_picard:
+    input:
+        # samples_map = fastq_samples_map,
+        fastq_reads = lambda wildcards: cmap__fastq_reads(
+						cmap, 
+                    				wildcards, 
+ 						out_prefix="{sample_run}/{sample_name}/", 
+						out_suffix="{process}.fastq.gz")
+    output: 
+        primary = out_chunk_bam_pattern + ".bam"
+
+    wildcard_constraints:
+        sample_name=fh.FastqFile.fields_regex_dic['sample_name'],
+        sample_number=fh.FastqFile.fields_regex_dic['sample_number'],
+        sample_lane=fh.FastqFile.fields_regex_dic['sample_lane'],
+        sample_chunknb=fh.FastqFile.fields_regex_dic['sample_chunknb'],
+        process="(\.\w+)*"
+    shell:"""
+       # echo PBS -N bwamem -l select=1:ncpus=$(CORES)
+       condactivate #> {output[primary]}.out ## DRY_RUN
+       bwa mem -M \
+         -t {BWA_CORES} \
+         {BWA_REFERENCE_GENOME} \
+         {input[fastq_reads]} \
+        | picard SortSam \
+            I=/dev/stdin \
+            SORT_ORDER={PICARD_SORTSAM_SORT_ORER} \
+            O={output[primary]}
+     """
