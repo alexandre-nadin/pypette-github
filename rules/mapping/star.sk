@@ -10,19 +10,6 @@ STAR_CORES = 6
 STAR_outFilterMismatchNmax = 10 
 STAR_GENOME_INDEX = "" 
 
-def cmap__fastq_reads(cmap, wildcards, out_prefix='', out_suffix=''):
-    #
-    # Gets all the fastq chunknames from a Snakemake rule's wildcards. 
-    #
-    wc_dict = dict(wildcards.items())
-    return set([ str(
-                   out_prefix
-                 + _fastq_map[cmap.colindexes.sample_chunkname] 
-                 + out_suffix
-                ).format(**wc_dict)
-              for _fastq_map in cmap.query(**wc_dict)
-    ])
-
 out_chunk_bam_pattern="{sample_run}/{sample_name}/{sample_name}_{sample_number}_{sample_lane}_{sample_chunknb}{process}"
 rule align_chunk_star:
     input:
