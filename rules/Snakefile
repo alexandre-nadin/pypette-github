@@ -1,5 +1,31 @@
 include: "config.sk"
 
+rule allrules:
+    run:
+      #print(os.linesep.join(rules.__dict__.keys()))
+      #for _rule in rules.__dict__.keys():
+      #    print("{}: ".format(_rule.__dict__))
+      
+      #print("{}: ".format(rules.__dict__))
+      print("{}: ".format(rules.__dict__['trimmomatic_fastq'].__dict__))
+
+
+# ######
+#
+# Lists all available rules (snakemake -l) but also to give more
+# information such as the file in which the rule is found.
+#
+explain_rule_fields = ['name', 'snakefile', 'wildcard_names']
+rule explain_rules:
+    run:
+        print('\t'.join([_rule_field.upper() 
+                           for _rule_field in explain_rule_fields
+                        ]))
+        for _rule in rules.__dict__.keys():
+            print('\t'.join([str(rules.__dict__[_rule].__dict__[_rule_field]) 
+                                  for _rule_field in explain_rule_fields
+                            ]))
+
 localrules: pbs_dir, update_cluster_rules
 rule pbs_dir:
     output:
