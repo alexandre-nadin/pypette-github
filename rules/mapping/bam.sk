@@ -20,7 +20,7 @@ def cmap__bam_chunks(cmap, wildcards, out_prefix='', out_suffix=''):
               for _fastq_map in cmap.query(**wc_dict)
     ])
 
-MERGE_CMD = "java -jar MergeSamFiles.jar"
+MERGE_CMD = "condactivate; picard MergeSamFiles"
 rule merge_sample_bam_chunks:
     input:
         bam= lambda wildcards: cmap__bam_chunks(cmap, wildcards)
@@ -37,7 +37,7 @@ rule merge_sample_bam_chunks:
         shell("""
           mkdir -p BAM  # > {o[primary]}.log # DRY_RUN
           if [[ `wc -w <<<"{i[bam]}"` -gt 1 ]]; then
-            {MERGE_CMD} {merge_prefixes} \
+            {merge_command} {merge_prefixes} \
               O={o[primary]} \
               CREATE_INDEX=true \
               MSD=true \
@@ -53,7 +53,7 @@ rule merge_sample_bam_chunks:
                 || echo WARNING bai file $ORIG_BAI not found \ 
                 >&2 # >> {o[primary]}.log # DRY_RUN
           fi  
-        """.format(i=input, o=output, merge_prefixes=" ".join([ "I=" + _prefix for _prefix in input.bam ])))
+        """.format(i=input, o=output, merge_command=MERGE_CMD, merge_prefixes=" ".join([ "I=" + _prefix for _prefix in input.bam ])))
 
 
 def cmap__bam_sample_chunks(cmap, wildcards, out_prefix='', out_suffix=''):
