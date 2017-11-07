@@ -20,13 +20,6 @@ rule align_bwa_mem_samtools:
 						out_suffix="{process}.fastq.gz")
     output: 
         primary = out_chunk_bam_pattern + ".bam"
-
-    wildcard_constraints:
-        sample_name=fh.FastqFile.fields_regex_dic['sample_name'],
-        sample_number=fh.FastqFile.fields_regex_dic['sample_number'],
-        sample_lane=fh.FastqFile.fields_regex_dic['sample_lane'],
-        sample_chunknb=fh.FastqFile.fields_regex_dic['sample_chunknb'],
-        process="(\.\w+)*"
     shell:"""
        # echo PBS -N bwamem -l select=1:ncpus=$(CORES)
        condactivate #> {output[primary]}.out ## DRY_RUN
@@ -50,12 +43,6 @@ rule align_bwa_mem_picard:
     output: 
         primary = out_chunk_bam_pattern + ".bam"
 
-    wildcard_constraints:
-        sample_name=fh.FastqFile.fields_regex_dic['sample_name'],
-        sample_number=fh.FastqFile.fields_regex_dic['sample_number'],
-        sample_lane=fh.FastqFile.fields_regex_dic['sample_lane'],
-        sample_chunknb=fh.FastqFile.fields_regex_dic['sample_chunknb'],
-        process="(\.\w+)*"
     shell:"""
        # echo PBS -N bwamem -l select=1:ncpus=$(CORES)
        condactivate #> {output[primary]}.out ## DRY_RUN

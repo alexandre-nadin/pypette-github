@@ -25,13 +25,6 @@ rule align_chunk_star:
         raw_files = [ out_chunk_bam_pattern + "." + _raw for _raw in
              [ "Log.out", "Log.progress.out", "Log.final.out", "SJ.out.tab" ]
         ]
-
-    wildcard_constraints:
-        sample_name=fh.FastqFile.fields_regex_dic['sample_name'],
-        sample_number=fh.FastqFile.fields_regex_dic['sample_number'],
-        sample_lane=fh.FastqFile.fields_regex_dic['sample_lane'],
-        sample_chunknb=fh.FastqFile.fields_regex_dic['sample_chunknb'],
-        process="(\.\w+)*"
     shell:"""
        condactivate #> {output[primary]}.out ## DRY_RUN
        STAR \

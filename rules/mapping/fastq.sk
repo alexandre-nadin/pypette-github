@@ -50,6 +50,23 @@ rule fastq_samples:
 
 struct_fastq_path="{sample_run}/{sample_name}/{sample_name}_{sample_number}_{sample_lane}_{sample_read}_{sample_chunknb}.fastq.gz"
 struct_chunk=""
+# -------------------------------
+# Wildcards Constraints
+#
+# Organization of the outputs follows a convention both in the naming of the 
+# files as teir directories. As such, we define regex constraints on the rules' 
+# wildcards. Those wildcards are defined outside of the rules, so they are 
+# global to all the rules. Each constraint can then be overritten specifically 
+# in the rule itself.
+# -------------------------------------------------------------------
+wildcard_constraints:
+    sample_name=fh.FastqFile.fields_regex_dic['sample_name'],
+    sample_number=fh.FastqFile.fields_regex_dic['sample_number'],
+    sample_lane=fh.FastqFile.fields_regex_dic['sample_lane'],
+    sample_chunknb=fh.FastqFile.fields_regex_dic['sample_chunknb'],
+    sample_read=fh.FastqFile.fields_regex_dic['sample_read'],
+    process="(\.\w+)*"
+
 # -----------------
 # Link fastq reads
 # -----------------
@@ -87,12 +104,6 @@ rule link_fastq_read:
         fastq_read = lambda wildcards: cmap__fastq_chunks(cmap, wildcards)
     output: 
         primary="{sample_run}/{sample_name}/{sample_name}_{sample_number}_{sample_lane}_{sample_read}_{sample_chunknb}.fastq.gz"
-    wildcard_constraints:
-        sample_name=fh.FastqFile.fields_regex_dic['sample_name'],
-        sample_number=fh.FastqFile.fields_regex_dic['sample_number'],
-        sample_lane=fh.FastqFile.fields_regex_dic['sample_lane'],
-        sample_read=fh.FastqFile.fields_regex_dic['sample_read'],
-        sample_chunknb=fh.FastqFile.fields_regex_dic['sample_chunknb']
     shell:"""
       ln.rel {input[fastq_read]} {output[primary]} 
     """
