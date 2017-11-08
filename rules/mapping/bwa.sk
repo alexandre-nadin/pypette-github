@@ -8,9 +8,9 @@ BWA_CORES = 6
 BWA_REFERENCE_GENOME = ""
 
 out_chunk_bam_pattern="{sample_run}/{sample_name}/{sample_name}_{sample_number}_{sample_lane}_{sample_chunknb}{process}"
-#ruleorder: align_bwa_mem_samtools > align_bwa_mem_picard 
-ruleorder: align_bwa_mem_picard > align_bwa_mem_samtools
-rule align_bwa_mem_samtools:
+#ruleorder: bwa__align_bwa_mem_samtools > bwa__align_bwa_mem_picard 
+ruleorder: bwa__align_bwa_mem_picard > bwa__align_bwa_mem_samtools
+rule bwa__align_bwa_mem_samtools:
     input:
         # samples_map = fastq_samples_map,
         fastq_reads = lambda wildcards: cmap__fastq_reads(
@@ -32,7 +32,7 @@ rule align_bwa_mem_samtools:
      """
 
 PICARD_SORTSAM_SORT_ORER = 'unsorted' # [ 'unsorted', 'queryname', 'coordinate', 'duplicate', 'unknown']
-rule align_bwa_mem_picard:
+rule bwa__align_bwa_mem_picard:
     input:
         # samples_map = fastq_samples_map,
         fastq_reads = lambda wildcards: cmap__fastq_reads(

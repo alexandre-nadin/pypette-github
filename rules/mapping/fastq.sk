@@ -4,11 +4,15 @@ import csv_helper as csvh
 # ---------------------
 # Mapping fastq files
 # ---------------------
+# We first need to define our csv mapper by specifying the column names:
 cmap = csvh.CsvMap('fastq_samples.map', delimitor='\t', colnames=fh.FastqFile.get_field_names()) 
 fastq_map_sep = "\t"
 fastq_samples_map = "fastq_samples.map"
 
-rule fastq_files:
+rule fastq__fastq_files:
+    #
+    # Find all the fastq files in the RUN dirctories found in configuration.
+    #
     output: 
         primary= "fastq_files.txt"
     shell:"""
@@ -16,6 +20,9 @@ rule fastq_files:
     """ 
 
 def get_run_from_filepath(filename):
+    #
+    # 
+    #
     for _run in RUN_IDS:
         run_path = os.sep.join([RUN_BASEDIR, _run, ''])
         if filename.startswith(run_path):
@@ -23,7 +30,7 @@ def get_run_from_filepath(filename):
         else:
            continue
 
-rule fastq_samples:
+rule fastq__fastq_samples:
     #   
     # Maps all the illumina filename metadata in a file.
     #   
@@ -95,7 +102,7 @@ def cmap__fastq_reads(cmap, wildcards, out_prefix='', out_suffix=''):
 
 
 localrules: link_fastq_read
-rule link_fastq_read:
+rule fastq__link_fastq_read:
     #
     # Links original fastq file to the project directory.
     #
@@ -113,7 +120,7 @@ rule link_fastq_read:
 # Fastq Quality
 # ---------------
 FASTQC_CORES = 6
-rule fastqc_file:
+rule fastq__fastqc_file:
     input:
         fastq_in= "{prefix}.fastq.gz"
     output:
@@ -126,7 +133,7 @@ rule fastqc_file:
 # -----------------
 # Fastq Trimming
 # -----------------
-rule fasta_adapters:
+rule fastq__fasta_adapters:
     input: 
         adapter_fasta="/lustre1/genomes/Illumina_Adapters/Adapters.fasta"
         # SUGGESTION: set an ADAPTER_FASTA_PATH variable in config.sk (everything that has hardcoded paths actually)
@@ -157,7 +164,7 @@ TRIMMOMATIC_RAM_JAVA = '10240M'    # *in MB; = TRIMMOMATIC_RAM*1024*
 TRIMMOMATIC_PAIRED = 'PE' if PAIRED in ['Y', True] else 'SE'
 TRIMMOMATIC_HEADCROP = 'HEADCROP:12'        # for QUANTSEQ, leave empty for TruSeq #
 
-rule trimmomatic_fastq:
+rule fastq__trimmomatic_fastq:
     input: 
         fastq_file = "{prefix}.fastq.gz",
         adapter = "adapters.fa"
@@ -180,13 +187,13 @@ rule trimmomatic_fastq:
       #touch {output} # DRY_RUN
     """
 
-#ruleorder: trimmomatic_fastq > cutadapt_fastq > link_fastq_file   
+#ruleorder: fastq__trimmomatic_fastq > fastq__cutadapt_fastq > fastq__link_fastq_file   
 ## TRIMMING with cut_adapt 
 CUTADAPT_B=" -b file:adapters.fa"  #CUT_ADAPTER
 CUTADAPT_Q=" -q 30,30" #TRIM_Q
 CUTADAPT_U=" -u 13" #TRIM_CUT
 CUTADAPT_M=" -m 15" #TRIM_MIN_LEN  # Let always set to avoid read without sequence after trimming
-rule cutadapt_fastq:
+rule fastq__cutadapt_fastq:
     input:
         fastq_file = "{prefix}.fastq.gz",
         adapter = "adapters.fa"

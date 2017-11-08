@@ -11,7 +11,7 @@ STAR_outFilterMismatchNmax = 10
 STAR_GENOME_INDEX = "" 
 
 out_chunk_bam_pattern="{sample_run}/{sample_name}/{sample_name}_{sample_number}_{sample_lane}_{sample_chunknb}{process}"
-rule align_chunk_star:
+rule star__align_chunk_star:
     input:
         # samples_map = fastq_samples_map,
         fastq_reads = lambda wildcards: cmap__fastq_reads(
