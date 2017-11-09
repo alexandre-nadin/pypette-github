@@ -102,7 +102,7 @@ def cmap__fastq_reads(cmap, wildcards, out_prefix='', out_suffix=''):
     ])
 
 
-localrules: link_fastq_read
+localrules: fastq__link_fastq_read
 rule fastq__link_fastq_read:
     #
     # Links original fastq file to the project directory.
