@@ -10,7 +10,6 @@ STAR_CORES = 6
 STAR_outFilterMismatchNmax = 10 
 STAR_GENOME_INDEX = "" 
 
-out_chunk_bam_pattern="{sample_run}/{sample_name}/{sample_name}_{sample_number}_{sample_lane}_{sample_chunknb}{process}"
 rule star__align_chunk_star:
     input:
         # samples_map = fastq_samples_map,
@@ -18,13 +17,15 @@ rule star__align_chunk_star:
 						cmap, 
                     				wildcards, 
  						out_prefix="{sample_run}/{sample_name}/", 
-						out_suffix="{process}.fastq.gz")
+						out_suffix="{preprocesses}.fastq.gz")
     output: 
         primary = out_chunk_bam_pattern + ".bam",
         bam_file_raw = out_chunk_bam_pattern + ".Aligned.sortedByCoord.out.bam",
         raw_files = [ out_chunk_bam_pattern + "." + _raw for _raw in
              [ "Log.out", "Log.progress.out", "Log.final.out", "SJ.out.tab" ]
         ]
+    wildcard_constraints:
+         process="(\.star)?"
     shell:"""
        condactivate #> {output[primary]}.out ## DRY_RUN
        STAR \
@@ -32,7 +33,7 @@ rule star__align_chunk_star:
          --genomeDir {STAR_GENOME_INDEX} \
          --readFilesIn {input[fastq_reads]} \
          --outSAMstrandField intronMotif \
-         --outFileNamePrefix {wildcards.sample_run}/{wildcards.sample_name}/{wildcards.sample_name}_{wildcards.sample_number}_{wildcards.sample_lane}_{wildcards.sample_chunknb}{wildcards.process}. \
+         --outFileNamePrefix {wildcards.sample_run}/{wildcards.sample_name}/{wildcards.sample_name}_{wildcards.sample_number}_{wildcards.sample_lane}_{wildcards.sample_chunknb}{wildcards.preprocesses}. \
          --outSAMtype BAM SortedByCoordinate \
          --outSAMunmapped Within \
          --outFilterMismatchNmax {STAR_outFilterMismatchNmax} \

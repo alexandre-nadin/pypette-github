@@ -72,7 +72,8 @@ wildcard_constraints:
     sample_lane=fh.FastqFile.fields_regex_dic['sample_lane'],
     sample_chunknb=fh.FastqFile.fields_regex_dic['sample_chunknb'],
     sample_read=fh.FastqFile.fields_regex_dic['sample_read'],
-    process="(\.\w+)*"
+    preprocesses="(\.\w+)*?"
+
 
 # -----------------
 # Link fastq reads

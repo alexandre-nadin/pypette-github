@@ -1,3 +1,6 @@
+## Pattern for chunk bams
+out_chunk_bam_pattern="{sample_run}/{sample_name}/{sample_name}_{sample_number}_{sample_lane}_{sample_chunknb}{preprocesses}{process}"
+
 # ------------
 # Merge BAMs
 # ------------
@@ -14,7 +17,7 @@ def cmap__bam_chunks(cmap, wildcards, out_prefix='', out_suffix=''):
                  + '_' + _fastq_map[cmap.colindexes.sample_number]
                  + '_' + _fastq_map[cmap.colindexes.sample_lane]
                  + '_' + _fastq_map[cmap.colindexes.sample_chunknb]
-                 + "{process}.bam"
+                 + "{preprocesses}.bam"
                  + out_suffix
                 ).format(**wc_dict)
               for _fastq_map in cmap.query(**wc_dict)
@@ -25,14 +28,8 @@ rule bam__merge_sample_bam_chunks:
     input:
         bam= lambda wildcards: cmap__bam_chunks(cmap, wildcards)
     output:
-        primary= "BAM/{sample_name}{process}.bam",
-        bai= "BAM/{sample_name}{process}.bai"
-    wildcard_constraints:
-        sample_name=fh.FastqFile.fields_regex_dic['sample_name'],
-        sample_number=fh.FastqFile.fields_regex_dic['sample_number'],
-        sample_lane=fh.FastqFile.fields_regex_dic['sample_lane'],
-        sample_chunknb=fh.FastqFile.fields_regex_dic['sample_chunknb'],
-        process="(\.\w+)*"
+        primary= "BAM/{sample_name}{preprocesses}.bam",
+        bai= "BAM/{sample_name}{preprocesses}.bai"
     run:
         shell("""
           mkdir -p BAM  # > {o[primary]}.log # DRY_RUN
@@ -78,7 +75,6 @@ rule bam__merge_all_bam_chunks:
     output: 
         primary= "all_bam_chunks_merged{process}.done"
     wildcard_constraints:
-        sample_name=fh.FastqFile.fields_regex_dic['sample_name'],
         process="(\.\w+)*"
     shell:"""
       touch {output}

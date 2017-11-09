@@ -7,7 +7,6 @@
 BWA_CORES = 6
 BWA_REFERENCE_GENOME = ""
 
-out_chunk_bam_pattern="{sample_run}/{sample_name}/{sample_name}_{sample_number}_{sample_lane}_{sample_chunknb}{process}"
 #ruleorder: bwa__align_bwa_mem_samtools > bwa__align_bwa_mem_picard 
 ruleorder: bwa__align_bwa_mem_picard > bwa__align_bwa_mem_samtools
 rule bwa__align_bwa_mem_samtools:
@@ -17,9 +16,11 @@ rule bwa__align_bwa_mem_samtools:
 						cmap, 
                     				wildcards, 
  						out_prefix="{sample_run}/{sample_name}/", 
-						out_suffix="{process}.fastq.gz")
+						out_suffix="{preprocesses}.fastq.gz")
     output: 
         primary = out_chunk_bam_pattern + ".bam"
+    wildcard_constraints:
+         process="(\.bwa_mem_samtools)?"
     shell:"""
        # echo PBS -N bwamem -l select=1:ncpus=$(CORES)
        condactivate #> {output[primary]}.out ## DRY_RUN
@@ -39,10 +40,11 @@ rule bwa__align_bwa_mem_picard:
 						cmap, 
                     				wildcards, 
  						out_prefix="{sample_run}/{sample_name}/", 
-						out_suffix="{process}.fastq.gz")
+						out_suffix="{preprocesses}.fastq.gz")
     output: 
         primary = out_chunk_bam_pattern + ".bam"
-
+    wildcard_constraints:
+         process="(\.bwa_mem_picard)?"
     shell:"""
        # echo PBS -N bwamem -l select=1:ncpus=$(CORES)
        condactivate #> {output[primary]}.out ## DRY_RUN
