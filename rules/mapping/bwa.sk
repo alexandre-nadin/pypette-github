@@ -1,9 +1,10 @@
 # ----------------
-# STAR alignment
+# BWA  alignment
 # ----------------
 # Align Parameters
 # snakemake -p RULE/FILE --use-conda # --cluster 'qsub' --jobs 9999 --latency-wait 10
 #snakemake -p run2/36258535_id/36258535_id_S10_L5_001.bam --cluster-config cluster.yaml  --cluster 'qsub -N {cluster.name} -l select={cluster.select}:ncpus={cluster.cores}:mem={cluster.mem}' --jobs 9999  --latency-wait 10
+include: 'bam.sk'
 BWA_CORES = 6
 BWA_REFERENCE_GENOME = ""
 

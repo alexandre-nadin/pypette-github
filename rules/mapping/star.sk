@@ -4,6 +4,7 @@
 # Align Parameters
 # snakemake -p RULE/FILE --use-conda # --cluster 'qsub' --jobs 9999 --latency-wait 10
 #snakemake -p run2/36258535_id/36258535_id_S10_L5_001.bam --cluster-config cluster.yaml  --cluster 'qsub -N {cluster.name} -l select={cluster.select}:ncpus={cluster.cores}:mem={cluster.mem}' --jobs 9999  --latency-wait 10
+include: 'bam.sk'
 STAR_VERSION = "STAR_2.5.3a"
 STAR_RAM = "32gb"
 STAR_CORES = 6

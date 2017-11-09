@@ -15,3 +15,17 @@ def lshell(command, allow_empty_lines=False):
 
 PBS_DIR = 'pbs'
 PAIRED = 'Y'
+
+# -----------------------------
+# Import all available modules
+# -----------------------------
+# Include all available modules that are not Snakemake configuration files
+#
+import glob
+snakemake_modules = [ _sk for _sk in glob.glob(CTGB_PIPE_DIR + "/rules/mapping/*.sk")
+                        if not _sk.endswith('_config.sk')
+                    ]
+#print("snakemake_modules: {}".format(snakemake_modules))
+for _sk_module in snakemake_modules:
+    #print("including module '{}'".format(_sk_module))
+    include: _sk_module

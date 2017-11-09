@@ -1,3 +1,5 @@
+include: 'fastq.sk'
+
 ## Pattern for chunk bams
 out_chunk_bam_pattern="{sample_run}/{sample_name}/{sample_name}_{sample_number}_{sample_lane}_{sample_chunknb}{preprocesses}{process}"
 
