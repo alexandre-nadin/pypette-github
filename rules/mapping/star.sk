@@ -34,7 +34,7 @@ rule star__align_chunk_star:
          --genomeDir {STAR_GENOME_INDEX} \
          --readFilesIn {input[fastq_reads]} \
          --outSAMstrandField intronMotif \
-         --outFileNamePrefix {wildcards.sample_run}/{wildcards.sample_name}/{wildcards.sample_name}_{wildcards.sample_number}_{wildcards.sample_lane}_{wildcards.sample_chunknb}{wildcards.preprocesses}. \
+         --outFileNamePrefix {wildcards.sample_run}/{wildcards.sample_name}/{wildcards.sample_name}_{wildcards.sample_number}_{wildcards.sample_lane}_{wildcards.sample_chunknb}{wildcards.preprocesses}{wildcards.process}. \
          --outSAMtype BAM SortedByCoordinate \
          --outSAMunmapped Within \
          --outFilterMismatchNmax {STAR_outFilterMismatchNmax} \
