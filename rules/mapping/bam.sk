@@ -30,8 +30,10 @@ rule bam__merge_sample_bam_chunks:
     input:
         bam= lambda wildcards: cmap__bam_chunks(cmap, wildcards)
     output:
-        primary= "BAM/{sample_name}{preprocesses}.bam",
-        bai= "BAM/{sample_name}{preprocesses}.bai"
+        primary= "BAM/{sample_name}{preprocesses}{process}.bam",
+        bai= "BAM/{sample_name}{preprocesses}{process}.bai"
+    wildcard_constraints:
+        process="(\.merged)?"
     run:
         shell("""
           mkdir -p BAM  # > {o[primary]}.log # DRY_RUN
@@ -64,21 +66,18 @@ def cmap__bam_sample_chunks(cmap, wildcards, out_prefix='', out_suffix=''):
                    out_prefix
                  + "BAM"
                  + os.sep + _fastq_map[cmap.colindexes.sample_name]
-                 + "{process}.bam"
+                 + "{preprocesses}.bam"
                  + out_suffix
                 ).format(**wc_dict)
               for _fastq_map in cmap.query(**wc_dict)
     ])
 
-rule bam__merge_all_bam_chunks:
+rule bam__all_bam_chunks:
     input: 
         cmap= fastq_samples_map,
         bams= lambda wildcards: cmap__bam_sample_chunks(cmap, wildcards)
     output: 
-        primary= "all_bam_chunks_merged{process}.done"
-    wildcard_constraints:
-        process="(\.\w+)*"
+        primary= "all_bam_chunks{preprocesses}.done"
     shell:"""
       touch {output}
     """
-
