@@ -13,13 +13,13 @@ ruleorder: bwa__align_bwa_mem_picard > bwa__align_bwa_mem_samtools
 rule bwa__align_bwa_mem_samtools:
     input:
         # samples_map = fastq_samples_map,
-        fastq_reads = lambda wildcards: cmap__fastq_reads(
-						cmap, 
-                    				wildcards, 
- 						out_prefix="{sample_run}/{sample_name}/", 
-						out_suffix="{preprocesses}.fastq.gz")
+        fastq_reads= lambda wildcards: cmap__format_str_from_query_dict(
+                  csvmap=cmap, 
+                  str_format="{sample_run}/{sample_name}/{sample_chunkname}",
+                  out_suffix="{preprocesses}.fastq.gz",
+                  query_dict=wildcards)
     output: 
-        primary = out_chunk_bam_pattern + ".bam"
+        primary = out_chunk_bam_pattern + "{preprocesses}{process}.bam"
     wildcard_constraints:
          process="(\.bwa_mem_samtools)?"
     shell:"""
@@ -36,14 +36,13 @@ rule bwa__align_bwa_mem_samtools:
 PICARD_SORTSAM_SORT_ORER = 'unsorted' # [ 'unsorted', 'queryname', 'coordinate', 'duplicate', 'unknown']
 rule bwa__align_bwa_mem_picard:
     input:
-        # samples_map = fastq_samples_map,
-        fastq_reads = lambda wildcards: cmap__fastq_reads(
-						cmap, 
-                    				wildcards, 
- 						out_prefix="{sample_run}/{sample_name}/", 
-						out_suffix="{preprocesses}.fastq.gz")
+        fastq_reads= lambda wildcards: cmap__format_str_from_query_dict(
+                  csvmap=cmap, 
+                  str_format="{sample_run}/{sample_name}/{sample_chunkname}",
+                  out_suffix="{preprocesses}.fastq.gz",
+                  query_dict=wildcards)
     output: 
-        primary = out_chunk_bam_pattern + ".bam"
+        primary = out_chunk_bam_pattern + "{preprocesses}{process}.bam"
     wildcard_constraints:
          process="(\.bwa_mem_picard)?"
     shell:"""

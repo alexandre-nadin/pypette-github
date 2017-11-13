@@ -1,34 +1,21 @@
 include: 'fastq.sk'
 
 ## Pattern for chunk bams
-out_chunk_bam_pattern="{sample_run}/{sample_name}/{sample_name}_{sample_number}_{sample_lane}_{sample_chunknb}{preprocesses}{process}"
+out_chunk_bam_pattern="{sample_run}/{sample_name}/{sample_name}_{sample_number}_{sample_lane}_{sample_chunknb}"
 
 # ------------
 # Merge BAMs
 # ------------
-def cmap__bam_chunks(cmap, wildcards, out_prefix='', out_suffix=''):
-    #
-    # Gets all the fastq chunknames from a Snakemake rule's wildcards. 
-    #
-    wc_dict = dict(wildcards.items())
-    return set([ str(
-                   out_prefix
-                 + _fastq_map[cmap.colindexes.sample_run] 
-                 + os.sep + _fastq_map[cmap.colindexes.sample_name]
-                 + os.sep + _fastq_map[cmap.colindexes.sample_name]
-                 + '_' + _fastq_map[cmap.colindexes.sample_number]
-                 + '_' + _fastq_map[cmap.colindexes.sample_lane]
-                 + '_' + _fastq_map[cmap.colindexes.sample_chunknb]
-                 + "{preprocesses}.bam"
-                 + out_suffix
-                ).format(**wc_dict)
-              for _fastq_map in cmap.query(**wc_dict)
-    ])
+chunks_path_format="{sample_run}/{sample_name}/{sample_name}_{sample_number}_{sample_lane}_{sample_chunknb}"
 
 MERGE_CMD = "condactivate; picard MergeSamFiles"
 rule bam__merge_sample_bam_chunks:
     input:
-        bam= lambda wildcards: cmap__bam_chunks(cmap, wildcards)
+        bam= lambda wildcards: cmap__format_str_from_query_dict(
+                  csvmap=cmap, 
+                  str_format=chunks_path_format,
+                  query_dict=wildcards, 
+                  out_suffix='{preprocesses}.bam')
     output:
         primary= "BAM/{sample_name}{preprocesses}{process}.bam",
         bai= "BAM/{sample_name}{preprocesses}{process}.bai"
@@ -56,26 +43,14 @@ rule bam__merge_sample_bam_chunks:
           fi  
         """.format(i=input, o=output, merge_command=MERGE_CMD, merge_prefixes=" ".join([ "I=" + _prefix for _prefix in input.bam ])))
 
-
-def cmap__bam_sample_chunks(cmap, wildcards, out_prefix='', out_suffix=''):
-    #
-    # Gets the path of all expected sample bams.
-    #
-    wc_dict = dict(wildcards.items())
-    return set([ str(
-                   out_prefix
-                 + "BAM"
-                 + os.sep + _fastq_map[cmap.colindexes.sample_name]
-                 + "{preprocesses}.bam"
-                 + out_suffix
-                ).format(**wc_dict)
-              for _fastq_map in cmap.query(**wc_dict)
-    ])
-
 rule bam__all_bam_chunks:
     input: 
         cmap= fastq_samples_map,
-        bams= lambda wildcards: cmap__bam_sample_chunks(cmap, wildcards)
+        bams= lambda wildcards: cmap__format_str_from_query_dict(
+                  csvmap=cmap, 
+                  str_format="BAM/{sample_name}", 
+                  out_suffix='{preprocesses}.bam',
+                  query_dict=wildcards)
     output: 
         primary= "all_bam_chunks{preprocesses}.done"
     shell:"""

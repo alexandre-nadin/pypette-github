@@ -14,15 +14,16 @@ STAR_GENOME_INDEX = ""
 rule star__align_chunk_star:
     input:
         # samples_map = fastq_samples_map,
-        fastq_reads = lambda wildcards: cmap__fastq_reads(
-						cmap, 
-                    				wildcards, 
- 						out_prefix="{sample_run}/{sample_name}/", 
-						out_suffix="{preprocesses}.fastq.gz")
+        fastq_reads= lambda wildcards: cmap__format_str_from_query_dict(
+                  csvmap=cmap, 
+                  str_format="{sample_run}/{sample_name}/{sample_chunkname}",
+                  out_suffix="{preprocesses}.fastq.gz",
+                  query_dict=wildcards)
+
     output: 
-        primary = out_chunk_bam_pattern + ".bam",
-        bam_file_raw = out_chunk_bam_pattern + ".Aligned.sortedByCoord.out.bam",
-        raw_files = [ out_chunk_bam_pattern + "." + _raw for _raw in
+        primary = out_chunk_bam_pattern + "{preprocesses}{process}.bam",
+        bam_file_raw = out_chunk_bam_pattern + "{preprocesses}{process}.Aligned.sortedByCoord.out.bam",
+        raw_files = [ out_chunk_bam_pattern + "{preprocesses}{process}." + _raw for _raw in
              [ "Log.out", "Log.progress.out", "Log.final.out", "SJ.out.tab" ]
         ]
     wildcard_constraints:

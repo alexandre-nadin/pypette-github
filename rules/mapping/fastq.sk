@@ -21,7 +21,7 @@ rule fastq__fastq_files:
 
 def get_run_from_filepath(filename):
     #
-    # 
+    # Retrieve a Run id from a file containing paths.
     #
     for _run in RUN_IDS:
         run_path = os.sep.join([RUN_BASEDIR, _run, ''])
@@ -55,7 +55,7 @@ rule fastq__fastq_samples:
                       ]   
                      ), os.linesep))
 
-struct_fastq_path="{sample_run}/{sample_name}/{sample_name}_{sample_number}_{sample_lane}_{sample_read}_{sample_chunknb}.fastq.gz"
+fastq_path_format="{sample_run}/{sample_name}/{sample_name}_{sample_number}_{sample_lane}_{sample_read}_{sample_chunknb}.fastq.gz"
 struct_chunk=""
 # -------------------------------
 # Wildcards Constraints
@@ -78,30 +78,6 @@ wildcard_constraints:
 # -----------------
 # Link fastq reads
 # -----------------
-def cmap__query_wildcards(cmap, wildcards):
-    return cmap.query(**dict(wildcards.items()))
-
-def cmap__fastq_chunks(cmap, wildcards, out_prefix='', out_suffix=''):
-    return [
-      out_prefix + _fastq_map[cmap.colindexes.sample_path] + out_suffix
-              for _fastq_map in 
-          cmap.query(**dict(wildcards.items()))
-    ]
-
-def cmap__fastq_reads(cmap, wildcards, out_prefix='', out_suffix=''):
-    #
-    # Gets all the fastq chunknames from a Snakemake rule's wildcards. 
-    #
-    wc_dict = dict(wildcards.items())
-    return set([ str(
-                   out_prefix
-                 + _fastq_map[cmap.colindexes.sample_chunkname] 
-                 + out_suffix
-                ).format(**wc_dict)
-              for _fastq_map in cmap.query(**wc_dict)
-    ])
-
-
 localrules: fastq__link_fastq_read
 rule fastq__link_fastq_read:
     #
@@ -109,9 +85,12 @@ rule fastq__link_fastq_read:
     #
     input:
         #samples_map = fastq_samples_map,
-        fastq_read = lambda wildcards: cmap__fastq_chunks(cmap, wildcards)
+        fastq_read= lambda wildcards: cmap__format_str_from_query_dict(
+                  csvmap=cmap, 
+                  str_format="{sample_path}",
+                  query_dict=wildcards)
     output: 
-        primary="{sample_run}/{sample_name}/{sample_name}_{sample_number}_{sample_lane}_{sample_read}_{sample_chunknb}.fastq.gz"
+        primary=fastq_path_format
     shell:"""
       ln.rel {input[fastq_read]} {output[primary]} 
     """
@@ -212,4 +191,19 @@ rule fastq__cutadapt_fastq:
       #touch {output} # DRY_RUN
     """
 
-
+# ----------
+# All fastq
+# ----------
+#rule bam__all_bam_chunks:
+#    input: 
+#        cmap= fastq_samples_map,
+#        bams= lambda wildcards: cmap__format_str_from_query_dict(
+#                  csvmap=cmap, 
+#                  str_format="BAM/{sample_name}", 
+#                  out_suffix='{preprocesses}.bam',
+#                  query_dict=wildcards)
+#    output: 
+#        primary= "all_bam_chunks{preprocesses}.done"
+#    shell:"""
+#      touch {output}
+#    """
