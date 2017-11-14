@@ -1,11 +1,10 @@
-import fastq_helper as fh
 import csv_helper as csvh
 
 # ---------------------
 # Mapping fastq files
 # ---------------------
 # We first need to define our csv mapper by specifying the column names:
-cmap = csvh.CsvMap('fastq_samples.map', delimitor='\t', colnames=fh.FastqFile.get_field_names()) 
+cmap = csvh.CsvMap('fastq_samples.map', delimitor='\t', colnames=fastq_helper.FastqFile.get_field_names()) 
 fastq_map_sep = "\t"
 fastq_samples_map = "fastq_samples.map"
 
@@ -45,13 +44,13 @@ rule fastq__fastq_samples:
                 sample_run = get_run_from_filepath(_file)
 
                 ## Get file's info
-                fastqfile = fh.FastqFile(_file.strip(), run_name=sample_run)
+                fastqfile = fastq_helper.FastqFile(_file.strip(), run_name=sample_run)
 
                 ## Write to output
                 with open(output['primary'], 'a') as fmap:
                     fmap.write("{}{}".format(fastq_map_sep.join(
                       [fastqfile.__dict__[_field] \
-                        for _field in list(fh.FastqFile.get_field_names())
+                        for _field in list(fastq_helper.FastqFile.get_field_names())
                       ]   
                      ), os.linesep))
 

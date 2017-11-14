@@ -3,6 +3,7 @@ import sys
 import subprocess
 #sys.path.insert(0, CTGB_PIPE_DIR + "/python-lib") # TODO: make python package and install from conda/pip
 sys.path.insert(0, "../../../local/ctgb-pipe/python-lib") # TODO: make python package and install from conda/pip.
+import fastq_helper
 
 def lshell(command, allow_empty_lines=False):
     #
@@ -48,12 +49,12 @@ merged_bam_format="BAM/{sample_name}{preprocesses}"
 # in the rule itself.
 # -------------------------------------------------------------------
 wildcard_constraints:
-    sample_name=fh.FastqFile.fields_regex_dic['sample_name'],
-    sample_number=fh.FastqFile.fields_regex_dic['sample_number'],
-    sample_lane=fh.FastqFile.fields_regex_dic['sample_lane'],
-    sample_chunknb=fh.FastqFile.fields_regex_dic['sample_chunknb'],
-    sample_read=fh.FastqFile.fields_regex_dic['sample_read'],
-    preprocesses="(\.\w+)*?"
+    sample_name= fastq_helper.FastqFile.fields_regex_dic['sample_name'],
+    sample_number= fastq_helper.FastqFile.fields_regex_dic['sample_number'],
+    sample_lane= fastq_helper.FastqFile.fields_regex_dic['sample_lane'],
+    sample_chunknb= fastq_helper.FastqFile.fields_regex_dic['sample_chunknb'],
+    sample_read= fastq_helper.FastqFile.fields_regex_dic['sample_read'],
+    preprocesses= "(\.\w+)*?"
 
 
 # -----------------------------
