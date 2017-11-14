@@ -68,3 +68,19 @@ HERE
                tmp_name = "{{config[project][type]}}",
                tmp_primary = "{{output.primary}}"
     ))
+
+# -----------------------
+# Rules Bulk Processing
+# -----------------------
+rule all_samples:
+    input: 
+        fastq_map= fastq_samples_map,
+        bams= lambda wildcards: csvmap__format_str_from_query_dict(
+                  csvmap=fastq_csvmap, 
+                  str_format=merged_bam_format, 
+                  **wildcards)
+    output: 
+        primary= "all_samples{preprocesses}.done"
+    shell:"""
+      touch {output}
+    """

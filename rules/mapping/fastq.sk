@@ -169,18 +169,6 @@ rule fastq__cutadapt_fastq:
       #touch {output} # DRY_RUN
     """
 
-# ----------
-# All fastq
-# ----------
-#rule bam__all_bam_chunks:
-#    input: 
-#        fastq_map= fastq_samples_map,
-#        bams= lambda wildcards: csvmap__format_str_from_query_dict(
-#                  csvmap=fastq_csvmap, 
-#                  str_format="BAM/{sample_name}{preprocesses}.bam", 
-#                  **wildcards)
-#    output: 
-#        primary= "all_bam_chunks{preprocesses}.done"
-#    shell:"""
-#      touch {output}
-#    """
+    shell:"""
+      touch {output}
+    """

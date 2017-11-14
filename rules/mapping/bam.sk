@@ -36,16 +36,3 @@ rule bam__merge_sample_bam_chunks:
                 >&2 # >> {o[primary]}.log # DRY_RUN
           fi  
         """.format(i=input, o=output, merge_command=MERGE_CMD, merge_prefixes=" ".join([ "I=" + _prefix for _prefix in input.bam ])))
-
-rule bam__all_bam_chunks:
-    input: 
-        fastq_map= fastq_samples_map,
-        bams= lambda wildcards: csvmap__format_str_from_query_dict(
-                  csvmap=fastq_csvmap, 
-                  str_format=merged_bam_format + ".bam", 
-                  **wildcards)
-    output: 
-        primary= "all_bam_chunks{preprocesses}.done"
-    shell:"""
-      touch {output}
-    """
