@@ -1,10 +1,8 @@
-import csv_helper as csvh
-
 # ---------------------
 # Mapping fastq files
 # ---------------------
 # We first need to define our csv mapper by specifying the column names:
-cmap = csvh.CsvMap('fastq_samples.map', delimitor='\t', colnames=fastq_helper.FastqFile.get_field_names()) 
+fastq_csvmap = csvh.CsvMap('fastq_samples.map', delimitor='\t', colnames=fastq_helper.FastqFile.get_field_names()) 
 fastq_map_sep = "\t"
 fastq_samples_map = "fastq_samples.map"
 
@@ -65,8 +63,8 @@ rule fastq__link_fastq_read:
     #
     input:
         #samples_map = fastq_samples_map,
-        fastq_read= lambda wildcards: cmap__format_str_from_query_dict(
-                  csvmap=cmap, 
+        fastq_read= lambda wildcards: csvmap__format_str_from_query_dict(
+                  csvmap=fastq_csvmap, 
                   str_format="{sample_path}",
                   **wildcards)
     output: 
@@ -176,9 +174,9 @@ rule fastq__cutadapt_fastq:
 # ----------
 #rule bam__all_bam_chunks:
 #    input: 
-#        cmap= fastq_samples_map,
-#        bams= lambda wildcards: cmap__format_str_from_query_dict(
-#                  csvmap=cmap, 
+#        fastq_map= fastq_samples_map,
+#        bams= lambda wildcards: csvmap__format_str_from_query_dict(
+#                  csvmap=fastq_csvmap, 
 #                  str_format="BAM/{sample_name}{preprocesses}.bam", 
 #                  **wildcards)
 #    output: 

@@ -6,8 +6,8 @@ include: 'fastq.sk'
 MERGE_CMD = "condactivate; picard MergeSamFiles"
 rule bam__merge_sample_bam_chunks:
     input:
-        bam= lambda wildcards: cmap__format_str_from_query_dict(
-                  csvmap=cmap, 
+        bam= lambda wildcards: csvmap__format_str_from_query_dict(
+                  csvmap=fastq_csvmap, 
                   str_format=chunks_path_format + '.bam',
                   **wildcards)
     output:
@@ -39,9 +39,9 @@ rule bam__merge_sample_bam_chunks:
 
 rule bam__all_bam_chunks:
     input: 
-        cmap= fastq_samples_map,
-        bams= lambda wildcards: cmap__format_str_from_query_dict(
-                  csvmap=cmap, 
+        fastq_map= fastq_samples_map,
+        bams= lambda wildcards: csvmap__format_str_from_query_dict(
+                  csvmap=fastq_csvmap, 
                   str_format=merged_bam_format + ".bam", 
                   **wildcards)
     output: 

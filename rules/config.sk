@@ -4,6 +4,7 @@ import subprocess
 #sys.path.insert(0, CTGB_PIPE_DIR + "/python-lib") # TODO: make python package and install from conda/pip
 sys.path.insert(0, "../../../local/ctgb-pipe/python-lib") # TODO: make python package and install from conda/pip.
 import fastq_helper
+import csv_helper as csvh
 
 def lshell(command, allow_empty_lines=False):
     #
@@ -14,12 +15,12 @@ def lshell(command, allow_empty_lines=False):
     out = subprocess.check_output(command, shell=True).decode().split(os.linesep)
     return out if allow_empty_lines else [ _elem for _elem in out if _elem ] 
 
-def cmap__format_str_from_query_dict(csvmap, str_format="", **query_dict):
+def csvmap__format_str_from_query_dict(csvmap, str_format="", **query_dict):
     #
     # Queries a CSVMap object based on a given dictionary.
     #
     return set([ str_format.format(**_cmap)
-                 for _cmap in cmap.query_dict(**query_dict)
+                 for _cmap in csvmap.query_dict(**query_dict)
                ])
 
 PBS_DIR = 'pbs'

@@ -14,8 +14,8 @@ STAR_GENOME_INDEX = ""
 rule star__align_chunk_star:
     input:
         # samples_map = fastq_samples_map,
-        fastq_reads= lambda wildcards: cmap__format_str_from_query_dict(
-                  csvmap=cmap, 
+        fastq_reads= lambda wildcards: csvmap__format_str_from_query_dict(
+                  csvmap=fastq_csvmap, 
                   str_format=chunk_fastq_format + ".fastq.gz",
                   **wildcards)
     output: 
