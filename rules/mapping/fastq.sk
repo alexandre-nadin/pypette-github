@@ -88,7 +88,7 @@ rule fastq__link_fastq_read:
         fastq_read= lambda wildcards: cmap__format_str_from_query_dict(
                   csvmap=cmap, 
                   str_format="{sample_path}",
-                  query_dict=wildcards)
+                  **wildcards)
     output: 
         primary=fastq_path_format
     shell:"""
@@ -199,9 +199,8 @@ rule fastq__cutadapt_fastq:
 #        cmap= fastq_samples_map,
 #        bams= lambda wildcards: cmap__format_str_from_query_dict(
 #                  csvmap=cmap, 
-#                  str_format="BAM/{sample_name}", 
-#                  out_suffix='{preprocesses}.bam',
-#                  query_dict=wildcards)
+#                  str_format="BAM/{sample_name}{preprocesses}.bam", 
+#                  **wildcards)
 #    output: 
 #        primary= "all_bam_chunks{preprocesses}.done"
 #    shell:"""

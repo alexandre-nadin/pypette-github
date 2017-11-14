@@ -13,9 +13,8 @@ rule bam__merge_sample_bam_chunks:
     input:
         bam= lambda wildcards: cmap__format_str_from_query_dict(
                   csvmap=cmap, 
-                  str_format=chunks_path_format,
-                  query_dict=wildcards, 
-                  out_suffix='{preprocesses}.bam')
+                  str_format=chunks_path_format + '{preprocesses}.bam',
+                  **wildcards)
     output:
         primary= "BAM/{sample_name}{preprocesses}{process}.bam",
         bai= "BAM/{sample_name}{preprocesses}{process}.bai"
@@ -48,9 +47,8 @@ rule bam__all_bam_chunks:
         cmap= fastq_samples_map,
         bams= lambda wildcards: cmap__format_str_from_query_dict(
                   csvmap=cmap, 
-                  str_format="BAM/{sample_name}", 
-                  out_suffix='{preprocesses}.bam',
-                  query_dict=wildcards)
+                  str_format="BAM/{sample_name}{preprocesses}.bam", 
+                  **wildcards)
     output: 
         primary= "all_bam_chunks{preprocesses}.done"
     shell:"""

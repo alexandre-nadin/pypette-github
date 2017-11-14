@@ -15,9 +15,8 @@ rule bwa__align_bwa_mem_samtools:
         # samples_map = fastq_samples_map,
         fastq_reads= lambda wildcards: cmap__format_str_from_query_dict(
                   csvmap=cmap, 
-                  str_format="{sample_run}/{sample_name}/{sample_chunkname}",
-                  out_suffix="{preprocesses}.fastq.gz",
-                  query_dict=wildcards)
+                  str_format="{sample_run}/{sample_name}/{sample_chunkname}{preprocesses}.fastq.gz",
+                  **wildcards)
     output: 
         primary = out_chunk_bam_pattern + "{preprocesses}{process}.bam"
     wildcard_constraints:
@@ -38,9 +37,8 @@ rule bwa__align_bwa_mem_picard:
     input:
         fastq_reads= lambda wildcards: cmap__format_str_from_query_dict(
                   csvmap=cmap, 
-                  str_format="{sample_run}/{sample_name}/{sample_chunkname}",
-                  out_suffix="{preprocesses}.fastq.gz",
-                  query_dict=wildcards)
+                  str_format="{sample_run}/{sample_name}/{sample_chunkname}{preprocesses}.fastq.gz",
+                  **wildcards)
     output: 
         primary = out_chunk_bam_pattern + "{preprocesses}{process}.bam"
     wildcard_constraints:
