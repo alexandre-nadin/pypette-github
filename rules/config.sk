@@ -34,7 +34,6 @@ PAIRED = 'Y'
 #   - {process} is only for outputs as it is about the process defined by the
 #     current rule.
 # --------------------- 
-chunks_path_format="{sample_run}/{sample_name}/{sample_name}_{sample_number}_{sample_lane}_{sample_chunknb}{preprocesses}"
 chunk_fastq_format="{sample_run}/{sample_name}/{sample_chunkname}{preprocesses}"
 chunk_bam_format="{sample_run}/{sample_name}/{sample_name}_{sample_number}_{sample_lane}_{sample_chunknb}{preprocesses}"
 merged_bam_format="BAM/{sample_name}{preprocesses}"
