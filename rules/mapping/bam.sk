@@ -1,23 +1,18 @@
 include: 'fastq.sk'
 
-## Pattern for chunk bams
-out_chunk_bam_pattern="{sample_run}/{sample_name}/{sample_name}_{sample_number}_{sample_lane}_{sample_chunknb}"
-
 # ------------
 # Merge BAMs
 # ------------
-chunks_path_format="{sample_run}/{sample_name}/{sample_name}_{sample_number}_{sample_lane}_{sample_chunknb}"
-
 MERGE_CMD = "condactivate; picard MergeSamFiles"
 rule bam__merge_sample_bam_chunks:
     input:
         bam= lambda wildcards: cmap__format_str_from_query_dict(
                   csvmap=cmap, 
-                  str_format=chunks_path_format + '{preprocesses}.bam',
+                  str_format=chunks_path_format + '.bam',
                   **wildcards)
     output:
-        primary= "BAM/{sample_name}{preprocesses}{process}.bam",
-        bai= "BAM/{sample_name}{preprocesses}{process}.bai"
+        primary= merged_bam_format + "{process}.bam",
+        bai= merged_bam_format + "{process}.bai"
     wildcard_constraints:
         process="(\.merged)?"
     run:
@@ -47,7 +42,7 @@ rule bam__all_bam_chunks:
         cmap= fastq_samples_map,
         bams= lambda wildcards: cmap__format_str_from_query_dict(
                   csvmap=cmap, 
-                  str_format="BAM/{sample_name}{preprocesses}.bam", 
+                  str_format=merged_bam_format + ".bam", 
                   **wildcards)
     output: 
         primary= "all_bam_chunks{preprocesses}.done"

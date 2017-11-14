@@ -24,16 +24,46 @@ def cmap__format_str_from_query_dict(csvmap, str_format="", **query_dict):
 PBS_DIR = 'pbs'
 PAIRED = 'Y'
 
+# --------------------- 
+# I/O files format
+#
+# Convention: 
+#   - {preprocesses} should be present both in the input and output. Can be empty.
+#   - {process} is only for outputs as it is about the process defined by the
+#     current rule.
+# --------------------- 
+chunks_path_format="{sample_run}/{sample_name}/{sample_name}_{sample_number}_{sample_lane}_{sample_chunknb}{preprocesses}"
+chunk_fastq_format="{sample_run}/{sample_name}/{sample_chunkname}{preprocesses}"
+chunk_bam_format="{sample_run}/{sample_name}/{sample_name}_{sample_number}_{sample_lane}_{sample_chunknb}{preprocesses}"
+merged_bam_format="BAM/{sample_name}{preprocesses}"
+
+
+# -------------------------------
+# Wildcards Constraints
+#
+# Organization of the outputs follows a convention both in the naming of the 
+# files as teir directories. As such, we define regex constraints on the rules' 
+# wildcards. Those wildcards are defined outside of the rules, so they are 
+# global to all the rules. Each constraint can then be overritten specifically 
+# in the rule itself.
+# -------------------------------------------------------------------
+wildcard_constraints:
+    sample_name=fh.FastqFile.fields_regex_dic['sample_name'],
+    sample_number=fh.FastqFile.fields_regex_dic['sample_number'],
+    sample_lane=fh.FastqFile.fields_regex_dic['sample_lane'],
+    sample_chunknb=fh.FastqFile.fields_regex_dic['sample_chunknb'],
+    sample_read=fh.FastqFile.fields_regex_dic['sample_read'],
+    preprocesses="(\.\w+)*?"
+
+
 # -----------------------------
 # Import all available modules
 # -----------------------------
-# Include all available modules that are not Snakemake configuration files
+# Includes all available modules that are not Snakemake configuration files
 #
 import glob
 snakemake_modules = [ _sk for _sk in glob.glob(CTGB_PIPE_DIR + "/rules/mapping/*.sk")
                         if not _sk.endswith('_config.sk')
                     ]
-#print("snakemake_modules: {}".format(snakemake_modules))
 for _sk_module in snakemake_modules:
-    #print("including module '{}'".format(_sk_module))
     include: _sk_module

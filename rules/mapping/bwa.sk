@@ -15,12 +15,12 @@ rule bwa__align_bwa_mem_samtools:
         # samples_map = fastq_samples_map,
         fastq_reads= lambda wildcards: cmap__format_str_from_query_dict(
                   csvmap=cmap, 
-                  str_format="{sample_run}/{sample_name}/{sample_chunkname}{preprocesses}.fastq.gz",
+                  str_format=chunk_fastq_format + ".fastq.gz",
                   **wildcards)
     output: 
-        primary = out_chunk_bam_pattern + "{preprocesses}{process}.bam"
+        primary = chunk_bam_format + "{process}.bam"
     wildcard_constraints:
-         process="(\.bwa_mem_samtools)?"
+         process="(\.bwa_mem_samtools)"
     shell:"""
        # echo PBS -N bwamem -l select=1:ncpus=$(CORES)
        condactivate #> {output[primary]}.out ## DRY_RUN
@@ -37,12 +37,12 @@ rule bwa__align_bwa_mem_picard:
     input:
         fastq_reads= lambda wildcards: cmap__format_str_from_query_dict(
                   csvmap=cmap, 
-                  str_format="{sample_run}/{sample_name}/{sample_chunkname}{preprocesses}.fastq.gz",
+                  str_format=chunk_fastq_format + ".fastq.gz",
                   **wildcards)
     output: 
-        primary = out_chunk_bam_pattern + "{preprocesses}{process}.bam"
+        primary = chunk_bam_format + "{process}.bam"
     wildcard_constraints:
-         process="(\.bwa_mem_picard)?"
+         process="(\.bwa_mem_picard)"
     shell:"""
        # echo PBS -N bwamem -l select=1:ncpus=$(CORES)
        condactivate #> {output[primary]}.out ## DRY_RUN

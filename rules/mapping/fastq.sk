@@ -55,25 +55,6 @@ rule fastq__fastq_samples:
                       ]   
                      ), os.linesep))
 
-fastq_path_format="{sample_run}/{sample_name}/{sample_name}_{sample_number}_{sample_lane}_{sample_read}_{sample_chunknb}.fastq.gz"
-struct_chunk=""
-# -------------------------------
-# Wildcards Constraints
-#
-# Organization of the outputs follows a convention both in the naming of the 
-# files as teir directories. As such, we define regex constraints on the rules' 
-# wildcards. Those wildcards are defined outside of the rules, so they are 
-# global to all the rules. Each constraint can then be overritten specifically 
-# in the rule itself.
-# -------------------------------------------------------------------
-wildcard_constraints:
-    sample_name=fh.FastqFile.fields_regex_dic['sample_name'],
-    sample_number=fh.FastqFile.fields_regex_dic['sample_number'],
-    sample_lane=fh.FastqFile.fields_regex_dic['sample_lane'],
-    sample_chunknb=fh.FastqFile.fields_regex_dic['sample_chunknb'],
-    sample_read=fh.FastqFile.fields_regex_dic['sample_read'],
-    preprocesses="(\.\w+)*?"
-
 
 # -----------------
 # Link fastq reads
@@ -90,7 +71,7 @@ rule fastq__link_fastq_read:
                   str_format="{sample_path}",
                   **wildcards)
     output: 
-        primary=fastq_path_format
+        primary=chunk_fastq_format + ".fastq.gz"
     shell:"""
       ln.rel {input[fastq_read]} {output[primary]} 
     """
@@ -167,7 +148,7 @@ rule fastq__trimmomatic_fastq:
       #touch {output} # DRY_RUN
     """
 
-#ruleorder: fastq__trimmomatic_fastq > fastq__cutadapt_fastq > fastq__link_fastq_file   
+ruleorder: fastq__trimmomatic_fastq > fastq__cutadapt_fastq > fastq__link_fastq_read
 ## TRIMMING with cut_adapt 
 CUTADAPT_B=" -b file:adapters.fa"  #CUT_ADAPTER
 CUTADAPT_Q=" -q 30,30" #TRIM_Q
