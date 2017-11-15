@@ -24,11 +24,11 @@ class CsvMap(object):
     ## 
     # output_dict: Outputs a list of dictionaries of column names associated to column values if True.
     #              Else a list of raw column values.
-    # output_fields: Expects a tuple of indexes of the columns to display if output_dict=True.
-    #                Else expects tuple of column names instead.
-    # where: dictionnary to filter on the column indexes. 
-    #   Ex: where={0: ['one', 'two']}
-    #    will filter each row where the column 0 contains either 'one' or 'two'.
+    # output_fields: Expects a tuple of names of the columns to return.
+    #
+    # where: dictionnary of {column_name: value} to filter on the column name..
+    #   Ex: where={'col1': ['one', 'two']}
+    #    will filter each row where the column with name 'col1' contains either 'one' or 'two'.
     #
     ret = []
     for row in csv__get_split_lines(self.filename, self.delimitor):
@@ -37,8 +37,6 @@ class CsvMap(object):
 
       ## By defaut append the new rowt. As soon as a value is invalid, exclude the row.
       for _wkey in where.keys():
-        new_row= {}
-
         ## Ignore filtering on foreign keys
         if _wkey not in self.colnameidx_dict.keys():
           continue
@@ -54,21 +52,27 @@ class CsvMap(object):
           row_to_append = False
           break
 
-      ## Add either the whole row or only the specified fields
-      if row_to_append==True:
-        if len(output_fields) == 0:
-          new_row.update(dict(list( (_colname, row[self.colnameidx_dict[_colname]]) 
-                              for _colname in self.colnameidx_dict.keys())))
-        else:
-          new_row.update(dict(list( (_colname, row[self.colnameidx_dict[_colname]]) 
-                            for _colname in output_fields)))
-  
-        ## Add foreign keys if specified
-        if output_foreign_keys==True:
-          new_row.update(dict(list( (_key, where[_key])
-                                    for _key in where.keys() 
-                                     if _key not in self.colnameidx_dict.keys())))
-        ret.append(new_row)
+      ## Skip if the row is not selected
+      if not row_to_append==True:
+        continue
+
+      ## Create base output dict
+      new_row = (dict(list( (_colname, row[self.colnameidx_dict[_colname]])
+                            for _colname in self.colnameidx_dict.keys())))
+
+      ## Add foreign keys if specified
+      if output_foreign_keys==True:
+        new_row.update(dict(list( (_key, where[_key])
+                                  for _key in where.keys() 
+                                   if _key not in self.colnameidx_dict.keys())))
+
+      ## Filter output on the specified fields
+      if not len(output_fields) == 0:
+        new_row = dict(list( (_colname, new_row[_colname])
+                             for _colname in output_fields))
+
+      ## Add filtered row to output list
+      ret.append(new_row)
     return ret
 
   def query(self, output_fields=(), output_dict=False, **where):
