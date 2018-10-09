@@ -1,0 +1,11 @@
+# vim syntax: python
+try:
+  print("[Snakefile] VAR_1: {}".format(VAR_1))
+except NameError:
+  print("[Snakefile] VAR_1: None")
+
+VAR_1 = "Snakefile"
+print("[Snakefile] VAR_1: {}".format(VAR_1))
+
+include: "include.sk"
+print("[Snakefile] VAR_1: {}".format(VAR_1))

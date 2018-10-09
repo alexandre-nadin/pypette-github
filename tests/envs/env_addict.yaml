@@ -1,0 +1,4 @@
+channels:
+ - conda-forge
+dependencies:
+ - addict=2.2.0

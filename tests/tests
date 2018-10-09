@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+echo "[Test including variables]"
+snakemake --snakefile test-var-included.sk 
+
+echo -e "\n[Test var config files]"
+snakemake --snakefile test-var-config.sk
+
+# Variables in configfile are NOT overridden in the Snakefiles
+echo -e "\n[Test var config files with option]"
+snakemake \
+ --snakefile test-var-config.sk \
+ --configfile conf-snake-option.yaml
+
+# Test max cores
+echo -e "\n[Test Max Cores]"
+echo "nproc: $(nproc)"
+echo "Asking 100 cores"
+snakemake -n \
+ --snakefile test-var-config.sk \
+ --cores 100
+
+echo -e "\n[Test Current Conda Envs]"
+snakemake \
+ --snakefile test-conda-env.sk \
+ -f outputs/env_yaml
+
+snakemake \
+ --snakefile test-conda-env.sk \
+ -f  outputs/env_addict
+
+snakemake \
+ --snakefile test-conda-env.sk \
+ -f  outputs/env_none
+
+# --
+echo -e "\n[Test Rules' Conda Envs]"
+snakemake \
+ --snakefile test-conda-env.sk \
+ -f outputs/env_yaml \
+ --use-conda
+
+snakemake \
+ --snakefile test-conda-env.sk \
+ -f outputs/env_addict \
+ --use-conda
+
+snakemake \
+ --snakefile test-conda-env.sk \
+ -f outputs/env_none \
+ --use-conda
+
