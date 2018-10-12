@@ -1,4 +1,1 @@
-# vim syntax: python
-print("[include.sk] VAR_1: {}".format(VAR_1))
-VAR_1 = "include"
-print("[include.sk] VAR_1: {}".format(VAR_1))
+include/include.sk

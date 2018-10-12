@@ -8,7 +8,6 @@ rule env_yaml:
     echo "[env_yaml]"
     echo "Conda env: $(conda info -e | grep '*')"
     echo "Conda packages: $(conda list | wc -l)"
-    conda list
     python -c "import yaml; print(yaml.__file__)"
     touch {output}
   """
@@ -22,7 +21,6 @@ rule env_addict:
     echo "[env_addict]"
     echo "Conda env: $(conda info -e | grep '*')"
     echo "Conda packages: $(conda list | wc -l)"
-    conda list
     python -c "import addict; print(addict.__file__)"
     touch {output}
   """

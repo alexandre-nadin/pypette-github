@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+_script=${BASH_SOURCE[0]}
+_dir=$(dirname ${_script})
+cd "$_dir"
+
 echo "[Test including variables]"
 snakemake --snakefile test-var-included.sk 
 
@@ -9,7 +13,20 @@ snakemake --snakefile test-var-config.sk
 echo -e "\n[Test var config files with option]"
 snakemake \
  --snakefile test-var-config.sk \
- --configfile conf-snake-option.yaml
+ --configfile config/snake-option.yaml
+
+echo -e "\n[Test var config files with option key]"
+snakemake \
+ --snakefile test-var-config.sk \
+ --configfile config/snake-option.yaml \
+ --config VAR_1='config-snake-option-key 1'
+
+# Option key prevails on configfile which prevails on Snakefiles' values.
+echo -e "\n[Test var option key with config files]"
+snakemake \
+ --snakefile test-var-config.sk \
+ --config VAR_1='config-snake-option-key 1' \
+ --configfile config/snake-option.yaml
 
 # Test max cores
 echo -e "\n[Test Max Cores]"
@@ -19,6 +36,7 @@ snakemake -n \
  --snakefile test-var-config.sk \
  --cores 100
 
+# Test Conda Envs
 echo -e "\n[Test Current Conda Envs]"
 snakemake \
  --snakefile test-conda-env.sk \

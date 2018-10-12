@@ -1,8 +1,8 @@
 # vim syntax: python
-print("[Snakefile] Loading 'conf-snakefile-1.yaml'")
-configfile: "conf-snakefile-1.yaml"
+print("[Snakefile] Loading 'snakefile-1.yaml'")
+configfile: "config/snakefile-1.yaml"
 print("[Snakefile] config: {}".format(config))
 
-print("[Snakefile] Loading 'conf-snakefile-2.yaml'")
-configfile: "conf-snakefile-2.yaml"
+print("[Snakefile] Loading 'snakefile-2.yaml'")
+configfile: "config/snakefile-2.yaml"
 print("[Snakefile] config: {}".format(config))
