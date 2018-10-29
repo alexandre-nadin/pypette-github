@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -euf -o pipefail
+mkdir -p ~/dev/ctgb
+cd ~/dev/ctgb
+
+mkdir -p ./projects
+mkdir -p ./runs
+
+# Mount Illumina directory
+mkdir -p ./illumina
+mountpoint -q ./illumina \
+ || sshfs -o nonempty anadin@172.21.151.42:/illumina ./illumina

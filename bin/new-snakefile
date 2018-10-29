@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+set -euf -o pipefail
+_src_bn=$(basename ${BASH_SOURCE[0]})
+_src_dir=$(dirname $(readlink -f ${BASH_SOURCE[0]}))
+source "${_src_dir}/src-env.sh"
+FILETYPES=('pipeline' 'module')
+
+function manual() {
+  cat << eol
+
+  COMMAND
+    $ ${BASH_SOURCE[0]} snakefile-type snakefile-name
+
+    snakefile-type: among (${FILETYPES[@]})
+    snakefile-name: snakefile to save in snakefile-type folder.
+
+  DESCRIPTION
+    Initialises a snakefile which includes a configuration file.
+
+eol
+}
+
+[ $# -eq 2 ] || \
+  { 
+    echo "Error: Give me a snakefile type and a snakefile name." >&2
+    manual
+    exit 1
+  }
+
+# Check filetype
+filetype="$1"
+grep -q -s " $filetype " <<< " ${FILETYPES[@]} " \
+ || { echo "Error: File type '$filetype' not recognised among '${FILETYPES[@]}'." >&2
+      manual
+      exit 1
+    }
+
+# Snakefile
+file_name="$2"
+file="${CTGB_PIPE_HOME}/${filetype}s/${file_name}.sk"
+file_basename=$(basename "$file_name")
+
+[ "${file_basename}" != '.' ] \
+ && [ "${file_basename}" != '..' ] \
+ || { echo "Give me a module name." >&2; manual; exit 1; }
+
+# Config file
+config_name="${file_name}-config.sk"
+config="${CTGB_PIPE_HOME}/${filetype}s/${config_name}"
+
+mkdir -p "$(dirname ${file})"
+cpipe::file_add_syntax "$file"
+cpipe::file_add_syntax "$config"
+cpipe::include_${filetype} "$config_name" >> "$file"

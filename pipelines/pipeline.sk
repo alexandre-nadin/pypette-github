@@ -1,0 +1,46 @@
+#!/usr/bin/env python
+import os
+import sys
+import subprocess
+from utils import pipeline
+
+# ------
+# Rules
+# ------
+"""
+ Lists all available rules (snakemake -l) but also gives more
+ information such as the file in which the rule is found.
+"""
+explain_rule_fields = ['name', 'wildcard_names', '_wildcard_constraints', 'snakefile']
+rule explain_rules:
+  run:
+    print('\t|\t'.join([_rule_field.upper() 
+                       for _rule_field in explain_rule_fields
+                    ]))
+    for _rule in rules.__dict__.keys():
+      print('\t|\t'.join([str(rules.__dict__[_rule].__dict__[_rule_field]) 
+                              for _rule_field in explain_rule_fields
+                        ]))
+
+# ------
+# Shell
+# ------
+def lshell(command, allow_empty_lines=False):
+  #
+  # Returns the output of a given shell command in an array.
+  # Each element is an output line.
+  # Filters empty strings by default.
+  #
+  out = subprocess.check_output(command, shell=True).decode().split(os.linesep)
+  return out if allow_empty_lines else [ _elem for _elem in out if _elem ] 
+
+# -----------------
+# PipelineManager
+# -----------------
+def newPipelineManager(name):
+  """
+  Declare a new PipelineManager the easiest way.
+  Purpose: who writes a piepeline doesn't have to care about the global namespace.
+  Default namespace: globals()
+  """
+  return pipeline.PipelineManager(name=name, namespace=globals())
