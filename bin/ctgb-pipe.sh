@@ -4,7 +4,7 @@ export CTGB_PIPE_HOME=/mnt/storage/alexn/dev/ctgb/ctgb-pipe
 # ---------------------
 # Snakemake functions
 # ---------------------
-function set_pythonpath() {
+function setPythonpath() {
   export PYTHONPATH=${PYTHONPATH}:${CTGB_PIPE_HOME} 
 }
 function snakemake() {
@@ -20,40 +20,40 @@ function smk() {
 # -------------------
 # Module generators
 # -------------------
-function cpipe::file_add_syntax() {
-  cpipe::editor_syntax >> "$1"
+function cpipe::fileAddSyntax() {
+  cpipe::editorSyntax >> "$1"
 }
  
-function cpipe::editor_syntax() {
+function cpipe::editorSyntax() {
   cat << eol 
 #!/usr/bin/env python
 eol
 }
 
-function cpipe::include_pipeline() {
+function cpipe::includePipeline() {
   [ $# -eq 1 ] || exit 1
-  cpipe::include_base
+  cpipe::includeBase
   cat << eol
-include_pipeline("${1}")
+includePipeline("${1}")
 eol
 }
 
-function cpipe::include_module() {
+function cpipe::includeModule() {
   [ $# -eq 1 ] || exit 1
   cat << eol
-include_module("${1}")
+includeModule("${1}")
 eol
 }
 
-function cpipe::include_filetype() {
+function cpipe::includeFiletype() {
   [ $# -eq 2 ] || exit 1
   cat << eol
 include_${1}("${2}")
 eol
 }
 
-function cpipe::include_base() {
+function cpipe::includeBase() {
   cat << eol
-include: "${CTGB_PIPE_HOME}/pipelines/base-config.sk"
+include: "${CTGB_PIPE_HOME}/pipelines/pipeline.sk"
 eol
 }

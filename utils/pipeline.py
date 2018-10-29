@@ -37,7 +37,7 @@ class PipelineManager():
     Loads default config file if it exists or warns.
     """
     if os.path.exists(self.configfile):
-      self.load_config(self.configfile)
+      self.loadConfig(self.configfile)
     else:
       self.log.warning("Default configuration file '{}' not found.".format(self.configfile))
 
@@ -52,15 +52,15 @@ class PipelineManager():
   def configfile(self):
     return "{}-config.yaml".format(files.extensionless(self.name))
 
-  def load_config(self, file):
+  def loadConfig(self, file):
     """
     Loads a config file. Updates config dict from namespace.
     Updates and converts it to an Adddict.
     """
     self.workflow.configfile(file)
-    self.update_config()
+    self.updateConfig()
 
-  def update_config(self):
+  def updateConfig(self):
     """
     Converts the config from a regular Python dictionnary into an addict's.
     """
@@ -73,62 +73,62 @@ class PipelineManager():
   def include(self, name):
     self.workflow.include(name)
 
-  def include_module(self, name):
+  def includeModule(self, name):
     self.include(os.path.join(self.dir_modules, name))
 
-  def include_pipeline(self, name):
+  def includePipeline(self, name):
     self.include(os.path.join(self.dir_pipelines, name))
   
-  def _load_module(self, name):
+  def _loadModule(self, name):
     pass
  
-  def add_module(self, name):
+  def addModule(self, name):
     pass
 
   # ------------
   # Parameters
   # ------------
-  def set_params(self, *params):
+  def setParams(self, *params):
     """
     
     """
     all_set = True
     for param in params:
-      if not self.config_from_keys_string(param):
+      if not self.configFromKeysString(param):
         self.log.warning("Parameter '{}' not found in configuration.".format(param))
         all_set = False
     if not all_set:
       raise
 
-  def add_params(self, *params):
+  def addParams(self, *params):
     """
     Adds the given parameters to a list.
     Each parameter is unique.
     """
     for param in params:
-      self.add_param(param)
+      self.addParam(param)
     self.params = list(set(self.params))
      
-  def add_param(self, param):
+  def addParam(self, param):
     self.params.extend([param,])
  
-  def are_params_ok(self):
+  def areParamsOk(self):
     try:
-      self.check_params()
+      self.checkParams()
       return True
     except:
       return False
  
-  def check_params(self):
+  def checkParams(self):
     toraise = False
     for param in self.params:
-      if not self.config_from_keys_string(param):
+      if not self.configFromKeysString(param):
         #self.log.warning("Parameter '{}' not set in configuration.".format(param))
         toraise = True
     if toraise:
       raise
 
-  def config_from_keys_string(self, string=""):
+  def configFromKeysString(self, string=""):
     """
     Retreives the value of an addict from string.
     The addict's instance name is expected:
@@ -136,16 +136,16 @@ class PipelineManager():
      - to be in the globals.
     """
     keys = string.split('.')
-    return self.config_from_keys(self.namespace[keys[0]], keys[1:])
+    return self.configFromKeys(self.namespace[keys[0]], keys[1:])
     
-  def config_from_keys(self, config, keys=[]):
+  def configFromKeys(self, config, keys=[]):
     """
     Retreives recursively the value of an addict from a list of keys.
     """
     if not keys:
       return config
     elif len(keys) > 1:
-      return self.config_from_keys(config[keys[0]], keys[1:])
+      return self.configFromKeys(config[keys[0]], keys[1:])
     else:
       return config[keys[0]]
 

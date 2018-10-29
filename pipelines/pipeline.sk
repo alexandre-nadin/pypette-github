@@ -8,8 +8,8 @@ from utils import pipeline
 # Rules
 # ------
 """
- Lists all available rules (snakemake -l) but also gives more
- information such as the file in which the rule is found.
+Lists all available rules (snakemake -l) but also gives more
+information such as the file in which the rule is found.
 """
 explain_rule_fields = ['name', 'wildcard_names', '_wildcard_constraints', 'snakefile']
 rule explain_rules:
@@ -26,11 +26,11 @@ rule explain_rules:
 # Shell
 # ------
 def lshell(command, allow_empty_lines=False):
-  #
-  # Returns the output of a given shell command in an array.
-  # Each element is an output line.
-  # Filters empty strings by default.
-  #
+  """
+  Returns the output of a given shell command in an array.
+  Each element is an output line.
+  Filters empty strings by default.
+  """
   out = subprocess.check_output(command, shell=True).decode().split(os.linesep)
   return out if allow_empty_lines else [ _elem for _elem in out if _elem ] 
 
@@ -39,7 +39,7 @@ def lshell(command, allow_empty_lines=False):
 # -----------------
 def newPipelineManager(name):
   """
-  Declare a new PipelineManager the easiest way.
+  Declares a new PipelineManager the easiest way.
   Purpose: who writes a piepeline doesn't have to care about the global namespace.
   Default namespace: globals()
   """
