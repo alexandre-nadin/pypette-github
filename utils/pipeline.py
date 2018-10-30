@@ -8,12 +8,13 @@ class PipelineManager():
   home          = os.environ['CTGB_PIPE_HOME']
   dir_modules   = os.path.join(home, "modules")
   dir_pipelines = os.path.join(home, "pipelines")
+  config_exts   = ('yaml', 'json')
 
   def __init__(self, name, namespace):
     self.name       = name
     self.namespace  = namespace
     self.params     = []
-    self.log        = Logging(name, "WARNING")
+    self.log        = Logging("pipe:{}".format(name), "INFO")
     self.autoconfig()
       
   @property
@@ -34,12 +35,42 @@ class PipelineManager():
   # --------- 
   def autoconfig(self):
     """
-    Loads default config file if it exists or warns.
+    Loads default config file if it exists.
     """
-    if os.path.exists(self.configfile):
-      self.loadConfig(self.configfile)
+    configs = self.configfiles()
+    if configs:
+      config = configs.pop(0)
+      self.log.info(
+        "Default configuration file: {}".format(config)
+      )
+
+      if configs:
+        self.log.info(
+          "Ignored configuration files: {}".format(configs)
+        )
+      self.loadConfig(config)
     else:
       self.log.warning("Default configuration file '{}' not found.".format(self.configfile))
+
+  
+  def configfiles(self):
+    """
+    Builds potential configuration file names.
+    Returns only those who do exist.
+    """
+    confs = []
+    for ext in self.config_exts:
+      conf = "{}.{}".format(self.configfile_base, ext)
+      if os.path.exists(conf):
+        confs.append(conf)
+    return confs
+
+  @property
+  def configfile_base(self):
+    """
+    Returns the base name of configuration files, without extensions.
+    """
+    return "{}-config".format(files.extensionless(self.name))
 
   @property
   def config(self):
@@ -48,9 +79,26 @@ class PipelineManager():
     """
     return self.namespace['config']
 
-  @property 
-  def configfile(self):
-    return "{}-config.yaml".format(files.extensionless(self.name))
+  def configFromKeysString(self, string=""):
+    """
+    Retreives the value of an addict from string.
+    The addict's instance name is expected:
+     - to be the first element split from the string.
+     - to be in the globals.
+    """
+    keys = string.split('.')
+    return self.configFromKeys(self.namespace[keys[0]], keys[1:])
+    
+  def configFromKeys(self, config, keys=[]):
+    """
+    Retreives recursively the value of an addict from a list of keys.
+    """
+    if not keys:
+      return config
+    elif len(keys) > 1:
+      return self.configFromKeys(config[keys[0]], keys[1:])
+    else:
+      return config[keys[0]]
 
   def loadConfig(self, file):
     """
@@ -127,27 +175,6 @@ class PipelineManager():
         toraise = True
     if toraise:
       raise
-
-  def configFromKeysString(self, string=""):
-    """
-    Retreives the value of an addict from string.
-    The addict's instance name is expected:
-     - to be the first element split from the string.
-     - to be in the globals.
-    """
-    keys = string.split('.')
-    return self.configFromKeys(self.namespace[keys[0]], keys[1:])
-    
-  def configFromKeys(self, config, keys=[]):
-    """
-    Retreives recursively the value of an addict from a list of keys.
-    """
-    if not keys:
-      return config
-    elif len(keys) > 1:
-      return self.configFromKeys(config[keys[0]], keys[1:])
-    else:
-      return config[keys[0]]
 
 class Pipeline():
   def __init__(self, path):
