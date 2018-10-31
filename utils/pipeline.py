@@ -48,16 +48,15 @@ class PipelineManager(object):
     if configs:
       config = configs.pop(0)
       self.log.info(
-        "Default configuration file: {}".format(config)
+        "Default configuration file: {}. Found among {}"
+          .format(config, self.configfiles_expected())
       )
-
-      if configs:
-        self.log.info(
-          "Ignored configuration files: {}".format(configs)
-        )
       self.loadConfig(config)
     else:
-      self.log.warning("Default configuration file '{}' not found.".format(self.configfile))
+      self.log.warning(
+        "No default configuration file found among {}."
+          .format(self.configfiles_expected())
+      )
 
   def autosamples(self):
     """
@@ -67,40 +66,48 @@ class PipelineManager(object):
     if configs:
       config = configs.pop(0)
       self.log.info(
-        "Default samples file: {}".format(config)
+        "Default samples file: {}. Found among {}"
+          .format(config, self.samplefiles_expected())
       )
-
-      if configs:
-        self.log.info(
-          "Ignored samples files: {}".format(configs)
-        )
       self.loadSamples(config)
     else:
-      self.log.warning("Default samples file '{}' not found.".format(self.configfile))
+      self.log.warning(
+        "Default samples file not found among {}."
+          .format(self.samplefiles_expected())
+      )
   
   def configfiles(self):
     """
     Builds potential configuration file names.
     Returns only those who do exist.
     """
-    confs = []
-    for ext in self.config_exts:
-      conf = "{}{}".format(self.configfileBase, ext)
-      if os.path.exists(conf):
-        confs.append(conf)
-    return confs
+    return [
+      conf for conf in self.configfiles_expected()
+        if os.path.exists(conf)
+    ]
 
   def samplefiles(self):
     """
     Builds potential samples file names.
     Returns only those who do exist.
     """
-    confs = []
-    for ext in self.sample_exts:
-      conf = "{}{}".format(self.samplefileBase, ext)
-      if os.path.exists(conf):
-        confs.append(conf)
-    return confs
+    return [
+      conf for conf in self.samplefiles_expected()
+        if os.path.exists(conf)
+    ]
+
+  def configfiles_expected(self):
+    return [ 
+      "{}{}".format(self.configfileBase, ext)
+        for ext in self.config_exts
+    ]
+
+  def samplefiles_expected(self):
+    return [ 
+      "{}{}".format(self.samplefileBase, ext)
+        for ext in self.sample_exts
+    ]
+
 
   @property
   def configfileBase(self):
