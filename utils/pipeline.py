@@ -3,19 +3,22 @@ import os
 from utils import files
 from easydev import Logging
 
-class PipelineManager():
+class PipelineManager(object):
   """ """
   home          = os.environ['CTGB_PIPE_HOME']
   dir_modules   = os.path.join(home, "modules")
   dir_pipelines = os.path.join(home, "pipelines")
-  config_exts   = ('yaml', 'json')
+  config_exts   = ('.yaml', '.json')
+  sample_exts   = ('.csv', '.tsv')
 
   def __init__(self, name, namespace):
     self.name       = name
     self.namespace  = namespace
     self.params     = []
     self.log        = Logging("pipe:{}".format(name), "INFO")
+    self.samples    = None
     self.autoconfig()
+    self.autosamples()
       
   @property
   def workflow(self):
@@ -29,7 +32,11 @@ class PipelineManager():
     return os.path.join(
       self.home, "pipelines", self.name, "{}.sk".format(self.name)
     )
- 
+
+  # --------
+  # Samples
+  # --------
+
   # ---------
   # Configs
   # --------- 
@@ -52,6 +59,24 @@ class PipelineManager():
     else:
       self.log.warning("Default configuration file '{}' not found.".format(self.configfile))
 
+  def autosamples(self):
+    """
+    Loads default samples file if it exists.
+    """
+    configs = self.samplefiles()
+    if configs:
+      config = configs.pop(0)
+      self.log.info(
+        "Default samples file: {}".format(config)
+      )
+
+      if configs:
+        self.log.info(
+          "Ignored samples files: {}".format(configs)
+        )
+      self.loadSamples(config)
+    else:
+      self.log.warning("Default samples file '{}' not found.".format(self.configfile))
   
   def configfiles(self):
     """
@@ -60,17 +85,57 @@ class PipelineManager():
     """
     confs = []
     for ext in self.config_exts:
-      conf = "{}.{}".format(self.configfile_base, ext)
+      conf = "{}{}".format(self.configfileBase, ext)
+      if os.path.exists(conf):
+        confs.append(conf)
+    return confs
+
+  def samplefiles(self):
+    """
+    Builds potential samples file names.
+    Returns only those who do exist.
+    """
+    confs = []
+    for ext in self.sample_exts:
+      conf = "{}{}".format(self.samplefileBase, ext)
       if os.path.exists(conf):
         confs.append(conf)
     return confs
 
   @property
-  def configfile_base(self):
+  def configfileBase(self):
     """
     Returns the base name of configuration files, without extensions.
     """
     return "{}-config".format(files.extensionless(self.name))
+
+  @property
+  def samplefileBase(self):
+    """
+    Returns the base name of sample files, without extensions.
+    """
+    return "{}-samples".format(files.extensionless(self.name))
+
+  def loadConfig(self, file):
+    """
+    Loads a config file. Updates config dict from namespace.
+    Updates and converts it to an Adddict.
+    """
+    self.workflow.configfile(file)
+    self.updateConfig()
+
+  def loadSamples(self, file, indexlowcase_cols=True):
+    """
+    Loads a samples file into a pandas dataframe.
+    If specified, lowercases the column names. 
+    """
+    import pandas as pd
+    filetype = files.extension(file).lstrip('.')
+    fread = getattr(pd, 'read_{}'.format(filetype))
+    data = fread(file)
+    if indexlowcase_cols:
+      data.columns = map(str.lower, data.columns)
+    self.samples = data
 
   @property
   def config(self):
@@ -100,20 +165,19 @@ class PipelineManager():
     else:
       return config[keys[0]]
 
-  def loadConfig(self, file):
-    """
-    Loads a config file. Updates config dict from namespace.
-    Updates and converts it to an Adddict.
-    """
-    self.workflow.configfile(file)
-    self.updateConfig()
-
   def updateConfig(self):
     """
     Converts the config from a regular Python dictionnary into an addict's.
     """
     import addict
     self.namespace['config'] = addict.Dict(self.config)
+
+  # ---------
+  # Samples
+  # ---------
+  @property 
+  def samplefile(self):
+    return "{}-samples.tsv".format(files.extensionless(self.name))
 
   # ------------ 
   # Snakefiles
