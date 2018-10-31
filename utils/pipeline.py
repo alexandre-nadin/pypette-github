@@ -8,8 +8,6 @@ class PipelineManager(object):
   home          = os.environ['CTGB_PIPE_HOME']
   dir_modules   = os.path.join(home, "modules")
   dir_pipelines = os.path.join(home, "pipelines")
-  config_exts   = ('.yaml', '.json')
-  sample_exts   = ('.csv', '.tsv')
 
   def __init__(self, name, namespace):
     self.name       = name
@@ -17,9 +15,10 @@ class PipelineManager(object):
     self.params     = []
     self.log        = Logging("pipe:{}".format(name), "INFO")
     self.samples    = None
-    self.autoconfig()
-    self.autosamples()
-      
+    self.pipeline_confman = PipelineConfigManager('config', self.name) #.autoconfig()
+    self.samples_confman  = SamplesConfigManager('samples', self.name) #.autoconfig()
+    self.loadDftConfigs()
+ 
   @property
   def workflow(self):
     return self.namespace['workflow']
@@ -33,104 +32,34 @@ class PipelineManager(object):
       self.home, "pipelines", self.name, "{}.sk".format(self.name)
     )
 
-  # --------
-  # Samples
-  # --------
+  def loadDftConfigs(self):
+    self.loadDftPipelineConfig()
+    self.loadDftSamplesConfig()
 
-  # ---------
-  # Configs
-  # --------- 
-  def autoconfig(self):
+  def loadDftPipelineConfig(self):
     """
-    Loads default config file if it exists.
+    Loads the default pipeline configuration file if it exists.
     """
-    configs = self.configfiles()
-    if configs:
-      config = configs.pop(0)
-      self.log.info(
-        "Default configuration file: {}. Found among {}"
-          .format(config, self.configfiles_expected())
-      )
-      self.loadConfig(config)
-    else:
-      self.log.warning(
-        "No default configuration file found among {}."
-          .format(self.configfiles_expected())
-      )
-
-  def autosamples(self):
-    """
-    Loads default samples file if it exists.
-    """
-    configs = self.samplefiles()
-    if configs:
-      config = configs.pop(0)
-      self.log.info(
-        "Default samples file: {}. Found among {}"
-          .format(config, self.samplefiles_expected())
-      )
-      self.loadSamples(config)
-    else:
-      self.log.warning(
-        "Default samples file not found among {}."
-          .format(self.samplefiles_expected())
-      )
-  
-  def configfiles(self):
-    """
-    Builds potential configuration file names.
-    Returns only those who do exist.
-    """
-    return [
-      conf for conf in self.configfiles_expected()
-        if os.path.exists(conf)
-    ]
-
-  def samplefiles(self):
-    """
-    Builds potential samples file names.
-    Returns only those who do exist.
-    """
-    return [
-      conf for conf in self.samplefiles_expected()
-        if os.path.exists(conf)
-    ]
-
-  def configfiles_expected(self):
-    return [ 
-      "{}{}".format(self.configfileBase, ext)
-        for ext in self.config_exts
-    ]
-
-  def samplefiles_expected(self):
-    return [ 
-      "{}{}".format(self.samplefileBase, ext)
-        for ext in self.sample_exts
-    ]
-
-
-  @property
-  def configfileBase(self):
-    """
-    Returns the base name of configuration files, without extensions.
-    """
-    return "{}-config".format(files.extensionless(self.name))
-
-  @property
-  def samplefileBase(self):
-    """
-    Returns the base name of sample files, without extensions.
-    """
-    return "{}-samples".format(files.extensionless(self.name))
+    conf = self.pipeline_confman.configFileDefault
+    if conf:
+      self.loadConfig(conf)
 
   def loadConfig(self, file):
     """
-    Loads a config file. Updates config dict from namespace.
-    Updates and converts it to an Adddict.
+    Loads the given snakemake configuration file.
+    Updates and converts it to an Addict.
     """
     self.workflow.configfile(file)
     self.updateConfig()
-
+ 
+  def loadDftSamplesConfig(self):
+    """
+    Loads the default pipeline configuration file if it exists.
+    """
+    conf = self.samples_confman.configFileDefault
+    if conf:
+      self.loadSamples(conf)
+  
   def loadSamples(self, file, indexlowcase_cols=True):
     """
     Loads a samples file into a pandas dataframe.
@@ -246,6 +175,84 @@ class PipelineManager(object):
         toraise = True
     if toraise:
       raise
+
+from dataclasses import dataclass
+
+@dataclass
+class ConfigManagerTemplate(object):
+  """ Params """
+  config_type    : str 
+  config_prefix  : str = ""
+
+  """ Attributes """
+  extensions = ()
+  def __post_init__(self):
+    self.log = Logging("pipe:{}".format(self.config_type), "INFO")
+
+  @property
+  def configFileDefault(self):
+    """
+    Gives the default config file found among all possible.
+    """
+    configs = self.configfiles()
+    if configs:
+      config = configs.pop(0)
+      self.log.info(
+        "{} files found: {}. Default taken: '{}'."
+          .format(self.config_type.capitalize(), self.configfiles_expected(), config)
+      )
+      return config
+    else:
+      self.log.warning(
+        "No default {} file found among {}."
+          .format(self.config_type, self.configfiles_expected())
+      )
+      return None
+
+  def configfiles(self):
+    """
+    Builds potential configuration file names.
+    Returns only those which do exist.
+    """
+    return [
+      conf for conf in self.configfiles_expected()
+        if os.path.exists(conf)
+    ]
+
+  def configfiles_expected(self):
+    """
+    Returns expected default configuration files for each possible extension.
+    """
+    return [ 
+      "{}{}".format(self.configfileBase, ext)
+        for ext in self.extensions
+    ]
+
+  @property
+  def configfileBase(self):
+    """
+    Returns the base name of configuration files, without extensions.
+    """
+    return (
+      "{}{}"
+        .format(
+          "{}-".format(self.config_prefix if self.config_prefix else ""),
+          self.config_type
+        )
+    )
+
+    return (
+      "{}{}".format(
+        "{}-".format(self.config_prefix if self.config_prefix else ""),
+        self.config_type
+      )
+    )
+
+class PipelineConfigManager(ConfigManagerTemplate):
+  extensions = ('.json', '.yaml',)
+  
+class SamplesConfigManager(ConfigManagerTemplate):
+  extensions = ('.csv', '.tsv',)
 
 class Pipeline():
   def __init__(self, path):
