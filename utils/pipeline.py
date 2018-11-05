@@ -249,7 +249,7 @@ class ConfigManagerTemplate(object):
     )
 
 class PipelineConfigManager(ConfigManagerTemplate):
-  extensions = ('.json', '.yaml',)
+  extensions = ('.yaml', '.json',)
   
 class SamplesConfigManager(ConfigManagerTemplate):
   extensions = ('.csv', '.tsv',)
