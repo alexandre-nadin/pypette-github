@@ -3,14 +3,13 @@ import os
 import sys
 import subprocess
 from utils import pipeline
-include: "pipeline.py"
 
-"""
-Lists all available rules (snakemake -l) but also gives more
-information such as the file in which the rule is found.
-"""
 explain_rules_fields = ['name', 'wildcard_names', '_wildcard_constraints', 'snakefile']
 rule explain_rules:
+  """
+  Lists all available rules (snakemake -l) but also gives more
+  information such as the file in which the rule is found.
+  """
   run:
     print('\t|\t'.join([_rule_field.upper() 
                        for _rule_field in explain_rules_fields
@@ -19,3 +18,14 @@ rule explain_rules:
       print('\t|\t'.join([str(rules.__dict__[_rule].__dict__[_rule_field]) 
                               for _rule_field in explain_rules_fields
                         ]))
+
+# -----------------
+# PipelineManager
+# -----------------
+def newPipelineManager(name):
+  """
+  Declares a new PipelineManager the easiest way.
+  Purpose: who writes a piepeline doesn't have to care about the global namespace.
+  Default namespace: globals()
+  """
+  return pipeline.PipelineManager(name=name, namespace=globals())
