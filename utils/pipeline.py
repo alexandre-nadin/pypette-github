@@ -72,6 +72,8 @@ class PipelineManager(object):
     data = fread(file)
     if indexlowcase_cols:
       data.columns = map(str.lower, data.columns)
+    """ Replace NaN with None """
+    data = data.astype(object).where(pd.notnull(data), None)
     self.samples = data
 
   @property
