@@ -13,6 +13,7 @@ class PipelineManager(object):
     self.name       = name
     self.namespace  = namespace
     self.params     = []
+    self.cleanables = []
     self.log        = Logging("pipe:{}".format(name), "INFO")
     self.samples    = None
     self.pipeline_confman = PipelineConfigManager('config', self.name) #.autoconfig()
@@ -175,6 +176,15 @@ class PipelineManager(object):
         toraise = True
     if toraise:
       raise
+
+  # ---------------
+  # Cleaning files
+  # ---------------
+  def toClean(self, *patterns):
+    """
+    Adds the given patterns to the list of files to clean.
+    """
+    self.cleanables.extend([*patterns])
 
 from dataclasses import dataclass
 
