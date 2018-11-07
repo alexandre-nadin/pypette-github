@@ -111,13 +111,6 @@ class PipelineManager(object):
     import addict
     self.namespace['config'] = addict.Dict(self.config)
 
-  # ---------
-  # Samples
-  # ---------
-  @property 
-  def samplefile(self):
-    return "{}-samples.tsv".format(files.extensionless(self.name))
-
   # ------------ 
   # Snakefiles
   # ------------    
