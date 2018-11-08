@@ -10,13 +10,13 @@ class PipelineManager(object):
   dir_pipelines = os.path.join(home, "pipelines")
 
   def __init__(self, name, namespace):
-    self.name       = name
-    self.namespace  = namespace
-    self.params     = []
-    self.cleanables = []
-    self.log        = Logging("pipe:{}".format(name), "INFO")
-    self.pipeline_confman = utils.configs.PipelineConfigManager(
-    self.samples_manager   = utils.samples.SamplesManager(self.name, self.namespace)
+    self.name             = name
+    self.namespace        = namespace
+    self.params           = []
+    self.cleanables       = []
+    self.log              = Logging("pipe:{}".format(name), "INFO")
+    self.samples_manager  = utils.samples.SamplesManager(self.name, self.namespace)
+    self.config_manager   = utils.configs.PipelineConfigManager(
       config_prefix=self.name, namespace=self.namespace)
     self.saveNamespace()
  
