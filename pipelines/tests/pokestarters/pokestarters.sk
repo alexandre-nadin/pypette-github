@@ -1,0 +1,19 @@
+#!/usr/bin/env python
+rule list_samples:
+  """
+  List all samples.
+  """
+  run:
+    print(pipman.samples['sample_name'])
+
+onsuccess:
+  if 'pipeline_manager' in globals().keys() \
+  and pipman.cleanables:
+    pipman.log.info(
+      "Success! Now removing cleanable files {}..."
+       .format(pipman.cleanables))
+    shell("rm -f {}".format(" ".join(pipman.cleanables)))
+
+include: "/mnt/storage/alexn/dev/ctgb/ctgb-pipe/pipelines/pipeline.sk"
+pipman = newPipelineManager("pokestarters")
+pipman.includeModule("tests/pokemon/starters.sk")

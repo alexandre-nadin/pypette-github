@@ -1,0 +1,24 @@
+#!/usr/bin/env python
+include: "pokemon.sk"
+include: "starters.py"
+pipman.include("starters.py")
+pipman.includeModule("tests/pokemon/starters.py")
+
+rule starters:
+  """
+  Presents all starter samples.
+  """
+  output: "all.starters"
+  run:
+    print(msgStarters(getStartersDict()))
+    open(output[0], 'a').close()
+
+rule choseStarter:
+  """
+  Asks to chose between all sample starters.
+  """
+  input: rules.starters.output
+  run:
+    print("Which one will you chose?")
+
+pipman.toClean("*.starters")

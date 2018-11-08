@@ -1,0 +1,7 @@
+Sample_ID,Sample_Name,prevol_Id,evol_Id,evol_Lvl,evol_Cond,personality,type
+4,charmander,,5,16,care,shy,fire
+5,charmeleon,4,6,36,soap,angry,fire
+6,charizard,5,,,,crusty,fire
+7,squirtle,,8,16,tooth,extraverted,water
+8,wartortle,7,9,32,foam,arrogant,water
+9,blastoise,8,,,,protector,water
