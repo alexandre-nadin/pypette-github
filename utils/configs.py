@@ -3,6 +3,7 @@ import sys
 import os
 from dataclasses import dataclass
 from easydev import Logging
+import utils.files
 
 @dataclass
 class ConfigManagerTemplate(object):
@@ -115,7 +116,7 @@ class SamplesConfigManager(ConfigManagerTemplate):
     If specified, lowercases the column names. 
     """
     import pandas as pd
-    filetype = files.extension(file).lstrip('.')
+    filetype = utils.files.extension(file).lstrip('.')
     fread = getattr(pd, 'read_{}'.format(filetype))
     data = fread(file)
     if indexlowcase_cols:
