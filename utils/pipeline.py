@@ -15,6 +15,7 @@ class PipelineManager(object):
     self.params     = []
     self.cleanables = []
     self.log        = Logging("pipe:{}".format(name), "INFO")
+    self.saveNamespace()
     self.samples    = None
     self.pipeline_confman = PipelineConfigManager(
       'config', 
@@ -40,8 +41,11 @@ class PipelineManager(object):
       self.home, "pipelines", self.name, "{}.sk".format(self.name)
     )
 
+  def saveNamespace(self):
     """
+    Saves itself in the global namespace
     """
+    self.namespace['pipeline_manager'] = self
 
   @property
   def config(self):
