@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import os
+import sys
 from utils import files
 from easydev import Logging
 
@@ -47,6 +48,9 @@ class PipelineManager(object):
     """
     self.namespace['pipeline_manager'] = self
 
+  # -----------------
+  # Pipeline Config
+  # -----------------
   @property
   def config(self):
     """
@@ -190,13 +194,13 @@ class ConfigManagerTemplate(object):
       config = configs.pop(0)
       self.log.info(
         "{} files found: {}. Default taken: '{}'."
-          .format(self.config_type.capitalize(), self.configfiles_expected(), config)
+          .format(self.config_type.capitalize(), self.configfilesExpected(), config)
       )
       return config
     else:
       self.log.warning(
         "No default {} file found among {}."
-          .format(self.config_type, self.configfiles_expected())
+          .format(self.config_type, self.configfilesExpected())
       )
       return None
 
@@ -206,11 +210,11 @@ class ConfigManagerTemplate(object):
     Returns only those which do exist.
     """
     return [
-      conf for conf in self.configfiles_expected()
+      conf for conf in self.configfilesExpected()
         if os.path.exists(conf)
     ]
 
-  def configfiles_expected(self):
+  def configfilesExpected(self):
     """
     Returns expected default configuration files for each possible extension.
     """
