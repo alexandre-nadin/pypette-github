@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import os
-import utils.configs
+import utils.configs, utils.samples
 from easydev import Logging
 
 class PipelineManager(object):
@@ -21,7 +21,7 @@ class PipelineManager(object):
       self.name,
       namespace=self.namespace
     ).loadDftConfig()
-    self.samples_confman = utils.configs.SamplesConfigManager(
+    self.samples_confman = utils.samples.SamplesConfigManager(
       self.name, 
       namespace=self.namespace
     ).loadDftConfig() 

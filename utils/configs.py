@@ -108,28 +108,3 @@ class PipelineConfigManager(ConfigManagerTemplate):
     """
     self.namespace['workflow'].configfile(file)
     self.updateNamespaceConfig()
-    
-  
-class SamplesConfigManager(ConfigManagerTemplate):
-  extensions = ('.csv', '.tsv',)
-  def __init__(self, *args, **kwargs):
-    super(SamplesConfigManager, self).__init__('samples', *args, **kwargs)
-    
-  def loadConfig(self, file, indexlowcase_cols=True):
-    """
-    Loads a samples file into a pandas dataframe.
-    If specified, lowercases the column names. 
-    """
-    import pandas as pd
-    filetype = utils.files.extension(file).lstrip('.')
-    fread = getattr(pd, 'read_{}'.format(filetype))
-    data = fread(file)
-    if indexlowcase_cols:
-      data.columns = map(str.lower, data.columns)
-
-    """ Replace NaN with None """
-    data = data.astype(object).where(pd.notnull(data), None)
- 
-    """ Update pipeline manager's samples """
-    self.namespace['pipeline_manager'].samples = data
-
