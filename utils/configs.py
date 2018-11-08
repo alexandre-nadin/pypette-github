@@ -23,8 +23,9 @@ class ConfigManagerTemplate(object):
     """
     config = self.configFileDefault
     if config:
-      self.loadConfig(config)
-    return self
+      return self.loadConfig(config)
+    else:
+      return None
 
   def loadConfig(self, file):
     raise Exception(
@@ -101,9 +102,11 @@ class PipelineConfigManager(ConfigManagerTemplate):
   extensions = ('.yaml', '.json',)
   def __init__(self, *args, **kwargs):
     super(PipelineConfigManager, self).__init__('config', *args, **kwargs)
+    self.loadDftConfig()
+
   def loadConfig(self, file):
     """
-    Loads the given snakemake configuration file.
+    loads the given snakemake configuration file.
     Updates and converts it to an Addict.
     """
     self.namespace['workflow'].configfile(file)

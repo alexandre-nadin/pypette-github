@@ -1,16 +1,14 @@
 #!/usr/bin/env python
-import utils.configs
+import utils.configs, utils.samples
 
 class SamplesManager(object):
   """
   Manages samples.
   """ 
-  def __init__(self, name, namespace):
-    self.samples_confman = utils.configs.SamplesConfigManager(
-      'samples', 
-      self.name, 
-      namespace=self.namespace
-    ).loadDftConfig() 
+  def __init__(self, prefix, namespace):
+    self.config_manager = utils.samples.SamplesConfigManager(
+      config_prefix=prefix, namespace=namespace)
+    self.data = self.config_manager.loadDftConfig() 
 
 class SamplesConfigManager(utils.configs.ConfigManagerTemplate):
   """
@@ -34,6 +32,5 @@ class SamplesConfigManager(utils.configs.ConfigManagerTemplate):
 
     """ Replace NaN with None """
     data = data.astype(object).where(pd.notnull(data), None)
- 
-    """ Update pipeline manager's samples """
-    self.namespace['pipeline_manager'].samples = data
+   
+    return data 

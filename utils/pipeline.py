@@ -15,16 +15,10 @@ class PipelineManager(object):
     self.params     = []
     self.cleanables = []
     self.log        = Logging("pipe:{}".format(name), "INFO")
-    self.saveNamespace()
-    self.samples    = None
     self.pipeline_confman = utils.configs.PipelineConfigManager(
-      self.name,
-      namespace=self.namespace
-    ).loadDftConfig()
-    self.samples_confman = utils.samples.SamplesConfigManager(
-      self.name, 
-      namespace=self.namespace
-    ).loadDftConfig() 
+    self.samples_manager   = utils.samples.SamplesManager(self.name, self.namespace)
+      config_prefix=self.name, namespace=self.namespace)
+    self.saveNamespace()
  
   @property
   def workflow(self):
@@ -44,6 +38,13 @@ class PipelineManager(object):
     Saves itself in the global namespace
     """
     self.namespace['pipeline_manager'] = self
+
+  # ---------
+  # Samples
+  # ---------
+  @property
+  def samples(self):
+    return self.samples_manager.data
 
   # -----------------
   # Pipeline Config
