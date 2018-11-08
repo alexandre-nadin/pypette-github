@@ -18,12 +18,10 @@ class PipelineManager(object):
     self.saveNamespace()
     self.samples    = None
     self.pipeline_confman = utils.configs.PipelineConfigManager(
-      'config', 
       self.name,
       namespace=self.namespace
     ).loadDftConfig()
     self.samples_confman = utils.configs.SamplesConfigManager(
-      'samples', 
       self.name, 
       namespace=self.namespace
     ).loadDftConfig() 

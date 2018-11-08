@@ -99,6 +99,8 @@ class ConfigManagerTemplate(object):
 
 class PipelineConfigManager(ConfigManagerTemplate):
   extensions = ('.yaml', '.json',)
+  def __init__(self, *args, **kwargs):
+    super(PipelineConfigManager, self).__init__('config', *args, **kwargs)
   def loadConfig(self, file):
     """
     Loads the given snakemake configuration file.
@@ -110,6 +112,9 @@ class PipelineConfigManager(ConfigManagerTemplate):
   
 class SamplesConfigManager(ConfigManagerTemplate):
   extensions = ('.csv', '.tsv',)
+  def __init__(self, *args, **kwargs):
+    super(SamplesConfigManager, self).__init__('samples', *args, **kwargs)
+    
   def loadConfig(self, file, indexlowcase_cols=True):
     """
     Loads a samples file into a pandas dataframe.
