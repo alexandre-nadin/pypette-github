@@ -2,7 +2,7 @@
 import os
 import sys
 import subprocess
-from utils import pipeline
+import utils.pipeline
 
 explain_rules_fields = ['name', 'wildcard_names', '_wildcard_constraints', 'snakefile']
 rule explain_rules:
@@ -28,4 +28,4 @@ def newPipelineManager(name):
   Purpose: who writes a piepeline doesn't have to care about the global namespace.
   Default namespace: globals()
   """
-  return pipeline.PipelineManager(name=name, namespace=globals())
+  return utils.pipeline.PipelineManager(name=name, namespace=globals())
