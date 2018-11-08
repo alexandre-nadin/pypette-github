@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import os
-from utils import files, configs
+import utils.configs
 from easydev import Logging
 
 class PipelineManager(object):
@@ -17,12 +17,12 @@ class PipelineManager(object):
     self.log        = Logging("pipe:{}".format(name), "INFO")
     self.saveNamespace()
     self.samples    = None
-    self.pipeline_confman = configs.PipelineConfigManager(
+    self.pipeline_confman = utils.configs.PipelineConfigManager(
       'config', 
       self.name,
       namespace=self.namespace
     ).loadDftConfig()
-    self.samples_confman = configs.SamplesConfigManager(
+    self.samples_confman = utils.configs.SamplesConfigManager(
       'samples', 
       self.name, 
       namespace=self.namespace
