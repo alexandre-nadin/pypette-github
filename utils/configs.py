@@ -28,6 +28,9 @@ class ConfigManagerTemplate(object):
       return None
 
   def loadConfig(self, file):
+    """
+    Override in relevant subclass to correctly load data from the given file.
+    """
     raise Exception(
       "Function {} has to be overridden in a subclass."
        .format(sys._getframe().f_code.co_name))
