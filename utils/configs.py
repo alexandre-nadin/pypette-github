@@ -35,13 +35,6 @@ class ConfigManagerTemplate(object):
       "Function {} has to be overridden in a subclass."
        .format(sys._getframe().f_code.co_name))
 
-  def updateNamespaceConfig(self):
-    """
-    Converts the config from a regular Python dictionnary into an addict's.
-    """
-    import addict
-    self.namespace['config'] = addict.Dict(self.namespace['config'])
-
   @property
   def configFileDefault(self):
     """
@@ -113,4 +106,11 @@ class PipelineConfigManager(ConfigManagerTemplate):
     Updates and converts it to an Addict.
     """
     self.namespace['workflow'].configfile(file)
-    self.updateNamespaceConfig()
+    self.updateNamespace()
+
+  def updateNamespace(self):
+    """
+    Converts the config from a regular Python dictionnary into an addict's.
+    """
+    import addict
+    self.namespace['config'] = addict.Dict(self.namespace['config'])
