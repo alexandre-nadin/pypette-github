@@ -18,7 +18,7 @@ class PipelineManager(object):
     self.samples_manager  = utils.samples.SamplesManager(self.name, self.namespace)
     self.config_manager   = utils.configs.PipelineConfigManager(
       config_prefix=self.name, namespace=self.namespace)
-    self.saveNamespace()
+    self.updateNamespace()
  
   @property
   def workflow(self):
@@ -33,7 +33,7 @@ class PipelineManager(object):
       self.home, "pipelines", self.name, "{}.sk".format(self.name)
     )
 
-  def saveNamespace(self):
+  def updateNamespace(self):
     """
     Saves itself in the global namespace
     """
