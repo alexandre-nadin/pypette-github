@@ -87,24 +87,3 @@ class ConfigManagerTemplate(Manager):
           self.config_type.lower()
         )
     )
-
-class PipelineConfigManager(ConfigManagerTemplate):
-  extensions = ('.yaml', '.json',)
-  def __init__(self, *args, **kwargs):
-    super(PipelineConfigManager, self).__init__('config', *args, **kwargs)
-    self.loadDftConfig()
-
-  def loadConfig(self, file):
-    """
-    loads the given snakemake configuration file.
-    Updates and converts it to an Addict.
-    """
-    self.namespace['workflow'].configfile(file)
-    self.updateNamespace()
-
-  def updateNamespace(self):
-    """
-    Converts the config from a regular Python dictionnary into an addict's.
-    """
-    import addict
-    self.namespace['config'] = addict.Dict(self.namespace['config'])

@@ -17,7 +17,7 @@ class PipelineManager(Manager):
     self.params           = []
     self.cleanables       = []
     self.samples_manager  = utils.samples.SamplesManager(self.name, self.namespace)
-    self.config_manager   = utils.configs.PipelineConfigManager(
+    self.config_manager   = PipelineConfigManager(
       config_prefix=self.name, namespace=self.namespace)
     self.updateNamespace()
  
@@ -147,6 +147,27 @@ class PipelineManager(Manager):
     Adds the given patterns to the list of files to clean.
     """
     self.cleanables.extend([*patterns])
+
+class PipelineConfigManager(utils.configs.ConfigManagerTemplate):
+  extensions = ('.yaml', '.json',)
+  def __init__(self, *args, **kwargs):
+    super(PipelineConfigManager, self).__init__('config', *args, **kwargs)
+    self.loadDftConfig()
+
+  def loadConfig(self, file):
+    """
+    loads the given snakemake configuration file.
+    Updates and converts it to an Addict.
+    """
+    self.namespace['workflow'].configfile(file)
+    self.updateNamespace()
+
+  def updateNamespace(self):
+    """
+    Converts the config from a regular Python dictionnary into an addict's.
+    """
+    import addict
+    self.namespace['config'] = addict.Dict(self.namespace['config'])
 
 class Pipeline():
   def __init__(self, path):
