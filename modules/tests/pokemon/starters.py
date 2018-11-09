@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from utils.dict_utils import toAddict
+from utils.dicts import toAddict
 
 @toAddict
 def getStartersDict():

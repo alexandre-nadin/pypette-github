@@ -1,7 +1,7 @@
 # --------------------------------------------
 # Query pipeline samples' pandas data frame
 # --------------------------------------------
-from utils.dict_utils import toAddict
+from utils.dicts import toAddict
 
 def queryPokes(query):
   """
