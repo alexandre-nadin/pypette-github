@@ -19,6 +19,28 @@ rule explain_rules:
                               for _rule_field in explain_rules_fields
                         ]))
 
+rule samplenames:
+  """
+  List all sample names.
+  """
+  run:
+    print(pipman.samples.data['sample_name'])
+
+rule samples:
+  """
+  List all samples.
+  """
+  run:
+    print(pipman.samples.data)
+
+onsuccess:
+  if 'pipeline_manager' in globals().keys() \
+  and pipman.cleanables:
+    pipman.log.info(
+      "Success! Now removing cleanable files {}..."
+       .format(pipman.cleanables))
+    shell("rm -f {}".format(" ".join(pipman.cleanables)))
+
 # -----------------
 # PipelineManager
 # -----------------

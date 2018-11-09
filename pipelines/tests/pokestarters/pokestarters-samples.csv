@@ -1,4 +1,7 @@
 Sample_ID,Sample_Name,prevol_Id,evol_Id,evol_Lvl,evol_Cond,personality,type
+1,bulbasaur,,2,16
+2,ivysaur,1,3,32,with love,exhilarating,grass poison
+3,venusaur,2,,,with sun,gorgeous,grass poison
 4,charmander,,5,16,care,shy,fire
 5,charmeleon,4,6,36,soap,angry,fire
 6,charizard,5,,,,crusty,fire
