@@ -4,9 +4,10 @@ import os
 from dataclasses import dataclass
 from easydev import Logging
 import utils.files
+from utils.manager import Manager
 
 @dataclass
-class ConfigManagerTemplate(object):
+class ConfigManagerTemplate(Manager):
   """ Params """
   config_type    : str
   config_prefix  : str  = ""
@@ -15,7 +16,7 @@ class ConfigManagerTemplate(object):
   extensions = ()
   """ Attributes """
   def __post_init__(self):
-    self.log = Logging("pipe:{}".format(self.__class__.__name__), "INFO")
+    super(ConfigManagerTemplate, self).__init__()
 
   def loadDftConfig(self):
     """

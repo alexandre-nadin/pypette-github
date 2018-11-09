@@ -2,19 +2,20 @@
 import os
 import utils.configs, utils.samples
 from easydev import Logging
+from utils.manager import Manager
 
-class PipelineManager(object):
+class PipelineManager(Manager):
   """ """
   home          = os.environ['CTGB_PIPE_HOME']
   dir_modules   = os.path.join(home, "modules")
   dir_pipelines = os.path.join(home, "pipelines")
 
   def __init__(self, name, namespace):
+    super(PipelineManager, self).__init__()
     self.name             = name
     self.namespace        = namespace
     self.params           = []
     self.cleanables       = []
-    self.log              = Logging("pipe:{}".format(name), "INFO")
     self.samples_manager  = utils.samples.SamplesManager(self.name, self.namespace)
     self.config_manager   = utils.configs.PipelineConfigManager(
       config_prefix=self.name, namespace=self.namespace)
