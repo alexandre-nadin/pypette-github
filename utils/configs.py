@@ -15,7 +15,7 @@ class ConfigManagerTemplate(object):
   extensions = ()
   """ Attributes """
   def __post_init__(self):
-    self.log = Logging("pipe:{}".format(self.config_type), "INFO")
+    self.log = Logging("pipe:{}".format(self.__class__.__name__), "INFO")
 
   def loadDftConfig(self):
     """
@@ -82,16 +82,9 @@ class ConfigManagerTemplate(object):
     return (
       "{}{}"
         .format(
-          "{}-".format(self.config_prefix if self.config_prefix else ""),
-          self.config_type
+          "{}-".format(self.config_prefix.lower() if self.config_prefix else ""),
+          self.config_type.lower()
         )
-    )
-
-    return (
-      "{}{}".format(
-        "{}-".format(self.config_prefix if self.config_prefix else ""),
-        self.config_type
-      )
     )
 
 class PipelineConfigManager(ConfigManagerTemplate):
