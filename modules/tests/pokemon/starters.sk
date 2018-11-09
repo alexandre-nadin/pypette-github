@@ -1,7 +1,15 @@
 #!/usr/bin/env python
 include: "pokemon.sk"
+
+# ---------------------------------------------------
+#  3 ways of including a python/snakemake module
+# ---------------------------------------------------
+# Give either module's absolute path or path relative to the current one here.
 include: "starters.py"
 pipman.include("starters.py")
+
+# Give either module's absolute path, relative to here, or relative to 
+# the modules directory.
 pipman.includeModule("tests/pokemon/starters.py")
 
 rule starters:
