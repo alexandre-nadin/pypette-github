@@ -4,3 +4,15 @@ def toAddict(func):
   def wrapper(*args, **kwargs):
     return addict.Dict(func(*args, **kwargs))
   return wrapper
+
+def popFirst(func):
+  """
+  Pops the first element of a dictionnary.
+  Originally intended to use on pandas DataFrame.T.to_dict() since each key
+  is an index.
+  """
+  def wrapper(*args, **kwargs):
+    dic = func(*args, **kwargs)
+    dic = dic[list(dic.keys())[0]] if dic else {}
+    return dic
+  return wrapper

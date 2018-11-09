@@ -3,7 +3,7 @@ from utils.dicts import toAddict
 
 @toAddict
 def getStartersDict():
-  return queryPokes('prevol_id.isnull()')
+  return pipman.samples.query('prevol_id.isnull()')
 
 def msgStarters(pokes):
   """

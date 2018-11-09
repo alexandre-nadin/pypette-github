@@ -3,55 +3,15 @@
 # --------------------------------------------
 from utils.dicts import toAddict
 
-def queryPokes(query):
-  """
-  Returns an addict Dict of all found samples filterd by **where.
-  """
-  pokes = pipman.samples.query(query)
-  if pokes.empty:
-    pipman.log.error(
-      "No information found for sample filter '{}'."
-       .format(query)
-    )
-    raise
-  else:
-    return pokes.T.to_dict()
-
-def queryPoke(query):
-  """
-  Returns the first sample filtered by query string.
-  """
-  pokes = queryPokes(query)
-  return pokes[list(pokes.keys())[0]]
-
-@toAddict
-def getPokeDict(nameOrId):
-  """
-  Gets a dict from a sample query
-  """
-  try:
-    return queryPoke('sample_id=={nb} or sample_name=={nb}'
-      .format(nb=int(nameOrId)))
-  except ValueError:
-    return queryPoke('sample_name=="{}"'.format(nameOrId))
-
-@toAddict
-def getPokesDict(nameOrId):
-  """
-  Gets a dict from samples query
-  """
-  try:
-    return queryPokes('sample_id=={nb} or sample_name=={nb}'
-      .format(nb=int(nameOrId)))
-  except ValueError:
-    return queryPokes('sample_name=="{}"'.format(nameOrId))
-
+# ------------------
+# Sample Evolution
+# ------------------
 def getEvol(poke):
   """
   Get next evolution
   """
   if poke.evol_id:
-    return getPokeDict(poke.evol_id) 
+    return pipman.samples.queryFirstNameOrId(poke.evol_id) 
 
 def getEvols(poke):
   """
@@ -62,9 +22,9 @@ def getEvols(poke):
     evol = getEvol(evol)
     yield evol
 
-# ------------------------------------------------------
-# String messages describing samples' characteristics.
-# ------------------------------------------------------
+# -------------------------------------
+# Messages for Sample characteristics
+# -------------------------------------
 def msgPoke(poke):
   """
   Present a sample.

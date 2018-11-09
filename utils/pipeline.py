@@ -45,7 +45,7 @@ class PipelineManager(Manager):
   # ---------
   @property
   def samples(self):
-    return self.samples_manager.data
+    return self.samples_manager
 
   # -----------------
   # Pipeline Config

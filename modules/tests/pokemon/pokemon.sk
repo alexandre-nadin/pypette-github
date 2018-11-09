@@ -7,7 +7,7 @@ rule poke:
   """
   output: "{p}.poke"
   run:
-    print(msgPoke(getPokeDict(wildcards.p)))
+    print(msgPoke(pipman.samples.queryFirstNameOrId(wildcards.p)))
     open(output[0], 'a').close()
 
 rule evol:
@@ -17,7 +17,7 @@ rule evol:
   input: "{p}.poke"
   output: "{p}.evol"
   run:
-    print(msgEvol(getPokeDict(wildcards.p)))
+    print(msgEvol(pipman.samples.queryFirstNameOrId(wildcards.p)))
     open(output[0], 'a').close()
 
 rule evols:
@@ -27,7 +27,16 @@ rule evols:
   input: "{p}.poke"
   output: "{p}.evols"
   run:
-    print(msgEvols(getPokeDict(wildcards.p)))
+    print(msgEvols(pipman.samples.queryFirstNameOrId(wildcards.p)))
     open(output[0], 'a').close()
 
-pipman.toClean("*.poke", "*.evol", "*.evols")
+rule supids:
+  """
+  Retrieves all samples with sample_id > {id} in target '{id}.supids'.
+  """
+  output: "{p}.supids"
+  run:
+    print(pipman.samples.query("sample_id>{}".format(wildcards.p)))
+    open(output[0], 'a').close()
+    
+pipman.toClean("*.poke", "*.evol", "*.evols", "*.supids")
