@@ -29,12 +29,15 @@ def msgPoke(poke):
   """
   Present a sample.
   """
-  me = "Hey! I am {sample_name}"
-  if poke.evol_id:
-    me += " and I evolve at level {evol_lvl} with {evol_cond}"
-  me += "."
-  me += " I am {personality}."
-  return me.format(**poke)
+  return (
+    "Hey! I am {sample_name}{evol_msg}. I am {personality}."
+     .format(
+       **poke,
+       evol_msg=" and I evolve at level {evol_lvl} with {evol_cond}"
+         .format(**poke) 
+         if poke.evol_id else ""
+     )
+  )
 
 def msgEvols(poke):
   """
@@ -43,13 +46,13 @@ def msgEvols(poke):
   me = ""
   if poke.evol_id:
     me += (
-       "My evolutions are "
-     + "; ".join([ 
-       "{sample_name} ({type})"
-         .format(**evol)
-         for evol in getEvols(poke)
-      ])
-     + "."
+      "My evolutions are {evol_list}."
+      .format(evol_list="; ".join(
+        [
+          "{sample_name} ({type})".format(**evol)
+          for evol in getEvols(poke)
+        ]
+      ))
     )
   else:
     me += "I do not evolve."
