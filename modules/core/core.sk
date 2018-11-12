@@ -1,0 +1,23 @@
+#!/usr/bin/env python
+import utils.pipeline
+include: "rules.sk"
+include: "samples.sk"
+
+onsuccess:
+  if 'pipeline_manager' in globals().keys() \
+  and pipeman.cleanables:
+    pipeman.log.info(
+      "Success! Now removing cleanable files {}..."
+       .format(pipeman.cleanables))
+    shell("rm -f {}".format(" ".join(pipeman.cleanables)))
+
+# -----------------
+# PipelineManager
+# -----------------
+def newPipelineManager(name):
+  """
+  Declares a new PipelineManager the easiest way.
+  Purpose: who writes a piepeline doesn't have to care about the global namespace.
+  Default namespace: globals()
+  """
+  return utils.pipeline.PipelineManager(name=name, namespace=globals())

@@ -1,0 +1,15 @@
+#!/usr/bin/env python
+rule samplenames:
+  """
+  List all sample names.
+  """
+  run:
+    print(pipeman.samples.data['sample_name'])
+
+rule samples:
+  """
+  List all samples.
+  """
+  run:
+    print(pipeman.samples.data)
+
