@@ -1,11 +1,6 @@
-# --------------------------------------------
-# Query pipeline samples' pandas data frame
-# --------------------------------------------
-from utils.dicts import toAddict
-
-# ------------------
-# Sample Evolution
-# ------------------
+# --------------------
+# Samples Evolutions
+# --------------------
 def getEvol(poke):
   """
   Get next evolution

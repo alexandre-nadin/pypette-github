@@ -1,7 +1,4 @@
 #!/usr/bin/env python
-import os
-import sys
-import subprocess
 import utils.pipeline
 
 explain_rules_fields = ['name', 'wildcard_names', '_wildcard_constraints', 'snakefile']
