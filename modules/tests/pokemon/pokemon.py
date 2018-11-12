@@ -11,7 +11,7 @@ def getEvol(poke):
   Get next evolution
   """
   if poke.evol_id:
-    return pipman.samples.queryFirstNameOrId(poke.evol_id) 
+    return pipeman.samples.queryFirstNameOrId(poke.evol_id) 
 
 def getEvols(poke):
   """

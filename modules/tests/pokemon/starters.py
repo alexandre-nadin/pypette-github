@@ -1,9 +1,6 @@
 #!/usr/bin/env python
-from utils.dicts import toAddict
-
-@toAddict
 def getStartersDict():
-  return pipman.samples.query('prevol_id.isnull()')
+  return pipeman.samples.query('prevol_id.isnull()')
 
 def msgStarters(pokes):
   """

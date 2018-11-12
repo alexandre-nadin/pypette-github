@@ -24,22 +24,22 @@ rule samplenames:
   List all sample names.
   """
   run:
-    print(pipman.samples.data['sample_name'])
+    print(pipeman.samples.data['sample_name'])
 
 rule samples:
   """
   List all samples.
   """
   run:
-    print(pipman.samples.data)
+    print(pipeman.samples.data)
 
 onsuccess:
   if 'pipeline_manager' in globals().keys() \
-  and pipman.cleanables:
-    pipman.log.info(
+  and pipeman.cleanables:
+    pipeman.log.info(
       "Success! Now removing cleanable files {}..."
-       .format(pipman.cleanables))
-    shell("rm -f {}".format(" ".join(pipman.cleanables)))
+       .format(pipeman.cleanables))
+    shell("rm -f {}".format(" ".join(pipeman.cleanables)))
 
 # -----------------
 # PipelineManager

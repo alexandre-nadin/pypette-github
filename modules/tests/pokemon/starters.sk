@@ -6,11 +6,11 @@ include: "pokemon.sk"
 # ---------------------------------------------------
 # Give either module's absolute path or path relative to the current one here.
 include: "starters.py"
-pipman.include("starters.py")
+pipeman.include("starters.py")
 
 # Give either module's absolute path, relative to here, or relative to 
 # the modules directory.
-pipman.includeModule("tests/pokemon/starters.py")
+pipeman.includeModule("tests/pokemon/starters.py")
 
 rule starters:
   """
@@ -29,4 +29,4 @@ rule choseStarter:
   run:
     print("Which one will you chose?")
 
-pipman.toClean("*.starters")
+pipeman.toClean("*.starters")

@@ -1,4 +1,4 @@
 #!/usr/bin/env python
 include: "/mnt/storage/alexn/dev/ctgb/ctgb-pipe/pipelines/pipeline.sk"
-pipman = newPipelineManager("pokestarters")
-pipman.includeModule("tests/pokemon/starters.sk")
+pipeman = newPipelineManager("pokestarters")
+pipeman.includeModule("tests/pokemon/starters.sk")
