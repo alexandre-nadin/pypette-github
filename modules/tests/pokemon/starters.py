@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 def getStartersDict():
   return pipeman.samples.query('prevol_id.isnull()')
 

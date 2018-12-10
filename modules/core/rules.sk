@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 explain_rules_fields = ['name', 'wildcard_names', '_wildcard_constraints', 'snakefile']
 rule explain_rules:
   """

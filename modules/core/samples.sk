@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 rule samplenames:
   """
   List all sample names.

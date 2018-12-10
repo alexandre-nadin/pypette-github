@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 include: "config.sk"
 
 rule explain_link_fastq_read:
