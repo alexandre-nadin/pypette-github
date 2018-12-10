@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 import os
 import utils.configs, utils.samples
-from easydev import Logging
 from utils.manager import Manager
 
 class PipelineManager(Manager):
