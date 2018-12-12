@@ -148,10 +148,17 @@ class PipelineManager(Manager):
     self.cleanables.extend([*patterns])
 
 class PipelineConfigManager(utils.configs.ConfigManagerTemplate):
-  extensions = ('.yaml', '.json',)
   def __init__(self, *args, **kwargs):
     super(PipelineConfigManager, self).__init__('config', *args, **kwargs)
     self.loadDftConfig()
+
+  @property
+  def extensions(self):
+    return ('.yaml', '.json',)
+
+  @property
+  def configfileBase(self):
+    return "config"
 
   def loadConfig(self, file):
     """

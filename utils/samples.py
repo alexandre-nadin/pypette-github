@@ -55,10 +55,17 @@ class SamplesConfigManager(utils.configs.ConfigManagerTemplate):
   """
   Manages configuration files for samples.
   """
-  extensions = ('.csv', '.tsv',)
   def __init__(self, *args, **kwargs):
     super(SamplesConfigManager, self).__init__('samples', *args, **kwargs)
-    
+   
+  @property
+  def extensions(self):
+    return ('.csv', '.tsv',)
+  
+  @property
+  def configfileBase(self):
+    return "samples"
+ 
   def loadConfig(self, file, indexlowcase_cols=True):
     """
     Loads a samples file into a pandas dataframe.
