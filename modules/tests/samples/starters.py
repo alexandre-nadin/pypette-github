@@ -1,14 +1,14 @@
 def getStartersDict():
   return pipeman.samples.query('prevol_id.isnull()')
 
-def msgStarters(pokes):
+def msgStarters(samples):
   """
   Describes all starters.
   """
   msgs = [
     "{sample_name}, of {type} type. It is {personality}."
      .format(**val)
-    for val in pokes.values()
+    for val in samples.values()
   ]
   return (
       "Starters are:"

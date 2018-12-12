@@ -1,10 +1,10 @@
-include: "pokemon.py"
+include: "samples.py"
 
-rule poke:
+rule sample:
   """
   Presents a sample.
   """
-  output: "{p}.poke"
+  output: "{p}.sample"
   run:
     print(msgPoke(pipeman.samples.queryFirstNameOrId(wildcards.p)))
     open(output[0], 'a').close()
@@ -13,7 +13,7 @@ rule evol:
   """
   Describes an evolution.
   """
-  input: "{p}.poke"
+  input: "{p}.sample"
   output: "{p}.evol"
   run:
     print(msgEvol(pipeman.samples.queryFirstNameOrId(wildcards.p)))
@@ -23,7 +23,7 @@ rule evols:
   """
   Describes all evolutions.
   """
-  input: "{p}.poke"
+  input: "{p}.sample"
   output: "{p}.evols"
   run:
     print(msgEvols(pipeman.samples.queryFirstNameOrId(wildcards.p)))
@@ -38,4 +38,4 @@ rule supids:
     print(pipeman.samples.query("sample_id>{}".format(wildcards.p)))
     open(output[0], 'a').close()
     
-pipeman.toClean("*.poke", "*.evol", "*.evols", "*.supids")
+pipeman.toClean("*.sample", "*.evol", "*.evols", "*.supids")

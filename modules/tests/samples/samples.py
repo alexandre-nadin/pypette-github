@@ -1,18 +1,18 @@
 # --------------------
 # Samples Evolutions
 # --------------------
-def getEvol(poke):
+def getEvol(sample):
   """
   Get next evolution
   """
-  if poke.evol_id:
-    return pipeman.samples.queryFirstNameOrId(poke.evol_id) 
+  if sample.evol_id:
+    return pipeman.samples.queryFirstNameOrId(sample.evol_id) 
 
-def getEvols(poke):
+def getEvols(sample):
   """
   Gets all possible evolutions
   """
-  evol = poke
+  evol = sample
   while evol.evol_id:
     evol = getEvol(evol)
     yield evol
@@ -20,32 +20,32 @@ def getEvols(poke):
 # -------------------------------------
 # Messages for Sample characteristics
 # -------------------------------------
-def msgPoke(poke):
+def msgPoke(sample):
   """
   Present a sample.
   """
   return (
     "Hey! I am {sample_name}{evol_msg}. I am {personality}."
      .format(
-       **poke,
+       **sample,
        evol_msg=" and I evolve at level {evol_lvl} with {evol_cond}"
-         .format(**poke) 
-         if poke.evol_id else ""
+         .format(**sample) 
+         if sample.evol_id else ""
      )
   )
 
-def msgEvols(poke):
+def msgEvols(sample):
   """
   Describes a sample's evolutions.
   """
   me = ""
-  if poke.evol_id:
+  if sample.evol_id:
     me += (
       "My evolutions are {evol_list}."
       .format(evol_list="; ".join(
         [
           "{sample_name} ({type})".format(**evol)
-          for evol in getEvols(poke)
+          for evol in getEvols(sample)
         ]
       ))
     )
@@ -53,12 +53,12 @@ def msgEvols(poke):
     me += "I do not evolve."
   return me
 
-def msgEvol(poke):
+def msgEvol(sample):
   """
   Describes a sample's evolution.
   """
-  if poke.evol_id:
-    me = "I evolve into {sample_name}".format(**getEvol(poke))
+  if sample.evol_id:
+    me = "I evolve into {sample_name}".format(**getEvol(sample))
   else:
     me = "I do not evolve."
   return me

@@ -1,4 +1,4 @@
-include: "pokemon.sk"
+include: "samples.sk"
 
 # ---------------------------------------------------
 #  3 ways of including a python/snakemake module
@@ -9,7 +9,7 @@ pipeman.include("starters.py")
 
 # Give either module's absolute path, relative to here, or relative to 
 # the modules directory.
-pipeman.includeModule("tests/pokemon/starters.py")
+pipeman.includeModule("tests/samples/starters.py")
 
 rule starters:
   """
