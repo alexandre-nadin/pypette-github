@@ -5,19 +5,20 @@ from utils.manager import Manager
 
 class PipelineManager(Manager):
   """ """
-  home          = os.environ['CTGB_PIPE_HOME']
-  dir_modules   = os.path.join(home, "modules")
-  dir_pipelines = os.path.join(home, "pipelines")
 
-  def __init__(self, name, namespace):
+  def __init__(self, namespace, name="Default"):
     super(PipelineManager, self).__init__()
-    self.name             = name
     self.namespace        = namespace
+    self.home             = self.namespace['CPIPE_HOME']
+    self.name             = self.namespace['CPIPE_PIPE_NAME']
+    self.dir_modules      = os.path.join(self.home, "modules")
+    self.dir_pipelines    = os.path.join(self.home, "pipelines")
     self.params           = []
     self.cleanables       = []
     self.samples_manager  = utils.samples.SamplesManager(self.name, self.namespace)
     self.config_manager   = PipelineConfigManager(
-      config_prefix=self.name, namespace=self.namespace)
+                              config_prefix = self.name, 
+                              namespace     = self.namespace)
     self.updateNamespace()
  
   @property
