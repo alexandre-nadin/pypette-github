@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+set -euf -o pipefail
+source ctgb-pipe.sh
+
+# -------------------
+# Parse parameters
+# -------------------
+function parseParams() {
+  while [ $# -ge 1 ]
+  do
+      case "$1" in
+        -p|--pipeline)
+          PIPELINE="$2" && shift
+          ;;
+  
+        -o|--snake-options)
+          SNAKE_OPTIONS+=("$2") && shift
+          ;;
+  
+        -h|--help)
+          manual && exit
+          ;;
+  
+        --ls-pipes)
+          listPipelines
+          exit
+          ;;
+  
+        --ls-modules)
+          listModules
+          exit
+          ;;
+  
+        -v|--verbose)
+          VERBOSE=true
+          ;;
+  
+        *)
+          errorUnrecOpt "$1"
+          ;;
+  
+      esac
+      shift
+  done
+}
+
+function runFlow() {
+  initParams
+  parseParams "$@"
+  checkParams
+  exportVarenvs
+  execSnakemake
+}
+
+runFlow "$@"
