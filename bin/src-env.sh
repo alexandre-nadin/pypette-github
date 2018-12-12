@@ -5,6 +5,6 @@ source "${_dir}/ctgb-pipe.sh"
 "${_dir}/set-dirs"
 
 ## Include binaries
-export PATH="${PATH}":"${CTGB_PIPE_HOME}/bin"
+export PATH="${PATH}":"${_dir}"
 
 condactivate ctgb-pipe

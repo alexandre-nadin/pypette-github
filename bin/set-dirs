@@ -7,6 +7,11 @@ mkdir -p ./projects
 mkdir -p ./runs
 
 # Mount Illumina directory
-mkdir -p ./illumina
-mountpoint -q ./illumina \
- || sshfs -o nonempty anadin@172.21.151.42:/illumina ./illumina
+CLUSTER_PATH="./cluster"
+function mountClusterPoint() {
+  mkdir -p "$CLUSTER_PATH"
+  mountpoint -q "$CLUSTER_PATH" \
+   || sshfs -o nonempty anadin@172.21.151.42:${1:-/} "$CLUSTER_PATH"
+}
+
+mountClusterPoint "/"
