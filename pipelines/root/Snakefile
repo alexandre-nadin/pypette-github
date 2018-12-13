@@ -1,0 +1,17 @@
+from utils import environ, pipeline
+
+""" Sets Environment Variables """
+environ.setVars(
+  'CPIPE_HOME', 'CPIPE_PIPE_NAME', 'CPIPE_PIPE_SNAKE',
+  namespace=globals())
+
+""" Define the pipeline manager """
+pipeman = pipeline.PipelineManager(
+            name=CPIPE_PIPE_NAME, 
+            namespace=globals())
+
+""" Include core modules """
+pipeman.includeModule('core/core.sk')
+
+""" Include requested pipeline """
+include: CPIPE_PIPE_SNAKE
