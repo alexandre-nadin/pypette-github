@@ -170,6 +170,7 @@ function cmdSnakemake() {
   cat << eol | xargs
   \snakemake
    --snakefile $(pathPipelineSnakefile root)
+   --directory "$SNAKE_DIR"
    ${SNAKE_OPTIONS[@]}
 eol
 }
