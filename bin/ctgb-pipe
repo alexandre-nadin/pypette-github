@@ -30,7 +30,11 @@ function parseParams() {
           listModules
           exit
           ;;
-  
+
+        -d|--directory)
+          SNAKE_DIR=$(readlink -f "$2") && shift
+          ;;
+             
         -v|--verbose)
           VERBOSE=true
           ;;

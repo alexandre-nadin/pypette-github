@@ -43,6 +43,9 @@ cat << EOFMAN
       --ls-modules
           Lists available modules in ctgb-pipe.
 
+      -d|--directory
+          Working directory for Snakemake. Default 'CTGB__DIR_PROJECTS' if set or 'pwd'
+
       -o|--snake-options
           List of options to pass to Snakemake
 
@@ -87,11 +90,13 @@ function pathModules() {
 function initParams() {
   PIPELINE=""
   SNAKE_OPTIONS=()
+  SNAKE_DIR=""
   VERBOSE=false
 }
 
 function checkParams() {
   checkPipeline
+  checkDirs
 }
 
 function isParamGiven() {
@@ -105,6 +110,27 @@ function existsPipeline() {
 function checkPipeline() {
   isParamGiven "$PIPELINE"   || errorParamNotGiven "PIPELINE"
   existsPipeline "$PIPELINE" || errorPipelineNotExist "$PIPELINE"
+}
+
+function checkDirs() {
+  checkSnakeDir
+}
+
+function checkSnakeDir() {
+  #
+  # Set default SNAKE_DIR if not defined
+  # Either it is specified in option, CTGB__DIR_PROJECTS if set,
+  # or current directory './'
+  #
+  if isParamGiven "$SNAKE_DIR"; then
+    :
+  else
+    if [ -z ${CTGB__DIR_PROJECTS+x} ]; then
+      SNAKE_DIR=$(pwd)
+    else
+      SNAKE_DIR="$CTGB__DIR_PROJECTS" 
+    fi 
+  fi
 }
 
 # ----------
