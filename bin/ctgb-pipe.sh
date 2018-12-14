@@ -2,6 +2,8 @@
 SCRIPT_PATH=$(readlink -f "${0}")
 SCRIPT_DIR=$(dirname "${SCRIPT_PATH}")
 
+PIPELINE_SNAKEFILE="Snakefile"
+
 # ---------------------
 # Snakemake functions
 # ---------------------
@@ -72,7 +74,7 @@ function pathPipelines() {
 }
 
 function pathPipelineSnakefile() {
-  printf "$(pathPipelines)/${1}/Snakefile"
+  printf "$(pathPipelines)/${1}/${PIPELINE_SNAKEFILE}"
 }
 
 function pathModules() {
@@ -118,7 +120,9 @@ function listPipelines() (
   cd "$(pathPipelines)"
   set +f
   msgListPipelines
-  ls */{,*/}Snakefile \
+  ls -1 */{,*/}${PIPELINE_SNAKEFILE}     \
+   | sed "s|/\?${PIPELINE_SNAKEFILE}$||" \
+   | xargs                          \
    2>/dev/null
 )
 
