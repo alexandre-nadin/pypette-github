@@ -16,3 +16,8 @@ def popFirst(func):
     dic = dic[list(dic.keys())[0]] if dic else {}
     return dic
   return wrapper
+
+class Default(dict):
+  def __missing__(self, key):
+    return '{' + key + '}'
+
