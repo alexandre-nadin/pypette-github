@@ -1,4 +1,6 @@
 import utils.dicts
+import os
+pipeman.config_manager.loadConfig(os.path.join(pipeman.dir_modules, "lims", "cluster.yaml"))
 
 # ---------------
 # Metadata file
