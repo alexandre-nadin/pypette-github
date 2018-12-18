@@ -55,7 +55,7 @@ rule fastq__trimmomatic_fastq:
     #touch {output} # DRY_RUN
   """
 
-ruleorder: fastq__trimmomatic_fastq > fastq__cutadapt_fastq > fastq__link_fastq_read
+ruleorder: fastq__trimmomatic_fastq > fastq__cutadapt_fastq > fastq__linkFastqRead
 ## TRIMMING with cut_adapt 
 CUTADAPT_B=" -b file:adapters.fa"  #CUT_ADAPTER
 CUTADAPT_Q=" -q 30,30" #TRIM_Q

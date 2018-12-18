@@ -36,71 +36,135 @@ fastq__csvmap = csv_helper.CsvMap('fastq_samples.map', delimitor='\t', colnames=
 fastq__map_sep = "\t"
 fastq__samples_map = "fastq_samples.map"
 
-rule fastq__fastq_files:
-  #
-  # Find all the fastq files in the RUN dirctories found in configuration.
-  #
-  output: 
-      primary= "{prj_name}/fastq/fastq_files.txt"
-  shell:"""
-    find {RAW_DATA_DIRS} -name '*.fastq.gz' > {output}
-  """ 
+def setConfigs(**kwargs):
+  """
+  Not elegant way to deal with config files.
+  Should set dependence to cluster.yaml (retreived in {prj_name}/metadata.json)
+  Loads {prj_name}/metadata.json.
+  """
+  import os
+  """ Load cluster configuration """
+  pipeman.config_manager.loadConfig(
+    os.path.join(
+      pipeman.dir_modules, "lims", "cluster.yaml"
+    )
+  )
+  """ Load project metadata configuration """
+  pipeman.config_manager.loadConfig(
+    "{prj_name}/metadata.json".format(**kwargs)
+  )
 
-def get_run_from_filepath(filename):
+def fastq__getRuns():
+  return [ os.path.join(pipeman.config.cluster.sequencing_runs_dir, runid)
+    for runid in pipeman.config.project.run_ids
+  ]
+
+def fastq__checkRuns(runs=[]):
+  error = False
+  for run in runs:
+    if not os.path.isdir(run):
+      pipeman.log.error("Run {} doesn't exist.".format(run))
+      noerror = True
+  if error: raise
+
+fastq__fastq_files_io = "{prj_name}/fastq/fastq_files.txt"
+rule fastq__fastqFiles:
+  """
+  Find all the fastq files in the RUN dirctories found in configuration.
+  """
+  input:
+    metadata = lims__project_metadata_io
+  output: 
+    primary  = fastq__fastq_files_io
+  run:
+    setConfigs(**wildcards)
+    runs = fastq__getRuns()
+    fastq__checkRuns(runs)
+    shell("""
+      find {runs} -name '*.fastq.gz' > {output}
+    """)
+def getRunFromFilepath(filepath):
   #
   # Retrieve a Run id from a file containing paths.
   #
-  for _run in RUN_IDS:
-      run_path = os.sep.join([RUN_BASEDIR, _run, ''])
-      if filename.startswith(run_path):
-          return _run
-      else:
-         continue
+  for run in pipeman.config.project.run_ids:
+    run_path = os.path.join(
+      pipeman.config.cluster.sequencing_runs_dir,
+      run, 
+    )
+    print("'{}' starts with '{}'?".format(filepath, run_path))
+    if filepath.startswith(run_path):
+      print("  OK")
+      return run
+    else:
+      print("  KO")
+      continue
 
-rule fastq__fastq_samples:
+
+fastq__fastq_samples_io = "{prj_name}/fastq/fastq_samples.map"
+rule fastq__fastqSamples:
   #   
   # Maps all the illumina filename metadata in a file.
   #   
   input: 
-      file="fastq_files.txt"
+    file    = fastq__fastq_files_io
   output: 
-      primary="fastq_samples.map"
+    primary = fastq__fastq_samples_io
   run:
-      with open(input['file'], 'r') as files:
-          for _file in files:
-              ## Deduce file's run name
-              sample_run = get_run_from_filepath(_file)
+    setConfigs(**wildcards)
+    with open(input.file, 'r') as files:
+      for _file in files:
+        ## Deduce file's run name
+        sample_run = getRunFromFilepath(_file)
 
-              ## Get file's info
-              fastqfile = FastqFile(_file.strip(), run_name=sample_run)
+        ## Get file's info
+        fastqfile = FastqFile(_file.strip(), run_name=sample_run)
+        #fastqfile = FastqFile(_file.strip(), run_name=_file)
 
-              ## Write to output
-              with open(output['primary'], 'a') as fmap:
-                  fmap.write("{}{}".format(fastq__map_sep.join(
-                    [fastqfile.__dict__[_field] \
-                      for _field in list(FastqFile.get_field_names())
-                    ]   
-                   ), os.linesep))
+        ## Write to output
+        with open(output.primary, 'a') as fmap:
+          fmap.write("{}{}".format(
+            fastq__map_sep.join(
+              [ fastqfile.__dict__[_field]
+                for _field in list(FastqFile.get_field_names())
+              ]   
+            ), 
+            os.linesep))
 
+rule fastq_reads:
+  run:
+    fastq_read = lambda wildcards: csvmap__format_str_from_query_dict(
+                   csvmap=fastq__csvmap, 
+                   str_format="{sample_path}",
+                   **wildcards)
+    print("fastq_read: {}".format(fastq_read()))
+    
+def csvmap__format_str_from_query_dict(csvmap, str_format="", **query_dict):
+    #
+    # Queries a CSVMap object based on a given dictionary.
+    #
+    return set([ str_format.format(**_cmap)
+                 for _cmap in csvmap.query_dict(**query_dict)
+               ])
 
 # -----------------
 # Link fastq reads
 # -----------------
-localrules: fastq__link_fastq_read
-rule fastq__link_fastq_read:
+localrules: fastq__linkFastqRead
+rule fastq__linkFastqRead:
   #
   # Links original fastq file to the project directory.
   #
   input:
-      #samples_map = fastq__samples_map,
-      fastq_read= lambda wildcards: csvmap__format_str_from_query_dict(
-                csvmap=fastq__csvmap, 
-                str_format="{sample_path}",
-                **wildcards)
+    #samples_map = fastq__samples_map,
+    fastq_read = lambda wildcards: csvmap__format_str_from_query_dict(
+                   csvmap=fastq__csvmap, 
+                   str_format="{sample_path}",
+                   **wildcards)
   output: 
-      primary=fastq__chunk_format + ".fastq.gz"
+    primary    = fastq__chunk_format + ".fastq.gz"
   shell:"""
-    ln.rel {input[fastq_read]} {output[primary]} 
+    ln.rel {input.fastq_read} {output.primary} 
   """
 
 # ---------------

@@ -2,8 +2,8 @@ include: "config.sk"
 
 rule explain_link_fastq_read:
     run:
-        for _elem in rules.__dict__['fastq__link_fastq_read'].__dict__.keys():
-            print("{}:{}{}".format(_elem, os.linesep, rules.__dict__['fastq__link_fastq_read'].__dict__[_elem]))
+        for _elem in rules.__dict__['fastq__linkFastqRead'].__dict__.keys():
+            print("{}:{}{}".format(_elem, os.linesep, rules.__dict__['fastq__linkFastqRead'].__dict__[_elem]))
 
 localrules: pbs_dir, update_cluster_rules
 rule pbs_dir:
