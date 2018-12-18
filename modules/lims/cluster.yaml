@@ -1,0 +1,3 @@
+cluster:
+  illumina_dir: "/mnt/storage/alexn/dev/ctgb/cluster/illumina"
+  sequencing_runs_dir: "/mnt/storage/alexn/dev/ctgb/sequencing-runs"
