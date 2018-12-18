@@ -2,18 +2,16 @@
 import os
 import sys
 import re
-sys.path.insert(0, os.path.abspath(os.path.curdir))
-#print("currently in '{}'".format(os.path.abspath(os.path.curdir)))
-#import enumeration as enum
 from collections import OrderedDict
+import addict
 
 ## Illumina naming convention: 
 class FastqFile(object):
-  # This class helps to get a file's information.
-  # The file should respect illumina filename convention:
+  # This class helps to get a fastq file's information.
+  # The file should respect Illumina filename convention:
   #   /path/to/SampleName_SampleNumber_LaneNumber_ReadNumber_ChunkNumber.fastq_extension
   # 
-  fields_regex_dic = OrderedDict([
+  regex_fields = addict.Dict(OrderedDict([
     ('sample_path', "\w+"),
     ('sample_run', "\w+"),
     ('sample_basename', "\w+"),
@@ -24,27 +22,27 @@ class FastqFile(object):
     ('sample_read', "R[12]"),
     ('sample_chunknb', "\d+"),
     ('sample_extension', "\.fastq.*")
-  ])
+  ]))
   field_sep = '_'
 #  fields_regex_str = field_sep.join([
 #                   "({})".format(_regex) for _regex in [
 #                     [
-#                      fields_regex_dic[_field] for _field in [
+#                      regex_fields[_field] for _field in [
 #                       'sample_name', 'sample_number',  
 #                       'sample_lane', 'sample_read', 'sample_chunknb'
 #                      ]
 #                     ]
 #                   ]
-#                 ]) + "({})".format(fields_regex_dic['sample_extension'])
+#                 ]) + "({})".format(regex_fields['sample_extension'])
   fields_regex_str = field_sep.join([
                    "({})".format(_regex) for _regex in [
-                      fields_regex_dic['sample_name'], 
-                     fields_regex_dic['sample_number'], 
-                     fields_regex_dic['sample_lane'], 
-                     fields_regex_dic['sample_read'], 
-                     fields_regex_dic['sample_chunknb']
+                      regex_fields['sample_name'], 
+                     regex_fields['sample_number'], 
+                     regex_fields['sample_lane'], 
+                     regex_fields['sample_read'], 
+                     regex_fields['sample_chunknb']
                    ]
-                 ]) + "({})".format(fields_regex_dic['sample_extension'])
+                 ]) + "({})".format(regex_fields['sample_extension'])
                  
 
   def __init__(self, filename, run_name=""):
@@ -63,4 +61,4 @@ class FastqFile(object):
 
   @classmethod
   def get_field_names(cls):
-    return list(cls.fields_regex_dic.keys())
+    return list(cls.regex_fields.keys())

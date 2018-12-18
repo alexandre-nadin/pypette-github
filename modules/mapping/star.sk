@@ -16,12 +16,12 @@ rule star__align_chunk_star:
         # samples_map = fastq_samples_map,
         fastq_reads= lambda wildcards: csvmap__format_str_from_query_dict(
                   csvmap=fastq_csvmap, 
-                  str_format=chunk_fastq_format + ".fastq.gz",
+                  str_format=fastq__chunk_format + ".fastq.gz",
                   **wildcards)
     output: 
-        primary = chunk_bam_format + "{process}.bam",
-        bam_file_raw = chunk_bam_format + "{process}.Aligned.sortedByCoord.out.bam",
-        raw_files = [ chunk_bam_format + "{process}." + _raw for _raw in
+        primary = bam__chunk_format + "{process}.bam",
+        bam_file_raw = bam__chunk_format + "{process}.Aligned.sortedByCoord.out.bam",
+        raw_files = [ bam__chunk_format + "{process}." + _raw for _raw in
              [ "Log.out", "Log.progress.out", "Log.final.out", "SJ.out.tab" ]
         ]
     wildcard_constraints:

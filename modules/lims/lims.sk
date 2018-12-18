@@ -3,9 +3,9 @@ import utils.dicts
 # ---------------
 # Metadata file
 # ---------------
-lims__SRV_URL="f2.ricerca.hsr.it"
-lims__PRJ_URL = lims__SRV_URL + "/projects"
-lims__SEQU_RUN_URL = lims__PRJ_URL + "/api/sequencing_run"
+lims__SRV_URL      = "f2.ricerca.hsr.it"
+lims__PRJ_URL      = lims__SRV_URL      + "/projects"
+lims__SEQU_RUN_URL = lims__PRJ_URL      + "/api/sequencing_run"
 lims__TO_DEMUX_URL = lims__SEQU_RUN_URL + "/to_demultiplex/"
 
 lims__project_medata_io_format = "json"

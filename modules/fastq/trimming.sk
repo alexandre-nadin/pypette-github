@@ -1,0 +1,80 @@
+# -----------------
+# Fastq Trimming
+# -----------------
+rule fastq__fasta_adapters:
+  input: 
+      adapter_fasta="/lustre1/genomes/Illumina_Adapters/Adapters.fasta"
+      # SUGGESTION: set an ADAPTER_FASTA_PATH variable in config.sk (everything that has hardcoded paths actually)
+  output:
+      primary="adapters.fa"
+  shell:"""
+    condactivate
+    ## Substitute uracil in timin; Remove empty lines.
+    perl -pe 'if(!m/^>/){{ tr/U/T/}}' {input[adapter_fasta]} \
+     | grep . > {output[primary]}.tmp1
+    reverse_fasta < {output[primary]}.tmp1 \
+     | perl -lpe 'if(m/^>/){{$_=$_."_reverse"}}' \
+     > {output[primary]}.tmp2
+    cat {output[primary]}.tmp1 {output[primary]}.tmp2 \
+     > {output[primary]}
+    rm {output[primary]}.tmp1 {output[primary]}.tmp2
+  """
+
+TRIMMED = '.cutadapt' #'.trimmomatic'
+## TRIMMING with trimmomatic
+# SUGGESTION: 
+#  v Rename variable in TRIMMOMATIC_CMD -> clarity in variable names.
+#  - Hardcoded paths go in config.sk file
+#  - Make a single uniform rule for trimmomatic by managing the paired condition in the input.
+TRIMMOMATIC_CMD="trimmomatic-0.32.jar"
+TRIMMOMATIC_RAM = '10gb'     # *in GB* 
+TRIMMOMATIC_RAM_JAVA = '10240M'    # *in MB; = TRIMMOMATIC_RAM*1024*
+TRIMMOMATIC_PAIRED = 'PE' if PAIRED in ['Y', True] else 'SE'
+TRIMMOMATIC_HEADCROP = 'HEADCROP:12'        # for QUANTSEQ, leave empty for TruSeq #
+
+rule fastq__trimmomatic_fastq:
+  input: 
+      fastq_file = "{prefix}.fastq.gz",
+      adapter = "adapters.fa"
+  output: 
+      primary = "{prefix}.trimmomatic.fastq.gz"
+  shell:"""
+    java -Djava.io.tmpdir=$TMPDIR -Xmx{TRIMMOMATIC_RAM_JAVA} \
+      -jar {TRIMMOMATIC_CMD} {TRIMMOMATIC_PAIRED} \
+      -phred33 \
+      -trimlog {output[primary]}.log \
+      {input[fastq_file]} \
+      {output[primary]} \
+      ILLUMINACLIP:{input[adapter]}:2:30:10 \
+      LEADING:3 \
+      TRAILING:3 \
+      SLIDINGWINDOW:4:15 \
+      MINLEN:15 \
+      {TRIMMOMATIC_HEADCROP} \
+      > {output[primary]}.out
+    #touch {output} # DRY_RUN
+  """
+
+ruleorder: fastq__trimmomatic_fastq > fastq__cutadapt_fastq > fastq__link_fastq_read
+## TRIMMING with cut_adapt 
+CUTADAPT_B=" -b file:adapters.fa"  #CUT_ADAPTER
+CUTADAPT_Q=" -q 30,30" #TRIM_Q
+CUTADAPT_U=" -u 13" #TRIM_CUT
+CUTADAPT_M=" -m 15" #TRIM_MIN_LEN  # Let always set to avoid read without sequence after trimming
+rule fastq__cutadapt_fastq:
+  input:
+    fastq_file = "{prefix}.fastq.gz",
+    adapter = "adapters.fa"
+  output: 
+    primary = "{prefix}.cutadapt.fastq.gz"
+  shell:"""
+    condactivate  # >  {output[primary]}.out # DRY_RUN
+    cutadapt {CUTADAPT_B} \
+      --trim-n {CUTADAPT_Q} \
+      {CUTADAPT_U} \
+      {CUTADAPT_M} \
+      -o {output[primary]} \
+      {input[fastq_file]} \
+     > "{output[primary]}.log"
+    #touch {output} # DRY_RUN
+  """

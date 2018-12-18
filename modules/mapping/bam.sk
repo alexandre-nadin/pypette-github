@@ -8,11 +8,11 @@ rule bam__merge_sample_bam_chunks:
     input:
         bam= lambda wildcards: csvmap__format_str_from_query_dict(
                   csvmap=fastq_csvmap, 
-                  str_format=chunk_bam_format + '.bam',
+                  str_format=bam__chunk_format + '.bam',
                   **wildcards)
     output:
-        primary= merged_bam_format + "{process}.bam",
-        bai= merged_bam_format + "{process}.bai"
+        primary= bam__merged_format + "{process}.bam",
+        bai= bam__merged_format + "{process}.bai"
     wildcard_constraints:
         process="(\.merged)?"
     run:
