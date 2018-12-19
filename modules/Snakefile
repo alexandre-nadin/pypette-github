@@ -55,7 +55,7 @@ HERE
 rule all_chunks:
     input: 
         fastq_map= fastq_samples_map,
-        bams= lambda wildcards: csvmap__format_str_from_query_dict(
+        bams= lambda wildcards: csvmap__formatStrFromQueryDict(
                   csvmap=fastq_csvmap, 
                   str_format=chunk_fastq_format, 
                   **wildcards)
@@ -68,7 +68,7 @@ rule all_chunks:
 rule all_samples:
     input: 
         fastq_map= fastq_samples_map,
-        bams= lambda wildcards: csvmap__format_str_from_query_dict(
+        bams= lambda wildcards: csvmap__formatStrFromQueryDict(
                   csvmap=fastq_csvmap, 
                   str_format=merged_bam_format, 
                   **wildcards)

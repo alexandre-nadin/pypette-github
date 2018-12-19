@@ -18,10 +18,6 @@ def lshell(command, allow_empty_lines=False):
 PBS_DIR = 'pbs'
 PAIRED = 'Y'
 
-bam__chunk_format="{sample_run}/{sample_name}/{sample_name}_{sample_number}_{sample_lane}_{sample_chunknb}{preprocesses}"
-bam__merged_format="BAM/{sample_name}{preprocesses}"
-
-
 
 # -----------------------------
 # Import all available modules

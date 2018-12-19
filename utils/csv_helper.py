@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 import os, sys
-sys.path.insert(0, os.path.abspath(os.path.curdir))
 
-def csv__get_split_lines(filename, delimiter=","):
+def getSplitLines(filename, delimiter=","):
   import csv
   with open(filename, 'r') as f:
     reader = csv.reader(f, delimiter=delimiter)
@@ -31,7 +30,7 @@ class CsvMap(object):
     #    will filter each row where the column with name 'col1' contains either 'one' or 'two'.
     #
     ret = []
-    for row in csv__get_split_lines(self.filename, self.delimitor):
+    for row in getSplitLines(self.filename, self.delimitor):
       ## Check the filter on output_fields
       row_to_append = True
 
@@ -86,7 +85,7 @@ class CsvMap(object):
     #    will filter each row where the column 0 contains either 'one' or 'two'.
     #
     ret = []
-    for row in csv__get_split_lines(self.filename, self.delimitor):
+    for row in getSplitLines(self.filename, self.delimitor):
       ## Check the filter on output_fields
       row_to_append = True
       ## By defaut append. As soon as a value is invalid, exclude the row.
@@ -130,7 +129,7 @@ class CsvMap(object):
     #    will filter each row where the column 0 contains either 'one' or 'two'.
     #
     ret = []
-    for row in csv__get_split_lines(self.filename, self.delimitor):
+    for row in getSplitLines(self.filename, self.delimitor):
       ## Check the filter on output_fields
       row_to_append = True
       ## By defaut append. As soon as a value is invalid, exclude the row.

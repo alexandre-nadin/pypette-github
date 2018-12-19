@@ -1,12 +1,15 @@
 include: 'fastq.sk'
 
+bam__chunk_format="{sample_run}/{sample_name}/{sample_name}_{sample_number}_{sample_lane}_{sample_chunknb}{preprocesses}"
+bam__merged_format="BAM/{sample_name}{preprocesses}"
+
 # ------------
 # Merge BAMs
 # ------------
 MERGE_CMD = "condactivate; picard MergeSamFiles"
 rule bam__merge_sample_bam_chunks:
     input:
-        bam= lambda wildcards: csvmap__format_str_from_query_dict(
+        bam= lambda wildcards: csvmap__formatStrFromQueryDict(
                   csvmap=fastq_csvmap, 
                   str_format=bam__chunk_format + '.bam',
                   **wildcards)

@@ -13,7 +13,7 @@ ruleorder: bwa__align_bwa_mem_picard > bwa__align_bwa_mem_samtools
 rule bwa__align_bwa_mem_samtools:
     input:
         # samples_map = fastq_samples_map,
-        fastq_reads= lambda wildcards: csvmap__format_str_from_query_dict(
+        fastq_reads= lambda wildcards: csvmap__formatStrFromQueryDict(
                   csvmap=fastq_csvmap, 
                   str_format=fastq__chunk_format + ".fastq.gz",
                   **wildcards)
@@ -35,7 +35,7 @@ rule bwa__align_bwa_mem_samtools:
 PICARD_SORTSAM_SORT_ORER = 'unsorted' # [ 'unsorted', 'queryname', 'coordinate', 'duplicate', 'unknown']
 rule bwa__align_bwa_mem_picard:
     input:
-        fastq_reads= lambda wildcards: csvmap__format_str_from_query_dict(
+        fastq_reads= lambda wildcards: csvmap__formatStrFromQueryDict(
                   csvmap=fastq_csvmap, 
                   str_format=fastq__chunk_format + ".fastq.gz",
                   **wildcards)
