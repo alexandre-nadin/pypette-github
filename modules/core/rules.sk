@@ -1,3 +1,5 @@
+from utils.files import touch
+
 explain_rules_fields = ['name', 'wildcard_names', '_wildcard_constraints', 'snakefile']
 rule explain_rules:
   """
@@ -13,3 +15,46 @@ rule explain_rules:
                               for _rule_field in explain_rules_fields
                         ]))
 
+def helpRuleAttr(rule, attr, name=None, inline=True):
+  """
+  Retrieves the rule's given attribute and formats it for the help output.
+  """
+  val = getattr(rule, attr)
+  return "  {}{}{}".format(
+    name.upper() if name else attr.upper(), 
+    "\n    " if inline else " ",
+    #os.linesep.join([ s for s in str(val).splitlines() ])
+    str(val).strip()
+      .replace(" ", "  ")
+      if val else val,
+  )
+
+def helpRuleMsg(rule):
+  return "\n\n{}\n{}\n{}\n{}\n".format(
+    helpRuleAttr(rule, "name", "rule", inline=False).strip(),
+    helpRuleAttr(rule, "docstring", "doc"),
+    helpRuleAttr(rule, "input"),
+    helpRuleAttr(rule, "output")
+  )
+
+rule helpRule:
+  """
+  Lists given rule with essential attributes. 
+  """
+  output: "help__{name}.done"
+  run:
+    name_rules = [ r for r in workflow.rules if r.name==wildcards.name ]
+    pipeman.log.info(helpRuleMsg(name_rules[0] if name_rules else None))
+    touch(output)
+  
+rule help:
+  """
+  Lists of all available rules with essential attributes.
+  """
+  run:
+    msg = ""
+    for rule in workflow.rules:
+      msg += helpRuleMsg(rule)
+    pipeman.log.info(msg)
+
+pipeman.toClean("help__*.done")

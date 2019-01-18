@@ -12,3 +12,9 @@ def extensionless(name):
 def extension(name):
   split = os.path.splitext(name)
   return split[1] if split[1] else None
+
+def touch(filenames=[]):
+  """ Touches the given filenames. """
+  for filename in filenames:
+    with open(str(filename), 'a'):
+      pass
