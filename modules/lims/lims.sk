@@ -1,4 +1,6 @@
 import utils.dicts
+from utils.files import touch
+
 #import os
 #print("pipeman.config: {}".format(pipeman.config))
 #pipeman.config_manager.loadConfig(os.path.join(pipeman.dir_modules, "lims", "cluster.yaml"))
@@ -20,7 +22,6 @@ lims__project_metadata_io = (
 rule lims__projectMetadata:
   output: 
     primary = lims__project_metadata_io
-
   shell:"""
     curl                                                                      \
       --fail                                                                  \
@@ -31,15 +32,16 @@ rule lims__projectMetadata:
 # PRJ=AgrestiA_825_Agresti_KIZILIRMAK_Cise_RNA
 # ctgb-pipe -p rnaseq -o lims__createProject_${PRJ}.done
 rule lims__createProject:
+  """
+  Output: lims__createProject_{prj_name}.done
+  """
   input:
     primary = lims__project_metadata_io
   output:
-    "lims__createProject_{prj_name}.done"
-
+    "lims__createProject_{prj_name}.done",
+    "lims__junk_{prj_name}.done"
   run:
     pipeman.config_manager.loadConfig(input.primary)
-    shell("""
-      touch {output}
-    """)
+    touch(output)
     
 pipeman.toClean("lims__*.done")
