@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import utils.configs, utils.samples, utils.manager
 from utils.dicts import toAddict, popFirst
+from utils.files import extension as extensionOf
 
 class SamplesManager(utils.manager.Manager):
   """
@@ -85,9 +86,9 @@ class SamplesConfigManager(utils.configs.ConfigManagerTemplate):
     If specified, lowercases the column names. 
     """
     import pandas as pd
-    filetype = utils.files.extension(file).lstrip('.')
-    fread = getattr(pd, 'read_{}'.format(filetype))
-    data = fread(file)
+    data = pd.read_csv(
+      file, 
+      delimiter= self.extensionsDelimiters[extensionOf(file).strip()])
     if indexlowcase_cols:
       data.columns = map(str.lower, data.columns)
 
