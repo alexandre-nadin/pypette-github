@@ -9,7 +9,8 @@ class SamplesManager(utils.manager.Manager):
   def __init__(self, prefix, namespace):
     super(SamplesManager, self).__init__()
     self.config_manager = utils.samples.SamplesConfigManager(
-      config_prefix=prefix, namespace=namespace)
+                            config_prefix = prefix, 
+                            namespace     = namespace)
     self.data = self.config_manager.loadDftConfig() 
 
   @toAddict
@@ -30,7 +31,7 @@ class SamplesManager(utils.manager.Manager):
   @popFirst
   def queryFirst(self, query):
     """
-    Returns an addict.Dict of the first sample matching the fiven pandas DataFrame query string.
+    Returns an addict.Dict of the first sample matching the given pandas DataFrame query string.
     """
     return self.query(query)
  
@@ -39,8 +40,9 @@ class SamplesManager(utils.manager.Manager):
     Returns an addict.Dict of all samples matching the given NameOrId.
     """
     try:
-      return self.query('sample_id=={nb} or sample_name=={nb}'
-        .format(nb=int(nameOrId)))
+      return self.query(
+        'sample_id=={noi} or sample_name=={noi}'
+          .format(noi=int(nameOrId)))
     except ValueError:
       return self.query('sample_name=="{}"'.format(nameOrId))
   
@@ -50,6 +52,9 @@ class SamplesManager(utils.manager.Manager):
     Returns an addict.Dict of the first sample matching the given nameOrId.
     """
     return self.queryNameOrId(nameOrId)
+  
+  def load(self, *args, **kwargs):
+    self.data = self.config_manager.loadConfig(*args, **kwargs)
 
 class SamplesConfigManager(utils.configs.ConfigManagerTemplate):
   """
@@ -57,10 +62,18 @@ class SamplesConfigManager(utils.configs.ConfigManagerTemplate):
   """
   def __init__(self, *args, **kwargs):
     super(SamplesConfigManager, self).__init__('samples', *args, **kwargs)
-   
+ 
+  @property
+  def extensionsDelimiters(self):
+    """ Associates delimiter to file extensions. """
+    return { 
+      '.csv': ',', 
+      '.tsv': '\t'
+    }
+ 
   @property
   def extensions(self):
-    return ('.csv', '.tsv',)
+    return tuple(self.extensionsDelimiters.keys())
   
   @property
   def configfileBase(self):
@@ -80,5 +93,4 @@ class SamplesConfigManager(utils.configs.ConfigManagerTemplate):
 
     """ Replace NaN with None """
     data = data.astype(object).where(pd.notnull(data), None)
-   
     return data 

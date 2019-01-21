@@ -46,6 +46,10 @@ class PipelineManager(Manager):
   @property
   def samples(self):
     return self.samples_manager
+  
+  @property
+  def sampleExtensions(self):
+    return self.samples_manager.config_manager.extensionsDelimiters
 
   # -----------------
   # Pipeline Config
