@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 def toAddict(func):
   import addict
   def wrapper(*args, **kwargs):
@@ -18,6 +17,9 @@ def popFirst(func):
   return wrapper
 
 class Default(dict):
-  def __missing__(self, key):
-    return '{' + key + '}'
+  def __init__(self, d, nomissing=True):
+    self.nomissing = nomissing
+    super(Default, self).__init__(d)
 
+  def __missing__(self, key):
+      return '' if self.nomissing else '{' + key + '}'
