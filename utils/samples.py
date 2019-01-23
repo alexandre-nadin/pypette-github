@@ -1,7 +1,7 @@
-#!/usr/bin/env python
 import utils.configs, utils.samples, utils.manager
 from utils.dicts import toAddict, popFirst
 from utils.files import extension as extensionOf
+import addict
 
 class SamplesManager(utils.manager.Manager):
   """
@@ -14,10 +14,11 @@ class SamplesManager(utils.manager.Manager):
                             namespace     = namespace)
     self.data = self.config_manager.loadDftConfig() 
 
-  @toAddict
-  def query(self, query):
+  def query(self, query, selectedCols=[], toDict=False):
     """
-    Returns an addict.Dict of all samples matching the given pandas DataFrame's query string.
+    Queries a pandas DataFrame with the given 'query'.
+    Filters the specified 'selectedCols' if any.
+    Returns an addict.Dict of all samples if 'toDict', else a pandas.DataFrame by default.
     """
     samples = self.data.query(query)
     if samples.empty:
@@ -27,14 +28,26 @@ class SamplesManager(utils.manager.Manager):
       )
       raise
     else:
-      return samples.T.to_dict()
+      pass
+
+    """ Select Columns """
+    if selectedCols:
+      samples = samples[selectedCols]
+
+    """ Return format """
+    if toDict:
+      ret = addict.Dict(samples.T.to_dict())
+    else:
+      ret = samples
+
+    return ret
 
   @popFirst
   def queryFirst(self, query):
     """
     Returns an addict.Dict of the first sample matching the given pandas DataFrame query string.
     """
-    return self.query(query)
+    return self.query(query, toDict=True)
  
   def queryNameOrId(self, nameOrId):
     """
@@ -42,10 +55,16 @@ class SamplesManager(utils.manager.Manager):
     """
     try:
       return self.query(
-        'sample_id=={noi} or sample_name=={noi}'
-          .format(noi=int(nameOrId)))
+               'sample_id=={noi} or sample_name=={noi}'
+                 .format(noi=int(nameOrId)),
+               toDict=True)
     except ValueError:
-      return self.query('sample_name=="{}"'.format(nameOrId))
+      return self.query(
+               'sample_name=="{}"'.format(nameOrId),
+               toDict=True)
+
+  def getFields(self, fields=[]):
+    return self.data[fields]
   
   @popFirst 
   def queryFirstNameOrId(self, nameOrId):
@@ -56,6 +75,7 @@ class SamplesManager(utils.manager.Manager):
   
   def load(self, *args, **kwargs):
     self.data = self.config_manager.loadConfig(*args, **kwargs)
+
 
 class SamplesConfigManager(utils.configs.ConfigManagerTemplate):
   """
