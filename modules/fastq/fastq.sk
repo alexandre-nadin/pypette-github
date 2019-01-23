@@ -152,22 +152,39 @@ def csvmap__formatStrFromQueryDict(csvmap, str_format="", **query_dict):
                  for _cmap in csvmap.query_dict(**query_dict)
                ])
 
+def fastq__loadSamples(**kwargs):
+  if pipeman.samples.data is None:
+    pipeman.samples.load(fastq__samples_dft_io.format(**kwargs))
+
+def fastq__getRawFastqFiles(**kwargs):
+  fastq__loadSamples(**kwargs)
+  return pipeman.samples.data.sample_name
+
+def mapStringSamples(s, **kwargs):
+  fastq__loadSamples(**kwargs)
+  return pipeman.samples.buildStringFromKeywords(s, **kwargs)
+  
 # -----------------
 # Link fastq reads
 # -----------------
+rule fastq__linkFastqReads:
+  input: 
+    fastq_files = lambda wildcards: 
+      mapStringSamples(fastq__chunk_io, **wildcards)
+  output: fastq__base_fmt + "/fastq__linkFastqReads.done"
+  run:
+    touch(output)
+
 localrules: fastq__linkFastqRead
 rule fastq__linkFastqRead:
-  #
-  # Links original fastq file to the project directory.
-  #
+  """
+  Links original fastq file to the project directory.
+  """
   input:
-    #samples_map = fastq__samples_map,
-    fastq_read = lambda wildcards: csvmap__format_str_from_query_dict(
-                   csvmap=fastq__csvmap, 
-                   str_format="{sample_path}",
-                   **wildcards)
+    fastq_read = lambda wildcards:
+      mapStringSamples("{sample_path}", **wildcards)
   output: 
-    primary    = fastq__chunk_format + ".fastq.gz"
+    primary    = fastq__chunk_io
   shell:"""
     ln.rel {input.fastq_read} {output.primary} 
   """

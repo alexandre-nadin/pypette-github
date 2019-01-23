@@ -20,27 +20,27 @@ class SamplesManager(utils.manager.Manager):
     Filters the specified 'selectedCols' if any.
     Returns an addict.Dict of all samples if 'toDict', else a pandas.DataFrame by default.
     """
-    samples = self.data.query(query)
-    if samples.empty:
-      self.log.error(
-        "No information found for sample filter '{}'."
-         .format(query)
-      )
-      raise
-    else:
-      pass
+    data = self.data
+
+    """ Query data """
+    if query:
+      data = data.query(query)
+      if data.empty:
+        self.log.error(
+          "No information found for sample filter '{}'."
+           .format(query)
+        )
+        raise
 
     """ Select Columns """
     if selectedCols:
-      samples = samples[selectedCols]
+      data = data[selectedCols]
 
-    """ Return format """
+    """ Format data """
     if toDict:
-      ret = addict.Dict(samples.T.to_dict())
-    else:
-      ret = samples
+      data = addict.Dict(data.T.to_dict())
 
-    return ret
+    return data
 
   @popFirst
   def queryFirst(self, query):
@@ -65,6 +65,49 @@ class SamplesManager(utils.manager.Manager):
 
   def getFields(self, fields=[]):
     return self.data[fields]
+
+  def buildStringFromKeywords(self, s, **kwargs):
+    """
+    Returns list of string by formatting the given string :s: with selected columns from filtered samples.
+    This is done by:
+     - Deducing matching sample DataFrame columns based on given string :s: keywords.
+     - Building query based on :kwargs: keywords.
+     - Querying sample DataFrame and selects matching columns.
+    """
+    from utils.strings import StringFormatter
+   
+    """ Formatted String """
+    fs = StringFormatter(s).formatMapFlexi(kwargs, nokeyword=False)
+  
+    """ Required Columns """
+    required_cols = [ col 
+      for col in self.data.columns 
+      if col in fs.keywords() 
+    ]
+  
+    """ Set Query Dict """
+    query_dict = {
+      key: val
+      for key, val in kwargs.items()
+      if key in self.data.columns 
+    }
+    if query_dict:
+      query = " and ".join([
+        "{}=='{}'".format(key, val)
+        for key, val in query_dict.items()
+      ])
+    else:
+      query = ""
+    
+    """ Query DataFrame """
+    samples = self.query(query, selectedCols=required_cols)
+  
+    return [
+      fs.formatMapFlexi(
+        dict(zip(required_cols, values)), 
+        nokeyword=True)
+      for values in samples.values
+    ]
   
   @popFirst 
   def queryFirstNameOrId(self, nameOrId):
