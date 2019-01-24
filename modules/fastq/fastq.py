@@ -1,10 +1,12 @@
+import os
+
 def setConfigs(**kwargs):
   """
   Not elegant way to deal with config files.
-  Should set dependence to cluster.yaml (retreived in {prj_name}/metadata.json)
-  Loads {prj_name}/metadata.json.
+  Should set dependence to cluster.yaml (retreived in {project}/metadata.json)
+  Loads {project}/metadata.json.
   """
-  import os
+
   """ Load cluster configuration """
   pipeman.config_manager.loadConfig(
     os.path.join(
@@ -13,7 +15,7 @@ def setConfigs(**kwargs):
   )
   """ Load project metadata configuration """
   pipeman.config_manager.loadConfig(
-    "{prj_name}/metadata.json".format(**kwargs)
+    "{project}/metadata.json".format(**kwargs)
   )
 
 def fastq__getRuns():

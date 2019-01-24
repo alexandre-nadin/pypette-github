@@ -79,16 +79,7 @@ rule fastq__mapSamples:
 # -----------------
 # Link fastq reads
 # -----------------
-rule fastq__linkFastqReads:
-  input: 
-    fastq_files = lambda wildcards: 
-      fastq__mapStringSamples(fastq__chunk_io, **wildcards)
-  output: fastq__base_fmt + "/fastq__linkFastqReads.done"
-  run:
-    touch(output)
-
-localrules: fastq__linkFastqRead, fastq__linkFastqReads
-rule fastq__linkFastqRead:
+rule fastq__linkRead:
   """
   Links original fastq file to the project directory.
   """
@@ -100,6 +91,16 @@ rule fastq__linkFastqRead:
   shell:"""
     ln.rel {input.fastq_read} {output.primary} 
   """
+
+rule fastq__linkReads:
+  input: 
+    fastq_files = lambda wildcards: 
+      fastq__mapStringSamples(fastq__chunk_io, **wildcards)
+  output: fastq__base_fmt + "/fastq__linkReads.done"
+  run:
+    touch(output)
+
+localrules: fastq__linkRead, fastq__linkReads
 
 # ---------------
 # Fastq Quality
