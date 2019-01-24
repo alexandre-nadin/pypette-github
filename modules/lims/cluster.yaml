@@ -1,3 +1,8 @@
 cluster:
   illumina_dir: "/mnt/storage/alexn/dev/ctgb/cluster/illumina"
-  sequencing_runs_dir: "/mnt/storage/alexn/dev/ctgb/cluster/lustre2/raw_data"
+  sequencing_runs:
+    dir: "/mnt/storage/alexn/dev/ctgb/cluster/lustre2/raw_data"
+    structured: 'Y'
+    project_tag: 'Project_'
+    sample_tag: 'Sample_'
+  
