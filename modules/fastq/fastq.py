@@ -18,13 +18,52 @@ def setConfigs(**kwargs):
     "{project}/metadata.json".format(**kwargs)
   )
 
-def fastq__getRuns():
+def fastq__runsPathsProject(prj):
+  """
+  Gets each project run path.
+  """
   return [ 
-    os.path.join(pipeman.config.cluster.sequencing_runs_dir, runid)
-    for runid in pipeman.config.project.run_ids
+    os.path.join(
+      run, 
+      "{}{}".format(
+        fastq__runProjectTag(),
+        prj))
+    for run in fastq__runsPaths()
   ]
 
+def fastq__runProjectTag():
+  if pipeman.config.cluster.sequencing_runs.structured:
+    tag = pipeman.config.cluster.sequencing_runs.project_tag 
+  else:
+    tag = ""
+  return tag
+
+def fastq__runPath(runid):
+  """
+  Builds the path of the given runid.
+  """
+  return os.path.join(
+    pipeman.config.cluster.sequencing_runs.dir, 
+    runid)
+   
+def fastq__runsPaths(check_runs=True):
+  """
+  Retrieves the runs' directory.
+  Checks their existence is 'check_runs' (default).
+  """
+  runs_dirs = [ 
+    fastq__runPath(runid)
+    for runid in pipeman.config.project.run_ids
+  ] 
+  if check_runs:
+    fastq__checkRuns(runs_dirs)
+  return runs_dirs
+
 def fastq__checkRuns(runs=[]):
+  """
+  Checks the given run paths exist.
+  Logs non-blocking warnings before raising the error.
+  """
   error = False
   for run in runs:
     if not os.path.isdir(run):
@@ -39,8 +78,8 @@ def fastq__runFromFilepath(filepath):
   """
   for run in pipeman.config.project.run_ids:
     run_path = os.path.join(
-      pipeman.config.cluster.sequencing_runs_dir,
-      run, 
+      pipeman.config.cluster.sequencing_runs.dir,
+      run
     )
     if filepath.startswith(run_path):
       return run

@@ -46,8 +46,7 @@ rule fastq__mapRawFiles:
     primary  = fastq__raw_files_io
   run:
     setConfigs(**wildcards)
-    runs = fastq__getRuns()
-    fastq__checkRuns(runs)
+    runs = fastq__runsPathsProject(wildcards.project)
     shell("""
       find {runs} -name '*.fastq.gz' > {output}
     """)
