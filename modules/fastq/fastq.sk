@@ -1,6 +1,7 @@
 from utils import csv_helper
 from utils.fastq_helper import FastqFile
 from utils.files import touch
+include: "fastq.py"
 
 # -------------------------------
 # Wildcards Constraints
@@ -26,44 +27,13 @@ pipeman.updateWildcardConstraints(
 # --------------------- 
 fastq__base_fmt = "{prj_name}/fastq"
 fastq__chunk_io = fastq__base_fmt + "/{sample_run}/{sample_name}/{sample_chunkname}{preprocesses}{sample_extension}"
+fastq__raw_files_io = "{prj_name}/fastq/raw_files.txt"
+fastq__mapped_samples_io     = fastq__base_fmt + "/samples{extension}"
+fastq__mapped_samples_io_dft = fastq__base_fmt + "/samples.csv"
 
 # ---------------------
 # Mapping fastq files
 # ---------------------
-def setConfigs(**kwargs):
-  """
-  Not elegant way to deal with config files.
-  Should set dependence to cluster.yaml (retreived in {prj_name}/metadata.json)
-  Loads {prj_name}/metadata.json.
-  """
-  import os
-  """ Load cluster configuration """
-  pipeman.config_manager.loadConfig(
-    os.path.join(
-      pipeman.dir_modules, "lims", "cluster.yaml"
-    )
-  )
-  """ Load project metadata configuration """
-  pipeman.config_manager.loadConfig(
-    "{prj_name}/metadata.json".format(**kwargs)
-  )
-
-def fastq__getRuns():
-  return [ 
-    os.path.join(pipeman.config.cluster.sequencing_runs_dir, runid)
-    for runid in pipeman.config.project.run_ids
-  ]
-
-def fastq__checkRuns(runs=[]):
-  error = False
-  for run in runs:
-    if not os.path.isdir(run):
-      pipeman.log.error("Run {} doesn't exist.".format(run))
-      error = True
-  if error: 
-    raise
-
-fastq__raw_files_io = "{prj_name}/fastq/raw_files.txt"
 rule fastq__mapRawFiles:
   """
   Find all the fastq files in the RUN directories specified in the 
@@ -81,34 +51,6 @@ rule fastq__mapRawFiles:
       find {runs} -name '*.fastq.gz' > {output}
     """)
 
-def getRunFromFilepath(filepath):
-  """ 
-  Retrieves a Run id from a file containing paths. 
-  """
-  for run in pipeman.config.project.run_ids:
-    run_path = os.path.join(
-      pipeman.config.cluster.sequencing_runs_dir,
-      run, 
-    )
-    if filepath.startswith(run_path):
-      return run
-    else:
-      continue
-
-def mapFastqFilename(filename):
-  """
-  Maps the illumina metadata based on the given filename.
-  """
-  return [ 
-    FastqFile(
-      filename.strip(), 
-      run_name= getRunFromFilepath(filename)
-    ).__dict__[field]
-     for field in list(FastqFile.fieldNames())
-  ]   
-
-fastq__mapped_samples_io     = fastq__base_fmt + "/samples{ext}"
-fastq__mapped_samples_io_dft = fastq__base_fmt + "/samples.csv"
 rule fastq__mapSamples:
   """   
   Maps all the illumina filenames' metadata in a file.
@@ -131,16 +73,8 @@ rule fastq__mapSamples:
       fmap.write(
         pipeman.samples.listsToSamplesheet(
           sample_lines, 
-          pipeman.sampleExtensions[wildcards.ext]))
+          pipeman.sampleExtensions[wildcards.extension]))
 
-def fastq__loadSamples(**kwargs):
-  if pipeman.samples.data is None:
-    pipeman.samples.load(fastq__mapped_samples_io_dft.format(**kwargs))
-
-def mapStringSamples(s, **kwargs):
-  fastq__loadSamples(**kwargs)
-  return pipeman.samples.buildStringFromKeywords(s, **kwargs)
-  
 # -----------------
 # Link fastq reads
 # -----------------
@@ -152,7 +86,7 @@ rule fastq__linkFastqReads:
   run:
     touch(output)
 
-localrules: fastq__linkFastqRead
+localrules: fastq__linkFastqRead, fastq__linkFastqReads
 rule fastq__linkFastqRead:
   """
   Links original fastq file to the project directory.
