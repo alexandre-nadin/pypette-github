@@ -100,6 +100,12 @@ class PipelineManager(Manager):
   def addModule(self, name):
     pass
 
+  # -----------------------
+  # Wildcards Constraints
+  # -----------------------
+  def updateWildcardConstraints(self, **wildcards):
+    self.workflow.global_wildcard_constraints(**wildcards);
+
   # ------------
   # Parameters
   # ------------

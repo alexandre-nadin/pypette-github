@@ -10,13 +10,10 @@ from utils.fastq_helper import FastqFile
 # global to all the rules. Each constraint can then be overridden specifically 
 # in the rule itself, the last declaration prevailing.
 # -------------------------------------------------------------------
-wildcard_constraints:
-  sample_name    = FastqFile.regex_fields.sample_name,
-  sample_number  = FastqFile.regex_fields.sample_number,
-  sample_lane    = FastqFile.regex_fields.sample_lane,
-  sample_chunknb = FastqFile.regex_fields.sample_chunknb,
-  sample_read    = FastqFile.regex_fields.sample_read,
-  preprocesses   = "(\.\w+)*?"
+pipeman.updateWildcardConstraints(
+  **FastqFile.regex_fields,
+  preprocesses     = "(\.\w+)*?"
+)
 
 # --------------------- 
 # I/O files format
