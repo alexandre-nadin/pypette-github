@@ -1,5 +1,6 @@
 from utils import csv_helper
 from utils.fastq_helper import FastqFile
+from utils.files import touch
 
 # -------------------------------
 # Wildcards Constraints
@@ -24,17 +25,11 @@ pipeman.updateWildcardConstraints(
 #     current rule.
 # --------------------- 
 fastq__base_fmt = "{prj_name}/fastq"
-#fastq__chunk_format="{sample_run}/{sample_name}/{sample_chunkname}{preprocesses}"
-fastq__chunk_format = fastq__base_fmt + "/{sample_run}/{sample_name}/{sample_chunkname}{preprocesses}"
+fastq__chunk_io = fastq__base_fmt + "/{sample_run}/{sample_name}/{sample_chunkname}{preprocesses}{sample_extension}"
 
 # ---------------------
 # Mapping fastq files
 # ---------------------
-# We first need to define our csv mapper by specifying the column names:
-fastq__csvmap = csv_helper.CsvMap('samples.csv', delimiter='\t', colnames=FastqFile.fieldNames()) 
-fastq__map_sep = "\t"
-fastq__samples_map = "samples.csv"
-
 def setConfigs(**kwargs):
   """
   Not elegant way to deal with config files.
@@ -69,7 +64,7 @@ def fastq__checkRuns(runs=[]):
     raise
 
 fastq__raw_files_io = "{prj_name}/fastq/raw_files.txt"
-rule fastq__rawFiles:
+rule fastq__mapRawFiles:
   """
   Find all the fastq files in the RUN directories specified in the 
   configuration.
@@ -87,7 +82,9 @@ rule fastq__rawFiles:
     """)
 
 def getRunFromFilepath(filepath):
-  """ Retrieves a Run id from a file containing paths. """
+  """ 
+  Retrieves a Run id from a file containing paths. 
+  """
   for run in pipeman.config.project.run_ids:
     run_path = os.path.join(
       pipeman.config.cluster.sequencing_runs_dir,
@@ -110,21 +107,16 @@ def mapFastqFilename(filename):
      for field in list(FastqFile.fieldNames())
   ]   
 
-def listsToSamplesheet(listLines, delimiter):
-  """
-  Takes in a list of line lists and formats them to a Samplesheet output.
-  """
-  return os.linesep.join(delimiter.join(line) for line in listLines)
-
-fastq__samples_io = "{prj_name}/fastq/samples{ext}"
-rule fastq__samples:
+fastq__mapped_samples_io     = fastq__base_fmt + "/samples{ext}"
+fastq__mapped_samples_io_dft = fastq__base_fmt + "/samples.csv"
+rule fastq__mapSamples:
   """   
   Maps all the illumina filenames' metadata in a file.
   """
   input: 
     file    = fastq__raw_files_io
   output: 
-    primary = fastq__samples_io
+    primary = fastq__mapped_samples_io
   run:
     setConfigs(**wildcards)
 
@@ -137,25 +129,13 @@ rule fastq__samples:
     """ Write Output """
     with open(output.primary, 'a') as fmap:
       fmap.write(
-        listsToSamplesheet(
+        pipeman.samples.listsToSamplesheet(
           sample_lines, 
           pipeman.sampleExtensions[wildcards.ext]))
 
-def csvmap__formatStrFromQueryDict(csvmap, str_format="", **query_dict):
-    #
-    # Queries a CSVMap object based on a given dictionary.
-    #
-    return set([ str_format.format(**_cmap)
-                 for _cmap in csvmap.query_dict(**query_dict)
-               ])
-
 def fastq__loadSamples(**kwargs):
   if pipeman.samples.data is None:
-    pipeman.samples.load(fastq__samples_dft_io.format(**kwargs))
-
-def fastq__getRawFastqFiles(**kwargs):
-  fastq__loadSamples(**kwargs)
-  return pipeman.samples.data.sample_name
+    pipeman.samples.load(fastq__mapped_samples_io_dft.format(**kwargs))
 
 def mapStringSamples(s, **kwargs):
   fastq__loadSamples(**kwargs)
