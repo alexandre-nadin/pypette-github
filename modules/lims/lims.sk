@@ -1,47 +1,45 @@
 import utils.dicts
 from utils.files import touch
 
-#import os
-#print("pipeman.config: {}".format(pipeman.config))
-#pipeman.config_manager.loadConfig(os.path.join(pipeman.dir_modules, "lims", "cluster.yaml"))
-#print("pipeman.config: {}".format(pipeman.config))
-
-# ---------------
-# Metadata file
-# ---------------
+# -----------------
+# LIMS Parameters
+# -----------------
 lims__SRV_URL      = "f2.ricerca.hsr.it"
 lims__PRJ_URL      = lims__SRV_URL      + "/projects"
 lims__SEQU_RUN_URL = lims__PRJ_URL      + "/api/sequencing_run"
 lims__TO_DEMUX_URL = lims__SEQU_RUN_URL + "/to_demultiplex/"
 
+# ---------------
+# Metadata file
+# ---------------
 lims__project_medata_io_format = "json"
 lims__project_metadata_io = (
-  "{prj_name}/metadata.{format}"
-    .format_map(utils.dicts.Default({ 'format': lims__project_medata_io_format,}))
+  "{project}/metadata.{format}"
+    .format_map(utils.dicts.Default(
+      { 'format': lims__project_medata_io_format,},
+      nomissing=False))
 )
+lims__create_project_io = "lims__createProject_{project}.done"
+
 rule lims__projectMetadata:
   output: 
     primary = lims__project_metadata_io
   shell:"""
     curl                                                                      \
       --fail                                                                  \
-      "{lims__PRJ_URL}/{wildcards.prj_name}.{lims__project_medata_io_format}" \
+      "{lims__PRJ_URL}/{wildcards.project}.{lims__project_medata_io_format}" \
      > {output.primary}
   """
 
-# PRJ=AgrestiA_825_Agresti_KIZILIRMAK_Cise_RNA
-# ctgb-pipe -p rnaseq -o lims__createProject_${PRJ}.done
 rule lims__createProject:
   """
-  Output: lims__createProject_{prj_name}.done
+  Creates Project. Not different from rule 'lims__projectMetadata'.
   """
   input:
     primary = lims__project_metadata_io
   output:
-    "lims__createProject_{prj_name}.done",
-    "lims__junk_{prj_name}.done"
+    lims__create_project_io
   run:
-    pipeman.config_manager.loadConfig(input.primary)
     touch(output)
     
 pipeman.toClean("lims__*.done")

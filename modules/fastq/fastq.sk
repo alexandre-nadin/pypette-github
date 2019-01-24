@@ -1,6 +1,7 @@
 from utils import csv_helper
 from utils.fastq_helper import FastqFile
 from utils.files import touch
+pipeman.includeModule('lims/lims.sk')
 include: "fastq.py"
 
 # -------------------------------
@@ -25,9 +26,9 @@ pipeman.updateWildcardConstraints(
 #   - {process} is only for outputs as it is about the process defined by the
 #     current rule.
 # --------------------- 
-fastq__base_fmt = "{prj_name}/fastq"
+fastq__base_fmt = "{project}/fastq"
 fastq__chunk_io = fastq__base_fmt + "/{sample_run}/{sample_name}/{sample_chunkname}{preprocesses}{sample_extension}"
-fastq__raw_files_io = "{prj_name}/fastq/raw_files.txt"
+fastq__raw_files_io = "{project}/fastq/raw_files.txt"
 fastq__mapped_samples_io     = fastq__base_fmt + "/samples{extension}"
 fastq__mapped_samples_io_dft = fastq__base_fmt + "/samples.csv"
 
@@ -66,7 +67,7 @@ rule fastq__mapSamples:
     sample_lines = [ FastqFile.fieldNames() ]
     with open(input.file, 'r') as fastq_files:
       """ Mapped Samples Lines """
-      sample_lines.extend(list(map(mapFastqFilename, fastq_files)))
+      sample_lines.extend(list(map(fastq__mapFilename, fastq_files)))
 
     """ Write Output """
     with open(output.primary, 'a') as fmap:
@@ -81,7 +82,7 @@ rule fastq__mapSamples:
 rule fastq__linkFastqReads:
   input: 
     fastq_files = lambda wildcards: 
-      mapStringSamples(fastq__chunk_io, **wildcards)
+      fastq__mapStringSamples(fastq__chunk_io, **wildcards)
   output: fastq__base_fmt + "/fastq__linkFastqReads.done"
   run:
     touch(output)
@@ -93,7 +94,7 @@ rule fastq__linkFastqRead:
   """
   input:
     fastq_read = lambda wildcards:
-      mapStringSamples("{sample_path}", **wildcards)
+      fastq__mapStringSamples("{sample_path}", **wildcards)
   output: 
     primary    = fastq__chunk_io
   shell:"""

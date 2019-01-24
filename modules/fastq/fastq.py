@@ -31,7 +31,7 @@ def fastq__checkRuns(runs=[]):
   if error: 
     raise
 
-def getRunFromFilepath(filepath):
+def fastq__runFromFilepath(filepath):
   """ 
   Retrieves a Run id from a file containing paths. 
   """
@@ -45,14 +45,14 @@ def getRunFromFilepath(filepath):
     else:
       continue
 
-def mapFastqFilename(filename):
+def fastq__mapFilename(filename):
   """
   Maps the illumina metadata based on the given filename.
   """
   return [ 
     FastqFile(
       filename.strip(), 
-      run_name= getRunFromFilepath(filename)
+      run_name= fastq__runFromFilepath(filename)
     ).__dict__[field]
      for field in list(FastqFile.fieldNames())
   ]   
@@ -61,7 +61,7 @@ def fastq__loadSamples(**kwargs):
   if pipeman.samples.data is None:
     pipeman.samples.load(fastq__mapped_samples_io_dft.format(**kwargs))
 
-def mapStringSamples(s, **kwargs):
+def fastq__mapStringSamples(s, **kwargs):
   fastq__loadSamples(**kwargs)
   return pipeman.samples.buildStringFromKeywords(s, **kwargs)
   

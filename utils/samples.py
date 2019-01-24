@@ -2,6 +2,7 @@ import utils.configs, utils.samples, utils.manager
 from utils.dicts import toAddict, popFirst
 from utils.files import extension as extensionOf
 import addict
+import os
 
 class SamplesManager(utils.manager.Manager):
   """
@@ -63,6 +64,16 @@ class SamplesManager(utils.manager.Manager):
                'sample_name=="{}"'.format(nameOrId),
                toDict=True)
 
+  @popFirst 
+  def queryFirstNameOrId(self, nameOrId):
+    """
+    Returns an addict.Dict of the first sample matching the given nameOrId.
+    """
+    return self.queryNameOrId(nameOrId)
+  
+  def load(self, *args, **kwargs):
+    self.data = self.config_manager.loadConfig(*args, **kwargs)
+
   def getFields(self, fields=[]):
     return self.data[fields]
 
@@ -109,15 +120,11 @@ class SamplesManager(utils.manager.Manager):
       for values in samples.values
     ]
   
-  @popFirst 
-  def queryFirstNameOrId(self, nameOrId):
+  def listsToSamplesheet(self, listLines, delimiter):
     """
-    Returns an addict.Dict of the first sample matching the given nameOrId.
+    Takes in a list of line lists and formats them to a Samplesheet output.
     """
-    return self.queryNameOrId(nameOrId)
-  
-  def load(self, *args, **kwargs):
-    self.data = self.config_manager.loadConfig(*args, **kwargs)
+    return os.linesep.join(delimiter.join(line) for line in listLines)
 
 
 class SamplesConfigManager(utils.configs.ConfigManagerTemplate):
