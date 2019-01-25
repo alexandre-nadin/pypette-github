@@ -11,35 +11,88 @@ STAR_CORES = 6
 STAR_outFilterMismatchNmax = 10 
 STAR_GENOME_INDEX = "" 
 
+rule star__test:
+  input:
+    fastq_reads = lambda wildcards: 
+      fastq__queryFastqSamples(fastq__chunk_format + ".fastq.gz", **wildcards)
+  output:
+    primary = bam__chunk_format + "{process}.bamt"
+  wildcard_constraints:
+    process="(\.star)"
+  shell:"""
+    echo "star reads: '{input.fastq_reads}' > '{output}'"
+  """
+  
+def exshell(input, output, cmd, **wildcards):
+  setConfigs(**wildcards)
+  if config.debug:
+    shell("""
+      cat << eol | sed -s 's|^[[:space:]]*||' > {output.primary}.out
+      INPUT:
+      $(echo {input} | tr ' ' '\n')
+
+      COMMAND: 
+      {cmd}
+
+      OUTPUT:
+      $(echo {output} | tr ' ' '\n')
+eol
+
+      touch {output}
+
+    """)                                      
+  else:                                       
+    shell(cmd)                                
+
 rule star__align_chunk_star:
-    input:
-        # samples_map = fastq_samples_map,
-        fastq_reads= lambda wildcards: csvmap__formatStrFromQueryDict(
-                  csvmap=fastq_csvmap, 
-                  str_format=fastq__chunk_format + ".fastq.gz",
-                  **wildcards)
-    output: 
-        primary = bam__chunk_format + "{process}.bam",
-        bam_file_raw = bam__chunk_format + "{process}.Aligned.sortedByCoord.out.bam",
-        raw_files = [ bam__chunk_format + "{process}." + _raw for _raw in
-             [ "Log.out", "Log.progress.out", "Log.final.out", "SJ.out.tab" ]
-        ]
-    wildcard_constraints:
-         process="(\.star)"
-    shell:"""
-       condactivate #> {output[primary]}.out ## DRY_RUN
-       STAR \
-         --runThreadN {STAR_CORES} \
-         --genomeDir {STAR_GENOME_INDEX} \
-         --readFilesIn {input[fastq_reads]} \
-         --outSAMstrandField intronMotif \
-         --outFileNamePrefix {wildcards.sample_run}/{wildcards.sample_name}/{wildcards.sample_name}_{wildcards.sample_number}_{wildcards.sample_lane}_{wildcards.sample_chunknb}{wildcards.preprocesses}{wildcards.process}. \
-         --outSAMtype BAM SortedByCoordinate \
-         --outSAMunmapped Within \
-         --outFilterMismatchNmax {STAR_outFilterMismatchNmax} \
-         --readFilesCommand zcat \
-        > {output[primary]}.out;  # DRY_RUN
-       #touch {output} ## DRY_RUN 
-       ln.rel -f {output[bam_file_raw]} {output[primary]}
-     """
+  input:
+      # samples_map = fastq_samples_map,
+      #fastq_reads= lambda wildcards: csvmap__formatStrFromQueryDict(
+      #          csvmap=fastq_csvmap, 
+      #          str_format=fastq__chunk_format + ".fastq.gz",
+      #          **wildcards)
+    fastq_reads = lambda wildcards: 
+      fastq__queryFastqSamples(fastq__chunk_format + ".fastq.gz", **wildcards)
+  output: 
+    primary = bam__chunk_format + "{process}.bam",
+    bam_file_raw = bam__chunk_format + "{process}.Aligned.sortedByCoord.out.bam",
+    raw_files = [ bam__chunk_format + "{process}." + _raw for _raw in
+       [ "Log.out", "Log.progress.out", "Log.final.out", "SJ.out.tab" ]
+    ]
+  wildcard_constraints:
+     process="(\.star)"
+  run:
+    cmd = """
+     condactivate #> {output[primary]}.out ## DRY_RUN
+     STAR \
+       --runThreadN {STAR_CORES} \
+       --genomeDir {STAR_GENOME_INDEX} \
+       --readFilesIn {input[fastq_reads]} \
+       --outSAMstrandField intronMotif \
+       --outFileNamePrefix {wildcards.sample_run}/{wildcards.sample_name}/{wildcards.sample_name}_{wildcards.sample_number}_{wildcards.sample_lane}_{wildcards.sample_chunknb}{wildcards.preprocesses}{wildcards.process}. \
+       --outSAMtype BAM SortedByCoordinate \
+       --outSAMunmapped Within \
+       --outFilterMismatchNmax {STAR_outFilterMismatchNmax} \
+       --readFilesCommand zcat \
+      > {output[primary]}.out;  # DRY_RUN
+     #touch {output} ## DRY_RUN 
+     ln.rel -f {output[bam_file_raw]} {output[primary]}
+    """
+    exshell(input, output, cmd, **wildcards)
+     #setConfigs(**wildcards)
+#    if config.debug:
+#      shell("""
+#        cat << eol > {output.primary}.out
+#        INPUTS: 
+#$(echo {input} | tr ' ' '\n')
+# 
+#        COMMAND: {cmd}
+#
+#        OUTPUT: 
+#$(echo {output} | tr ' ' '\n')
+#eol
+#        touch {output}
+#      """)
+#    else:
+#      shell(cmd)
 
