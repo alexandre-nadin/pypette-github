@@ -1,6 +1,21 @@
 import utils.dicts
 from utils.files import touch
 
+def lims__setConfigs(**kwargs):
+  """
+  Not elegant way to deal with config files.
+  Should set dependence to cluster.yaml (retreived in {project}/metadata.json)
+  Loads {project}/metadata.json.
+  """
+
+  """ Load configurations for cluster, project and pipeline """
+  confs = [
+      "{project}/".format(**kwargs) + conf
+       for conf in [ "cluster.yaml", "pipeline.yaml", "metadata.json" ]
+  ]
+  for conf in confs:
+    pipeman.config_manager.loadConfig(conf)
+
 # -----------------
 # LIMS Parameters
 # -----------------
@@ -31,12 +46,25 @@ rule lims__projectMetadata:
      > {output.primary}
   """
 
+rule lims__tempConfs:
+  """
+  This should be taken form the lims.
+  Not implemented yet in lims API.
+  """
+  output:
+    primary = "{project}/{conf}.yaml"
+  shell:"""
+    cp "{pipeman.dir_modules}/lims/{wildcards.conf}.yaml" \
+       "{output.primary}"
+  """
 rule lims__createProject:
   """
   Creates Project. Not different from rule 'lims__projectMetadata'.
   """
   input:
-    primary = lims__project_metadata_io
+    primary      = lims__project_metadata_io,
+    tempCluster  = "{project}/cluster.yaml",
+    tempPipeline = "{project}/pipeline.yaml"
   output:
     lims__create_project_io
   run:

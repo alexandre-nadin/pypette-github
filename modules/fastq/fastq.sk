@@ -26,11 +26,31 @@ pipeman.updateWildcardConstraints(
 #   - {process} is only for outputs as it is about the process defined by the
 #     current rule.
 # --------------------- 
-fastq__base_fmt = "{project}/fastq"
-fastq__chunk_io = fastq__base_fmt + "/{sample_run}/{sample_name}/{sample_chunkname}{preprocesses}{sample_extension}"
 fastq__raw_files_io = "{project}/fastq/raw_files.txt"
-fastq__mapped_samples_io     = fastq__base_fmt + "/samples{extension}"
-fastq__mapped_samples_io_dft = fastq__base_fmt + "/samples.csv"
+fastq__dir = "{project}/fastq"
+fastq__mapped_samples_io     = fastq__dir + "/samples{extension}"
+fastq__mapped_samples_io_dft = fastq__dir + "/samples.csv"
+fastq__chunk_io = fastq__dir + "/{sample_run}/{sample_name}/{sample_chunkname}{sample_extension}"
+fastq__merged_io = fastq__dir + "/{sample_run}/{sample_name}/{sample_name}_{sample_number}_{sample_read}_{sample_chunknb}_{sample_extension}"
+fastq__sample_read_io = fastq__dir + "/{sample_run}/{sample_name}/{sample_name}_{sample_read}{sample_extension}"
+
+# ---------------
+# Merging Reads
+# ---------------
+rule fastq__mergeSampleReads:
+  input:
+    reads = lambda wildcards:
+      fastq__mapStringSamples(fastq__chunk_io, **wildcards)
+  output:
+    primary = fastq__sample_read_io
+  run:
+    cmd = """
+    zcat {reads} \
+     | gzip              \
+     > {primary}
+    """.format(reads=input.reads, primary=output.primary)
+    print("cmd: {}".format(cmd))
+    #shell(cmd)
 
 # ---------------------
 # Mapping fastq files
@@ -45,7 +65,7 @@ rule fastq__mapRawFiles:
   output: 
     primary  = fastq__raw_files_io
   run:
-    setConfigs(**wildcards)
+    lims__setConfigs(**wildcards)
     runs = fastq__runsPathsProject(wildcards.project)
     shell("""
       find {runs} -name '*.fastq.gz' > {output}
@@ -60,7 +80,7 @@ rule fastq__mapSamples:
   output: 
     primary = fastq__mapped_samples_io
   run:
-    setConfigs(**wildcards)
+    lims__setConfigs(**wildcards)
 
     """ File Output Header """
     sample_lines = [ FastqFile.fieldNames() ]
@@ -95,7 +115,7 @@ rule fastq__linkReads:
   input: 
     fastq_files = lambda wildcards: 
       fastq__mapStringSamples(fastq__chunk_io, **wildcards)
-  output: fastq__base_fmt + "/fastq__linkReads.done"
+  output: fastq__dir + "/fastq__linkReads.done"
   run:
     touch(output)
 

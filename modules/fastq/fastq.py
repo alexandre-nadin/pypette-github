@@ -1,23 +1,5 @@
 import os
 
-def setConfigs(**kwargs):
-  """
-  Not elegant way to deal with config files.
-  Should set dependence to cluster.yaml (retreived in {project}/metadata.json)
-  Loads {project}/metadata.json.
-  """
-
-  """ Load cluster configuration """
-  pipeman.config_manager.loadConfig(
-    os.path.join(
-      pipeman.dir_modules, "lims", "cluster.yaml"
-    )
-  )
-  """ Load project metadata configuration """
-  pipeman.config_manager.loadConfig(
-    "{project}/metadata.json".format(**kwargs)
-  )
-
 def fastq__runsPathsProject(prj):
   """
   Gets each project run path.
