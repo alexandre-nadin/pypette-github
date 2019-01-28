@@ -17,6 +17,21 @@ pipeman.updateWildcardConstraints(
   **FastqFile.regex_fields,
   preprocesses     = "(\.\w+)*?"
 )
+rule fastqtest:
+  output: 
+    primary =  "fastq__{project}_test.done"
+  run:
+    lims__setConfigs(**wildcards)
+    print(pipeman.config.pipeline)
+    print("debug: {}".format(pipeman.config.debug))
+    cmd = """
+      echo "Hello, testing exshell"
+      echo "executed?"
+      touch {output}
+    """
+    exshell(input, output, cmd, **wildcards)
+    
+pipeman.toClean("fastq__*.done")
 
 # --------------------- 
 # I/O files format
@@ -38,6 +53,9 @@ fastq__sample_read_io = fastq__dir + "/{sample_run}/{sample_name}/{sample_name}_
 # Merging Reads
 # ---------------
 rule fastq__mergeSampleReads:
+  """
+  Merges sample reads filtered by the given wildcards.
+  """
   input:
     reads = lambda wildcards:
       fastq__mapStringSamples(fastq__chunk_io, **wildcards)
@@ -45,12 +63,11 @@ rule fastq__mergeSampleReads:
     primary = fastq__sample_read_io
   run:
     cmd = """
-    zcat {reads} \
+    zcat {input.reads} \
      | gzip              \
-     > {primary}
-    """.format(reads=input.reads, primary=output.primary)
-    print("cmd: {}".format(cmd))
-    #shell(cmd)
+     > {output.primary}
+    """.format(input=input, output=output)
+    exshell(input, output, cmd, **wildcards)
 
 # ---------------------
 # Mapping fastq files
