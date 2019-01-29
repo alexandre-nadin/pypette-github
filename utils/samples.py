@@ -77,7 +77,7 @@ class SamplesManager(utils.manager.Manager):
   def getFields(self, fields=[]):
     return self.data[fields]
 
-  def buildStringFromKeywords(self, s, **kwargs):
+  def buildStringFromKeywords(self, s, unique=True, **kwargs):
     """
     Returns list of string by formatting the given string :s: with selected columns from filtered samples.
     This is done by:
@@ -86,7 +86,7 @@ class SamplesManager(utils.manager.Manager):
      - Querying sample DataFrame and selects matching columns.
     """
     from utils.strings import StringFormatter
-   
+ 
     """ Formatted String """
     fs = StringFormatter(s).formatMapFlexi(kwargs, nokeyword=False)
   
@@ -112,13 +112,18 @@ class SamplesManager(utils.manager.Manager):
     
     """ Query DataFrame """
     samples = self.query(query, selectedCols=required_cols)
-  
-    return [
+
+    ret = [
       fs.formatMapFlexi(
         dict(zip(required_cols, values)), 
         nokeyword=True)
       for values in samples.values
     ]
+
+    if unique:
+      ret = list(set(ret))
+
+    return ret
   
   def listsToSamplesheet(self, listLines, delimiter):
     """
