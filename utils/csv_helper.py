@@ -8,11 +8,21 @@ def getSplitLines(filename, delimiter=","):
     for row in reader:
       yield row
 
+def queryCsvFile(csv_file, str_format="", delimiter='\t', colnames=[], **query_dict):
+  """ 
+  Creates and queries a CSVMap object based on a given CSV file and query dictionary. 
+  """
+  csvmap = CsvMap(csv_file, delimiter=delimiter, colnames=colnames)
+  return set(
+    [ str_format.format(**_cmap)
+      for _cmap in csvmap.query_dict(**query_dict)
+    ])
+
 class CsvMap(object):
-  delimitor = ','
-  def __init__(self, filename, delimitor=',', colnames=[]):
+  delimiter = ','
+  def __init__(self, filename, delimiter=delimiter, colnames=[]):
     self.filename = filename
-    self.delimitor = delimitor
+    self.delimiter = delimiter
     self.colnames = colnames
     self.colnameidx_dict = dict(list(
              (_colname, _colidx)
@@ -30,7 +40,7 @@ class CsvMap(object):
     #    will filter each row where the column with name 'col1' contains either 'one' or 'two'.
     #
     ret = []
-    for row in getSplitLines(self.filename, self.delimitor):
+    for row in getSplitLines(self.filename, self.delimiter):
       ## Check the filter on output_fields
       row_to_append = True
 
@@ -85,7 +95,7 @@ class CsvMap(object):
     #    will filter each row where the column 0 contains either 'one' or 'two'.
     #
     ret = []
-    for row in getSplitLines(self.filename, self.delimitor):
+    for row in getSplitLines(self.filename, self.delimiter):
       ## Check the filter on output_fields
       row_to_append = True
       ## By defaut append. As soon as a value is invalid, exclude the row.
@@ -129,7 +139,7 @@ class CsvMap(object):
     #    will filter each row where the column 0 contains either 'one' or 'two'.
     #
     ret = []
-    for row in getSplitLines(self.filename, self.delimitor):
+    for row in getSplitLines(self.filename, self.delimiter):
       ## Check the filter on output_fields
       row_to_append = True
       ## By defaut append. As soon as a value is invalid, exclude the row.

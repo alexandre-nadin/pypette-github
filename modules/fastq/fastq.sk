@@ -1,4 +1,3 @@
-from utils import csv_helper
 from utils.fastq_helper import FastqFile
 from utils.files import touch
 pipeman.includeModule('lims/lims.sk')
@@ -17,19 +16,6 @@ pipeman.updateWildcardConstraints(
   **FastqFile.regex_fields,
   preprocesses     = "(\.\w+)*?"
 )
-rule fastqtest:
-  output: 
-    primary =  "fastq__{project}_test.done"
-  run:
-    lims__setConfigs(**wildcards)
-    print(pipeman.config.pipeline)
-    print("debug: {}".format(pipeman.config.debug))
-    cmd = """
-      echo "Hello, testing exshell"
-      echo "executed?"
-      touch {output}
-    """
-    exshell(input, output, cmd, **wildcards)
     
 pipeman.toClean("fastq__*.done")
 

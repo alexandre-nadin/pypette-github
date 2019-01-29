@@ -4,7 +4,6 @@ import subprocess
 #sys.path.insert(0, CTGB_PIPE_DIR + "/python-lib") # TODO: make python package and install from conda/pip
 sys.path.insert(0, "../../../local/ctgb-pipe/pythonlibs") # TODO: make python package and install from conda/pip.
 import fastq_helper
-import csv_helper
 
 def lshell(command, allow_empty_lines=False):
     #
