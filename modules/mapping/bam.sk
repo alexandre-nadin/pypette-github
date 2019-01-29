@@ -1,6 +1,5 @@
-#include: 'fastq.sk'
-bam__base_fmt = "{prj_name}/mapping"
-bam__chunk_format=bam__base_fmt + "/{sample_run}/{sample_name}/{sample_name}_{sample_number}_{sample_lane}_{sample_chunknb}{preprocesses}"
+bam__dir = "{project}/mapping"
+bam__chunk_format = bam__dir + "/{sample_run}/{sample_name}/{sample_name}_{sample_number}_{sample_lane}_{sample_chunknb}{preprocesses}"
 bam__merged_format= "BAM/{sample_name}{preprocesses}"
 
 # ------------

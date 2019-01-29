@@ -5,45 +5,74 @@
 # snakemake -p RULE/FILE --use-conda # --cluster 'qsub' --jobs 9999 --latency-wait 10
 #snakemake -p run2/36258535_id/36258535_id_S10_L5_001.bam --cluster-config cluster.yaml  --cluster 'qsub -N {cluster.name} -l select={cluster.select}:ncpus={cluster.cores}:mem={cluster.mem}' --jobs 9999  --latency-wait 10
 include: 'bam.sk'
-STAR_VERSION = "STAR_2.5.3a"
-STAR_RAM = "32gb"
-STAR_CORES = 6
-STAR_outFilterMismatchNmax = 10 
-STAR_GENOME_INDEX = "" 
+star__dir           = bam__dir + "/star"
+star__sample_prefix = star__dir + "/{sample_name}/{sample_name}"
+star__sample_io     = star__sample_prefix + ".bam"
 
-rule star__test:
+rule star__align_samples:
   input:
-    fastq_reads = lambda wildcards: 
-      fastq__queryFastqSamples(fastq__chunk_format + ".fastq.gz", **wildcards)
-  output:
-    primary = bam__chunk_format + "{process}.bamt"
-  wildcard_constraints:
-    process="(\.star)"
-  shell:"""
-    echo "star reads: '{input.fastq_reads}' > '{output}'"
+    samples_bam = lambda wildcards:
+      fastq__mapStringSamples(star__sample_io, **wildcards)
+  output: 
+    primary = star__dir + "/star__align_samples.done"
+  run:
+    print("doing rule {}".format(output.primary))
+    print("input: {}".format(input.samples_bam))
+    touch(output)
+
+def star__readsToString(R1=[], R2=[]):
+  """  
+  Takes arrays for reads 1 and 2.
+  Builds the input string for Star's readFilesIn paramter. 
   """
+  return "{R1} {R2}".format(
+    R1=','.join(input.reads_1), 
+    R2=','.join(input.reads_2))
   
-def exshell(input, output, cmd, **wildcards):
-  setConfigs(**wildcards)
-  if config.debug:
-    shell("""
-      cat << eol | sed -s 's|^[[:space:]]*||' > {output.primary}.out
-      INPUT:
-      $(echo {input} | tr ' ' '\n')
+rule star__align_sample:
+  input:
+    reads_1 = lambda wildcards:
+      fastq__mapStringSamples(fastq__sample_read_io, sample_read="R1", **wildcards),
+    reads_2 = lambda wildcards:
+      fastq__mapStringSamples(fastq__sample_read_io, sample_read="R2", **wildcards)
+  output:
+    primary   = star__sample_io,
+    raw_file  = star__sample_prefix + ".Aligned.sortedByCoord.out.bam",
+    out_files = [ 
+      star__sample_prefix + out_file
+      for out_file in [ 
+        ".Log.out", ".Log.progress.out", ".Log.final.out", ".SJ.out.tab" 
+      ]
+    ]
+  run:
+    lims__setConfigs(**wildcards)
+    star = pipeman.config.pipeline.rnaseq.modules.star
+    fastq_reads = star__readsToString(input.reads_1, input.reads_2)
+    cmd = """
+     condactivate
+     {star.command}                                         \ 
+       --runThreadN {star.cores}                            \
+       --genomeDir {star.genomeIndex}                       \
+       --readFilesIn {reads}                                \
+       --outSAMstrandField intronMotif                      \
+       --outFileNamePrefix {prefix}.                        \
+       --outSAMtype BAM SortedByCoordinate                  \
+       --outSAMunmapped Within                              \
+       --outFilterMismatchNmax {star.outFilterMismatchNmax} \
+       --readFilesCommand zcat                              \
+      > {output.primary}
+  
+     # Test to remove: Understand why we have to link aligned.sortedByCoord.out.bam
+     if [ -f {output.raw_file} ]; then
+       echo "Found out bam '{output.raw_file}'"
+     else
+       echo "No out bam found '{output.raw_file}'"
+     fi
+     ln.rel -f {output.raw_file} {output.primary}
+    """.format(star=star, output=output, prefix=star__sample_io, reads=fastq_reads)
+    exshell(input, output, cmd, **wildcards)
 
-      COMMAND: 
-      {cmd}
-
-      OUTPUT:
-      $(echo {output} | tr ' ' '\n')
-eol
-
-      touch {output}
-
-    """)                                      
-  else:                                       
-    shell(cmd)                                
-
+ 
 rule star__align_chunk_star:
   input:
       # samples_map = fastq_samples_map,
