@@ -2,6 +2,8 @@ bam__dir = "{project}/mapping"
 bam__chunk_format = bam__dir + "/{sample_run}/{sample_name}/{sample_name}_{sample_number}_{sample_lane}_{sample_chunknb}{preprocesses}"
 bam__merged_format= "BAM/{sample_name}{preprocesses}"
 
+bam__sample_io = bam__dir + "/{sample_name}.bam"
+
 # ------------
 # Merge BAMs
 # ------------
