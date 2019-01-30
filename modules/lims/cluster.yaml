@@ -1,8 +1,9 @@
 cluster:
-  illumina_dir: "/mnt/storage/alexn/dev/ctgb/cluster/illumina"
+  illumina_dir: "/illumina"
   sequencing_runs:
-    dir: "/mnt/storage/alexn/dev/ctgb/cluster/lustre2/raw_data"
+    dir: "/lustre2/raw_data"
     structured: 'Y'
     project_tag: 'Project_'
     sample_tag: 'Sample_'
+  genome_dir: "/lustre2/scratch/bioinfotree/common/bioinfotree/task/annotations/dataset"
   

@@ -1,4 +1,5 @@
 import os
+pipeman.includeModule("cluster/cluster.py")
 
 def fastq__runsPathsProject(prj):
   """
@@ -20,6 +21,7 @@ def fastq__runProjectTag():
     tag = ""
   return tag
 
+@cluster__prefixMountPoint
 def fastq__runPath(runid):
   """
   Builds the path of the given runid.

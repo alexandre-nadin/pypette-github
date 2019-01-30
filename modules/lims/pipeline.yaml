@@ -1,0 +1,12 @@
+pipeline:
+  rnaseq:
+    modules:
+      star:
+        command: "Star"
+        version: "STAR_2.5.3a"
+        cores: 6
+        ram: '32gb'
+        outFilterMismatchNmax: 10
+        genomeIndex: ""
+      fastqc:
+        cores: 6        

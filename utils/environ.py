@@ -6,4 +6,7 @@ def setVars(*args, namespace={}):
   Sets them in the given namespace.
   """
   for var in args:
-    namespace[var] = os.environ[var]
+    if var in os.environ.keys():
+      namespace[var] = os.environ[var]
+    else:
+      namespace[var] = ""
