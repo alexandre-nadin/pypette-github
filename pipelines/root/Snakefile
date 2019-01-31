@@ -2,7 +2,7 @@ from utils import environ, pipeline
 
 """ Sets Environment Variables """
 environ.setVars(
-  'CPIPE_HOME', 'CPIPE_PIPE_NAME', 'CPIPE_PIPE_SNAKE',
+  'CPIPE_HOME', 'CPIPE_PIPE_NAME', 'CPIPE_PIPE_SNAKE', 'CLUSTER_MNT_POINT',
   namespace=globals())
 
 """ Define the pipeline manager """
