@@ -1,10 +1,36 @@
 include: 'mapping.py'
 
 mapping__dir = "{project}/mapping" 
+mapping__aligner_dir = mapping__dir + "/{aligner}"
+mapping__sample_io = mapping__aligner_dir + "/{sample_name}/{sample_name}.bam"
+mapping__sample_stats_io = mapping__sample_io + ".stats"
+
 mapping__chunk_format = mapping__dir + "/{sample_run}/{sample_name}/{sample_name}_{sample_number}_{sample_lane}_{sample_chunknb}{preprocesses}"
 mapping__merged_format= "BAM/{sample_name}{preprocesses}"
 
-mapping__sample_io = mapping__dir + "/{sample_name}.bam"
+# -----------
+# Bam Stats
+# -----------
+rule mapping__sampleStats_all:
+  input:
+    samples_stats = lambda wildcards:
+      fastq__mapStringSamples(mapping__sample_stats_io, **wildcards)
+  output:
+    primary = mapping__aligner_dir + "/mapping__sampleStats_all.done"
+  run:
+    touch(output)
+
+rule mapping__sampleStats:
+  input:
+    bam = mapping__sample_io 
+  output:
+    primary = mapping__sample_stats_io
+  run:
+    cmd = """
+      bamtools stats -in {input.bam} \
+       > {output.primary}
+    """.format(input=input, output=output)
+    exshell(input, output, cmd, **wildcards)
 
 # ------------
 # Merge BAMs
