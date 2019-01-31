@@ -77,7 +77,7 @@ eol
       touch {output}
 
     """)                                      
-  else:                                       
+  else:
     shell(cmd)                                
 
 pipeman.toClean("help__*.done")
