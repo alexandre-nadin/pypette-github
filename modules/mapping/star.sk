@@ -1,10 +1,6 @@
-# ----------------
-# STAR alignment
-# ----------------
-# Align Parameters
-# snakemake -p RULE/FILE --use-conda # --cluster 'qsub' --jobs 9999 --latency-wait 10
-#snakemake -p run2/36258535_id/36258535_id_S10_L5_001.bam --cluster-config cluster.yaml  --cluster 'qsub -N {cluster.name} -l select={cluster.select}:ncpus={cluster.cores}:mem={cluster.mem}' --jobs 9999  --latency-wait 10
 include: 'bam.sk'
+include: "star.py"
+
 star__dir           = bam__dir + "/star"
 star__sample_prefix = star__dir + "/{sample_name}/{sample_name}"
 star__sample_io     = star__sample_prefix + ".bam"
@@ -18,39 +14,6 @@ rule star__alignSamples_all:
   run:
     touch(output)
 
-def star__readsToString(R1=[], R2=[]):
-  """  
-  Takes arrays for reads 1 and 2.
-  Builds the input string for Star's readFilesIn paramter. 
-  """
-  return "{R1} {R2}".format(
-    R1=','.join(R1), 
-    R2=','.join(R2))
-
-pipeman.includeModule('cluster/cluster.py')
-@cluster__prefixMountPoint
-def star__genomeIndex():
-  """
-  Retrieves the genome index using cluster and project metadata parameters.
-  Uses 
-   - cluster.genome_dir
-   - project.genome .gencode and .species
-  """
-  return os.path.join(
-    "{cluster.genome_dir}/gencode",
-    "{genome.species.ensembl_name}",
-    "{genome.gencode.version}", 
-    "{genome.gencode.genome_version}"
-      + ".{gen_type}"
-      + ".star_index",
-    "{star.version}").format(
-      cluster  = pipeman.config.cluster,
-      genome   = pipeman.config.project.genome,
-      gen_type = pipeman.config.project.genome.gencode.annotation_type.rstrip('.annotation'),
-      star     = pipeman.config.pipeline.rnaseq.modules.star,
-    )
-  
-    
 rule star__alignSample:
   input: 
     reads_1 = lambda wildcards: fastq__mapSampleReads("R1", **wildcards),
