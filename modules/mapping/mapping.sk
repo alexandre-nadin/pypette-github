@@ -1,24 +1,22 @@
-bam__dir = "{project}/mapping"
-bam__chunk_format = bam__dir + "/{sample_run}/{sample_name}/{sample_name}_{sample_number}_{sample_lane}_{sample_chunknb}{preprocesses}"
-bam__merged_format= "BAM/{sample_name}{preprocesses}"
+include: 'mapping.py'
 
-bam__sample_io = bam__dir + "/{sample_name}.bam"
+mapping__dir = "{project}/mapping" 
+mapping__chunk_format = mapping__dir + "/{sample_run}/{sample_name}/{sample_name}_{sample_number}_{sample_lane}_{sample_chunknb}{preprocesses}"
+mapping__merged_format= "BAM/{sample_name}{preprocesses}"
+
+mapping__sample_io = mapping__dir + "/{sample_name}.bam"
 
 # ------------
 # Merge BAMs
 # ------------
 MERGE_CMD = "condactivate; picard MergeSamFiles"
-rule bam__merge_sample_bam_chunks:
+rule mapping__merge_sample_bam_chunks:
   input:
-    #bam = lambda wildcards: csvmap__formatStrFromQueryDict(
-    #            csvmap=fastq_csvmap, 
-    #            str_format=bam__chunk_format + '.bam',
-    #            **wildcards)
     bam = lambda wildcards: 
-      fastq__queryFastqSamples(bam__chunk_format + '.bam', **wildcards)
+      fastq__queryFastqSamples(mapping__chunk_format + '.bam', **wildcards)
   output:
-    primary= bam__merged_format + "{process}.bam",
-    bai= bam__merged_format + "{process}.bai"
+    primary= mapping__merged_format + "{process}.bam",
+    bai= mapping__merged_format + "{process}.bai"
   wildcard_constraints:
     process="(\.merged)?"
   run:

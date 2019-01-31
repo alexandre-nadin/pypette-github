@@ -166,7 +166,7 @@ rule fastq__fastqcSampleRead:
       fastqc -t {fastqc.cores} {input}
     """.format(
           input=input, 
-          fastqc=pipeman.config.pipeline.rnaseq.modules.fastqc)
+          fastqc=pipeman.config.pipeline.modules.fastqc)
     exshell(input, output, cmd, **wildcards)
    
 # ---------

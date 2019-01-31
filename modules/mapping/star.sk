@@ -1,7 +1,7 @@
-include: 'bam.sk'
+include: 'mapping.sk'
 include: "star.py"
 
-star__dir           = bam__dir + "/star"
+star__dir           = mapping__dir + "/star"
 star__sample_prefix = star__dir + "/{sample_name}/{sample_name}"
 star__sample_io     = star__sample_prefix + ".bam"
 
@@ -10,7 +10,7 @@ rule star__alignSamples_all:
     samples_bam = lambda wildcards:
       fastq__mapStringSamples(star__sample_io, **wildcards)
   output: 
-    primary = star__dir + "/star__alignSamples_all.done"
+    primary = mapping__dir + "/star__alignSamples_all.done"
   run:
     touch(output)
 
@@ -52,7 +52,7 @@ rule star__alignSample:
      ln.rel -f {output.raw_file} {output.primary}
     """.format(
       output = output,
-      star   = pipeman.config.pipeline.rnaseq.modules.star,
+      star   = pipeman.config.pipeline.modules.mapping.star,
       prefix = os.path.dirname(output.primary),
       reads  = star__readsToString(input.reads_1, input.reads_2),
       star_genome_index = star__genomeIndex(),)
@@ -70,15 +70,15 @@ rule star__align_chunk_star:
     fastq_reads = lambda wildcards: 
       fastq__queryFastqSamples(fastq__chunk_format + ".fastq.gz", **wildcards)
   output: 
-    primary = bam__chunk_format + "{process}.bam",
-    bam_file_raw = bam__chunk_format + "{process}.Aligned.sortedByCoord.out.bam",
-    raw_files = [ bam__chunk_format + "{process}." + _raw for _raw in
+    primary = mapping__chunk_format + "{process}.bam",
+    bam_file_raw = mapping__chunk_format + "{process}.Aligned.sortedByCoord.out.bam",
+    raw_files = [ mapping__chunk_format + "{process}." + _raw for _raw in
        [ "Log.out", "Log.progress.out", "Log.final.out", "SJ.out.tab" ]
     ]
   wildcard_constraints:
      process="(\.star)"
   run:
-    star = pipeman.config.pipeline.rnaseq.modules.star
+    star = pipeman.config.pipeline.modules.mapping.star
     cmd = """
      condactivate #> {output[primary]}.out ## DRY_RUN
      STAR \

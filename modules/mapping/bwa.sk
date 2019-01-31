@@ -1,14 +1,7 @@
-# ----------------
-# BWA  alignment
-# ----------------
-# Align Parameters
-# snakemake -p RULE/FILE --use-conda # --cluster 'qsub' --jobs 9999 --latency-wait 10
-#snakemake -p run2/36258535_id/36258535_id_S10_L5_001.bam --cluster-config cluster.yaml  --cluster 'qsub -N {cluster.name} -l select={cluster.select}:ncpus={cluster.cores}:mem={cluster.mem}' --jobs 9999  --latency-wait 10
-include: 'bam.sk'
+include: 'mapping.sk'
 BWA_CORES = 6
 BWA_REFERENCE_GENOME = ""
 
-#ruleorder: bwa__align_bwa_mem_samtools > bwa__align_bwa_mem_picard 
 ruleorder: bwa__align_bwa_mem_picard > bwa__align_bwa_mem_samtools
 rule bwa__align_bwa_mem_samtools:
     input:
@@ -18,7 +11,7 @@ rule bwa__align_bwa_mem_samtools:
                   str_format=fastq__chunk_format + ".fastq.gz",
                   **wildcards)
     output: 
-        primary = bam__chunk_format + "{process}.bam"
+        primary = mapping__chunk_format + "{process}.bam"
     wildcard_constraints:
          process="(\.bwa_mem_samtools)"
     shell:"""
@@ -40,7 +33,7 @@ rule bwa__align_bwa_mem_picard:
                   str_format=fastq__chunk_format + ".fastq.gz",
                   **wildcards)
     output: 
-        primary = bam__chunk_format + "{process}.bam"
+        primary = mapping__chunk_format + "{process}.bam"
     wildcard_constraints:
          process="(\.bwa_mem_picard)"
     shell:"""
