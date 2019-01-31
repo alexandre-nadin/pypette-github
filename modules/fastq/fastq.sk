@@ -14,11 +14,10 @@ include: "fastq.py"
 # -------------------------------------------------------------------
 pipeman.updateWildcardConstraints(
   **FastqFile.regex_fields,
-  preprocesses     = "(\.\w+)*?"
+  preprocesses = "(\.\w+)*?",
+  extension    = "\.\w+",
 )
     
-pipeman.toClean("fastq__*.done")
-
 # --------------------- 
 # I/O files format
 #
@@ -33,11 +32,25 @@ fastq__mapped_samples_io     = fastq__dir + "/samples{extension}"
 fastq__mapped_samples_io_dft = fastq__dir + "/samples.csv"
 fastq__chunk_io = fastq__dir + "/{sample_run}/{sample_name}/{sample_chunkname}{sample_extension}"
 fastq__merged_io = fastq__dir + "/{sample_run}/{sample_name}/{sample_name}_{sample_number}_{sample_read}_{sample_chunknb}_{sample_extension}"
-fastq__sample_read_io = fastq__dir + "/{sample_run}/{sample_name}/{sample_name}_{sample_read}{sample_extension}"
+fastq__sample_read_prefix = fastq__dir + "/{sample_name}/{sample_name}_{sample_read}"
+fastq__sample_read_io = fastq__sample_read_prefix + ".fastq.gz"
+fastq__sample_read_fastqc_io = fastq__sample_read_prefix + ".fastqc{extension}"
 
 # ---------------
 # Merging Reads
 # ---------------
+rule fastq__mergeSampleReads_all:
+  """
+  Merges all sample reads filtered by the given wildcards.
+  """
+  input:
+    reads_1 = lambda wildcards: fastq__mapSampleReads("R1", **wildcards),
+    reads_2 = lambda wildcards: fastq__mapSampleReads("R2", **wildcards)
+  output:
+    primary = fastq__dir + "/fastq__mergeSampleReads_all.done"
+  run:
+    touch(output)
+
 rule fastq__mergeSampleReads:
   """
   Merges sample reads filtered by the given wildcards.
@@ -124,15 +137,39 @@ rule fastq__linkReads:
 
 localrules: fastq__linkRead, fastq__linkReads
 
-# ---------------
+# --------------
 # Fastq Quality
-# ---------------
-FASTQC_CORES = 6
-rule fastq__fastqc_file:
+# --------------
+rule fastq__fastqcSampleReads_all:
+  """
+  Produces a Fastqc report for all samples' merged fastq reads.
+  """
   input:
-      fastq_in= "{prefix}.fastq.gz"
+    lambda wildcards: 
+      fastq__mapStringSamples(fastq__sample_read_fastqc_io + ".html", **wildcards)
   output:
-      primary= "{prefix}.fastqc.html"
-  shell:"""
-    fastqc -o $(dirname {input[fastq_in]}) -t {FASTQC_CORES} {input[fastq_in]}
-  """ 
+    primary = fastq__dir + "/fastq__fastqcSampleReads_all.done"
+  run:
+    touch(output) 
+
+rule fastq__fastqcSampleRead:
+  """
+  Produces a Fastqc report for a sample's merged fastq reads.
+  """
+  input: lambda x: rules.fastq__mergeSampleReads.output.primary
+  output:
+    primary = fastq__sample_read_prefix + ".fastqc.html",
+    zip = fastq__sample_read_prefix + ".fastqc.zip"
+  run:
+    lims__setConfigs(**wildcards)
+    cmd = """
+      fastqc -t {fastqc.cores} {input}
+    """.format(
+          input=input, 
+          fastqc=pipeman.config.pipeline.rnaseq.modules.fastqc)
+    exshell(input, output, cmd, **wildcards)
+   
+# ---------
+# Cleaning
+# ---------
+pipeman.toClean("fastq__*.done")
