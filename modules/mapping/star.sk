@@ -9,15 +9,13 @@ star__dir           = bam__dir + "/star"
 star__sample_prefix = star__dir + "/{sample_name}/{sample_name}"
 star__sample_io     = star__sample_prefix + ".bam"
 
-rule star__align_samples:
+rule star__alignSamples_all:
   input:
     samples_bam = lambda wildcards:
       fastq__mapStringSamples(star__sample_io, **wildcards)
   output: 
-    primary = star__dir + "/star__align_samples.done"
+    primary = star__dir + "/star__alignSamples_all.done"
   run:
-    print("doing rule {}".format(output.primary))
-    print("input: {}".format(input.samples_bam))
     touch(output)
 
 def star__readsToString(R1=[], R2=[]):
@@ -26,15 +24,37 @@ def star__readsToString(R1=[], R2=[]):
   Builds the input string for Star's readFilesIn paramter. 
   """
   return "{R1} {R2}".format(
-    R1=','.join(input.reads_1), 
-    R2=','.join(input.reads_2))
+    R1=','.join(R1), 
+    R2=','.join(R2))
+
+pipeman.includeModule('cluster/cluster.py')
+@cluster__prefixMountPoint
+def star__genomeIndex():
+  """
+  Retrieves the genome index using cluster and project metadata parameters.
+  Uses 
+   - cluster.genome_dir
+   - project.genome .gencode and .species
+  """
+  return os.path.join(
+    "{cluster.genome_dir}/gencode",
+    "{genome.species.ensembl_name}",
+    "{genome.gencode.version}", 
+    "{genome.gencode.genome_version}"
+      + ".{gen_type}"
+      + ".star_index",
+    "{star.version}").format(
+      cluster  = pipeman.config.cluster,
+      genome   = pipeman.config.project.genome,
+      gen_type = pipeman.config.project.genome.gencode.annotation_type.rstrip('.annotation'),
+      star     = pipeman.config.pipeline.rnaseq.modules.star,
+    )
   
-rule star__align_sample:
-  input:
-    reads_1 = lambda wildcards:
-      fastq__mapStringSamples(fastq__sample_read_io, sample_read="R1", **wildcards),
-    reads_2 = lambda wildcards:
-      fastq__mapStringSamples(fastq__sample_read_io, sample_read="R2", **wildcards)
+    
+rule star__alignSample:
+  input: 
+    reads_1 = lambda wildcards: fastq__mapSampleReads("R1", **wildcards),
+    reads_2 = lambda wildcards: fastq__mapSampleReads("R2", **wildcards)
   output:
     primary   = star__sample_io,
     raw_file  = star__sample_prefix + ".Aligned.sortedByCoord.out.bam",
@@ -46,13 +66,11 @@ rule star__align_sample:
     ]
   run:
     lims__setConfigs(**wildcards)
-    star = pipeman.config.pipeline.rnaseq.modules.star
-    fastq_reads = star__readsToString(input.reads_1, input.reads_2)
     cmd = """
      condactivate
      {star.command}                                         \ 
        --runThreadN {star.cores}                            \
-       --genomeDir {star.genomeIndex}                       \
+       --genomeDir {star_genome_index}                      \
        --readFilesIn {reads}                                \
        --outSAMstrandField intronMotif                      \
        --outFileNamePrefix {prefix}.                        \
@@ -69,7 +87,13 @@ rule star__align_sample:
        echo "No out bam found '{output.raw_file}'"
      fi
      ln.rel -f {output.raw_file} {output.primary}
-    """.format(star=star, output=output, prefix=star__sample_io, reads=fastq_reads)
+    """.format(
+      output = output,
+      star   = pipeman.config.pipeline.rnaseq.modules.star,
+      prefix = os.path.dirname(output.primary),
+      reads  = star__readsToString(input.reads_1, input.reads_2),
+      star_genome_index = star__genomeIndex(),)
+
     exshell(input, output, cmd, **wildcards)
 
  
@@ -91,6 +115,7 @@ rule star__align_chunk_star:
   wildcard_constraints:
      process="(\.star)"
   run:
+    star = pipeman.config.pipeline.rnaseq.modules.star
     cmd = """
      condactivate #> {output[primary]}.out ## DRY_RUN
      STAR \
@@ -108,20 +133,3 @@ rule star__align_chunk_star:
      ln.rel -f {output[bam_file_raw]} {output[primary]}
     """
     exshell(input, output, cmd, **wildcards)
-     #setConfigs(**wildcards)
-#    if config.debug:
-#      shell("""
-#        cat << eol > {output.primary}.out
-#        INPUTS: 
-#$(echo {input} | tr ' ' '\n')
-# 
-#        COMMAND: {cmd}
-#
-#        OUTPUT: 
-#$(echo {output} | tr ' ' '\n')
-#eol
-#        touch {output}
-#      """)
-#    else:
-#      shell(cmd)
-
