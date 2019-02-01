@@ -35,6 +35,8 @@ fastq__merged_io = fastq__dir + "/{sample_run}/{sample_name}/{sample_name}_{samp
 fastq__sample_read_prefix = fastq__dir + "/{sample_name}/{sample_name}_{sample_read}"
 fastq__sample_read_io = fastq__sample_read_prefix + ".fastq.gz"
 fastq__sample_read_fastqc_io = fastq__sample_read_prefix + ".fastqc{extension}"
+fastq__sample_read_fastqc_html_io = fastq__sample_read_prefix + ".fastqc.html"
+fastq__sample_read_fastqc_zip_io = fastq__sample_read_prefix + ".fastqc.zip"
 
 # ---------------
 # Merging Reads
@@ -158,8 +160,8 @@ rule fastq__fastqcSampleRead:
   """
   input: lambda x: rules.fastq__mergeSampleReads.output.primary
   output:
-    primary = fastq__sample_read_prefix + ".fastqc.html",
-    zip = fastq__sample_read_prefix + ".fastqc.zip"
+    primary = fastq__sample_read_fastqc_html_io,
+    zip = fastq__sample_read_fastqc_zip_io
   run:
     lims__setConfigs(**wildcards)
     cmd = """

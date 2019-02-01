@@ -1,7 +1,8 @@
+_mapping__aligner = 'star'
 include: 'mapping.sk'
 include: "star.py"
 
-star__dir           = mapping__dir + "/star"
+star__dir           = mapping__aligner_dir
 star__sample_prefix = star__dir + "/{sample_name}/{sample_name}"
 star__sample_io     = star__sample_prefix + ".bam"
 

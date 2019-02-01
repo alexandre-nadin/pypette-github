@@ -1,0 +1,29 @@
+#pipeman.includeModule('mapping/mapping.sk')
+pipeman.includeModule('fastq/fastq.sk')
+
+multiqc__dir = "{project}/multiqc"
+multiqc__report_io = multiqc__dir + "/report.html"
+multiqc__report_sample_io = multiqc__dir + "/report_{sample_name}.html"
+
+multiqc__bamstat_sample_dir = mapping__aligner_dir + "/{sample_name}"
+
+rule multiqc__report:
+  input:
+    fastqcs  = lambda wildcards: fastq__mapStringSamples(
+      fastq__sample_read_fastqc_zip_io, **wildcards),
+    bamstats = lambda wildcards: fastq__mapStringSamples(
+      mapping__sample_stats_io, **wildcards)
+  output:
+    primary = multiqc__report_io
+  run:
+    lims__setConfigs(**wildcards)
+    print("\ninputs: {}".format(input))
+    dirs = [ os.path.dirname(d) for d in input ]
+    print("dirs: {}".format(dirs))
+    cmd = """
+      multiqc -n stdout \
+        -o multiqc_data \
+        {dirs}  \
+        > {output.primary}
+    """.format(input=input, output=output, dirs=' '.join(dirs))
+    exshell(input, output, cmd, **wildcards)
