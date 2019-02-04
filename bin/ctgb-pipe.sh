@@ -99,9 +99,9 @@ function initParams() {
 }
 
 function checkParams() {
+  checkDirs
   checkProject
   checkPipeline
-  checkDirs
 }
 
 function isParamGiven() {
@@ -179,7 +179,7 @@ function cmdSnakemake() {
   cat << eol | xargs
   \snakemake
    --snakefile $(pathPipelineSnakefile root)
-   --directory "$SNAKE_DIR"
+   --directory "${SNAKE_DIR}/${PROJECT}"
    ${SNAKE_OPTIONS[@]}
 eol
 }
