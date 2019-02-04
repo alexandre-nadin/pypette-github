@@ -1,4 +1,4 @@
-pipeman.includeModule("lims/lims.sk")
+pipeman.includeModule("config/config.sk")
 pipeman.includeModule("fastq/fastq.sk")
 pipeman.includeModule("mapping/star.sk")
 pipeman.includeModule("multiqc/multiqc.sk")

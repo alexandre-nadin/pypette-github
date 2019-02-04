@@ -1,0 +1,63 @@
+import utils.dicts
+from utils.files import touch
+include: "config.py"
+
+config__dir = "config"
+config__config_files = [ 
+  os.path.join(config__dir, config)
+  for config in [ "cluster.yaml", "pipeline.yaml", "metadata.json" ]
+]
+# Load existing configuration by default.
+config__setConfigs()
+
+
+# -----------------
+# LIMS Parameters
+# -----------------
+config__SRV_URL      = "f2.ricerca.hsr.it"
+config__PRJ_URL      = config__SRV_URL      + "/projects"
+config__SEQU_RUN_URL = config__PRJ_URL      + "/api/sequencing_run"
+config__TO_DEMUX_URL = config__SEQU_RUN_URL + "/to_demultiplex/"
+
+# ---------------
+# Metadata file
+# ---------------
+config__project_medata_io_format = ".json"
+config__project_metadata_io = config__dir + "/metadata" + config__project_medata_io_format
+
+rule config__projectMetadata:
+  output: 
+    primary = config__project_metadata_io
+  run:
+    cmd = """
+      curl                                                                      \
+        --fail                                                                  \
+        "{config__PRJ_URL}/{pipeman.project}{config__project_medata_io_format}" \
+       > {output.primary}
+    """
+    shell(cmd)
+
+rule config__tempConfs:
+  """
+  This should be taken form the lims.
+  Not implemented yet in lims API.
+  """
+  output:
+    primary = config__dir + "/{conf}.yaml"
+  shell:"""
+    cp "{pipeman.dir_modules}/config/{wildcards.conf}.yaml" \
+       "{output.primary}"
+  """
+
+rule config__allConfigs:
+  """
+  Creates Project. Not different from rule 'config__projectMetadata'.
+  """
+  input:
+    config__config_files
+  output:
+    primary = config__dir + "/config__allConfigs.done"
+  run:
+    touch(output)
+    
+pipeman.toClean(config__dir + "/config__*.done")

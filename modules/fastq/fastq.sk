@@ -1,6 +1,6 @@
 from utils.fastq_helper import FastqFile
 from utils.files import touch
-pipeman.includeModule('lims/lims.sk')
+pipeman.includeModule('config/config.sk')
 include: "fastq.py"
 
 # -------------------------------
@@ -80,7 +80,7 @@ rule fastq__mapRawFiles:
   configuration.
   """
   input:
-    configs  = lims__config_files
+    configs  = config__config_files
   output: 
     primary  = fastq__raw_files_io
   run:
