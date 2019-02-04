@@ -1,6 +1,6 @@
 include: 'mapping.py'
 
-mapping__dir = "{project}/mapping" 
+mapping__dir = "{preprocesses}mapping" 
 mapping__aligner_dir = mapping__dir + "/" + mapping__getAligner()
 mapping__sample_io = mapping__aligner_dir + "/{sample_name}/{sample_name}.bam"
 mapping__sample_stats_io = mapping__sample_io + ".stats"

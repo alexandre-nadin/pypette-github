@@ -4,15 +4,12 @@ from utils.files import touch
 def lims__setConfigs(**kwargs):
   """
   Not elegant way to deal with config files.
-  Should set dependence to cluster.yaml (retreived in {project}/metadata.json)
-  Loads {project}/metadata.json.
+  Should set dependence to cluster.yaml (retreived in metadata.json)
+  Loads metadata.json.
   """
 
   """ Load configurations for cluster, project and pipeline """
-  confs = [
-      "{project}/".format(**kwargs) + conf
-       for conf in [ "cluster.yaml", "pipeline.yaml", "metadata.json" ]
-  ]
+  confs = [  "cluster.yaml", "pipeline.yaml", "metadata.json" ]
   for conf in confs:
     pipeman.config_manager.loadConfig(conf)
 
@@ -29,12 +26,12 @@ lims__TO_DEMUX_URL = lims__SEQU_RUN_URL + "/to_demultiplex/"
 # ---------------
 lims__project_medata_io_format = "json"
 lims__project_metadata_io = (
-  "{project}/metadata.{format}"
+  "metadata.{format}"
     .format_map(utils.dicts.Default(
       { 'format': lims__project_medata_io_format,},
       nomissing=False))
 )
-lims__create_project_io = "lims__createProject_{project}.done"
+lims__create_project_io = "lims__createProject.done"
 
 rule lims__projectMetadata:
   output: 
@@ -52,7 +49,7 @@ rule lims__tempConfs:
   Not implemented yet in lims API.
   """
   output:
-    primary = "{project}/{conf}.yaml"
+    primary = "{conf}.yaml"
   shell:"""
     cp "{pipeman.dir_modules}/lims/{wildcards.conf}.yaml" \
        "{output.primary}"
@@ -63,8 +60,8 @@ rule lims__createProject:
   """
   input:
     primary      = lims__project_metadata_io,
-    tempCluster  = "{project}/cluster.yaml",
-    tempPipeline = "{project}/pipeline.yaml"
+    tempCluster  = "cluster.yaml",
+    tempPipeline = "pipeline.yaml"
   output:
     lims__create_project_io
   run:

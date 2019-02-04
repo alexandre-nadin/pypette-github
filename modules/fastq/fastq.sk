@@ -27,8 +27,8 @@ pipeman.updateWildcardConstraints(
 #   - {process} is only for outputs as it is about the process defined by the
 #     current rule.
 # --------------------- 
-fastq__raw_files_io = "{project}/fastq/raw_files.txt"
-fastq__dir = "{project}/fastq"
+fastq__dir = "{preprocesses}fastq"
+fastq__raw_files_io = fastq__dir + "/raw_files.txt"
 fastq__mapped_samples_io     = fastq__dir + "/samples{extension}"
 fastq__mapped_samples_io_dft = fastq__dir + "/samples.csv"
 fastq__chunk_io = fastq__dir + "/{sample_run}/{sample_name}/{sample_chunkname}{sample_extension}"
