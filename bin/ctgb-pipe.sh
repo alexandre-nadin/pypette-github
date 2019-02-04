@@ -3,6 +3,7 @@ SCRIPT_PATH=$(readlink -f "${0}")
 SCRIPT_DIR=$(dirname "${SCRIPT_PATH}")
 
 PIPELINE_SNAKEFILE="Snakefile"
+VARENVS_TAG="_CPIPE_"
 
 # ---------------------
 # Snakemake functions
@@ -96,6 +97,7 @@ function initParams() {
   SNAKE_OPTIONS=()
   SNAKE_DIR=""
   VERBOSE=false
+  CLUSTER_MNT_POINT=${CLUSTER_MNT_POINT:-""}
 }
 
 function checkParams() {
@@ -193,11 +195,20 @@ function execSnakemake() {
 # Env Vars
 # ---------
 function exportVarenvs() {
-  export CPIPE_HOME=$(pathHome)
-  export CPIPE_PROJECT="$PROJECT"
-  export CPIPE_PIPE_NAME="$PIPELINE"
-  export CPIPE_PIPE_SNAKE=$(pathPipelineSnakefile $PIPELINE)
-  export PYTHONPATH=${PYTHONPATH:+${PYTHONPATH}":"}${CPIPE_HOME} 
+  exportCpipeVarenv "HOME" $(pathHome)
+  exportCpipeVarenv "PROJECT" "$PROJECT"
+  exportCpipeVarenv "PIPE_NAME" "$PIPELINE"
+  exportCpipeVarenv "PIPE_SNAKE" $(pathPipelineSnakefile $PIPELINE)
+  exportCpipeVarenv "CLUSTER_MNT_POINT" "$CLUSTER_MNT_POINT"
+  export PYTHONPATH=${PYTHONPATH:+${PYTHONPATH}":"}$(pathHome)
+}
+
+function cpipeVarenvOf() {
+  printf "${VARENVS_TAG}${1}"
+}
+
+function exportCpipeVarenv() {
+  eval "export $(cpipeVarenvOf ${1})=${2}"
 }
 
 # -------

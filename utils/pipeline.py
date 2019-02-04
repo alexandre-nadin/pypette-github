@@ -1,26 +1,36 @@
 import os
 import utils.configs, utils.samples
 from utils.manager import Manager
+from utils import environ
 
 class PipelineManager(Manager):
   """ """
+  # Expected tag for application's environment variables
+  VARENV_TAG = "_CPIPE_"
+  VARENV_NAMES = [ 'home', 'project', 'pipe_name', 'pipe_snake', 'cluster_mnt_point' ]
 
   def __init__(self, namespace, name="Default"):
     super(PipelineManager, self).__init__()
+    environ.setTaggedVarEnvsAttrs(self, tag=self.__class__.VARENV_TAG, stripTag=True)
+    self.checkVarenvAttrs()
     self.namespace        = namespace
-    self.home             = self.namespace['CPIPE_HOME']
-    self.project          = self.namespace['CPIPE_PROJECT']
-    self.name             = self.namespace['CPIPE_PIPE_NAME']
     self.dir_modules      = os.path.join(self.home, "modules")
     self.dir_pipelines    = os.path.join(self.home, "pipelines")
     self.params           = []
     self.cleanables       = []
-    self.samples_manager  = utils.samples.SamplesManager(self.name, self.namespace)
+    self.samples_manager  = utils.samples.SamplesManager(self.pipe_name, self.namespace)
     self.config_manager   = PipelineConfigManager(
-                              config_prefix = self.name, 
+                              config_prefix = self.pipe_name, 
                               namespace     = self.namespace)
     self.updateNamespace()
- 
+
+  def checkVarenvAttrs(self):
+    for varenv in self.__class__.VARENV_NAMES:
+      self.checkVarenvAttr(varenv)
+
+  def checkVarenvAttr(self, attr):
+    assert hasattr(self, attr)
+
   @property
   def workflow(self):
     return self.namespace['workflow']

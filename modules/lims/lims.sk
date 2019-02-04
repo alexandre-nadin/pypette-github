@@ -42,7 +42,7 @@ rule lims__projectMetadata:
   shell:"""
     curl                                                                      \
       --fail                                                                  \
-      "{lims__PRJ_URL}/{wildcards.project}.{lims__project_medata_io_format}" \
+      "{lims__PRJ_URL}/{pipeman.project}.{lims__project_medata_io_format}" \
      > {output.primary}
   """
 

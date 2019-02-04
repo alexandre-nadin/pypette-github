@@ -14,10 +14,11 @@ include: "fastq.py"
 # -------------------------------------------------------------------
 pipeman.updateWildcardConstraints(
   **FastqFile.regex_fields,
-  preprocesses = "(\.\w+)*?",
+  project      = "\w+",
+  preprocesses = "(/\w+/)*?",
   extension    = "\.\w+",
 )
-    
+   
 # --------------------- 
 # I/O files format
 #
@@ -84,7 +85,7 @@ rule fastq__mapRawFiles:
     primary  = fastq__raw_files_io
   run:
     lims__setConfigs(**wildcards)
-    runs = fastq__runsPathsProject(wildcards.project)
+    runs = fastq__runsPathsProject(pipeman.project)
     shell("""
       find {runs} -name '*.fastq.gz' > {output}
     """)
