@@ -9,6 +9,7 @@ class PipelineManager(Manager):
     super(PipelineManager, self).__init__()
     self.namespace        = namespace
     self.home             = self.namespace['CPIPE_HOME']
+    self.project          = self.namespace['CPIPE_PROJECT']
     self.name             = self.namespace['CPIPE_PIPE_NAME']
     self.dir_modules      = os.path.join(self.home, "modules")
     self.dir_pipelines    = os.path.join(self.home, "pipelines")

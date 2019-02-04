@@ -27,13 +27,16 @@ function manual() {
 cat << EOFMAN
   
   DESCRIPTION
-      Launches a ctgb-pipe PIPELINE.
-      snakemake-options will be passed to the snakemake command.
+      Launches a CTGB PIPELINE for the given PROJECT.
+      SNAKEMAKE_OPTIONs will be passed to the Snakemake command.
 
   USAGE
-      $ $0 -p PIPELINE [-o snake-option ...]
+      $ $0 --prj PROJECT -p PIPELINE [-o SNAKEMAKE_OPTION ...]
 
   OPTIONS
+      --prj
+          Name of the project to analyse.
+
       -p|--pipeline
           Name of the ctgb-pipe PIPELINE to load.
 
@@ -88,6 +91,7 @@ function pathModules() {
 # Parameters
 # -----------
 function initParams() {
+  PROJECT=""
   PIPELINE=""
   SNAKE_OPTIONS=()
   SNAKE_DIR=""
@@ -95,6 +99,7 @@ function initParams() {
 }
 
 function checkParams() {
+  checkProject
   checkPipeline
   checkDirs
 }
@@ -105,6 +110,10 @@ function isParamGiven() {
 
 function existsPipeline() {
   [ -f $(pathPipelineSnakefile ${1}) ]
+}
+
+function checkProject() {
+  isParamGiven "$PROJECT"    || errorParamNotGiven "PROJECT"
 }
 
 function checkPipeline() {
@@ -185,6 +194,7 @@ function execSnakemake() {
 # ---------
 function exportVarenvs() {
   export CPIPE_HOME=$(pathHome)
+  export CPIPE_PROJECT="$PROJECT"
   export CPIPE_PIPE_NAME="$PIPELINE"
   export CPIPE_PIPE_SNAKE=$(pathPipelineSnakefile $PIPELINE)
   export PYTHONPATH=${PYTHONPATH:+${PYTHONPATH}":"}${CPIPE_HOME} 

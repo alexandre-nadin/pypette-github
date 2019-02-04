@@ -9,6 +9,10 @@ function parseParams() {
   while [ $# -ge 1 ]
   do
       case "$1" in
+        --prj)
+          PROJECT="$2" && shift
+          ;;
+
         -p|--pipeline)
           PIPELINE="$2" && shift
           ;;
