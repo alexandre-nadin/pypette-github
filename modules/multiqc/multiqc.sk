@@ -15,7 +15,6 @@ rule multiqc__report:
   output:
     primary = multiqc__report_io
   run:
-    lims__setConfigs(**wildcards)
     dirs = [ os.path.dirname(d) for d in input ]
     cmd = """
       multiqc -n stdout \

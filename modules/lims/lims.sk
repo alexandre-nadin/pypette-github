@@ -1,6 +1,7 @@
 import utils.dicts
 from utils.files import touch
 
+lims__config_files = [ "cluster.yaml", "pipeline.yaml", "metadata.json" ]
 def lims__setConfigs(**kwargs):
   """
   Not elegant way to deal with config files.
@@ -9,9 +10,13 @@ def lims__setConfigs(**kwargs):
   """
 
   """ Load configurations for cluster, project and pipeline """
-  confs = [  "cluster.yaml", "pipeline.yaml", "metadata.json" ]
-  for conf in confs:
-    pipeman.config_manager.loadConfig(conf)
+  for conf in lims__config_files:
+    if os.path.exists(conf) and os.path.isfile(conf):
+      pipeman.config_manager.loadConfig(conf)
+
+# Load existing configuration by default.
+lims__setConfigs()
+
 
 # -----------------
 # LIMS Parameters
@@ -36,12 +41,14 @@ lims__create_project_io = "lims__createProject.done"
 rule lims__projectMetadata:
   output: 
     primary = lims__project_metadata_io
-  shell:"""
-    curl                                                                      \
-      --fail                                                                  \
-      "{lims__PRJ_URL}/{pipeman.project}.{lims__project_medata_io_format}" \
-     > {output.primary}
-  """
+  run:
+    cmd = """
+      curl                                                                   \
+        --fail                                                               \
+        "{lims__PRJ_URL}/{pipeman.project}.{lims__project_medata_io_format}" \
+       > {output.primary}
+    """
+    shell(cmd)
 
 rule lims__tempConfs:
   """

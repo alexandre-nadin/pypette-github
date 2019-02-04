@@ -29,7 +29,6 @@ rule star__alignSample:
       ]
     ]
   run:
-    lims__setConfigs(**wildcards)
     cmd = """
      condactivate
      {star.command}                                         \ 
