@@ -1,4 +1,4 @@
 pipeman.includeModule("config/config.sk")
-pipeman.includeModule("fastq/fastq.sk")
-pipeman.includeModule("mapping/star.sk")
-pipeman.includeModule("multiqc/multiqc.sk")
+pipeman.includeModule("fastq/fastq.sk"    , asWorkflow="fastq")
+pipeman.includeModule("mapping/star.sk"   , asWorkflow="mapped/star")
+pipeman.includeModule("multiqc/multiqc.sk", asWorkflow="multiqc")

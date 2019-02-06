@@ -92,5 +92,5 @@ def fastq__mapStringSamples(s, **kwargs):
   return pipeman.samples.buildStringFromKeywords(s, **kwargs)
   
 def fastq__mapSampleReads(read, **kwargs):
-  return fastq__mapStringSamples(fastq__sample_read_io, sample_read=read, **kwargs)
+  return fastq__mapStringSamples(fastq_merging__sample_read_io, sample_read=read, **kwargs)
 

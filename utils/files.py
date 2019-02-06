@@ -7,7 +7,7 @@ def extensionless(name):
     /path/to/file
   """
   split = os.path.splitext(name)
-  return basename(split[0]) if split[1] else split[0]
+  return os.path.basename(split[0]) if split[1] else split[0]
 
 def extension(name):
   split = os.path.splitext(name)

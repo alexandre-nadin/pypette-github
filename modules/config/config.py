@@ -1,6 +1,7 @@
 def config__msgErrorConfigFiles():
   return """Please produce config files with the config pipeline:
-    $ ctgb-pipe --prj {prj} -p config [-o SNAKEMAKE_OPTIONS ...]
+    $ ctgb-pipe --prj {prj} -p config -o config/<FILE>
+    $ ctgb-pipe --prj {prj} -p config -o config/config__allConfigs.done
   """.format(prj=pipeman.project)
 
 def config__setConfigs(**kwargs):

@@ -1,6 +1,6 @@
 from utils.fastq_helper import FastqFile
 from utils.files import touch
-pipeman.includeModule('config/config.sk')
+
 include: "fastq.py"
 
 # -------------------------------
@@ -14,7 +14,6 @@ include: "fastq.py"
 # -------------------------------------------------------------------
 pipeman.updateWildcardConstraints(
   **FastqFile.regex_fields,
-  project      = "\w+",
   preprocesses = "(/\w+/)*?",
   extension    = "\.\w+",
 )
@@ -27,49 +26,14 @@ pipeman.updateWildcardConstraints(
 #   - {process} is only for outputs as it is about the process defined by the
 #     current rule.
 # --------------------- 
-fastq__dir = "{preprocesses}fastq"
-fastq__raw_files_io = fastq__dir + "/raw_files.txt"
-fastq__mapped_samples_io     = fastq__dir + "/samples{extension}"
-fastq__mapped_samples_io_dft = fastq__dir + "/samples.csv"
-fastq__chunk_io = fastq__dir + "/{sample_run}/{sample_name}/{sample_chunkname}{sample_extension}"
-fastq__merged_io = fastq__dir + "/{sample_run}/{sample_name}/{sample_name}_{sample_number}_{sample_read}_{sample_chunknb}_{sample_extension}"
-fastq__sample_read_prefix = fastq__dir + "/{sample_name}/{sample_name}_{sample_read}"
-fastq__sample_read_io = fastq__sample_read_prefix + ".fastq.gz"
-fastq__sample_read_fastqc_io = fastq__sample_read_prefix + ".fastqc{extension}"
-fastq__sample_read_fastqc_html_io = fastq__sample_read_prefix + ".fastqc.html"
-fastq__sample_read_fastqc_zip_io = fastq__sample_read_prefix + ".fastqc.zip"
+fastq__dir = pipeman.workflow_dir
+fastq__raw_files_io = "raw_files.txt"
+fastq__mapped_samples_io     = "samples{extension}"
+fastq__mapped_samples_io_dft = "samples.csv"
+fastq__chunk_io = fastq__dir + "/runs/{sample_run}/{sample_chunkname}{sample_extension}"
 
-# ---------------
-# Merging Reads
-# ---------------
-rule fastq__mergeSampleReads_all:
-  """
-  Merges all sample reads filtered by the given wildcards.
-  """
-  input:
-    reads_1 = lambda wildcards: fastq__mapSampleReads("R1", **wildcards),
-    reads_2 = lambda wildcards: fastq__mapSampleReads("R2", **wildcards)
-  output:
-    primary = fastq__dir + "/fastq__mergeSampleReads_all.done"
-  run:
-    touch(output)
-
-rule fastq__mergeSampleReads:
-  """
-  Merges sample reads filtered by the given wildcards.
-  """
-  input:
-    reads = lambda wildcards:
-      fastq__mapStringSamples(fastq__chunk_io, **wildcards)
-  output:
-    primary = fastq__sample_read_io
-  run:
-    cmd = """
-    zcat {input.reads} \
-     | gzip              \
-     > {output.primary}
-    """.format(input=input, output=output)
-    exshell(input, output, cmd, **wildcards)
+pipeman.include("merging.sk", asWorkflow="merged")
+pipeman.include("fastqc.sk")
 
 # ---------------------
 # Mapping fastq files
@@ -138,38 +102,8 @@ rule fastq__linkReads:
 
 localrules: fastq__linkRead, fastq__linkReads
 
-# --------------
-# Fastq Quality
-# --------------
-rule fastq__fastqcSampleReads_all:
-  """
-  Produces a Fastqc report for all samples' merged fastq reads.
-  """
-  input:
-    lambda wildcards: 
-      fastq__mapStringSamples(fastq__sample_read_fastqc_io + ".html", **wildcards)
-  output:
-    primary = fastq__dir + "/fastq__fastqcSampleReads_all.done"
-  run:
-    touch(output) 
-
-rule fastq__fastqcSampleRead:
-  """
-  Produces a Fastqc report for a sample's merged fastq reads.
-  """
-  input: lambda x: rules.fastq__mergeSampleReads.output.primary
-  output:
-    primary = fastq__sample_read_fastqc_html_io,
-    zip = fastq__sample_read_fastqc_zip_io
-  run:
-    cmd = """
-      fastqc -t {fastqc.cores} {input}
-    """.format(
-          input=input, 
-          fastqc=pipeman.config.pipeline.modules.fastqc)
-    exshell(input, output, cmd, **wildcards)
    
 # ---------
 # Cleaning
 # ---------
-pipeman.toClean("fastq__*.done")
+pipeman.toClean("fastq_*.done")

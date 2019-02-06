@@ -10,3 +10,5 @@ pipeline:
         outFilterMismatchNmax: 10
     fastqc:
       cores: 6        
+  sample_based: True
+  deep_structure: True

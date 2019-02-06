@@ -27,7 +27,7 @@ def star__genomeIndex():
       cluster  = pipeman.config.cluster,
       genome   = pipeman.config.project.genome,
       gen_type = pipeman.config.project.genome.gencode.annotation_type.rstrip('.annotation'),
-      star     = pipeman.config.pipeline.modules.star,
+      star     = pipeman.config.pipeline.modules.mapping.star,
     )
   
     

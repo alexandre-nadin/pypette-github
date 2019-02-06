@@ -2,8 +2,8 @@ _mapping__aligner = 'star'
 include: 'mapping.sk'
 include: "star.py"
 
-star__dir           = mapping__aligner_dir
-star__sample_prefix = star__dir + "/{sample_name}/{sample_name}"
+star__dir           = pipeman.workflow_dir
+star__sample_prefix = star__dir + "/{sample_name}"
 star__sample_io     = star__sample_prefix + ".bam"
 
 rule star__alignSamples_all:
@@ -11,12 +11,13 @@ rule star__alignSamples_all:
     samples_bam = lambda wildcards:
       fastq__mapStringSamples(star__sample_io, **wildcards)
   output: 
-    primary = mapping__dir + "/star__alignSamples_all.done"
+    primary = "star__alignSamples_all.done"
   run:
     touch(output)
 
 rule star__alignSample:
   input: 
+    configs = config__config_files,
     reads_1 = lambda wildcards: fastq__mapSampleReads("R1", **wildcards),
     reads_2 = lambda wildcards: fastq__mapSampleReads("R2", **wildcards)
   output:
