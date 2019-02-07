@@ -11,7 +11,7 @@ rule bwa__align_bwa_mem_samtools:
                   str_format=fastq__chunk_format + ".fastq.gz",
                   **wildcards)
     output: 
-        primary = mapping__chunk_format + "{process}.bam"
+        primary = mapping__chunkPrefix + "{process}.bam"
     wildcard_constraints:
          process="(\.bwa_mem_samtools)"
     shell:"""
@@ -33,7 +33,7 @@ rule bwa__align_bwa_mem_picard:
                   str_format=fastq__chunk_format + ".fastq.gz",
                   **wildcards)
     output: 
-        primary = mapping__chunk_format + "{process}.bam"
+        primary = mapping__chunkPrefix + "{process}.bam"
     wildcard_constraints:
          process="(\.bwa_mem_picard)"
     shell:"""

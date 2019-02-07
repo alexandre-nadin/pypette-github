@@ -1,12 +1,11 @@
 include: 'mapping.py'
 
 mapping__dir = pipeman.workflow_dir 
-mapping__aligner_dir = mapping__dir + "/" + mapping__getAligner()
-mapping__sample_io = mapping__dir + "/{sample_name}.bam"
-mapping__sample_stats_io = mapping__sample_io + ".stats"
+mapping__sample = mapping__dir + "/{sample_name}.bam"
+mapping__sampleStats = mapping__sample + ".stats"
 
-mapping__chunk_format = mapping__dir + "/{sample_run}/{sample_name}/{sample_name}_{sample_number}_{sample_lane}_{sample_chunknb}{preprocesses}"
-mapping__merged_format= "BAM/{sample_name}{preprocesses}"
+mapping__chunkPrefix = mapping__dir + "/{sample_run}/{sample_name}/{sample_name}_{sample_number}_{sample_lane}_{sample_chunknb}"
+mapping__mergedPrefix= "BAM/{sample_name}"
 
 # -----------
 # Bam Stats
@@ -14,17 +13,19 @@ mapping__merged_format= "BAM/{sample_name}{preprocesses}"
 rule mapping__sampleStats_all:
   input:
     samples_stats = lambda wildcards:
-      fastq__mapStringSamples(mapping__sample_stats_io, **wildcards)
+      fastq__mapStringSamples(mapping__sampleStats, **wildcards)
   output:
-    primary = mapping__aligner_dir + "/mapping__sampleStats_all.done"
+    primary = "mapping__sampleStats_all.done"
   run:
     touch(output)
 
+pipeman.toClean("mapping_*.done")
+
 rule mapping__sampleStats:
   input:
-    bam = mapping__sample_io 
+    bam = mapping__sample 
   output:
-    primary = mapping__sample_stats_io
+    primary = mapping__sampleStats
   run:
     cmd = """
       bamtools stats -in {input.bam} \
@@ -39,10 +40,10 @@ MERGE_CMD = "condactivate; picard MergeSamFiles"
 rule mapping__merge_sample_bam_chunks:
   input:
     bam = lambda wildcards: 
-      fastq__queryFastqSamples(mapping__chunk_format + '.bam', **wildcards)
+      fastq__queryFastqSamples(mapping__chunkPrefix + '.bam', **wildcards)
   output:
-    primary= mapping__merged_format + "{process}.bam",
-    bai= mapping__merged_format + "{process}.bai"
+    primary= mapping__mergedPrefix + "{process}.bam",
+    bai= mapping__mergedPrefix + "{process}.bai"
   wildcard_constraints:
     process="(\.merged)?"
   run:

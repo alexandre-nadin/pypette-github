@@ -1,6 +1,6 @@
 from utils.files import touch
 
-explain_rules_fields = ['name', 'wildcard_names', '_wildcard_constraints', 'snakefile']
+core__rulesFields = ['name', 'wildcard_names', '_wildcard_constraints', 'snakefile']
 rule explain_rules:
   """
   Lists all available rules (snakemake -l) but also gives more
@@ -8,11 +8,11 @@ rule explain_rules:
   """
   run:
     print('\t|\t'.join([_rule_field.upper() 
-                       for _rule_field in explain_rules_fields
+                       for _rule_field in core__rulesFields
                     ]))
     for _rule in rules.__dict__.keys():
       print('\t|\t'.join([str(rules.__dict__[_rule].__dict__[_rule_field]) 
-                              for _rule_field in explain_rules_fields
+                              for _rule_field in core__rulesFields
                         ]))
 
 def helpRuleAttr(rule, attr, name=None, inline=True):

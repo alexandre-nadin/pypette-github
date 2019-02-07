@@ -1,0 +1,36 @@
+fastq_merge__dir = pipeman.workflow_dir
+fastq_merge__samplePrefix = fastq_merge__dir + "/{sample_name}_{sample_read}"
+fastq_merging__sample = fastq_merge__samplePrefix + ".fastq.gz"
+
+# ---------------
+# Merging Reads
+# ---------------
+rule fastq_merging__mergeSampleReads_all:
+  """
+  Merges all sample reads filtered by the given wildcards.
+  """
+  input:
+    reads_1 = lambda wildcards: fastq_merging__mapSampleReads("R1", **wildcards),
+    reads_2 = lambda wildcards: fastq_merging__mapSampleReads("R2", **wildcards)
+  output:
+    primary = fastq_merge__dir + "/fastq_merging__mergeSampleReads_all.done"
+  run:
+    touch(output)
+
+rule fastq_merging__mergeSampleReads:
+  """
+  Merges sample reads filtered by the given wildcards.
+  """
+  input:
+    reads = lambda wildcards:
+      fastq__mapStringSamples(fastq__chunk, **wildcards)
+  output:
+    primary = fastq_merging__sample
+  run:
+    cmd = """
+    zcat {input.reads} \
+     | gzip              \
+     > {output.primary}
+    """.format(input=input, output=output)
+    exshell(input, output, cmd, **wildcards)
+

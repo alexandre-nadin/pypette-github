@@ -1,4 +1,7 @@
 import os
+from utils.fastq_helper import FastqFile
+from utils.files import touch
+
 pipeman.includeModule("cluster/cluster.py")
 
 def fastq__runsPathsProject(prj):
@@ -85,12 +88,11 @@ def fastq__mapFilename(filename):
 
 def fastq__loadSamples(**kwargs):
   if pipeman.samples.data is None:
-    pipeman.samples.load(fastq__mapped_samples_io_dft.format(**kwargs))
+    pipeman.samples.load(fastq__mappedSamplesDft.format(**kwargs))
 
 def fastq__mapStringSamples(s, **kwargs):
   fastq__loadSamples(**kwargs)
   return pipeman.samples.buildStringFromKeywords(s, **kwargs)
   
 def fastq__mapSampleReads(read, **kwargs):
-  return fastq__mapStringSamples(fastq_merging__sample_read_io, sample_read=read, **kwargs)
-
+  return fastq__mapStringSamples(fastq_merging__sample, sample_read=read, **kwargs)

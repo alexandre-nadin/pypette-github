@@ -1,15 +1,14 @@
-_mapping__aligner = 'star'
 include: 'mapping.sk'
 include: "star.py"
 
-star__dir           = pipeman.workflow_dir
-star__sample_prefix = star__dir + "/{sample_name}"
-star__sample_io     = star__sample_prefix + ".bam"
+mapping_star__dir          = pipeman.workflow_dir
+mapping_star__samplePrefix = mapping_star__dir + "/{sample_name}"
+mapping_star__sample       = mapping_star__samplePrefix + ".bam"
 
 rule star__alignSamples_all:
   input:
     samples_bam = lambda wildcards:
-      fastq__mapStringSamples(star__sample_io, **wildcards)
+      fastq__mapStringSamples(mapping_star__sample, **wildcards)
   output: 
     primary = "star__alignSamples_all.done"
   run:
@@ -21,10 +20,10 @@ rule star__alignSample:
     reads_1 = lambda wildcards: fastq__mapSampleReads("R1", **wildcards),
     reads_2 = lambda wildcards: fastq__mapSampleReads("R2", **wildcards)
   output:
-    primary   = star__sample_io,
-    raw_file  = star__sample_prefix + ".Aligned.sortedByCoord.out.bam",
+    primary   = mapping_star__sample,
+    raw_file  = mapping_star__samplePrefix + ".Aligned.sortedByCoord.out.bam",
     out_files = [ 
-      star__sample_prefix + out_file
+      mapping_star__samplePrefix + out_file
       for out_file in [ 
         ".Log.out", ".Log.progress.out", ".Log.final.out", ".SJ.out.tab" 
       ]
@@ -71,9 +70,9 @@ rule star__align_chunk_star:
     fastq_reads = lambda wildcards: 
       fastq__queryFastqSamples(fastq__chunk_format + ".fastq.gz", **wildcards)
   output: 
-    primary = mapping__chunk_format + "{process}.bam",
-    bam_file_raw = mapping__chunk_format + "{process}.Aligned.sortedByCoord.out.bam",
-    raw_files = [ mapping__chunk_format + "{process}." + _raw for _raw in
+    primary = mapping__chunkPrefix + "{process}.bam",
+    bam_file_raw = mapping__chunkPrefix + "{process}.Aligned.sortedByCoord.out.bam",
+    raw_files = [ mapping__chunkPrefix + "{process}." + _raw for _raw in
        [ "Log.out", "Log.progress.out", "Log.final.out", "SJ.out.tab" ]
     ]
   wildcard_constraints:

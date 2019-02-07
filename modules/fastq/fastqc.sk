@@ -1,0 +1,36 @@
+# --------------
+# Input/Output
+# --------------
+fastq_fastqc__sampleHtml = fastq_merge__samplePrefix + ".fastqc.html"
+fastq_fastqc__sampleZip  = fastq_merge__samplePrefix + ".fastqc.zip"
+
+# --------------
+# Fastq Quality
+# --------------
+rule fastq_fastqc__sampleReadsAll:
+  """
+  Produces a Fastqc report for all samples' merged fastq reads.
+  """
+  input:
+    lambda wildcards: 
+      fastq__mapStringSamples(fastq_fastqc__sampleHtml, **wildcards)
+  output:
+    primary = fastq__dir + "/fastq_fastqc__sampleReadsAll.done"
+  run:
+    touch(output) 
+
+rule fastq_fastqc_sampleRead:
+  """
+  Produces a Fastqc report for a sample's merged fastq reads.
+  """
+  input: lambda x: rules.fastq_merging__mergeSampleReads.output.primary
+  output:
+    primary = fastq_fastqc__sampleHtml,
+    zip     = fastq_fastqc__sampleZip
+  run:
+    cmd = """
+      fastqc -t {fastqc.cores} {input}
+    """.format(
+          input=input, 
+          fastqc=pipeman.config.pipeline.modules.fastqc)
+    exshell(input, output, cmd, **wildcards)

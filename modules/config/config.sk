@@ -22,17 +22,17 @@ config__TO_DEMUX_URL = config__SEQU_RUN_URL + "/to_demultiplex/"
 # ---------------
 # Metadata file
 # ---------------
-config__project_medata_io_format = ".json"
-config__project_metadata_io = config__dir + "/metadata" + config__project_medata_io_format
+config__projectMedataExtension = ".json"
+config__projectMetadata = config__dir + "/metadata" + config__projectMedataExtension
 
 rule config__projectMetadata:
   output: 
-    primary = config__project_metadata_io
+    primary = config__projectMetadata
   run:
     cmd = """
-      curl                                                                      \
-        --fail                                                                  \
-        "{config__PRJ_URL}/{pipeman.project}{config__project_medata_io_format}" \
+      curl                                                                    \
+        --fail                                                                \
+        "{config__PRJ_URL}/{pipeman.project}{config__projectMedataExtension}" \
        > {output.primary}
     """
     shell(cmd)
@@ -60,4 +60,4 @@ rule config__allConfigs:
   run:
     touch(output)
     
-pipeman.toClean(config__dir + "/config__*.done")
+pipeman.toClean(config__dir + "/config_*.done")

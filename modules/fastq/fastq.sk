@@ -1,6 +1,3 @@
-from utils.fastq_helper import FastqFile
-from utils.files import touch
-
 include: "fastq.py"
 
 # -------------------------------
@@ -27,12 +24,12 @@ pipeman.updateWildcardConstraints(
 #     current rule.
 # --------------------- 
 fastq__dir = pipeman.workflow_dir
-fastq__raw_files_io = "raw_files.txt"
-fastq__mapped_samples_io     = "samples{extension}"
-fastq__mapped_samples_io_dft = "samples.csv"
-fastq__chunk_io = fastq__dir + "/runs/{sample_run}/{sample_chunkname}{sample_extension}"
+fastq__rawFiles = "raw_files.txt"
+fastq__mappedSamples     = "samples{extension}"
+fastq__mappedSamplesDft = "samples.csv"
+fastq__chunk = fastq__dir + "/runs/{sample_run}/{sample_chunkname}{sample_extension}"
 
-pipeman.include("merging.sk", asWorkflow="merged")
+pipeman.include("merge.sk", asWorkflow="merged")
 pipeman.include("fastqc.sk")
 
 # ---------------------
@@ -46,7 +43,7 @@ rule fastq__mapRawFiles:
   input:
     configs  = config__config_files
   output: 
-    primary  = fastq__raw_files_io
+    primary  = fastq__rawFiles
   run:
     runs = fastq__runsPathsProject(pipeman.project)
     cmd = """
@@ -59,9 +56,9 @@ rule fastq__mapSamples:
   Maps all the illumina filenames' metadata in a file.
   """
   input: 
-    file    = fastq__raw_files_io
+    file    = fastq__rawFiles
   output: 
-    primary = fastq__mapped_samples_io
+    primary = fastq__mappedSamples
   run:
     """ File Output Header """
     sample_lines = [ FastqFile.fieldNames() ]
@@ -87,20 +84,20 @@ rule fastq__linkRead:
     fastq_read = lambda wildcards:
       fastq__mapStringSamples("{sample_path}", **wildcards)
   output: 
-    primary    = fastq__chunk_io
+    primary    = fastq__chunk
   shell:"""
     ln.rel {input.fastq_read} {output.primary} 
   """
 
-rule fastq__linkReads:
+rule fastq__linkReads_all:
   input: 
     fastq_files = lambda wildcards: 
-      fastq__mapStringSamples(fastq__chunk_io, **wildcards)
-  output: fastq__dir + "/fastq__linkReads.done"
+      fastq__mapStringSamples(fastq__chunk, **wildcards)
+  output: "fastq__linkReads_all.done"
   run:
     touch(output)
 
-localrules: fastq__linkRead, fastq__linkReads
+localrules: fastq__linkRead, fastq__linkReads_all
 
    
 # ---------

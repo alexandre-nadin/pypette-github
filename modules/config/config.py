@@ -24,4 +24,3 @@ def config__setConfigs(**kwargs):
   if error:
     pipeman.log.error(config__msgErrorConfigFiles())
     raise
-

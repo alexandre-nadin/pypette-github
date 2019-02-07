@@ -1,17 +1,15 @@
-multiqc__dir = "{preprocesses}multiqc"
-multiqc__report_io = multiqc__dir + "/report.html"
-multiqc__report_sample_io = multiqc__dir + "/report_{sample_name}.html"
-
-multiqc__bamstat_sample_dir = mapping__aligner_dir + "/{sample_name}"
+multiqc__dir          = "multiqc"
+multiqc__report       = multiqc__dir + "/report.html"
+multiqc__sampleReport = multiqc__dir + "/report_{sample_name}.html"
 
 rule multiqc__report:
   input:
     fastqcs  = lambda wildcards: fastq__mapStringSamples(
-      fastq_fastqc__sample_read_zip_io, **wildcards),
+      fastq_fastqc__sampleZip, **wildcards),
     bamstats = lambda wildcards: fastq__mapStringSamples(
-      mapping__sample_stats_io, **wildcards)
+      mapping__sampleStats, **wildcards)
   output:
-    primary = multiqc__report_io
+    primary = multiqc__report
   run:
     dirs = [ os.path.dirname(d) for d in input ]
     cmd = """
