@@ -2,9 +2,9 @@ pipeline:
   name: 'rnaseq'
   modules:
     mapping:
-      star:
-        command: "STAR"
-        version: "STAR_2.5.3a"
+      bwa:
+        command: "bwa"
+        version: "0.7.15-r1140"
         cores: 6
         ram: '32gb'
         outFilterMismatchNmax: 10
