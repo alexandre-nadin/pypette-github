@@ -1,0 +1,14 @@
+pipeline:
+  name: 'rnaseq'
+  modules:
+    mapping:
+      star:
+        command: "STAR"
+        version: "STAR_2.5.3a"
+        cores: 6
+        ram: '32gb'
+        outFilterMismatchNmax: 10
+    fastqc:
+      cores: 6        
+  sample_based: True
+  deep_structure: True

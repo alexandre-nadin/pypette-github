@@ -45,7 +45,7 @@ rule config__tempConfs:
   output:
     primary = config__dir + "/{conf}.yaml"
   shell:"""
-    cp "{pipeman.dir_modules}/config/{wildcards.conf}.yaml" \
+    cp "{pipeman.dir_pipelines}/{pipeman.pipe_name}/{wildcards.conf}.yaml" \
        "{output.primary}"
   """
 

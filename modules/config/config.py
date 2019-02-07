@@ -18,9 +18,10 @@ def config__setConfigs(**kwargs):
       print("loading file {}".format(conf))
       pipeman.config_manager.loadConfig(conf)
     else:
-      if pipeman.pipe_name != config__dir:
-        pipeman.log.error("Config file '{}' missing.".format(conf))
-        error = True
+      pass
+      #if pipeman.pipe_name != config__dir:
+      #  pipeman.log.error("Config file '{}' missing.".format(conf))
+      #  error = True
   if error:
     pipeman.log.error(config__msgErrorConfigFiles())
     raise
