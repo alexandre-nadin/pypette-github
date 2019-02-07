@@ -5,5 +5,5 @@ cluster:
     structured: 'Y'
     project_tag: 'Project_'
     sample_tag: 'Sample_'
-  genome_dir: "/lustre1/genomes/hs37d5/annotation"
+  genome_dir: "/lustre1/genomes"
   
