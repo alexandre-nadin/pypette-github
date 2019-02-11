@@ -18,6 +18,13 @@ def mapping__aligner():
   except:
     pipeman.log.error("No aligner found in pipeline configuration.")
 
+def mapping__alignerDir():
+  aligner = mapping__aligner()
+  if aligner:
+    return aligner
+  else:
+    return mapping__alignerDft()
+    
 def mapping__alignerModule():
   aligner = mapping__aligner()
   module = ""

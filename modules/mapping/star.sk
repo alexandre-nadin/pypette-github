@@ -1,16 +1,6 @@
 include: "star.py"
 
-# Note: For now define 'mapping_aligner__outDir' and before including 'mapping.sk'
-#       for maximum compatibility.
-mapping_aligner__outDir ="mapped/star"
-include: 'mapping.sk'
-
-mapping_star__dir          = fastq_merge__dir + "/" + mapping_aligner__outDir
-
-mapping_star__samplePrefix = mapping_star__dir + "/{sample_name}"
-mapping_star__sample       = mapping_star__samplePrefix + ".bam"
-
-rule star__alignReads:
+rule mapping_star__alignReads:
   input: 
     configs = config__config_files,
     reads_1 = lambda wildcards: fastq__mapStringSamples(
@@ -18,10 +8,10 @@ rule star__alignReads:
     reads_2 = lambda wildcards: fastq__mapStringSamples(
                 fastq_merge__read, sample_read="R2", **wildcards)
   output:
-    primary   = mapping_star__sample,
-    raw_file  = mapping_star__samplePrefix + ".Aligned.sortedByCoord.out.bam",
+    primary   = mapping__sample,
+    raw_file  = mapping__samplePrefix + ".Aligned.sortedByCoord.out.bam",
     out_files = [ 
-      mapping_star__samplePrefix + ext
+      mapping__samplePrefix + ext
       for ext in [ 
         ".Log.out", ".Log.progress.out", ".Log.final.out", ".SJ.out.tab" 
       ]
@@ -34,19 +24,13 @@ rule star__alignReads:
        --genomeDir {star_genome_index}                      \
        --readFilesIn {reads}                                \
        --outSAMstrandField intronMotif                      \
-       --outFileNamePrefix {prefix}.                        \
+       --outFileNamePrefix {prefix}                         \
        --outSAMtype BAM SortedByCoordinate                  \
        --outSAMunmapped Within                              \
        --outFilterMismatchNmax {star.outFilterMismatchNmax} \
        --readFilesCommand zcat                              \
       > {output.primary}
   
-     # Test to remove: Understand why we have to link aligned.sortedByCoord.out.bam
-     if [ -f {output.raw_file} ]; then
-       echo "Found out bam '{output.raw_file}'"
-     else
-       echo "No out bam found '{output.raw_file}'"
-     fi
      ln.rel -f {output.raw_file} {output.primary}
     """.format(
       output = output,
@@ -60,8 +44,8 @@ rule star__alignReads:
 rule mapping_star__alignReadsAll:
   input:
     samples_bam = lambda wildcards:
-      fastq__mapStringSamples(mapping_star__sample, **wildcards)
+      fastq__mapStringSamples(mapping__sample, **wildcards)
   output: 
-    primary = "mapping_star__alignReadsAll.done"
+    primary = "mapping__alignReadsAll.done"
   run:
     touch(output)

@@ -1,17 +1,21 @@
 include: 'mapping.py'
 
-# Note: Later include mapping.sk in pipeline; them include correct aligner 
-#       modules (star, bwa) based on loaded pipeline configuration.
-mapping__includeAlignerModule()
+mapping__relDir       = "mapped/" + mapping__alignerDir()
+mapping__sampleDir    = fastq_merge__dir + "/" + mapping__relDir
+mapping__samplePrefix = mapping__sampleDir + "/{sample_name}"
+mapping__sample       = mapping__samplePrefix + ".bam"
 
-mapping__dir    = "{sample_name}/" + mapping_aligner__outDir
-#mapping__sample = mapping__dir + "/{sample_name}.bam"
-#mapping__sampleStats = mapping__sample + ".stats"
+mapping__dir    = "{sample_name}/" + mapping__relDir
 
-mapping__chunkPrefix = mapping__dir + "/{sample_run}/{sample_name}/{sample_name}_{sample_number}_{sample_lane}_{sample_chunknb}"
 mapping__mergedSamplePrefix = mapping__dir + "/merged/{sample_name}"
 mapping__mergedSample = mapping__mergedSamplePrefix + ".bam"
 mapping__mergedSampleStats = mapping__mergedSamplePrefix + ".bamstats"
+
+# Note: Include the aligner found in pipeline configuration file after this
+#       file's variables, as aligner's rules should depend on the variables 
+#       declared above.
+mapping__includeAlignerModule()
+
 
 # -----------
 # Bam Stats
@@ -47,7 +51,7 @@ MERGE_CMD = "condactivate; picard MergeSamFiles"
 rule mapping__mergeSample:
   input:
     bam = lambda wildcards: 
-      fastq__mapStringSamples(mapping_star__sample, **wildcards)
+      fastq__mapStringSamples(mapping__sample, **wildcards)
   output:
     primary = mapping__mergedSample,
     bai     = mapping__mergedSamplePrefix + ".bai"
@@ -91,34 +95,3 @@ rule mapping__mergeSampleAll:
 
 def picardMergeInputString(inputs=[]):
   return " ".join([ "I={}".format(i) for i in inputs])
-
-rule mapping__merge_sample_bam_chunks:
-  input:
-    bam = lambda wildcards: 
-      fastq__queryFastqSamples(mapping__chunkPrefix + '.bam', **wildcards)
-  output:
-    primary= mapping__mergedSamplePrefix + "{process}.bam",
-    bai= mapping__mergedSamplePrefix + "{process}.bai"
-  wildcard_constraints:
-    process="(\.merged)?"
-  run:
-    shell("""
-      mkdir -p BAM  # > {o[primary]}.log # DRY_RUN
-      if [[ `wc -w <<<"{i[bam]}"` -gt 1 ]]; then
-        {merge_command} {merge_prefixes} \
-          O={o[primary]}                 \
-          CREATE_INDEX=true              \
-          MSD=true                       \
-          TMP_DIR=$TMPDIR                \
-          VALIDATION_STRINGENCY=SILENT   \
-         > {o[primary]}.log
-      else
-          link_install {i[bam]} {o[primary]} # >> {o[primary]}.log # DRY_RUN
-          ORIG_BAI=$(sed 's/bam/bai/g' <<< {i[bam]})
-          echo "[DOING else]"
-          [ -e $ORIG_BAI ] \
-            && link_install -f $ORIG_BAI $(sed 's/bam/bai/g' <<< {o[primary]}) \
-            || echo WARNING bai file $ORIG_BAI not found \ 
-            >&2 # >> {o[primary]}.log # DRY_RUN
-      fi  
-    """.format(i=input, o=output, merge_command=MERGE_CMD, merge_prefixes=" ".join([ "I=" + _prefix for _prefix in input.bam ])))
