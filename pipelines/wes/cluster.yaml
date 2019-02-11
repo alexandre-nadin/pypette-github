@@ -6,3 +6,4 @@ cluster:
     project_tag: 'Project_'
     sample_tag: 'Sample_'
   genome_dir: "/lustre1/genomes"
+  tmpdir: "/lustre2/scratch/tmp"

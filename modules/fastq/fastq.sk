@@ -23,14 +23,19 @@ pipeman.updateWildcardConstraints(
 #   - {process} is only for outputs as it is about the process defined by the
 #     current rule.
 # --------------------- 
-fastq__dir = pipeman.workflow_dir
+fastq__dir = "{sample_name}/fastq"
 fastq__rawFiles = "raw_files.txt"
 fastq__mappedSamples     = "samples{extension}"
 fastq__mappedSamplesDft = "samples.csv"
-fastq__chunk = fastq__dir + "/runs/{sample_run}/{sample_chunkname}{sample_extension}"
 
-pipeman.include("merge.sk", asWorkflow="merged")
-pipeman.include("fastqc.sk")
+fastq__readDir     = fastq__dir + "/runs/{sample_run}"
+fastq__chunkPrefix = fastq__readDir + "/{sample_chunkname}"
+fastq__chunk       = fastq__chunkPrefix + "{sample_extension}"
+fastq__readPrefix  = fastq__readDir + "/{sample_name}_{sample_read}"
+fastq__read        = fastq__readPrefix + "{sample_extension}"
+
+pipeman.include("merge.sk")
+pipeman.include("qc.sk")
 
 # ---------------------
 # Mapping fastq files

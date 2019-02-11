@@ -1,30 +1,28 @@
-include: 'mapping.sk'
 include: "star.py"
 
-mapping_star__dir          = pipeman.workflow_dir
+# Note: For now define 'mapping_aligner__outDir' and before including 'mapping.sk'
+#       for maximum compatibility.
+mapping_aligner__outDir ="mapped/star"
+include: 'mapping.sk'
+
+mapping_star__dir          = fastq_merge__dir + "/" + mapping_aligner__outDir
+
 mapping_star__samplePrefix = mapping_star__dir + "/{sample_name}"
 mapping_star__sample       = mapping_star__samplePrefix + ".bam"
 
-rule star__alignSamples_all:
-  input:
-    samples_bam = lambda wildcards:
-      fastq__mapStringSamples(mapping_star__sample, **wildcards)
-  output: 
-    primary = "star__alignSamples_all.done"
-  run:
-    touch(output)
-
-rule star__alignSample:
+rule star__alignReads:
   input: 
     configs = config__config_files,
-    reads_1 = lambda wildcards: fastq__mapSampleReads("R1", **wildcards),
-    reads_2 = lambda wildcards: fastq__mapSampleReads("R2", **wildcards)
+    reads_1 = lambda wildcards: fastq__mapStringSamples(
+                fastq_merge__read, sample_read="R1", **wildcards),
+    reads_2 = lambda wildcards: fastq__mapStringSamples(
+                fastq_merge__read, sample_read="R2", **wildcards)
   output:
     primary   = mapping_star__sample,
     raw_file  = mapping_star__samplePrefix + ".Aligned.sortedByCoord.out.bam",
     out_files = [ 
-      mapping_star__samplePrefix + out_file
-      for out_file in [ 
+      mapping_star__samplePrefix + ext
+      for ext in [ 
         ".Log.out", ".Log.progress.out", ".Log.final.out", ".SJ.out.tab" 
       ]
     ]
@@ -59,40 +57,11 @@ rule star__alignSample:
 
     exshell(input, output, cmd, **wildcards)
 
- 
-rule star__align_chunk_star:
+rule mapping_star__alignReadsAll:
   input:
-      # samples_map = fastq_samples_map,
-      #fastq_reads= lambda wildcards: csvmap__formatStrFromQueryDict(
-      #          csvmap=fastq_csvmap, 
-      #          str_format=fastq__chunk_format + ".fastq.gz",
-      #          **wildcards)
-    fastq_reads = lambda wildcards: 
-      fastq__queryFastqSamples(fastq__chunk_format + ".fastq.gz", **wildcards)
+    samples_bam = lambda wildcards:
+      fastq__mapStringSamples(mapping_star__sample, **wildcards)
   output: 
-    primary = mapping__chunkPrefix + "{process}.bam",
-    bam_file_raw = mapping__chunkPrefix + "{process}.Aligned.sortedByCoord.out.bam",
-    raw_files = [ mapping__chunkPrefix + "{process}." + _raw for _raw in
-       [ "Log.out", "Log.progress.out", "Log.final.out", "SJ.out.tab" ]
-    ]
-  wildcard_constraints:
-     process="(\.star)"
+    primary = "mapping_star__alignReadsAll.done"
   run:
-    star = pipeman.config.pipeline.modules.mapping.star
-    cmd = """
-     condactivate #> {output[primary]}.out ## DRY_RUN
-     STAR \
-       --runThreadN {STAR_CORES} \
-       --genomeDir {STAR_GENOME_INDEX} \
-       --readFilesIn {input[fastq_reads]} \
-       --outSAMstrandField intronMotif \
-       --outFileNamePrefix {wildcards.sample_run}/{wildcards.sample_name}/{wildcards.sample_name}_{wildcards.sample_number}_{wildcards.sample_lane}_{wildcards.sample_chunknb}{wildcards.preprocesses}{wildcards.process}. \
-       --outSAMtype BAM SortedByCoordinate \
-       --outSAMunmapped Within \
-       --outFilterMismatchNmax {STAR_outFilterMismatchNmax} \
-       --readFilesCommand zcat \
-      > {output[primary]}.out;  # DRY_RUN
-     #touch {output} ## DRY_RUN 
-     ln.rel -f {output[bam_file_raw]} {output[primary]}
-    """
-    exshell(input, output, cmd, **wildcards)
+    touch(output)

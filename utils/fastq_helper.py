@@ -32,19 +32,23 @@ class FastqFile(object):
 #    FastqField('sample_extension', "\.fastq.*", False ),
 #  ]))
 
-  regex_fields = addict.Dict(OrderedDict([
-    ('sample_path',      "\w+"       ),
-    ('sample_run',       "\w+"       ),
-    ('sample_basename',  "\w+"       ),
-    ('sample_chunkname', "\w+"       ),
+  regex_fields = addict.Dict(
     ('sample_name',      "\w+"       ),
     ('sample_number',    "S\d+"      ),
     ('sample_lane',      "L\d+"      ),
     ('sample_read',      "R[12]"     ),
     ('sample_chunknb',   "\d+"       ),
-    ('sample_extension', "\.fastq.*" )
-  ]))
+  )
   field_sep = '_'
+
+  regex_fields.update({
+    'sample_path':      "\w+",
+    'sample_run':       "\w+",
+    'sample_basename':  "\w+",
+    'sample_chunkname': field_sep.join(val for key, val in regex_fields.items()),
+    'sample_extension': "\.fastq\.gz" 
+  })
+
 #  fields_regex_str = field_sep.join([
 #                   "({})".format(regex) for regex in [
 #                     [

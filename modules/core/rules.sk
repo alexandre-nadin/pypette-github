@@ -58,6 +58,7 @@ rule help:
     pipeman.log.info(msg)
 
 def exshell(input, output, cmd, **wildcards):
+  cmd = cmd.format(input=input, output=output, **wildcards)
   if hasattr(config, 'debug') and config['debug']:
     shell("""
       cat << eol \

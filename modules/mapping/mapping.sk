@@ -1,21 +1,27 @@
 include: 'mapping.py'
 
-mapping__dir = pipeman.workflow_dir 
-mapping__sample = mapping__dir + "/{sample_name}.bam"
-mapping__sampleStats = mapping__sample + ".stats"
+# Note: Later include mapping.sk in pipeline; them include correct aligner 
+#       modules (star, bwa) based on loaded pipeline configuration.
+mapping__includeAlignerModule()
+
+mapping__dir    = "{sample_name}/" + mapping_aligner__outDir
+#mapping__sample = mapping__dir + "/{sample_name}.bam"
+#mapping__sampleStats = mapping__sample + ".stats"
 
 mapping__chunkPrefix = mapping__dir + "/{sample_run}/{sample_name}/{sample_name}_{sample_number}_{sample_lane}_{sample_chunknb}"
-mapping__mergedPrefix= "BAM/{sample_name}"
+mapping__mergedSamplePrefix = mapping__dir + "/merged/{sample_name}"
+mapping__mergedSample = mapping__mergedSamplePrefix + ".bam"
+mapping__mergedSampleStats = mapping__mergedSamplePrefix + ".bamstats"
 
 # -----------
 # Bam Stats
 # -----------
-rule mapping__sampleStats_all:
+rule mapping__mergedSampleStatsAll:
   input:
     samples_stats = lambda wildcards:
-      fastq__mapStringSamples(mapping__sampleStats, **wildcards)
+      fastq__mapStringSamples(mapping__mergedSampleStats, **wildcards)
   output:
-    primary = "mapping__sampleStats_all.done"
+    primary = "mapping__mergedSampleStatsAll.done"
   run:
     touch(output)
 
@@ -23,27 +29,76 @@ pipeman.toClean("mapping_*.done")
 
 rule mapping__sampleStats:
   input:
-    bam = mapping__sample 
+    bam = "{path}.bam"
   output:
-    primary = mapping__sampleStats
+    primary = "{path}.bamstats"
   run:
     cmd = """
-      bamtools stats -in {input.bam} \
-       > {output.primary}
-    """.format(input=input, output=output)
+      bamtools stats       \
+        -in {input.bam}    \
+        > {output.primary}
+    """
     exshell(input, output, cmd, **wildcards)
 
 # ------------
 # Merge BAMs
 # ------------
 MERGE_CMD = "condactivate; picard MergeSamFiles"
+rule mapping__mergeSample:
+  input:
+    bam = lambda wildcards: 
+      fastq__mapStringSamples(mapping_star__sample, **wildcards)
+  output:
+    primary = mapping__mergedSample,
+    bai     = mapping__mergedSamplePrefix + ".bai"
+  run:
+    if len(input.bam) > 1:
+      cmd = """
+        {merge_command} {merge_prefixes}                \
+          O={output.primary}                            \
+          CREATE_INDEX=true                             \
+          MSD=true                                      \
+          TMP_DIR=$TMPDIR                               \
+          VALIDATION_STRINGENCY=SILENT                  \
+         > {output.primary}.log
+      """
+    else:
+      cmd = """
+        ln.rel -f {input.bam} {output.primary} 
+        ORIG_BAI=$(sed 's/bam$/bai/g' <<< {input.bam})
+        if [ -e $ORIG_BAI ]; then
+          ln.rel -f                             \
+            $ORIG_BAI                                 \
+            $(sed 's/bam/bai/g' <<< {output.primary})
+        else
+          echo "WARNING bai file $ORIG_BAI not found" >&2
+        fi
+      """
+    exshell(
+      input, output, cmd,
+      merge_command=MERGE_CMD, 
+      merge_prefixes=picardMergeInputString(input.bam),
+      **wildcards)
+
+rule mapping__mergeSampleAll:
+  input:
+    bam = lambda wildcards: fastq__mapStringSamples(
+            mapping__mergedSample, **wildcards)
+  output:
+    primary = "mapping__mergeSampleAll.done"
+  run:
+    touch(output)
+
+def picardMergeInputString(inputs=[]):
+  return " ".join([ "I={}".format(i) for i in inputs])
+
 rule mapping__merge_sample_bam_chunks:
   input:
     bam = lambda wildcards: 
       fastq__queryFastqSamples(mapping__chunkPrefix + '.bam', **wildcards)
   output:
-    primary= mapping__mergedPrefix + "{process}.bam",
-    bai= mapping__mergedPrefix + "{process}.bai"
+    primary= mapping__mergedSamplePrefix + "{process}.bam",
+    bai= mapping__mergedSamplePrefix + "{process}.bai"
   wildcard_constraints:
     process="(\.merged)?"
   run:

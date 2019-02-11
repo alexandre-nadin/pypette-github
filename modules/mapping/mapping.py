@@ -13,12 +13,22 @@ def mapping__getAligner():
   return workflow.globals[mapping__alignerVarName()]
 
 def mapping__aligner():
-  mappingKeys = list(pipeman.config.pipeline.modules.mapping.keys())
-  if mappingKeys:
-    return mappingKeys[0]
-  else:
+  try:
+    return list(pipeman.config.pipeline.modules.mapping.keys())[0]
+  except:
     pipeman.log.error("No aligner found in pipeline configuration.")
-    raise
+
+def mapping__alignerModule():
+  aligner = mapping__aligner()
+  module = ""
+  if aligner:
+    module = '{}.sk'.format(aligner)
+  return module
+
+def mapping__includeAlignerModule():
+  aligner = mapping__aligner()
+  if aligner:
+    include: mapping__alignerModule()
 
 @cluster__prefixMountPoint
 def mapping__genomeIndex():

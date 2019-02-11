@@ -5,17 +5,19 @@ multiqc__sampleReport = multiqc__dir + "/report_{sample_name}.html"
 rule multiqc__report:
   input:
     fastqcs  = lambda wildcards: fastq__mapStringSamples(
-      fastq_fastqc__sampleZip, **wildcards),
+      fastq_qc__readZip, **wildcards),
     bamstats = lambda wildcards: fastq__mapStringSamples(
-      mapping__sampleStats, **wildcards)
+      mapping__mergedSampleStats, **wildcards)
   output:
     primary = multiqc__report
   run:
     dirs = [ os.path.dirname(d) for d in input ]
     cmd = """
-      multiqc -n stdout \
-        -o multiqc_data \
-        {dirs}  \
-        > {output.primary}
-    """.format(input=input, output=output, dirs=' '.join(dirs))
-    exshell(input, output, cmd, **wildcards)
+      multiqc              \
+        -o {multiqc__dir}  \
+        {input}            \
+        -n {output.primary}
+    """
+    exshell(input, output, cmd, 
+      multiqc__dir=multiqc__dir,
+      **wildcards)

@@ -8,5 +8,6 @@ source "${_dir}/ctgb-pipe.sh"
 export PATH="${PATH}":"${_dir}"
 export CTGB__DIR_PROJECTS="${HOME}/dev/ctgb/projects"
 export CLUSTER_MNT_POINT="${HOME}/dev/ctgb/cluster"
+export TMPDIR='/tmp'
 
 condactivate ctgb-pipe

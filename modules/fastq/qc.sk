@@ -1,0 +1,41 @@
+# --------------
+# Input/Output
+# --------------
+fastq_qc__htmlExt     = ".fastqc.html"
+fastq_qc__zipExt      = ".fastqc.zip"
+
+fastq_qc__readPrefix = fastq_merge__readPrefix
+fastq_qc__readHtml = fastq_qc__readPrefix + fastq_qc__htmlExt
+fastq_qc__readZip  = fastq_qc__readPrefix + fastq_qc__zipExt
+
+# --------------
+# Fastq Quality
+# --------------
+rule fastq_qc__reads:
+  """
+  Produces a Fastqc report for whatever the given fastq reads.
+  """
+  input: fastq = "{path}.fastq.gz"
+  output:
+    primary = "{path}" + fastq_qc__htmlExt,
+    zip     = "{path}" + fastq_qc__zipExt
+  run:
+    cmd = """
+      fastqc -t {fastqc.cores} {input}
+    """
+    exshell(
+      input, output, cmd, 
+      fastqc = pipeman.config.pipeline.modules.fastq.qc.fastqc, 
+      **wildcards)
+
+rule fastq_qc__readsAll:
+  """
+  Produces a Fastqc report for all samples' merged fastq reads.
+  """
+  input:
+    lambda wildcards: 
+      fastq__mapStringSamples(fastq_qc__readHtml, **wildcards)
+  output:
+    primary = "fastq_qc__readsAll.done"
+  run:
+    touch(output) 

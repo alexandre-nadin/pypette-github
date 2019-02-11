@@ -56,8 +56,8 @@ rule config__allConfigs:
   input:
     config__config_files
   output:
-    primary = config__dir + "/config__allConfigs.done"
+    primary = "config__allConfigs.done"
   run:
     touch(output)
     
-pipeman.toClean(config__dir + "/config_*.done")
+pipeman.toClean("config_*.done")

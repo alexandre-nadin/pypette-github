@@ -27,8 +27,8 @@ class SamplesManager(utils.manager.Manager):
     if query:
       data = data.query(query)
       if data.empty:
-        self.log.error(
-          "No information found for sample filter '{}'."
+        self.log.info(
+          "No sample found for filters \"{}\"."
            .format(query)
         )
         raise

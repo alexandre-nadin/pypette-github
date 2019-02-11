@@ -8,7 +8,9 @@ pipeline:
         cores: 6
         ram: '32gb'
         outFilterMismatchNmax: 10
-    fastqc:
-      cores: 6        
+    fastq:
+      qc:
+        fastqc:
+          cores: 6        
   sample_based: True
   deep_structure: True
