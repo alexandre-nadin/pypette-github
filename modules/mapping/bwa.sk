@@ -1,8 +1,47 @@
-include: 'mapping.sk'
-BWA_CORES = 6
-BWA_REFERENCE_GENOME = ""
+include: "bwa.py"
 
 ruleorder: bwa__align_bwa_mem_picard > bwa__align_bwa_mem_samtools
+rule mapping_bwa__alignReads:
+  input: 
+    configs = config__config_files,
+    reads_1 = lambda wildcards: fastq__mapStringSamples(
+                fastq_merge__read, sample_read="R1", **wildcards),
+    reads_2 = lambda wildcards: fastq__mapStringSamples(
+                fastq_merge__read, sample_read="R2", **wildcards)
+  output:
+    primary   = mapping__sample
+  run:
+    cmd = """
+      bwa mem               \
+        -R "{readGroup}"    \
+        -t {bwa.cores}      \
+        {bwaGenomeIndex}    \
+        {reads}             \
+        > {output.primary}
+    """
+    exshell(
+      input, output, cmd, **wildcards,
+      readGroup = mapping_bwa__sampleReadGroup(wildcards),
+      bwa = pipeman.config.pipeline.modules.mapping.bwa,
+      bwaGenomeIndex = mapping_bwa__genomeIndex(),
+      reads = mapping_bwa__readsToString(input.reads_1, input.reads_2)
+    )
+
+def mapping_bwa__sampleReadGroup(sample):
+  experimentName = sample.sample_run + "_" + sample.sample_name
+  platform       = pipeman.config.pipeline.sequencing.platform
+  center         = pipeman.config.pipeline.center.name 
+  return "\t".join([
+    "@RG",
+    "ID:" + experimentName, # experiment_name = sample[0]_sample[2]
+    "PL:" + platform, # PLATFORM
+    "PU:" + sample.sample_run, # sample[0]
+    "LB:" + experimentName, # experiment_name
+    "SM:" + sample.sample_name, # sample[2]
+    "CN:" + center  # CENTER
+  ])
+# --------
+
 rule bwa__align_bwa_mem_samtools:
     input:
         # samples_map = fastq_samples_map,
@@ -11,7 +50,7 @@ rule bwa__align_bwa_mem_samtools:
                   str_format=fastq__chunk_format + ".fastq.gz",
                   **wildcards)
     output: 
-        primary = mapping__chunkPrefix + "{process}.bam"
+        primary = mapping__sample + "{process}.bam"
     wildcard_constraints:
          process="(\.bwa_mem_samtools)"
     shell:"""
@@ -33,7 +72,7 @@ rule bwa__align_bwa_mem_picard:
                   str_format=fastq__chunk_format + ".fastq.gz",
                   **wildcards)
     output: 
-        primary = mapping__chunkPrefix + "{process}.bam"
+        primary = mapping__sample + "{process}.bam"
     wildcard_constraints:
          process="(\.bwa_mem_picard)"
     shell:"""

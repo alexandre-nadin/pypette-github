@@ -18,7 +18,6 @@ rule mapping_star__alignReads:
     ]
   run:
     cmd = """
-     condactivate
      {star.command}                                         \ 
        --runThreadN {star.cores}                            \
        --genomeDir {star_genome_index}                      \

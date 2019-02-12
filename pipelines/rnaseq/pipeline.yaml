@@ -14,3 +14,7 @@ pipeline:
           cores: 6        
   sample_based: True
   deep_structure: True
+  sequencing:
+    platform: Illumina
+  center:
+    name: CTGB
