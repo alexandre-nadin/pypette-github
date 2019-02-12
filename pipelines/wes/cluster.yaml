@@ -7,3 +7,4 @@ cluster:
     sample_tag: 'Sample_'
   genome_dir: "/lustre1/genomes"
   tmpdir: "/lustre2/scratch/tmp"
+  condactivate: True
