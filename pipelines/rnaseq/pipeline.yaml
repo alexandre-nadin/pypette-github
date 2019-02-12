@@ -2,7 +2,8 @@ pipeline:
   name: 'rnaseq'
   modules:
     mapping:
-      star:
+      aligner:
+        name: "STAR"
         command: "STAR"
         version: "STAR_2.5.3a"
         cores: 6

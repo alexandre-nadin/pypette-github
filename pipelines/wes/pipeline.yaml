@@ -2,7 +2,8 @@ pipeline:
   name: 'rnaseq'
   modules:
     mapping:
-      bwa:
+      aligner:
+        name: "bwa"
         command: "bwa"
         version: "0.7.15-r1140"
         cores: 6
