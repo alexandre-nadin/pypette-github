@@ -1,13 +1,24 @@
 include: 'mapping.py'
 
-mapping__relDir       = "mapped/" + mapping__alignerDir()
+""" Allowed Sorting Processes """
+sortedTools = ('picard', 'samtools')
+pipeman.updateWildcardConstraints(
+  procSorted = "(sorted/({})/)?".format("|".join(sortedTools)),
+  procMarkDup = "(markdup/)?",
+)
+
+""" Sample Run Reads Output Targets """
+mapping__relDir       = "mapped" + mapping__alignerDir(append=True)
 mapping__sampleDir    = fastq_merge__dir + "/" + mapping__relDir
-mapping__samplePrefix = mapping__sampleDir + "/{sample_name}"
+mapping__samplePrefix = mapping__sampleDir + "/{procSorted}{sample_name}"
 mapping__sample       = mapping__samplePrefix + ".bam"
 
-mapping__dir    = "{sample_name}/" + mapping__relDir
+mapping__sortedSamplePrefix = mapping__sampleDir + mapping__sorterDir(append=True) + "/{sample_name}"
+mapping__sortedSample = mapping__sortedSamplePrefix + ".bam"
 
-mapping__mergedSamplePrefix = mapping__dir + "/merged/{sample_name}"
+""" Sample Merged Bams Output Targets """
+mapping__dir    = "{sample_name}/" + mapping__relDir
+mapping__mergedSamplePrefix = mapping__dir + "/merged/{procSorted}{sample_name}"
 mapping__mergedSample = mapping__mergedSamplePrefix + ".bam"
 mapping__mergedSampleStats = mapping__mergedSamplePrefix + ".bamstats"
 
@@ -16,6 +27,55 @@ mapping__mergedSampleStats = mapping__mergedSamplePrefix + ".bamstats"
 #       declared above.
 mapping__includeAlignerModule()
 
+# -----------------
+# Mark Duplicates
+# -----------------
+bam__sampleMarkdupPrefix = "{anyprefix}markdup/{sample_name}"
+rule bam__markDuplicates:
+  input: 
+    bam     = "{anyprefix}{sample_name}.bam"
+  output: 
+    bam     = bam__sampleMarkdupPrefix + ".bam",
+    bai     = bam__sampleMarkdupPrefix + ".bai",
+    metrics = bam__sampleMarkdupPrefix + ".metrics"
+  run:
+    cmd = """
+      picard MarkDuplicates                           \
+      I={input.bam}                                   \
+      O={output.bam}                                  \
+      CREATE_INDEX=true                               \
+      VALIDATION_STRINGENCY=SILENT                    \
+      REMOVE_DUPLICATES=false                         \
+      ASSUME_SORTED=true                              \
+      METRICS_FILE={output.metrics}                    
+    """
+    exshell(input, output, cmd, **wildcards)
+
+# --------------
+# Sorting Bams
+# --------------
+rule mapping__sortSamplePicard:
+  input:  "{anyprefix}{sample_name}.bam"
+  output: "{anyprefix}sorted/picard/{sample_name}.bam",
+  run:
+    print("{output}.debug".format(output=output))
+    cmd = """
+      picard SortSam          \
+        I={input}             \
+        SORT_ORDER=unsorted   \
+        O={output}
+    """
+    exshell(input, output, cmd, **wildcards)
+
+rule mapping__sortSampleSamtools:
+  input:  "{anyprefix}{sample_name}.bam"
+  output: "{anyprefix}sorted/samtools/{sample_name}.bam"
+  run:
+    cmd = """
+      samtools view -Su {input}    \
+       | samtools sort -o {output}  
+    """
+    exshell(input, output, cmd, **wildcards)
 
 # -----------
 # Bam Stats
@@ -33,9 +93,9 @@ pipeman.toClean("mapping_*.done")
 
 rule mapping__sampleStats:
   input:
-    bam = "{path}.bam"
+    bam = "{someprefix}.bam"
   output:
-    primary = "{path}.bamstats"
+    primary = "{someprefix}.bamstats"
   run:
     cmd = """
       bamtools stats       \
@@ -47,18 +107,19 @@ rule mapping__sampleStats:
 # ------------
 # Merge BAMs
 # ------------
-MERGE_CMD = "condactivate; picard MergeSamFiles"
+ruleorder: mapping__mergeSample > mapping__sortSamplePicard > mapping__sortSampleSamtools 
+MERGE_CMD = "picard MergeSamFiles"
 rule mapping__mergeSample:
   input:
     bam = lambda wildcards: 
       fastq__mapStringSamples(mapping__sample, **wildcards)
   output:
     primary = mapping__mergedSample,
-    bai     = mapping__mergedSamplePrefix + ".bai"
   run:
     if len(input.bam) > 1:
       cmd = """
-        {merge_command} {merge_prefixes}                \
+        picard MergeSamFiles                            \
+          {merge_prefixes}                              \
           O={output.primary}                            \
           CREATE_INDEX=true                             \
           MSD=true                                      \
@@ -71,8 +132,8 @@ rule mapping__mergeSample:
         ln.rel -f {input.bam} {output.primary} 
         ORIG_BAI=$(sed 's/bam$/bai/g' <<< {input.bam})
         if [ -e $ORIG_BAI ]; then
-          ln.rel -f                             \
-            $ORIG_BAI                                 \
+          ln.rel -f                                     \
+            $ORIG_BAI                                   \
             $(sed 's/bam/bai/g' <<< {output.primary})
         else
           echo "WARNING bai file $ORIG_BAI not found" >&2
@@ -80,7 +141,6 @@ rule mapping__mergeSample:
       """
     exshell(
       input, output, cmd,
-      merge_command=MERGE_CMD, 
       merge_prefixes=picardMergeInputString(input.bam),
       **wildcards)
 
@@ -93,5 +153,3 @@ rule mapping__mergeSampleAll:
   run:
     touch(output)
 
-def picardMergeInputString(inputs=[]):
-  return " ".join([ "I={}".format(i) for i in inputs])

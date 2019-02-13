@@ -1,6 +1,6 @@
 include: "bwa.py"
 
-ruleorder: bwa__align_bwa_mem_picard > bwa__align_bwa_mem_samtools
+ruleorder: mapping__sortSamplePicard > mapping__sortSampleSamtools > mapping_bwa__alignReads
 rule mapping_bwa__alignReads:
   input: 
     configs = config__config_files,
@@ -21,69 +21,8 @@ rule mapping_bwa__alignReads:
     """
     exshell(
       input, output, cmd, **wildcards,
-      readGroup = mapping_bwa__sampleReadGroup(wildcards),
+      readGroup = mapping__sampleReadGroup(wildcards),
       bwa = pipeman.config.pipeline.modules.mapping.bwa,
       bwaGenomeIndex = mapping_bwa__genomeIndex(),
       reads = mapping_bwa__readsToString(input.reads_1, input.reads_2)
     )
-
-def mapping_bwa__sampleReadGroup(sample):
-  experimentName = sample.sample_run + "_" + sample.sample_name
-  platform       = pipeman.config.pipeline.sequencing.platform
-  center         = pipeman.config.pipeline.center.name 
-  return "\t".join([
-    "@RG",
-    "ID:" + experimentName, # experiment_name = sample[0]_sample[2]
-    "PL:" + platform, # PLATFORM
-    "PU:" + sample.sample_run, # sample[0]
-    "LB:" + experimentName, # experiment_name
-    "SM:" + sample.sample_name, # sample[2]
-    "CN:" + center  # CENTER
-  ])
-# --------
-
-rule bwa__align_bwa_mem_samtools:
-    input:
-        # samples_map = fastq_samples_map,
-        fastq_reads= lambda wildcards: csvmap__formatStrFromQueryDict(
-                  csvmap=fastq_csvmap, 
-                  str_format=fastq__chunk_format + ".fastq.gz",
-                  **wildcards)
-    output: 
-        primary = mapping__sample + "{process}.bam"
-    wildcard_constraints:
-         process="(\.bwa_mem_samtools)"
-    shell:"""
-       # echo PBS -N bwamem -l select=1:ncpus=$(CORES)
-       condactivate #> {output[primary]}.out ## DRY_RUN
-       bwa mem -M \
-         -t {BWA_CORES} \
-         {BWA_REFERENCE_GENOME} \
-         {input[fastq_reads]} \
-         | samtools view -Su - \
-         | samtools sort -o {output[primary]}
-     """
-
-PICARD_SORTSAM_SORT_ORER = 'unsorted' # [ 'unsorted', 'queryname', 'coordinate', 'duplicate', 'unknown']
-rule bwa__align_bwa_mem_picard:
-    input:
-        fastq_reads= lambda wildcards: csvmap__formatStrFromQueryDict(
-                  csvmap=fastq_csvmap, 
-                  str_format=fastq__chunk_format + ".fastq.gz",
-                  **wildcards)
-    output: 
-        primary = mapping__sample + "{process}.bam"
-    wildcard_constraints:
-         process="(\.bwa_mem_picard)"
-    shell:"""
-       # echo PBS -N bwamem -l select=1:ncpus=$(CORES)
-       condactivate #> {output[primary]}.out ## DRY_RUN
-       bwa mem -M \
-         -t {BWA_CORES} \
-         {BWA_REFERENCE_GENOME} \
-         {input[fastq_reads]} \
-        | picard SortSam \
-            I=/dev/stdin \
-            SORT_ORDER={PICARD_SORTSAM_SORT_ORER} \
-            O={output[primary]}
-     """
