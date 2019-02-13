@@ -33,7 +33,7 @@ rule mapping_star__alignReads:
      ln.rel -f {output.raw_file} {output.primary}
     """.format(
       output = output,
-      star   = pipeman.config.pipeline.modules.mapping.star,
+      star   = pipeman.config.pipeline.modules.mapping.aligner,
       prefix = os.path.dirname(output.primary),
       reads  = star__readsToString(input.reads_1, input.reads_2),
       star_genome_index = mapping__genomeIndex(),)

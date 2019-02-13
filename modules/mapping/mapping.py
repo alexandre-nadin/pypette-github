@@ -53,21 +53,47 @@ def mapping__sampleReadGroup(sample):
 # Mapping Genome 
 # ---------------
 @cluster__prefixMountPoint
+def mapping__genomeDir():
+  return os.path.join(
+    pipeman.config.cluster.genome_dir,
+    pipeman.config.project.genome.name
+  )
+
+def exome__targetDir():
+  return os.path.join(
+    mapping__genomeDir(),
+    "annotation",
+    "exomes_targets")
+
+def exome__intervalListFmt():
+  return os.path.join(
+    exome__targetDir(),
+    "agilent_v7_sureselect_{}.interval_list")
+
+def exome__targetIntervals():
+  return exome__intervalListFmt().format("MergedProbes")
+
+def exome__baitIntervals():
+  return exome__intervalListFmt().format("Regions")
+
+def mapping__genomeFasta():
+  """
+  Retrieves the genome fastq using cluster and project metadata parameters.
+  """
+  return os.path.join(
+    mapping__genomeDir(),
+    "fa",
+    pipeman.config.project.genome.name + ".fa"
+  )
+
 def mapping__genomeIndex():
   """
   Retrieves the genome index using cluster and project metadata parameters.
-  Uses 
-   - cluster.genome_dir
-   - project.genome .gencode and .species
   """
   return os.path.join(
-    "{cluster.genome_dir}",
-    "{genome.name}",
-    "{aligner.command}").format(
-      cluster  = pipeman.config.cluster,
-      genome   = pipeman.config.project.genome,
-      aligner  = pipeman.config.pipeline.modules.mapping[mapping__aligner()]
-    )
+    mapping__genomeDir(),
+    pipeman.config.pipeline.modules.mapping.aligner.name
+  )
 
 # ---------
 # Merging
