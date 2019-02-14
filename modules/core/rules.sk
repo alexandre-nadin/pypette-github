@@ -78,7 +78,7 @@ def exshell(input, output, cmd, **wildcards):
     shell("""
       cat << eol \
        | sed -s 's|^[[:space:]]*||' \
-       > {output.primary}.debug
+       > {output[0]}.debug
 
         INPUT:
         $(echo {input} | tr ' ' '\n')
