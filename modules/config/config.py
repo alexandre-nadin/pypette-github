@@ -15,7 +15,6 @@ def config__setConfigs(**kwargs):
   error = False
   for conf in config__config_files:
     if os.path.exists(conf) and os.path.isfile(conf):
-      print("loading file {}".format(conf))
       pipeman.config_manager.loadConfig(conf)
     else:
       pass
