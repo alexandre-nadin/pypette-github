@@ -57,25 +57,43 @@ rule help:
       msg += helpRuleMsg(rule)
     pipeman.log.info(msg)
 
-def exshell(input, output, cmd, **wildcards):
+def config__hasKey(key, config=None):
+  """ 
+  Checks the given :key: exists in the given/default :config: .
   """
-  Formats the given command.
-  Prepands the system's conda activation if specified in configuration.
-  Executes or print it depending on the config's debugging parameter.
+  return config in pipeman.config.keys() \
+           and key in pipeman.config[config].keys() \
+         or config is None  \
+           and key in pipeman.config 
+
+def config__valueFromKey(key, config=None):
   """
+  Retrieves the given :key: from the given or default :config: if it exists.
+  """
+  if  config__hasKey(key, config):
+    if config is None:
+      val = pipeman.config[key]
+    else:
+      val = pipeman.config[config][key]
+  else:
+    val = None
+  return val
 
-  """ Format command string """
-  cmd = cmd.format(input=input, output=output, **wildcards)
+def config__valueOf(key):
+  return config__valueFromKey(key, 'pipeline') \
+      or config__valueFromKey(key)
 
-  """  Add condactivate to command if specified """
-  if 'cluster' in pipeman.config.keys()                  \
-    and 'condactivate' in pipeman.config.cluster.keys()  \
-    and pipeman.config.cluster.condactivate: 
-    cmd = "condactivate\n" + cmd
+def config__useCondactivate():
+  return config__valueOf('condactivate')
 
-  """ Execute or print command """
-  if hasattr(config, 'debug') and config['debug']:
-    shell("""
+def config__logCommands():
+  return config__valueOf('logCommands')
+
+def config__isDebugMode():
+  return config__valueOf('debug')
+
+def logCmdTemplate():
+  return """
       cat << eol \
        | sed -s 's|^[[:space:]]*||' \
        > {output[0]}.debug
@@ -87,12 +105,34 @@ def exshell(input, output, cmd, **wildcards):
         {cmd}
   
         OUTPUT:
-        $(echo {output} | tr ' ' '\n')
+        $(echo {output} | tr ' ' '\n') \n
+
 eol
+      :
+  """
 
-      touch {output}
+def exshell(input, output, cmd, **wildcards):
+  """
+  Formats the given command.
+  Prepands the system's conda activation if specified in configuration.
+  Prints the target's log if specified in the configuration.
+  Executes the command if debug mode not set in configuration.
+  """
 
-    """)                                      
+  """ Format command string """
+  cmd = cmd.format(input=input, output=output, **wildcards)
+
+  """ Add condactivate to command if specified """
+  if config__valueOf('condactivate'):
+    cmd = "condactivate\n" + cmd
+
+  """ Print target's log """
+  if config__valueOf('logCommands'):
+    shell(logCmdTemplate())
+
+  """ Debug mode """
+  if config__valueOf('debug'):
+    touch(output)
   else:
     shell(cmd)                                
 
