@@ -25,7 +25,7 @@ def mapping__alignerModule():
   module = ""
   if aligner:
     module = '{}.sk'.format(aligner)
-  return module
+  return module.lower()
 
 def mapping__includeAlignerModule():
   aligner = mapping__aligner()
