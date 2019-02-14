@@ -36,18 +36,22 @@ def mapping__includeAlignerModule():
 # Alignment
 # -----------
 def mapping__sampleReadGroup(sample):
-  experimentName = sample.sample_run + "_" + sample.sample_name
+  fcid           = mapping__runFlowCellID(sample.sample_run)
+  experimentName = fcid + "_" + sample.sample_name
   platform       = pipeman.config.pipeline.sequencing.platform
   center         = pipeman.config.pipeline.center.name 
   return "\t".join([
     "@RG",
-    "ID:" + experimentName, # experiment_name = sample[0]_sample[2]
-    "PL:" + platform, # PLATFORM
-    "PU:" + sample.sample_run, # sample[0]
-    "LB:" + experimentName, # experiment_name
-    "SM:" + sample.sample_name, # sample[2]
-    "CN:" + center  # CENTER
+    "ID:" + experimentName,
+    "PL:" + platform,
+    "PU:" + sample.sample_run,
+    "LB:" + experimentName,
+    "SM:" + sample.sample_name,
+    "CN:" + center
   ])
+
+def mapping__runFlowCellID(run):
+  return run.split('_').pop()[1:]
 
 # ---------------
 # Mapping Genome 
