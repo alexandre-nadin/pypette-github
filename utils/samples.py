@@ -31,6 +31,7 @@ class SamplesManager(utils.manager.Manager):
           "No sample found for filters \"{}\"."
            .format(query)
         )
+        return data
         raise
 
     """ Select Columns """
@@ -118,6 +119,7 @@ class SamplesManager(utils.manager.Manager):
         dict(zip(required_cols, values)), 
         nokeyword=True)
       for values in samples.values
+      if not samples.empty
     ]
 
     if unique:
