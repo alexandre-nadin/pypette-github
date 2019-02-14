@@ -64,11 +64,7 @@ def fastq__runFromFilepath(filepath):
   Retrieves a Run id from a file containing paths. 
   """
   for run in pipeman.config.project.run_ids:
-    run_path = os.path.join( 
-      pipeman.cluster_mnt_point.rstrip(os.path.sep),
-      pipeman.config.cluster.sequencing_runs.dir.strip(os.path.sep),
-      run
-    )
+    run_path = fastq__runPath(run)
     if filepath.startswith(run_path):
       return run
     else:

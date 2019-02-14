@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 _dir=$(readlink -f $(dirname "${BASH_SOURCE[0]}"))
-
 source "${_dir}/ctgb-pipe.sh"
 
 ## Include binaries
