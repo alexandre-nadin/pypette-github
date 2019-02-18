@@ -5,7 +5,7 @@ include: "config.py"
 config__dir = "config"
 config__config_files = [ 
   os.path.join(config__dir, config)
-  for config in [ "cluster.yaml", "pipeline.yaml", "metadata.json" ]
+  for config in [ "cluster.yaml", "pipeline.yaml", "metadata.json", "pbs-rules.yaml" ]
 ]
 # Load existing configuration by default.
 config__setConfigs()
