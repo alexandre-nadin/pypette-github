@@ -105,7 +105,7 @@ def logCmdTemplate():
         {cmd}
   
         OUTPUT:
-        $(echo {output} | tr ' ' '\n') \n
+        $(echo $output | tr ' ' '\n') \n
 
 eol
       :
@@ -137,3 +137,47 @@ def exshell(input, output, cmd, **wildcards):
     shell(cmd)                                
 
 pipeman.toClean("help_*.done")
+
+# ----------------
+# PBS Ressources
+# ----------------
+rule rules__updatePbsRessources:
+  """
+  Looks for all the pipeline's available rules write default cluster configuration
+  in the 'yaml' file.
+  """ 
+  run:
+    cmd = """
+      output=pbs-rules.yaml
+      ## Update default:
+      if [ ! -f "$output" ] || ! grep -s -q "^__default__:" "$output"; then
+        # Default Ressources
+        cat << HERE > "$output"
+__default__:
+  name: '{pbsname}'
+  select: 1
+  ncpus: 1
+  mem: '1gb'
+  error: '{pbsout}.pbserr' 
+  output: '{pbsout}.pbsout'
+
+HERE
+
+      fi
+
+      # Fetches all rules from the executed Snakemake pipeline
+      for _rule in {_rules}; do
+        grep -s -q "^$_rule" "$output" \
+         || cat << HERE >> "$output"
+$_rule:
+  do: True
+
+HERE
+    done
+    """.format(
+          output=output, _rules=" ".join(rules.__dict__.keys()), 
+          pbsname = "{{pipeman.config.project.bioinfo_pipeline}}",
+          pbsout = "{{output[0]}}")
+    shell(cmd)
+
+localrules: rules__pbsRessources

@@ -104,7 +104,7 @@ rule fastq__linkReads_all:
   run:
     touch(output)
 
-localrules: fastq__linkRead, fastq__linkReads_all
+localrules: fastq__linkRead
 
    
 # ---------
