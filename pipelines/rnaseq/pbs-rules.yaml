@@ -1,0 +1,95 @@
+__default__:
+  name: '{pipeman.config.project.bioinfo_pipeline}'
+  select: 1
+  ncpus: 1
+  mem: '1gb'
+  error: '{output[0]}.pbserr' 
+  output: '{output[0]}.pbsout'
+
+explain_rules:
+  do: True
+
+helpRule:
+  do: True
+
+rules__pbsRessources:
+  do: True
+
+samplenames:
+  do: True
+
+samples:
+  do: True
+
+config__projectMetadata:
+  do: True
+
+config__tempConfs:
+  do: True
+
+config__allConfigs:
+  do: True
+
+fastq_merging__mergeReads_all:
+  do: True
+
+fastq_qc__reads:
+  do: True
+
+fastq_qc__readsAll:
+  do: True
+
+fastq__mapRawFiles:
+  do: True
+
+fastq__mapSamples:
+  do: True
+
+fastq__linkRead:
+  do: True
+
+fastq__linkReads_all:
+  do: True
+  ncpus: 2
+
+mapping_star__alignReads:
+  do: True
+  ncpus: '{pipeman.config.pipeline.modules.mapping.aligner.cores}'
+  mem: '{pipeman.config.pipeline.modules.mapping.aligner.ram}'
+
+mapping_star__alignReadsAll:
+  do: True
+
+bam__markDuplicates:
+  do: True
+
+mapping__sortSamplePicard:
+  do: True
+
+mapping__sortSampleSamtools:
+  do: True
+
+mapping__mergedSampleStatsAll:
+  do: True
+
+mapping__sampleStats:
+  do: True
+
+mapping__mergeSample:
+  do: True
+
+mapping__mergeSampleAll:
+  do: True
+
+bam__makeIndex:
+  do: True
+
+bam__hsMetrics:
+  do: True
+
+bam__sampleHsMetricsAll:
+  do: True
+
+multiqc__report:
+  do: True
+
