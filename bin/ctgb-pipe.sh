@@ -10,15 +10,15 @@ VARENVS_TAG="_CPIPE_"
 # ---------------------
 function baseSnakemake() {
   exportVarenvs
-  command snakemake $@
+  command snakemake "$@"
 }
 
 function snakemake() {
-  baseSnakemake $@
+  baseSnakemake "$@"
 }
 
 function smk() {
-  baseSnakemake $@
+  baseSnakemake "$@"
 }
 
 # -------
@@ -50,8 +50,8 @@ cat << EOFMAN
       -d|--directory
           Working directory for Snakemake. Default 'CTGB__DIR_PROJECTS' if set or 'pwd'
 
-      -o|--snake-options
-          List of options to pass to Snakemake
+      --smk|--snake-options
+          List of options to pass to Snakemake. 
 
       -v|--verbose
           Makes this command verbose.
