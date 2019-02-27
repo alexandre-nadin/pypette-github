@@ -1,5 +1,5 @@
 fastq_merge__dir        = fastq__readDir
-fastq_merge__readPrefix = fastq_merge__dir + "/{sample_name}_{sample_read}"
+fastq_merge__readPrefix = fastq_merge__dir + "/{procTrimming}{sample_name}_{sample_read}"
 fastq_merge__read       = fastq_merge__readPrefix + "{sample_extension}"
 
 # ---------------

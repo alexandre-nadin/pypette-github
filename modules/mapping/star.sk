@@ -1,5 +1,7 @@
 include: "star.py"
 
+
+ruleorder: mapping__sortSamplePicard > mapping__sortSampleSamtools > mapping_star__alignReads
 rule mapping_star__alignReads:
   input: 
     configs = config__config_files,
