@@ -1,10 +1,1 @@
-cluster:
-  illuminaDir: "/illumina"
-  sequencingRuns:
-    dir: "/lustre2/raw_data"
-    structured: 'Y'
-    projectTag: 'Project_'
-    sampleTag: 'Sample_'
-  genomeDir: "/lustre1/genomes"
-  tmpdir: "/lustre2/scratch/tmp"
-  condactivate: True
+../rnaseq/cluster.yaml
