@@ -18,8 +18,8 @@ def fastq__runsPathsProject(prj):
   ]
 
 def fastq__runProjectTag():
-  if pipeman.config.cluster.sequencing_runs.structured:
-    tag = pipeman.config.cluster.sequencing_runs.project_tag 
+  if pipeman.config.cluster.sequencingRuns.structured:
+    tag = pipeman.config.cluster.sequencingRuns.projectTag 
   else:
     tag = ""
   return tag
@@ -30,7 +30,7 @@ def fastq__runPath(runid):
   Builds the path of the given runid.
   """
   return os.path.join(
-    pipeman.config.cluster.sequencing_runs.dir, 
+    pipeman.config.cluster.sequencingRuns.dir, 
     runid)
    
 def fastq__runsPaths(check_runs=True):

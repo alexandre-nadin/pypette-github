@@ -13,8 +13,8 @@ pipeline:
       qc:
         fastqc:
           cores: 6        
-  sample_based: True
-  deep_structure: True
+  sampleBased: True
+  deepStructure: True
   sequencing:
     platform: Illumina
   center:
