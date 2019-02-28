@@ -102,7 +102,7 @@ def logCmdTemplate():
         $(echo {input} | tr ' ' '\n')
   
         COMMAND: 
-        {cmd}
+        $(sed -e 's/ [[:space:]]*/ /g' <<< "{cmd}")
   
         OUTPUT:
         $(echo {output} | tr ' ' '\n') \n
