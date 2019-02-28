@@ -39,6 +39,7 @@ fastq__read        = fastq__readPrefix + "{sample_extension}"
 pipeman.include("merge.sk")
 pipeman.include("qc.sk")
 pipeman.include("trimming.sk")
+pipeman.include("adapter.sk")
 
 # ---------------------
 # Mapping fastq files

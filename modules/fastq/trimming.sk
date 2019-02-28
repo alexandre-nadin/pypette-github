@@ -3,20 +3,60 @@ pipeman.updateWildcardConstraints(
   procTrimming = "(trimmed/({})/)?".format('|'.join(trimmingTools)),
 )
 
+# ------------
+# Trimmomatic
+# ------------
+# HEADCROP: for QUANTSEQ, leave empty for TruSeq #
 rule fastq_trimming__trimmomatic:
-  input: "{someprefix}/{fastq}.fastq.gz"
-  output: "{someprefix}/trimmed/trimmomatic/{fastq}.fastq.gz"
+  input: 
+    fastq    = "{someprefix}/{fastq}.fastq.gz",
+    adapters = "adapters/trimmomatic/adapters.fa"
+  output: 
+    fastq    = "{someprefix}/trimmed/trimmomatic/{fastq}.fastq.gz"
   run:
     cmd = """
-      echo "{rule}: from '{input}' to '{output}'."
+      java                                    \
+        -Djava.io.tmpdir=$TMPDIR              \
+        -Xmx{trimmomatic.memJava}             \
+        -jar trimmomatic-0.32.jar             \
+        {pairendedness}                       \
+        -phred33                              \
+        -trimlog {output.fastq}.log        \
+        {input.fastq}                         \
+        {output.fastq}                        \
+        ILLUMINACLIP:{input.adapters}:2:30:10 \
+        LEADING:3                             \
+        TRAILING:3                            \
+        SLIDINGWINDOW:4:15                    \
+        MINLEN:15                             \
+        {trimmomatic.headcrop}                \
+        > {output.fastq}.log
     """
-    exshell(input, output, cmd, rule=rule, **wildcards)
+    exshell(input, output, cmd,
+      trimmomatic = pipeman.config.pipeline.modules.fastq.trimming.trimmers.trimmomatic,
+      pairendedness ='PE' if pipeman.config.project.pair_end else 'SE',
+      **wildcards
+    )
 
+# ---------
+# Cutadapt
+# ---------
 rule fastq_trimming__cutadapt:
-  input: "{someprefix}/{fastq}.fastq.gz"
-  output: "{someprefix}/trimmed/cutadapt/{fastq}.fastq.gz"
+  input: 
+    fastq    = "{someprefix}/{fastq}.fastq.gz",
+    adapters = "adapters/cutadapt/adapters.fa"
+  output: 
+    fastq    = "{someprefix}/trimmed/cutadapt/{fastq}.fastq.gz"
   run:
     cmd = """
-      echo "{rule}: from '{input}' to '{output}'."
+      cutadapt                   \
+        -b file:{input.adapters} \
+        --trim-n                 \
+        -q 30,30                 \
+        -u 13                    \
+        -m 15                    \
+        -o {output.fastq}        \
+        {input.fastq}            \
+       > "{output.fastq}.log"
     """
-    exshell(input, output, cmd, rule=rule, **wildcards)
+    exshell(input, output, cmd, **wildcards)

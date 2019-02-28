@@ -1,5 +1,6 @@
 cluster:
   illuminaDir: "/illumina"
+  adapterDir: "/lustre1/genomes/Illumina_Adapters"
   sequencingRuns:
     dir: "/lustre2/raw_data"
     structured: 'Y'
