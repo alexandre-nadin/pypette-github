@@ -11,7 +11,6 @@ pipeman.updateWildcardConstraints(
 mapping__relDir       = "mapped" + mapping__alignerDir(append=True)
 mapping__sampleDir    = fastq_merge__dir + "/{procTrimming}" + mapping__relDir
 mapping__samplePrefix = mapping__sampleDir + "/{sample_name}"
-#mapping__samplePrefix = mapping__sampleDir + "/{procSorted}{procMarkDup}{sample_name}"
 mapping__sample       = mapping__samplePrefix + ".bam"
 
 mapping__sortedSamplePrefix = mapping__sampleDir + mapping__sorterDir(append=True) + "/{sample_name}"
@@ -162,7 +161,7 @@ rule bam__hsMetrics:
       picard CollectHsMetrics          \
         BI={baitIntervals}             \
         TI={targetIntervals}           \
-        I={input}                      \  
+        I={input}                      \
         O={output}                     \
         R={genomeFasta}                \
         VALIDATION_STRINGENCY=SILENT
