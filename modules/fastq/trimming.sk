@@ -1,4 +1,4 @@
-trimmingTools = ('trimmomatic', 'cutadapt')
+trimmingTools = ('trimmomatic', 'cutadapt', 'bbduk')
 pipeman.updateWildcardConstraints(
   procTrimming = "(trimmed/({})/)?".format('|'.join(trimmingTools)),
 )
@@ -59,5 +59,20 @@ rule fastq_trimming__cutadapt:
         -o {output.fastq}        \
         {input.fastq}            \
        > "{output.fastq}.log"
+    """
+    exshell(input, output, cmd, **wildcards)
+
+# ------
+# BBDUK
+# ------
+rule fastq_trimming__bbduk:
+  input: 
+    fastq    = "{someprefix}/{fastq}.fastq.gz",
+    adapters = "adapters/bbduk/adapters.fa"
+  output: 
+    fastq    = "{someprefix}/trimmed/bbduk/{fastq}.fastq.gz"
+  run:
+    cmd = """
+      echo "bbduck.sh {input} > {output}"
     """
     exshell(input, output, cmd, **wildcards)

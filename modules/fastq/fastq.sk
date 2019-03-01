@@ -43,7 +43,7 @@ pipeman.include("qc.sk")
 pipeman.include("trimming.sk")
 pipeman.include("adapter.sk")
 
-ruleorder: fastq_trimming__trimmomatic > fastq_merging__mergeReads
+ruleorder: fastq_trimming__bbduk > fastq_trimming__trimmomatic > fastq_trimming__cutadapt > fastq_merging__mergeReads
 
 # ---------------------
 # Mapping fastq files
