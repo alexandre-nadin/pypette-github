@@ -10,15 +10,16 @@ pipeman.updateWildcardConstraints(
 """ Sample Run Reads Output Targets """
 mapping__relDir       = "mapped" + mapping__alignerDir(append=True)
 mapping__sampleDir    = fastq_merge__dir + "/{procTrimming}" + mapping__relDir
-mapping__samplePrefix = mapping__sampleDir + "/{procSorted}{sample_name}"
+mapping__samplePrefix = mapping__sampleDir + "/{sample_name}"
+#mapping__samplePrefix = mapping__sampleDir + "/{procSorted}{procMarkDup}{sample_name}"
 mapping__sample       = mapping__samplePrefix + ".bam"
 
 mapping__sortedSamplePrefix = mapping__sampleDir + mapping__sorterDir(append=True) + "/{sample_name}"
 mapping__sortedSample = mapping__sortedSamplePrefix + ".bam"
 
 """ Sample Merged Bams Output Targets """
-pipelineDir = "fastq/{procTrimming}" + mapping__relDir + "/merged/{procSorted}{procMarkDup}"
-mapping__mergedSampleDir    = "{sample_name}" + pipelineDir 
+mapping__pipelineDir = "fastq/all/{procTrimming}" + mapping__relDir + "/merged/{procSorted}{procMarkDup}"
+mapping__mergedSampleDir    = "samples/{sample_name}/" + mapping__pipelineDir 
 mapping__mergedSamplePrefix = mapping__mergedSampleDir + "{sample_name}"
 mapping__mergedSample       = mapping__mergedSamplePrefix + ".bam"
 mapping__mergedSampleStats  = mapping__mergedSamplePrefix + ".bamstats"
@@ -59,7 +60,6 @@ rule mapping__sortSamplePicard:
   input:  "{anyprefix}{sample_name}.bam"
   output: "{anyprefix}sorted/picard/{sample_name}.bam",
   run:
-    print("{output}.debug".format(output=output))
     cmd = """
       picard SortSam          \
         I={input}             \
@@ -108,8 +108,7 @@ rule mapping__sampleStats:
 # ------------
 # Merge BAMs
 # ------------
-ruleorder: mapping__mergeSample > mapping__sortSamplePicard > mapping__sortSampleSamtools 
-MERGE_CMD = "picard MergeSamFiles"
+ruleorder: bam__markDuplicates > mapping__sortSamplePicard > mapping__sortSampleSamtools > mapping__mergeSample
 rule mapping__mergeSample:
   input:
     bam = lambda wildcards: 
@@ -142,11 +141,10 @@ rule mapping__mergeSampleAll:
     bam = lambda wildcards: fastq__mapStringSamples(
             mapping__mergedSample, **wildcards)
   output:
-    primary = pipelineDir + "all-samples.done"
+    primary = "samples/all/" + mapping__pipelineDir + "all.done" 
   run:
     touch(output)
 
-ruleorder: bam__makeIndex > bam__markDuplicates
 rule bam__makeIndex:
   input:  "{someprefix}.bam"
   output: "{someprefix}.bai"

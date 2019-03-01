@@ -1,6 +1,6 @@
 include: "bwa.py"
 
-ruleorder: mapping__sortSamplePicard > mapping__sortSampleSamtools > mapping_bwa__alignReads
+#ruleorder: bam__markDuplicates > mapping__sortSamplePicard > mapping__sortSampleSamtools > mapping_bwa__alignReads
 rule mapping_bwa__alignReads:
   input: 
     configs = config__config_files,

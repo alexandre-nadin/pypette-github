@@ -41,6 +41,7 @@ rule fastq_trimming__trimmomatic:
 # ---------
 # Cutadapt
 # ---------
+#ruleorder: fastq_trimming__cutadapt > fastq_merging__mergeReads
 rule fastq_trimming__cutadapt:
   input: 
     fastq    = "{someprefix}/{fastq}.fastq.gz",

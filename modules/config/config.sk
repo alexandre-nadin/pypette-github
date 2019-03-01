@@ -49,15 +49,15 @@ rule config__tempConfs:
        "{output.primary}"
   """
 
-rule config__allConfigs:
+rule config__all:
   """
   Creates Project. Not different from rule 'config__projectMetadata'.
   """
   input:
     config__config_files
   output:
-    primary = "config__allConfigs.done"
+    primary = config__dir + "/all.done"
   run:
     touch(output)
     
-pipeman.toClean("config_*.done")
+pipeman.toClean(config__dir + "/*.done")

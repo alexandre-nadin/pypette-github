@@ -25,10 +25,10 @@ pipeman.updateWildcardConstraints(
 #   - {process} is only for outputs as it is about the process defined by the
 #     current rule.
 # --------------------- 
-fastq__dir = "{sample_name}/fastq"
-fastq__rawFiles = "raw_files.txt"
-fastq__mappedSamples     = "samples{extension}"
-fastq__mappedSamplesDft = "samples.csv"
+fastq__dir = "samples/{sample_name}/fastq"
+fastq__rawFiles = "samples/rawFiles.txt"
+fastq__mappedSamples     = "samples/samples{extension}"
+fastq__mappedSamplesDft = "samples/samples.csv"
 
 fastq__readDir     = fastq__dir + "/runs/{sample_run}"
 fastq__chunkPrefix = fastq__readDir + "/{sample_chunkname}"
@@ -36,10 +36,14 @@ fastq__chunk       = fastq__chunkPrefix + "{sample_extension}"
 fastq__readPrefix  = fastq__readDir + "/{sample_name}_{sample_read}"
 fastq__read        = fastq__readPrefix + "{sample_extension}"
 
+fastq__dirAll = "samples/all/fastq"
+
 pipeman.include("merge.sk")
 pipeman.include("qc.sk")
 pipeman.include("trimming.sk")
 pipeman.include("adapter.sk")
+
+ruleorder: fastq_trimming__trimmomatic > fastq_merging__mergeReads
 
 # ---------------------
 # Mapping fastq files
@@ -56,7 +60,7 @@ rule fastq__mapRawFiles:
   run:
     runs = fastq__runsPathsProject(pipeman.project)
     cmd = """
-      find {runs} -name '*.fastq.gz' > {output}
+      find -L {runs} -name '*.fastq.gz' > {output}
     """
     shell(cmd)
 
@@ -102,7 +106,7 @@ rule fastq__linkReads_all:
   input: 
     fastq_files = lambda wildcards: 
       fastq__mapStringSamples(fastq__chunk, **wildcards)
-  output: "fastq__linkReads_all.done"
+  output: fastq__dirAll + "/linkReads.all"
   run:
     touch(output)
 
