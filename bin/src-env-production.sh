@@ -4,7 +4,7 @@ source "${_dir}/ctgb-pipe.sh"
 
 ## Include binaries
 export PATH="${PATH}":"${_dir}"
-export CTGB__DIR_PROJECTS="/lustre2/projects-analysis"
+export CTGB__DIR_PROJECTS="/lustre2/project-analysis"
 export CLUSTER_MNT_POINT=""
 
 condactivate ctgb-pipe
