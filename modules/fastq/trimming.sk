@@ -6,42 +6,66 @@ pipeman.updateWildcardConstraints(
 # ------------
 # Trimmomatic
 # ------------
+"""
+Applies the trimming to the given sample in output.
+Maps the existing reads R1 and R2 for the given sample in output.
+Input and output files are generated depending on the existing reads.
+If R2 doesn't exist, the pair end output files are still produced, empty.
+They will later be dealt with as ghost files. 
+This is a way of keeping the rule clean, avoiding code redundancy and
+retaining the pipeline target system flexible.
+"""
 # HEADCROP: for QUANTSEQ, leave empty for TruSeq #
 rule fastq_trimming__trimmomatic:
   input: 
-    fastq    = "{someprefix}/{fastq}.fastq.gz",
+    r1 = lambda wildcards: fastq__mapStringSamples(
+                fastq__read, sample_read="R1", **wildcards),
+    r2 = lambda wildcards: fastq__mapStringSamples(
+                fastq__read, sample_read="R2", **wildcards),
     adapters = "adapters/trimmomatic/adapters.fa"
   output: 
-    fastq    = "{someprefix}/trimmed/trimmomatic/{fastq}.fastq.gz"
+    r1       = fastq_merge__dir + "/trimmed/trimmomatic/{sample_name}_R1.fastq.gz",
+    r1u      = fastq_merge__dir + "/trimmed/trimmomatic/{sample_name}_R1_UNPAIRED.fastq.gz",
+    r2       = fastq_merge__dir + "/trimmed/trimmomatic/{sample_name}_R2.fastq.gz",
+    r2u      = fastq_merge__dir + "/trimmed/trimmomatic/{sample_name}_R2_UNPAIRED.fastq.gz",
   run:
+    inputReads  = [ x for x in [ 
+                      input.r1[0], 
+                      input.r2[0] if input.r2 else None] 
+                    if x ]
+    outputReads = [ output.r1 ] 
+    if len(inputReads) == 2:
+      outputReads += [ output.r1u, output.r2, output.r2u ]
+                 
     cmd = """
-      java                                    \
-        -Djava.io.tmpdir=$TMPDIR              \
-        -Xmx{trimmomatic.memJava}             \
-        -jar trimmomatic-0.32.jar             \
-        {pairendedness}                       \
-        -phred33                              \
-        -trimlog {output.fastq}.log        \
-        {input.fastq}                         \
-        {output.fastq}                        \
-        ILLUMINACLIP:{input.adapters}:2:30:10 \
-        LEADING:3                             \
-        TRAILING:3                            \
-        SLIDINGWINDOW:4:15                    \
-        MINLEN:15                             \
-        {trimmomatic.headcrop}                \
-        > {output.fastq}.log
+      java                                    
+        -Djava.io.tmpdir=$TMPDIR              \\
+        -Xmx{trimmomatic.memJava}             \\
+        -jar trimmomatic-0.32.jar             \\
+        {pairendedness}                       \\
+        -phred33                              \\
+        -trimlog {output.r1}.log              \\
+        {inputReads}                          \\
+        {outputReads}                         \\
+        ILLUMINACLIP:{input.adapters}:2:30:10 \\
+        LEADING:3                             \\
+        TRAILING:3                            \\
+        SLIDINGWINDOW:4:15                    \\
+        MINLEN:15                             \\
+        {trimmomatic.headcrop}                
+      touch {output}
     """
     exshell(input, output, cmd,
       trimmomatic = pipeman.config.pipeline.modules.fastq.trimming.trimmers.trimmomatic,
       pairendedness ='PE' if pipeman.config.project.pair_end else 'SE',
+      inputReads  = " \\\n".join(inputReads),
+      outputReads = " \\\n".join(outputReads),
       **wildcards
     )
 
 # ---------
 # Cutadapt
 # ---------
-#ruleorder: fastq_trimming__cutadapt > fastq_merging__mergeReads
 rule fastq_trimming__cutadapt:
   input: 
     fastq    = "{someprefix}/{fastq}.fastq.gz",
@@ -67,12 +91,43 @@ rule fastq_trimming__cutadapt:
 # ------
 rule fastq_trimming__bbduk:
   input: 
-    fastq    = "{someprefix}/{fastq}.fastq.gz",
+    r1 = lambda wildcards: fastq__mapStringSamples(
+                fastq__read, sample_read="R1", **wildcards),
+    r2 = lambda wildcards: fastq__mapStringSamples(
+                fastq__read, sample_read="R2", **wildcards),
     adapters = "adapters/bbduk/adapters.fa"
   output: 
-    fastq    = "{someprefix}/trimmed/bbduk/{fastq}.fastq.gz"
+    r1       = fastq_merge__dir + "/trimmed/bbduk/{sample_name}_R1.fastq.gz",
+    r2       = fastq_merge__dir + "/trimmed/bbduk/{sample_name}_R2.fastq.gz",
   run:
+    inputReads  = [ x for x in [ 
+                      "in={}".format(input.r1[0]), 
+                      "in2={}".format(input.r2[0]) if input.r2 else None] 
+                    if x ]
+    outputReads = [ x for x in [
+                      "out={}".format(output.r1),
+                      "out2={}".format(output.r2) 
+                        if len(inputReads) == 2 and output.r2 
+                        else None ] 
+                    if x ]
     cmd = """
-      echo "bbduck.sh {input} > {output}"
+      bbduk.sh               \\
+        {inputReads}         \\
+        {outputReads}        \\
+        ref={input.adapters} \\
+        k=23                 \\
+        mink=11              \\
+        rcomp=t              \\
+        ktrim=f              \\
+        kmask=X              \\
+        qtrim=rl             \\
+        trimq=5              \\
+        forcetrimleft=0      \\
+        forcetrimright2=0    \\
+        overwrite=true
     """
-    exshell(input, output, cmd, **wildcards)
+    exshell(input, output, cmd, 
+      inputReads  = " \\\n".join(inputReads),
+      outputReads = " \\\n".join(outputReads),
+      **wildcards
+    )
