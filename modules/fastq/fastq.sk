@@ -98,9 +98,13 @@ rule fastq__linkRead:
       fastq__mapStringSamples("{sample_path}", **wildcards)
   output: 
     primary    = fastq__chunk
-  shell:"""
-    ln.rel {input.fastq_read} {output.primary} 
-  """
+  run:
+    cmd = """
+      ln.rel \\
+        {input.fastq_read} \\
+        {output.primary} 
+    """
+    exshell(input, output, cmd, **wildcards)
 
 rule fastq__linkReads_all:
   input: 
