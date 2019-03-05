@@ -94,18 +94,19 @@ def config__isDebugMode():
 
 def logCmdTemplate():
   return """
-      cat << eol \
-       | sed -s 's|^[[:space:]]*||' \
-       > {output[0]}.debug
+      cat << eol                        \
+        | sed -s 's|^ [[:blank:]]*||g'  \
+        | sed -s 's| [[:blank:]]*$| |g' \
+        > {output[0]}.log
 
         INPUT:
         $(echo {input} | tr ' ' '\n')
   
         COMMAND: 
-        $(sed -e 's/ [[:space:]]*/ /g' <<< "{cmd}")
+        $(echo "{logcmd}")
   
         OUTPUT:
-        $(echo {output} | tr ' ' '\n') \n
+        $(echo {output} | tr ' ' '\n') 
 
 eol
       :
@@ -120,21 +121,27 @@ def exshell(input, output, cmd, **wildcards):
   """
 
   """ Format command string """
-  cmd = cmd.format(input=input, output=output, **wildcards)
+  shellCmd = cmd.format(input=input, output=output, **wildcards)
 
   """ Add condactivate to command if specified """
   if config__valueOf('condactivate'):
-    cmd = "condactivate\n" + cmd
+    shellCmd = """
+      set +eu 
+      source /home/$USER/.bash_profile
+      condactivate 2> /dev/null
+      set -eu
+    """ + shellCmd
 
   """ Print target's log """
   if config__valueOf('logCommands'):
+    logcmd = shellCmd.replace('\\', '\\\\')
     shell(logCmdTemplate())
 
   """ Debug mode """
   if config__valueOf('debug'):
     touch(output)
   else:
-    shell(cmd)                                
+    shell(shellCmd)                                
 
 pipeman.toClean("help_*.done")
 
