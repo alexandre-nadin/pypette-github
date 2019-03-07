@@ -106,7 +106,7 @@ def logCmdTemplate():
         $(echo "{logcmd}")
   
         OUTPUT:
-        $(echo {output} | tr ' ' '\n') 
+        $(echo {output} | tr ' ' '\n') \n
 
 eol
       :

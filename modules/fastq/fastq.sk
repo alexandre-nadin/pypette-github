@@ -100,8 +100,8 @@ rule fastq__linkRead:
     primary    = fastq__chunk
   run:
     cmd = """
-      ln.rel \\
-        {input.fastq_read} \\
+      ln.rel \
+        {input.fastq_read} \
         {output.primary} 
     """
     exshell(input, output, cmd, **wildcards)

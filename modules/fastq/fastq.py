@@ -11,7 +11,7 @@ def fastq__runsPathsProject(prj):
   return [ 
     os.path.join(
       run, 
-      "{}{}".format(
+      "{}{}/".format(
         fastq__runProjectTag(),
         prj))
     for run in fastq__runsPaths()
