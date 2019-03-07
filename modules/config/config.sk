@@ -5,7 +5,7 @@ include: "config.py"
 config__dir = "config"
 config__config_files = [ 
   os.path.join(config__dir, config)
-  for config in [ "cluster.yaml", "pipeline.yaml", "metadata.json", "pbs-rules.yaml" ]
+  for config in [ "cluster.yaml", "pipeline.yaml", "project.json", "pbs-rules.yaml" ]
 ]
 # Load existing configuration by default.
 config__setConfigs()
@@ -23,7 +23,7 @@ config__TO_DEMUX_URL = config__SEQU_RUN_URL + "/to_demultiplex/"
 # Metadata file
 # ---------------
 config__projectMedataExtension = ".json"
-config__projectMetadata = config__dir + "/metadata" + config__projectMedataExtension
+config__projectMetadata = config__dir + "/project" + config__projectMedataExtension
 
 rule config__projectMetadata:
   output: 
