@@ -1,7 +1,7 @@
 import os
 import sys
-from utils import environ, pipeline
 sys.path.insert(0, os.environ['_CPIPE_HOME'])
+from utils import environ, pipeline
 
 """ Define the pipeline manager """
 pipeman = pipeline.PipelineManager(namespace=globals())
