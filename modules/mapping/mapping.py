@@ -59,7 +59,7 @@ def mapping__runFlowCellID(run):
 @cluster__prefixMountPoint
 def mapping__genomeDir():
   return os.path.join(
-    pipeman.config.cluster.genome_dir,
+    pipeman.config.cluster.genomeDir,
     pipeman.config.project.genome.name
   )
 

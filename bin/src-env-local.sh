@@ -7,7 +7,7 @@ source "${_dir}/ctgb-pipe.sh"
 
 ## Include binaries
 export PATH="${PATH}":"${_dir}"
-export CTGB__DIR_PROJECTS="${HOME}/dev/ctgb/projects"
+export CTGB__DIR_PROJECTS="${HOME}/dev/ctgb/project-analysis"
 export CLUSTER_MNT_POINT="${HOME}/dev/ctgb/cluster"
 export TMPDIR='/tmp'
 

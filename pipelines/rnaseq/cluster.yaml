@@ -1,10 +1,11 @@
 cluster:
-  illumina_dir: "/illumina"
-  sequencing_runs:
+  illuminaDir: "/illumina"
+  adapterDir: "/lustre1/genomes/Illumina_Adapters"
+  sequencingRuns:
     dir: "/lustre2/raw_data"
     structured: 'Y'
-    project_tag: 'Project_'
-    sample_tag: 'Sample_'
-  genome_dir: "/lustre1/genomes"
+    projectTag: 'Project_'
+    sampleTag: 'Sample_'
+  genomeDir: "/lustre1/genomes"
   tmpdir: "/lustre2/scratch/tmp"
   condactivate: True

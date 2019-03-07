@@ -12,9 +12,22 @@ pipeline:
     fastq:
       qc:
         fastqc:
-          cores: 6        
-  sample_based: True
-  deep_structure: True
+          cores: 6
+      trimming:
+        trimmers:
+          trimmomatic:
+            mem: '10gb'
+            memJava: '10240M'
+            headcrop: 'HEADCROP:12'
+          cutadapt:
+          bbduk:
+      adapters:
+        base: &baseAdapters "Adapters.fasta" 
+        cutadapt: *baseAdapters
+        trimmomatic: *baseAdapters
+        bbduk: "BBDUK/adapters.fa"
+  sampleBased: True
+  deepStructure: True
   sequencing:
     platform: Illumina
   center:

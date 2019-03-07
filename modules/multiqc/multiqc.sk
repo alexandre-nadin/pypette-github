@@ -1,6 +1,5 @@
 multiqc__dir          = "multiqc"
-multiqc__report       = multiqc__dir + "/report.html"
-multiqc__sampleReport = multiqc__dir + "/report_{sample_name}.html"
+multiqc__report       = "samples/all/" + mapping__pipelineDir + "report.html"
 
 rule multiqc__report:
   input:

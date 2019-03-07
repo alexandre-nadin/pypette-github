@@ -1,5 +1,5 @@
 fastq_merge__dir        = fastq__readDir
-fastq_merge__readPrefix = fastq_merge__dir + "/{sample_name}_{sample_read}"
+fastq_merge__readPrefix = fastq_merge__dir + "/{procTrimming}{sample_name}_{sample_read}"
 fastq_merge__read       = fastq_merge__readPrefix + "{sample_extension}"
 
 # ---------------
@@ -15,7 +15,7 @@ rule fastq_merging__mergeReads_all:
     reads_2 = lambda wildcards: fastq__mapStringSamples(
                 fastq_merge__read, sample_read="R2", **wildcards)
   output:
-    primary = "fastq_merging__mergeReads_all.done"
+    primary = fastq__dirAll + "/mergeReads.all"
   run:
     touch(output)
 
