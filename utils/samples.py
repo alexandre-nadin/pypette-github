@@ -89,7 +89,7 @@ class SamplesManager(utils.manager.Manager):
     from utils.strings import StringFormatter
  
     """ Formatted String """
-    fs = StringFormatter(s).formatMapFlexi(kwargs, nokeyword=False)
+    fs = StringFormatter(s).formatMapFlexi(kwargs, keepMissingKeys=True)
   
     """ Required Columns """
     required_cols = [ col 
@@ -117,7 +117,7 @@ class SamplesManager(utils.manager.Manager):
     ret = [
       fs.formatMapFlexi(
         dict(zip(required_cols, values)), 
-        nokeyword=True)
+        keepMissingKeys=False)
       for values in samples.values
       if not samples.empty
     ]

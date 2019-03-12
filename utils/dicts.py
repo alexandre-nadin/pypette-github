@@ -17,9 +17,9 @@ def popFirst(func):
   return wrapper
 
 class Default(dict):
-  def __init__(self, d, nomissing=True):
-    self.nomissing = nomissing
+  def __init__(self, d, keepMissingKeys=False):
+    self.keepMissingKeys = keepMissingKeys
     super(Default, self).__init__(d)
 
   def __missing__(self, key):
-      return '' if self.nomissing else '{' + key + '}'
+    return '{' + key + '}' if self.keepMissingKeys else ''
