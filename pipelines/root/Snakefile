@@ -1,6 +1,6 @@
 import os
 import sys
-sys.path.insert(0, os.environ['_CPIPE_HOME'])
+sys.path = os.environ['_CPIPE_PYTHON_SYSPATH'].split()
 from utils import environ, pipeline
 
 """ Define the pipeline manager """

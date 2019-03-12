@@ -200,7 +200,12 @@ function exportVarenvs() {
   exportCpipeVarenv "PIPE_NAME" "$PIPELINE"
   exportCpipeVarenv "PIPE_SNAKE" $(pathPipelineSnakefile $PIPELINE)
   exportCpipeVarenv "CLUSTER_MNT_POINT" "$CLUSTER_MNT_POINT"
+  exportCpipeVarenv "PYTHON_SYSPATH" "$(pythonSysPath)"
   export PYTHONPATH=${PYTHONPATH:+${PYTHONPATH}":"}$(pathHome)
+}
+
+function pythonSysPath() {
+  python -c 'import sys; print(" ".join(sys.path))'
 }
 
 function cpipeVarenvOf() {
@@ -208,7 +213,7 @@ function cpipeVarenvOf() {
 }
 
 function exportCpipeVarenv() {
-  eval "export $(cpipeVarenvOf ${1})=${2}"
+  eval "export $(cpipeVarenvOf ${1})=\"${2}\""
 }
 
 # -------
