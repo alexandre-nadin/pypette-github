@@ -89,7 +89,7 @@ class SamplesManager(utils.manager.Manager):
     from utils.strings import StringFormatter
  
     """ Formatted String """
-    fs = StringFormatter(s).formatMapFlexi(kwargs, keepMissingKeys=True)
+    fs = StringFormatter(s).formatPartialMap(kwargs, keepMissingKeys=True)
   
     """ Required Columns """
     required_cols = [ col 
@@ -115,7 +115,7 @@ class SamplesManager(utils.manager.Manager):
     samples = self.query(query, selectedCols=required_cols)
 
     ret = [
-      fs.formatMapFlexi(
+      fs.formatPartialMap(
         dict(zip(required_cols, values)), 
         keepMissingKeys=False)
       for values in samples.values

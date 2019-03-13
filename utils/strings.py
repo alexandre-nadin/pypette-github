@@ -5,7 +5,7 @@ class StringFormatter(str):
   This class is used to add more flexibility to handling string formats.
   """
 
-  def formatMapFlexi(self, keepMissingKeys=False, **kwargs):
+  def formatPartialMap(self, keepMissingKeys=False, **kwargs):
     """
     Formats only the string keywords found in the given dictionnary in flexible way.
     Leaves missing keywords untouched for later formatting if :keepMissingKeys: is verified.
