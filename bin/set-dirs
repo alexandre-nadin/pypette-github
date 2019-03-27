@@ -3,7 +3,7 @@ set -euf -o pipefail
 mkdir -p ~/data/dev/ctgb
 cd ~/data/dev/ctgb
 
-mkdir -p ./projects
+mkdir -p "${CTGB__DIR_PROJECTS:-./projects}"
 mkdir -p ./runs
 
 # Mount Illumina directory
