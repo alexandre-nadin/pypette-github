@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euf -o pipefail
-mkdir -p ~/data/dev/ctgb
-cd ~/data/dev/ctgb
+mkdir -p ~/dev/ctgb
+cd ~/dev/ctgb
 
 mkdir -p "${CTGB__DIR_PROJECTS:-./projects}"
 mkdir -p ./runs
