@@ -1,12 +1,12 @@
 multiqc__dir          = "multiqc"
-multiqc__report       = "samples/all/" + mapping__pipelineDir + "report.html"
+multiqc__report       = "samples/all/" + bam__pipelineDir + "report.html"
 
 rule multiqc__report:
   input:
     fastqcs  = lambda wildcards: fastq__mapStringSamples(
       fastq_qc__readZip, **wildcards),
     bamstats = lambda wildcards: fastq__mapStringSamples(
-      mapping__mergedSampleStats, **wildcards)
+      bam__mergedSampleStats, **wildcards)
   output:
     primary = multiqc__report
   run:

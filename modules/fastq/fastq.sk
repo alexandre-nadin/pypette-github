@@ -14,9 +14,10 @@ fastq__mappedSamples     = "samples/samples{extension}"
 fastq__mappedSamplesDft = "samples/samples.csv"
 
 fastq__sampleRunDir   = fastq__dir + "/runs/{sample_run}/fastq"
+
 fastq__chunkPrefix    = fastq__sampleRunDir + "/{sample_chunkname}"
 fastq__chunk          = fastq__chunkPrefix + "{sample_extension}"
-fastq__readPrefix     = fastq__sampleRunDir + "/{sample_name}_{sample_read}"
+fastq__readPrefix     = fastq__sampleRunDir + "/{procFastqMerge}{procTrimming}{sample_name}_{sample_read}"
 fastq__read           = fastq__readPrefix + "{sample_extension}"
 
 fastq__samplesDir     = "samples/all/fastq"
@@ -27,8 +28,8 @@ fastq__sampleRunsAll  = "samples/{sample_name}/runs/all/fastq/all.done"
 fastq__samplesRunsAll = fastq__samplesRunsDir + "/all.done"
 
 pipeman.include("merge.sk")
-pipeman.include("qc.sk")
 pipeman.include("trimming.sk")
+pipeman.include("qc.sk")
 pipeman.include("adapter.sk")
 
 ruleorder: fastq_trimming__bbduk > fastq_trimming__trimmomatic > fastq_trimming__cutadapt > fastq_merging__mergeReads

@@ -52,33 +52,33 @@ fastq__linkReads_all:
   do: True
   ncpus: 2
 
-mapping_star__alignReads:
+bam_star__alignReads:
   do: True
   ncpus: '{pipeman.config.pipeline.modules.mapping.aligner.cores}'
   mem: '{pipeman.config.pipeline.modules.mapping.aligner.ram}'
 
-mapping_star__alignReadsAll:
+bam_star__alignReadsAll:
   do: True
 
 bam__markDuplicates:
   do: True
 
-mapping__sortSamplePicard:
+bam__sortSamplePicard:
   do: True
 
-mapping__sortSampleSamtools:
+bam__sortSampleSamtools:
   do: True
 
-mapping__mergedSampleStatsAll:
+bam__mergedSampleStatsAll:
   do: True
 
-mapping__sampleStats:
+bam__sampleStats:
   do: True
 
-mapping__mergeSample:
+bam__mergeSample:
   do: True
 
-mapping__mergeSampleAll:
+bam__mergeSampleAll:
   do: True
 
 bam__makeIndex:

@@ -1,4 +1,4 @@
-include: 'mapping.py'
+include: 'bam.py'
 
 """ Allowed Sorting Processes """
 sortingTools = ('picard', 'samtools')
@@ -7,26 +7,30 @@ pipeman.updateWildcardConstraints(
   procMarkDup = "(markdup/)?",
 )
 
-""" Sample Run Reads Output Targets """
-mapping__relDir       = "mapped" + mapping__alignerDir(append=True)
-mapping__sampleDir    = fastq_merge__dir + "/{procTrimming}" + mapping__relDir
-mapping__samplePrefix = mapping__sampleDir + "/{sample_name}"
-mapping__sample       = mapping__samplePrefix + ".bam"
+bam__mappingDir   = fastq__sampleRunDir + "/{procFastqMerge}{procTrimming}mapped" + bam__alignerDir(append=True)
+bam__samplePrefix = bam__mappingDir + "/{sample_name}"
+bam__sample       = bam__samplePrefix + ".bam"
 
-mapping__sortedSamplePrefix = mapping__sampleDir + mapping__sorterDir(append=True) + "/{sample_name}"
-mapping__sortedSample = mapping__sortedSamplePrefix + ".bam"
+""" Sample Run Reads Output Targets """
+bam__relDir       = "mapped" + bam__alignerDir(append=True)
+bam__sampleDir    = fastq_merge__dir + "/{procTrimming}" + bam__relDir
+
+##
+# General IO (on any bam file).
+bam__sortedSamplePrefix = bam__sampleDir + bam__sorterDir(append=True) + "/{sample_name}"
+bam__sortedSample = bam__sortedSamplePrefix + ".bam"
 
 """ Sample Merged Bams Output Targets """
-mapping__pipelineDir = "fastq/all/{procTrimming}" + mapping__relDir + "/merged/{procSorted}{procMarkDup}"
-mapping__mergedSampleDir    = "samples/{sample_name}/" + mapping__pipelineDir 
-mapping__mergedSamplePrefix = mapping__mergedSampleDir + "{sample_name}"
-mapping__mergedSample       = mapping__mergedSamplePrefix + ".bam"
-mapping__mergedSampleStats  = mapping__mergedSamplePrefix + ".bamstats"
+bam__pipelineDir = "fastq/all/{procTrimming}" + bam__relDir + "/merged/{procSorted}{procMarkDup}"
+bam__mergedSampleDir    = "samples/{sample_name}/" + bam__pipelineDir 
+bam__mergedSamplePrefix = bam__mergedSampleDir + "{sample_name}"
+bam__mergedSample       = bam__mergedSamplePrefix + ".bam"
+bam__mergedSampleStats  = bam__mergedSamplePrefix + ".bamstats"
 
 # Note: Include the aligner found in pipeline configuration file after this
 #       file's variables, as aligner's rules should depend on the variables 
 #       declared above.
-mapping__includeAlignerModule()
+bam__includeAlignerModule()
 
 # -----------------
 # Mark Duplicates
@@ -55,7 +59,7 @@ rule bam__markDuplicates:
 # --------------
 # Sorting Bams
 # --------------
-rule mapping__sortSamplePicard:
+rule bam__sortSamplePicard:
   input:  "{anyprefix}{sample_name}.bam"
   output: "{anyprefix}sorted/picard/{sample_name}.bam",
   run:
@@ -67,7 +71,7 @@ rule mapping__sortSamplePicard:
     """
     exshell(input, output, cmd, **wildcards)
 
-rule mapping__sortSampleSamtools:
+rule bam__sortSampleSamtools:
   input:  "{anyprefix}{sample_name}.bam"
   output: "{anyprefix}sorted/samtools/{sample_name}.bam"
   run:
@@ -80,18 +84,18 @@ rule mapping__sortSampleSamtools:
 # -----------
 # Bam Stats
 # -----------
-rule mapping__mergedSampleStatsAll:
+rule bam__mergedSampleStatsAll:
   input:
     samples_stats = lambda wildcards:
-      fastq__mapStringSamples(mapping__mergedSampleStats, **wildcards)
+      fastq__mapStringSamples(bam__mergedSampleStats, **wildcards)
   output:
-    primary = "mapping__mergedSampleStatsAll.done"
+    primary = "bam__mergedSampleStatsAll.done"
   run:
     touch(output)
 
-pipeman.toClean("mapping_*.done")
+pipeman.toClean("bam_*.done")
 
-rule mapping__sampleStats:
+rule bam__sampleStats:
   input:
     bam = "{someprefix}.bam"
   output:
@@ -107,13 +111,13 @@ rule mapping__sampleStats:
 # ------------
 # Merge BAMs
 # ------------
-ruleorder: bam__markDuplicates > mapping__sortSamplePicard > mapping__sortSampleSamtools > mapping__mergeSample
-rule mapping__mergeSample:
+ruleorder: bam__markDuplicates > bam__sortSamplePicard > bam__sortSampleSamtools > bam__mergeSample
+rule bam__mergeSample:
   input:
     bam = lambda wildcards: 
-      fastq__mapStringSamples(mapping__sample, **wildcards)
+      fastq__mapStringSamples(bam__sample, **wildcards)
   output:
-    primary = mapping__mergedSample,
+    primary = bam__mergedSample,
   run:
     if len(input.bam) > 1:
       cmd = """
@@ -135,12 +139,12 @@ rule mapping__mergeSample:
       merge_prefixes=picardMergeInputString(input.bam),
       **wildcards)
 
-rule mapping__mergeSampleAll:
+rule bam__mergeSampleAll:
   input:
     bam = lambda wildcards: fastq__mapStringSamples(
-            mapping__mergedSample, **wildcards)
+            bam__mergedSample, **wildcards)
   output:
-    primary = "samples/all/" + mapping__pipelineDir + "all.done" 
+    primary = "samples/all/" + bam__pipelineDir + "all.done" 
   run:
     touch(output)
 
@@ -168,11 +172,11 @@ rule bam__hsMetrics:
     """
     exshell(
       input, output, cmd, **wildcards,
-      genomeFasta = mapping__genomeFasta(),
+      genomeFasta = bam__genomeFasta(),
       baitIntervals = exome__baitIntervals(), 
       targetIntervals = exome__targetIntervals())
 
-bam__sampleHsMetrics = mapping__mergedSampleDir + "/merged/sorted/picard/markdup/{sample_name}_hsMetrics.txt"
+bam__sampleHsMetrics = bam__mergedSampleDir + "/merged/sorted/picard/markdup/{sample_name}_hsMetrics.txt"
 rule bam__sampleHsMetricsAll:
   input:  lambda wildcards: fastq__mapStringSamples(bam__sampleHsMetrics, **wildcards)
   output: "bam__sampleHsMetricsAll.done"

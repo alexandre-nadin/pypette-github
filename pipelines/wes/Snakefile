@@ -1,3 +1,3 @@
 pipeman.includeModule("config/config.sk")
 pipeman.includeModule("fastq/fastq.sk")
-pipeman.includeModule("mapping/mapping.sk")
+pipeman.includeModule("bam/bam.sk")

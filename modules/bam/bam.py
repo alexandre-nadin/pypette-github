@@ -1,42 +1,42 @@
 # ---------
 # Aligner
 # ---------
-def mapping__alignerDft():
+def bam__alignerDft():
   return 'aligner'
 
-def mapping__aligner():
+def bam__configAligner():
   try:
     return pipeman.config.pipeline.modules.mapping.aligner.name
   except:
     pipeman.log.error("No aligner found in pipeline configuration.")
 
-def mapping__alignerDir(append=False):
-  aligner = mapping__aligner()
+def bam__alignerDir(append=False):
+  aligner = bam__configAligner()
   if aligner:
     res = aligner
   else:
-    res = mapping__alignerDft()
+    res = bam__alignerDft()
   if append:
     res = os.path.sep + res
   return res
     
-def mapping__alignerModule():
-  aligner = mapping__aligner()
+def bam__alignerModule():
+  aligner = bam__configAligner()
   module = ""
   if aligner:
     module = '{}.sk'.format(aligner)
   return module.lower()
 
-def mapping__includeAlignerModule():
-  aligner = mapping__aligner()
+def bam__includeAlignerModule():
+  aligner = bam__configAligner()
   if aligner:
-    include: mapping__alignerModule()
+    include: bam__alignerModule()
 
 # -----------
 # Alignment
 # -----------
-def mapping__sampleReadGroup(sample):
-  fcid           = mapping__runFlowCellID(sample.sample_run)
+def bam__sampleReadGroup(sample):
+  fcid           = bam__runFlowCellID(sample.sample_run)
   experimentName = fcid + "_" + sample.sample_name
   platform       = pipeman.config.pipeline.sequencing.platform
   center         = pipeman.config.pipeline.center.name 
@@ -50,14 +50,14 @@ def mapping__sampleReadGroup(sample):
     "CN:" + center
   ])
 
-def mapping__runFlowCellID(run):
+def bam__runFlowCellID(run):
   return run.split('_').pop()[1:]
 
 # ---------------
 # Mapping Genome 
 # ---------------
 @cluster__prefixMountPoint
-def mapping__genomeDir():
+def bam__genomeDir():
   return os.path.join(
     pipeman.config.cluster.genomeDir,
     pipeman.config.project.genome.name
@@ -65,7 +65,7 @@ def mapping__genomeDir():
 
 def exome__targetDir():
   return os.path.join(
-    mapping__genomeDir(),
+    bam__genomeDir(),
     "annotation",
     "exomes_targets")
 
@@ -80,22 +80,22 @@ def exome__targetIntervals():
 def exome__baitIntervals():
   return exome__intervalListFmt().format("Regions")
 
-def mapping__genomeFasta():
+def bam__genomeFasta():
   """
   Retrieves the genome fastq using cluster and project metadata parameters.
   """
   return os.path.join(
-    mapping__genomeDir(),
+    bam__genomeDir(),
     "fa",
     pipeman.config.project.genome.name + ".fa"
   )
 
-def mapping__genomeIndex():
+def bam__genomeIndex():
   """
   Retrieves the genome index using cluster and project metadata parameters.
   """
   return os.path.join(
-    mapping__genomeDir(),
+    bam__genomeDir(),
     pipeman.config.pipeline.modules.mapping.aligner.name
   )
 
@@ -108,15 +108,15 @@ def picardMergeInputString(inputs=[]):
 # ---------------
 # Sorting tools
 # ---------------
-def mapping__sorter():
+def bam__sorter():
   try:
     res = pipeman.config.pipeline.modules.mapping.sorter.name
   except:
     res = None
   return res
  
-def mapping__sorterDir(append=False):
-  sorter = mapping__sorter()
+def bam__sorterDir(append=False):
+  sorter = bam__sorter()
   res = ""
   if sorter:
     res = os.path.sep.join(["sorted", sorter])
