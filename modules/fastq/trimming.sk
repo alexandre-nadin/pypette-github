@@ -3,6 +3,8 @@ pipeman.updateWildcardConstraints(
   procTrimming = "(trimmed/({})/)?".format('|'.join(trimmingTools)),
 )
 
+fastq_trimming__dir = fastq__sampleRunDir + "/{procFastqMerge}trimmed"
+
 # ------------
 # Trimmomatic
 # ------------
@@ -24,10 +26,10 @@ rule fastq_trimming__trimmomatic:
                 fastq__read, sample_read="R2", **wildcards),
     adapters = "adapters/trimmomatic/adapters.fa"
   output: 
-    r1       = fastq_merge__dir + "/trimmed/trimmomatic/{sample_name}_R1.fastq.gz",
-    r1u      = fastq_merge__dir + "/trimmed/trimmomatic/{sample_name}_R1_UNPAIRED.fastq.gz",
-    r2       = fastq_merge__dir + "/trimmed/trimmomatic/{sample_name}_R2.fastq.gz",
-    r2u      = fastq_merge__dir + "/trimmed/trimmomatic/{sample_name}_R2_UNPAIRED.fastq.gz",
+    r1       = fastq_trimming__dir + "/trimmomatic/{sample_name}_R1.fastq.gz",
+    r1u      = fastq_trimming__dir + "/trimmomatic/{sample_name}_R1_UNPAIRED.fastq.gz",
+    r2       = fastq_trimming__dir + "/trimmomatic/{sample_name}_R2.fastq.gz",
+    r2u      = fastq_trimming__dir + "/trimmomatic/{sample_name}_R2_UNPAIRED.fastq.gz",
   run:
     inputReads  = [ x for x in [ 
                       input.r1[0], 
@@ -92,13 +94,13 @@ rule fastq_trimming__cutadapt:
 rule fastq_trimming__bbduk:
   input: 
     r1 = lambda wildcards: fastq__mapStringSamples(
-                fastq__read, sample_read="R1", **wildcards),
+                fastq_merge__read, sample_read="R1", **wildcards),
     r2 = lambda wildcards: fastq__mapStringSamples(
-                fastq__read, sample_read="R2", **wildcards),
+                fastq_merge__read, sample_read="R2", **wildcards),
     adapters = "adapters/bbduk/adapters.fa"
   output: 
-    r1       = fastq_merge__dir + "/trimmed/bbduk/{sample_name}_R1.fastq.gz",
-    r2       = fastq_merge__dir + "/trimmed/bbduk/{sample_name}_R2.fastq.gz",
+    r1       = fastq_trimming__dir + "/bbduk/{sample_name}_R1.fastq.gz",
+    r2       = fastq_trimming__dir + "/bbduk/{sample_name}_R2.fastq.gz",
   run:
     inputReads  = [ x for x in [ 
                       "in={}".format(input.r1[0]), 
