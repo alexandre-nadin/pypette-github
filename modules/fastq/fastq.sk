@@ -1,14 +1,5 @@
 include: "fastq.py"
 
-# -------------------------------
-# Wildcards Constraints
-#
-# Organization of the outputs follows a convention both in the naming of the 
-# files as in their directories. As such, we define regex constraints on the rules' 
-# wildcards. Those wildcards are defined outside of the rules, so they are 
-# global to all the rules. Each constraint can then be overridden specifically 
-# in the rule itself, the last declaration prevailing.
-# -------------------------------------------------------------------
 pipeman.updateWildcardConstraints(
   **FastqFile.regex_fields,
   preprocesses = "(/\w+/)*?",
@@ -17,14 +8,6 @@ pipeman.updateWildcardConstraints(
   extension    = "\.\w+",
 )
    
-# --------------------- 
-# I/O files format
-#
-# Convention: 
-#   - {preprocesses} should be present both in the input and output. Can be empty.
-#   - {process} is only for outputs as it is about the process defined by the
-#     current rule.
-# --------------------- 
 fastq__dir = "samples/{sample_name}/fastq"
 fastq__rawFiles = "samples/rawFiles.txt"
 fastq__mappedSamples     = "samples/samples{extension}"
