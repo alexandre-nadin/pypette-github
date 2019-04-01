@@ -1,3 +1,5 @@
+include: "samples.py"
+
 rule samplenames:
   """
   List all sample names.
@@ -12,3 +14,20 @@ rule samples:
   run:
     print(pipeman.samples.data)
 
+# -----------
+# Wildcards
+# -----------
+rule samples__Wildcards:
+  input: lambda wildcards:
+    samples__mapWildcardString(**wildcards)
+  output: 
+    "{before}{anyWildcard}{after}"
+  wildcard_constraints: 
+    before       = ".*",
+    after        = ".*",
+    anyWildcard  = sampleWildcardRegex
+  run: 
+    cmd = """
+      touch {output}
+    """
+    texshell(**vars())
