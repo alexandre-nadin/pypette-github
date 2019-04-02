@@ -101,9 +101,12 @@ def logCmdTemplate():
 
         INPUT:
         $(echo {input} | tr ' ' '\n')
-  
+
+        RULE:
+        {rule}
+
         COMMAND: 
-        $(echo "{logcmd}")
+        {cmd}
   
         OUTPUT:
         $(echo {output} | tr ' ' '\n') \n
@@ -111,6 +114,48 @@ def logCmdTemplate():
 eol
       :
   """
+
+def shellPreCmds(cmd=None, **kwargs):
+  ret = cmd
+  if cmd:
+    if config__valueOf('condactivate'):
+      ret = """
+        set +eu 
+        condactivate 2> /dev/null
+        set -eu
+      """ + cmd
+  return ret
+
+def writeCmdLog(cmd=None, **kwargs):
+  if not kwargs['output']:
+    kwargs['output'].append(kwargs['rule'])
+
+  if config__valueOf('logCommands'):
+    shell(
+      logCmdTemplate()
+        .format(cmd=cmd, **kwargs)
+        .replace('\\', '\\\\'),
+      **kwargs)
+
+def texshell(cmd=None, **kwargs):
+  """
+  Formats the given command.
+  Prepands the system's conda activation if specified in configuration.
+  Prints the target's log if specified in the configuration.
+  Executes the command if debug mode not set in configuration.
+  """
+
+  """ Add condactivate to command if specified """
+  shellCmd = shellPreCmds(cmd)
+  """ Print target's log """
+  writeCmdLog(shellCmd, **kwargs)
+
+
+  """ Debug mode """
+  if config__valueOf('debug'):
+    touch(kwargs['output'])
+  else:
+    shell(shellCmd, **kwargs) 
 
 def exshell(input, output, cmd, **wildcards):
   """
