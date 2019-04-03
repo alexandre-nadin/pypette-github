@@ -1,0 +1,15 @@
+# ---------------------
+# Conflicting targets
+# ---------------------
+- Write a rule to create "sample_A.txt" from python shell (in a run block). As above, write the rule name and the letter 'A' in it.
+
+- Execute the target. It should fail.
+
+- Read the Snakemake error message: You have two rules that create the same target, Snakemake can't decide which one to execute.
+
+- Read the rule_order section from the Snakemake manual.
+
+- Set  your rule order, giving the first rule priority.
+
+- Execute the target, and check you have the new rule name printed in it. Else check your rule order.
+

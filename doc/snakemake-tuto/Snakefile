@@ -1,0 +1,65 @@
+rule sayHello:
+  shell: """
+    echo "Hello World"
+  """
+
+rule helloFromShell:
+  shell: """
+    echo "Hello from shell"
+  """
+
+rule helloFromPython:
+  run:
+    print("Hello from  Python!")
+
+rule helloFromShellAndPython:
+  run:
+    print("Hello from  Python!")
+  # Can't have both run and shell keywords
+  #shell: """
+  #  echo "Hello from shell"
+  #"""
+
+"""
+ SyntaxError in line 18 of /home/alexn/data/alexn/dev/ctgb/snakemake-tuto/Snakefile:
+Multiple run or shell keywords in rule helloFromShellAndPython. (Snakefile, line 18)
+"""
+
+rule helloFromPythonShell:
+  run:
+    shell("echo Hello from Python Shell!")
+
+# --------------------
+# Sample Manipulation
+# --------------------
+rule sampleA:
+  output: "sample_A.txt"
+  #shell:"""
+  #  touch sample_A.txt
+  #"""
+  #
+  # Print rule name in file
+  #shell:"""
+  #  echo "{rule}" > sample_A.txt
+  #"""
+  #
+  # Print the rule name and letter A
+  #shell: """
+  #  echo "Rule: '{rule}' A" > sample_A.txt
+  #"""
+  #
+  # Don't repeat the target file name
+  shell: """
+    echo "Rule: '{rule}' A" > {output[0]}
+  """
+
+# ---------------------
+# Conflicting Targets
+# ---------------------
+rule sampleAShellRun:
+  output: "sample_A.txt"
+  shell:"""
+    echo "Rule: '{rule}' A" > {output[0]}
+  """
+ruleorder: sampleAShellRun > sampleA
+

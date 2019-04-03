@@ -1,0 +1,31 @@
+# --------------------------
+# Target Flexibility with 
+# Wildcard Constraints
+# --------------------------
+Use the rule to create the file sample_WHATEVER.txt
+
+Notice it uses the previous rule, assuming {any} is whatever comes after the pattern "sample_". Now we want to separate the rule in two: we want one rule what recognize ANY letter and only one (A, B, etc); Another rule that recognizes more than two letters (AB, ABC, WHATEVER) 
+
+Find and read the wildcard constraints section in the Snakemake manual
+Check you know the signification of basic regular expressions: https://docs.python.org/3/howto/regex.html
+
+Modify the previous rule to make sure {any} recognizes only one letter
+Create the file "sample_F.txt"
+Create the file "sample_1.txt". It should not be permitted.
+Create the file "sample_FF.txt". It should not be permitted (yet).
+
+Copy/paste the previous rule, and make sure the {any} wildcard recognizes two and only two characters.
+Create the file "sample_FF.txt". 
+Check its content is "Rule YOUR_NEW_RULE: FFFFFFFF"
+Create the file "sample_F1.txt". It should not be permitted (yet).
+Modify the rule's WC constraints to accept numbers too.
+Create the file "sample_F1.txt".
+
+Create the file "sample_FF1.txt". It should not be permitted (yet).
+Write a rule that allows you to produce the files "sample_{any}.txt", any being more than 2 (>=2) letter or characters.
+Create the file "sample_GG.txt". It should fail. Notice the conflict between rules. 
+Read the Snakemake error message to understand what happend.
+Read the rule_order section from the Snakemake manual.
+Set  your rule order, giving the first rule priority.
+Create the file "sample_GG.txt". Its content should be "Rule Rx: GGGGGGGG"
+

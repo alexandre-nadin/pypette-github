@@ -1,0 +1,36 @@
+# --------------
+# Target files
+# -------------------
+- Maybe you are already tired of writing "snakemake" to do your tests. Shell aliases are your friends (e.g. $ alias sm="snakemake"; $ sm --help)
+
+- Write a rule which creates the file "sample_A.txt" in a shell block (touch the file for this)
+
+Here you finally defined a target output explicitely with the 'output' keyword. At this point it might be good to call the target name you expect to produce, instead of the rule name.
+
+- Execute "sample_A.txt" and check the file has been created.
+
+In a Snakemake recipe block (run, shell, blocks that allow you to create the output file), you have access to the rule's variables: output (which is a python array), input (python array), wildcards (python dictionnary), rule (rule name). In a python block (run), you acces them as is:
+  print(output)
+In a string, you access them as dictionnary keyword:
+  print(f"First input: {input[0]})
+  shell("""
+    echo "Rule name: {rule}"
+  """)
+
+
+- Modify the rule to write the rule name in the output file (you can redirect the output of the echo command in the output).
+ 
+- Execute the target and check you have the rule name printed in the output file. It should be empty.
+
+- Read the output Snakemake gave you: "Nothing to be done". That is because we already created the file once, and Snakemake is happy with that. TO update the file, we actually have to tell Snakemake we want to reproduce it.
+
+- Read the Snakemake command help and look for the option to force the target creation  ($ snakemake --help)
+
+- Execute the target and chekc you have the rule name printed in the output file.
+
+- Modify the rule to have the rule and the letter 'A' written in the target file: "Rule: {rule} A"
+
+- Execute the target and check you have both the rule name and the letter 'A' written inside.
+
+- We defined the target file name in the output. But did we actually write "sample_A.txt" in the recipe? If so, replace it with the {output} variable. Same with the rule name {rule}. We aim at efficiency, reducing maintainability time and redundancy.
+

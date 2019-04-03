@@ -1,0 +1,13 @@
+# --------------
+# Sample Files
+# --------------
+- Write rule which writes the letter "B" in the file "sample_B.txt"
+Notice the redundancy in the code for creating sample_A and sample_B (file name, file content).
+Find and read the wildcards section in the Snakemake manual
+Write rule to create the file "sample_{any}.txt"
+Use the rule to create the files "sample_C.txt" and "sample_D"
+Modify the rule to write the {any} letter in the output file.
+
+Modify the rule's recipe to write the very name of the rule and the output pattern ({any}) in the output file "sample_{any}.txt"
+Use it to produce the file "sample_E.txt" with content: "Rule {rule}: EEEE"
+

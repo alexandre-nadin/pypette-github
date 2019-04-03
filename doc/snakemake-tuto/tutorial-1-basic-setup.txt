@@ -1,0 +1,21 @@
+# ----------
+# Foreword
+# ----------
+
+The Snakemake official documentation is your best ressource and it will often be referred to in this tutorial. You can find it here: https://snakemake.readthedocs.io/en/stable/. Instead of learning all the documentation content in a straighforward way, this tutorial actually aims at guiding you through practical examples. You will directly learn all the minimum basics that will be useful for writing pieces of our pipeline.
+
+Requirements: Basic knowledge of the shell (bash), basic knowledge of python, smiling.
+
+
+For this tutorial you can either install Snakemake on your local machine (I recommend installing it with conda) or log to the cluster and use the version available there.
+
+# -------------
+# Quick setup
+# -------------
+- Log in the cluster
+- Enter a node (1 core)
+- Go to your home folder.
+- Create a directory for this snakemake tutorial
+- Activate the snakemake environment: $ condactivate snakemake
+- Create a "Snakefile" file.
+
