@@ -10,5 +10,4 @@ export CLUSTER_MNT_POINT="${HOME}/dev/ctgb/cluster"
 export TMPDIR='/tmp'
 "${_dir}/set-dirs"
 
-
 condactivate ctgb-pipe
