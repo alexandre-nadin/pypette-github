@@ -172,7 +172,6 @@ def exshell(input, output, cmd, **wildcards):
   if config__valueOf('condactivate'):
     shellCmd = """
       set +eu 
-      source /home/$USER/.bash_profile
       condactivate 2> /dev/null
       set -eu
     """ + shellCmd
