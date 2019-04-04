@@ -7,7 +7,8 @@ pipeman.updateWildcardConstraints(
   someprefix   = ".+",
   extension    = "\.\w+",
 )
-   
+
+
 fastq__dir = "samples/{sample_name}"
 fastq__rawFiles = "samples/rawFiles.txt"
 fastq__mappedSamples     = "samples/samples{extension}"
@@ -31,6 +32,7 @@ pipeman.include("merge.sk")
 pipeman.include("trimming.sk")
 pipeman.include("qc.sk")
 pipeman.include("adapter.sk")
+fastq__procs = "{procFastqMerge}{procTrimming}"
 
 ruleorder: fastq_trimming__bbduk > fastq_trimming__trimmomatic > fastq_trimming__cutadapt > fastq_merging__mergeReads
 
@@ -75,6 +77,7 @@ rule fastq__mapSamples:
           sample_lines, 
           pipeman.sampleExtensions[wildcards.extension]))
 
+
 # -----------------
 # Link fastq reads
 # -----------------
@@ -93,15 +96,29 @@ rule fastq__linkRead:
         {input.fastq_read} \
         {output.primary} 
     """
-    exshell(input, output, cmd, **wildcards)
+    texshell(**vars())
 
-rule fastq__linkReads_all:
+rule fastq__linkReadsRuns:
   input: 
     fastq_files = lambda wildcards: 
       fastq__mapStringSamples(fastq__chunk, **wildcards)
-  output: fastq__dirAll + "/linkReads.all"
+  output: fastq__sampleRunsAll
   run:
-    touch(output)
+    cmd = """
+      touch {output}
+    """
+    texshell(**vars())
+
+rule fastq__linkReadsAll:
+  input: 
+    fastq_files = lambda wildcards: 
+      fastq__mapStringSamples(fastq__chunk, **wildcards)
+  output: fastq__samplesRunsAll
+  run:
+    cmd = """
+      touch {output}
+    """
+    texshell(**vars())
 
 localrules: fastq__linkRead
 

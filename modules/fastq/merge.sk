@@ -42,5 +42,4 @@ rule fastq_merging__mergeReads:
          | gzip              \
          > {output.primary}
       """
-    exshell(input, output, cmd, **wildcards)
-
+    texshell(**vars())

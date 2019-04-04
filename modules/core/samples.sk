@@ -17,17 +17,26 @@ rule samples:
 # -----------
 # Wildcards
 # -----------
-rule samples__Wildcards:
+rule samples__runs:
   input: lambda wildcards:
-    samples__mapWildcardString(**wildcards)
-  output: 
-    "{before}{anyWildcard}{after}"
-  wildcard_constraints: 
-    before       = ".*",
-    after        = ".*",
-    anyWildcard  = sampleWildcardRegex
-  run: 
+    fastq__mapStringSamples('samples/{sample_name}/runs/{sample_run}', **wildcards)
+  output:
+    "samples/{sample_name}/runs/all{suffix}"
+  run:
     cmd = """
       touch {output}
     """
     texshell(**vars())
+
+rule samples__all:
+  input: lambda wildcards:
+    fastq__mapStringSamples("samples/{sample_name}", **wildcards)
+  output:
+    "samples/all{suffix}"
+  run:
+    cmd = """
+      touch {output}
+    """
+    texshell(**vars())
+
+ruleorder: samples__all > samples__runs

@@ -24,16 +24,13 @@ def samples__formatWildcardOutput(**kwargs):
   return samples__formatWildcardString(samples__wildcardOutput(**kwargs))
 
 def samples__wildcardFilters(wcOutput):
-  print(f"\n[samples__wildcardFilters] '{wcOutput}'")
   wcFilters = {}
   import re
   for agg, field in samples__wildcardFields.items():
     searchStr = f"{agg}/(\w+)"
-    print(f"  {agg}: searching for '{searchStr}'")
     match = re.search(searchStr, wcOutput)
     if match:
       wcFilters[field] = match.groups()[0]
-  print(f"wcFilters: {wcFilters}")
   return wcFilters
 
 def samples__mapWildcardString(**kwargs):
@@ -44,5 +41,4 @@ def samples__mapWildcardString(**kwargs):
   """
   wcOutput   = samples__formatWildcardOutput(**kwargs)
   wcFilters  = samples__wildcardFilters(wcOutput)
-  print(f"inputs: {fastq__mapStringSamples(wcOutput, **wcFilters)}")
   return fastq__mapStringSamples(wcOutput, **wcFilters)

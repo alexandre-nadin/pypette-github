@@ -86,6 +86,14 @@ def fastq__loadSamples(**kwargs):
   if pipeman.samples.data is None:
     pipeman.samples.load(fastq__mappedSamplesDft.format(**kwargs))
 
+def fastq__addStringFixes(s, prefix="", suffix="", **kwargs):
+  """
+  Adds the given :prefix: and :suffix: to the :s: string
+  """
+  return f"{prefix}{s}{suffix}"
+
 def fastq__mapStringSamples(s, **kwargs):
   fastq__loadSamples(**kwargs)
-  return pipeman.samples.buildStringFromKeywords(s, **kwargs)
+  return pipeman.samples.buildStringFromKeywords(
+    fastq__addStringFixes(s, **kwargs), 
+    **kwargs)

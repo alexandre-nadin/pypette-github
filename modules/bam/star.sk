@@ -20,7 +20,7 @@ rule bam_star__alignReads:
     cmd = """
      {star.command}                                         \ 
        --runThreadN {star.cores}                            \
-       --genomeDir {star_genome_index}                      \
+       --genomeDir {starGnmIdx}                             \
        --readFilesIn {reads}                                \
        --outSAMstrandField intronMotif                      \
        --outFileNamePrefix {prefix}                         \
@@ -36,15 +36,7 @@ rule bam_star__alignReads:
       star   = pipeman.config.pipeline.modules.mapping.aligner,
       prefix = os.path.dirname(output.primary),
       reads  = star__readsToString(input.reads_1, input.reads_2),
-      star_genome_index = bam__genomeIndex(),)
+      starGnmIdx = bam__genomeIndex(),)
+    texshell(**vars())
 
-    exshell(input, output, cmd, **wildcards)
-
-rule bam_star__alignReadsAll:
-  input:
-    samples_bam = lambda wildcards:
-      fastq__mapStringSamples(bam__sample, **wildcards)
-  output: 
-    primary = "bam__alignReadsAll.done"
-  run:
-    touch(output)
+ruleorder: samples__runs > bam_star__alignReads 

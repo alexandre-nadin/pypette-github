@@ -31,13 +31,17 @@ rule fastq_trimming__trimmomatic:
     r2       = fastq_trimming__dir + "/trimmomatic/{sample_name}_R2.fastq.gz",
     r2u      = fastq_trimming__dir + "/trimmomatic/{sample_name}_R2_UNPAIRED.fastq.gz",
   run:
-    inputReads  = [ x for x in [ 
+    inputReads  = " \\\n".join(
+                  [ x for x in [ 
                       input.r1[0], 
                       input.r2[0] if input.r2 else None] 
-                    if x ]
-    outputReads = [ output.r1 ] 
+                    if x ])
+    outputReads = " \\\n".join([ output.r1 ])
     if len(inputReads) == 2:
       outputReads += [ output.r1u, output.r2, output.r2u ]
+
+    trimmomatic   = pipeman.config.pipeline.modules.fastq.trimming.trimmers.trimmomatic
+    pairendedness ='PE' if pipeman.config.project.pair_end else 'SE'
                  
     cmd = """
       java                                    
@@ -57,13 +61,7 @@ rule fastq_trimming__trimmomatic:
         {trimmomatic.headcrop}                
       touch {output}
     """
-    exshell(input, output, cmd,
-      trimmomatic = pipeman.config.pipeline.modules.fastq.trimming.trimmers.trimmomatic,
-      pairendedness ='PE' if pipeman.config.project.pair_end else 'SE',
-      inputReads  = " \\\n".join(inputReads),
-      outputReads = " \\\n".join(outputReads),
-      **wildcards
-    )
+    texshell(**vars())
 
 # ---------
 # Cutadapt
@@ -86,7 +84,7 @@ rule fastq_trimming__cutadapt:
         {input.fastq}            \
        > "{output.fastq}.log"
     """
-    exshell(input, output, cmd, **wildcards)
+    texshell(**vars())
 
 # ------
 # BBDUK
@@ -102,16 +100,18 @@ rule fastq_trimming__bbduk:
     r1       = fastq_trimming__dir + "/bbduk/{sample_name}_R1.fastq.gz",
     r2       = fastq_trimming__dir + "/bbduk/{sample_name}_R2.fastq.gz",
   run:
-    inputReads  = [ x for x in [ 
-                      "in={}".format(input.r1[0]), 
-                      "in2={}".format(input.r2[0]) if input.r2 else None] 
-                    if x ]
-    outputReads = [ x for x in [
-                      "out={}".format(output.r1),
-                      "out2={}".format(output.r2) 
-                        if len(inputReads) == 2 and output.r2 
-                        else None ] 
-                    if x ]
+    inputReads  = " \\\n".join(
+      [ x for x in [ 
+          "in={}".format(input.r1[0]), 
+          "in2={}".format(input.r2[0]) if input.r2 else None] 
+        if x ])
+    outputReads = " \\\n".join(
+      [ x for x in [
+          "out={}".format(output.r1),
+          "out2={}".format(output.r2) 
+            if len(inputReads) == 2 and output.r2 
+            else None ] 
+        if x ])
     cmd = """
       bbduk.sh               \\
         {inputReads}         \\
@@ -128,8 +128,4 @@ rule fastq_trimming__bbduk:
         forcetrimright2=0    \\
         overwrite=true
     """
-    exshell(input, output, cmd, 
-      inputReads  = " \\\n".join(inputReads),
-      outputReads = " \\\n".join(outputReads),
-      **wildcards
-    )
+    texshell(**vars())

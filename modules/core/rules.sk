@@ -130,6 +130,10 @@ def writeCmdLog(cmd=None, **kwargs):
   if not kwargs['output']:
     kwargs['output'].append(kwargs['rule'])
 
+  # TODO: Auto attribute missing fields in output. 
+  if 'sample_name' not in kwargs.keys():
+    kwargs['sample_name'] = 'all'
+
   if config__valueOf('logCommands'):
     shell(
       logCmdTemplate()
