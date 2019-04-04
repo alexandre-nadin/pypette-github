@@ -87,7 +87,12 @@ class SamplesManager(utils.manager.Manager):
      - Querying sample DataFrame and selects matching columns.
     """
     from utils.strings import StringFormatter
- 
+
+    """ Check all """
+    for col in self.data.columns:
+      if col in kwargs.keys() and kwargs[col] == 'all':
+        kwargs.pop(col, None)
+
     """ Formatted String """
     fs = StringFormatter(s).formatPartialMap(keepMissingKeys=True, **kwargs)
 
