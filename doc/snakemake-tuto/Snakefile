@@ -1,3 +1,6 @@
+# --------------------
+# Rules and keywords
+# --------------------
 rule sayHello:
   shell: """
     echo "Hello World"
@@ -29,26 +32,26 @@ rule helloFromPythonShell:
   run:
     shell("echo Hello from Python Shell!")
 
-# --------------------
-# Sample Manipulation
-# --------------------
+# --------------
+# Target Files
+# --------------
 rule sampleA:
   output: "sample_A.txt"
   #shell:"""
   #  touch sample_A.txt
   #"""
   #
-  # Print rule name in file
+  ## Print rule name in file
   #shell:"""
   #  echo "{rule}" > sample_A.txt
   #"""
   #
-  # Print the rule name and letter A
+  ## Print the rule name and letter A
   #shell: """
   #  echo "Rule: '{rule}' A" > sample_A.txt
   #"""
   #
-  # Don't repeat the target file name
+  ## Don't repeat the target file name
   shell: """
     echo "Rule: '{rule}' A" > {output[0]}
   """
