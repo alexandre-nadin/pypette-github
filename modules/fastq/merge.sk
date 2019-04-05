@@ -8,20 +8,6 @@ fastq_merge__read       = fastq_merge__readPrefix + "{sample_extension}"
 # ---------------
 # Merging Reads
 # ---------------
-rule fastq_merging__mergeReads_all:
-  """
-  Merges all sample reads filtered by the given wildcards.
-  """
-  input:
-    reads_1 = lambda wildcards: fastq__mapStringSamples(
-                fastq_merge__read, sample_read="R1", **wildcards),
-    reads_2 = lambda wildcards: fastq__mapStringSamples(
-                fastq_merge__read, sample_read="R2", **wildcards)
-  output:
-    primary = fastq__samplesDir + "/mergeReads.all"
-  run:
-    touch(output)
-
 rule fastq_merging__mergeReads:
   """
   Merges sample reads filtered by the given wildcards.

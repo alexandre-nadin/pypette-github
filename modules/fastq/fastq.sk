@@ -25,9 +25,6 @@ fastq__samplesDir     = "samples/all/fastq"
 fastq__samplesRunDir  = "samples/all/runs/{sample_run}/fastq"
 fastq__samplesRunsDir = "samples/all/runs/all/fastq"
 
-fastq__sampleRunsAll  = "samples/{sample_name}/runs/all/fastq/all.done"
-fastq__samplesRunsAll = fastq__samplesRunsDir + "/all.done"
-
 pipeman.include("merge.sk")
 pipeman.include("trimming.sk")
 pipeman.include("qc.sk")
@@ -95,28 +92,6 @@ rule fastq__linkRead:
       ln.rel \
         {input.fastq_read} \
         {output.primary} 
-    """
-    texshell(**vars())
-
-rule fastq__linkReadsRuns:
-  input: 
-    fastq_files = lambda wildcards: 
-      fastq__mapStringSamples(fastq__chunk, **wildcards)
-  output: fastq__sampleRunsAll
-  run:
-    cmd = """
-      touch {output}
-    """
-    texshell(**vars())
-
-rule fastq__linkReadsAll:
-  input: 
-    fastq_files = lambda wildcards: 
-      fastq__mapStringSamples(fastq__chunk, **wildcards)
-  output: fastq__samplesRunsAll
-  run:
-    cmd = """
-      touch {output}
     """
     texshell(**vars())
 
