@@ -29,3 +29,5 @@ rule fastq_merging__mergeReads:
          > {output.primary}
       """
     texshell(**vars())
+
+ruleorder: samples__runs > fastq_merging__mergeReads

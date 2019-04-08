@@ -119,7 +119,7 @@ ruleorder: bam__markDuplicates > bam__sortSamplePicard > bam__sortSampleSamtools
 rule bam__mergeSample:
   input:
     bam = lambda wildcards: 
-      fastq__mapStringSamples(bam__sample, **wildcards)
+      fastq__mapStringSamples(bam__sample, withResult=True, **wildcards)
   output:
     bam = "samples/{sample_name}/runs/all/fastq/" + fastq__procs + bam__relDir + "/merged/{sample_name}.bam" 
   run:
@@ -140,6 +140,7 @@ rule bam__mergeSample:
       """
     merge_prefixes = picardMergeInputString(input.bam)
     texshell(**vars())
+ruleorder: bam__mergeSample > samples__runs
 
 rule bam__mergeSampleAll:
   input:

@@ -19,9 +19,11 @@ rule samples:
 # -----------
 rule samples__runs:
   input: lambda wildcards:
-    fastq__mapStringSamples('samples/{sample_name}/runs/{sample_run}', **wildcards)
+    fastq__mapStringSamples('samples/{sample_name}/runs/{sample_run}', 
+      withResult=True,
+      **wildcards)
   output:
-    "samples/{sample_name}/runs/all{suffix}"
+    "samples/{sample_name}/runs/{sample_run}{suffix}"
   run:
     cmd = """
       touch {output}
@@ -30,7 +32,9 @@ rule samples__runs:
 
 rule samples__all:
   input: lambda wildcards:
-    fastq__mapStringSamples("samples/{sample_name}", **wildcards)
+    fastq__mapStringSamples("samples/{sample_name}", 
+      withResult=True, 
+      **wildcards)
   output:
     "samples/all{suffix}"
   run:

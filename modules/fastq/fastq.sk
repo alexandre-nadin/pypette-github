@@ -94,7 +94,7 @@ rule fastq__linkRead:
         {output.primary} 
     """
     texshell(**vars())
-
+ruleorder: samples__runs > fastq__linkRead 
 localrules: fastq__linkRead
 
    
