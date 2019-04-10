@@ -46,8 +46,8 @@ For this tutorial you can either install Snakemake on your local machine (I reco
 
 # --------------
 # Target files
-# -------------------
-- Maybe you are already tired of writing "snakemake" to do your tests. Shell aliases are your friends (e.g. $ alias sm="snakemake"; $ sm --help)
+# --------------
+- Maybe you are already tired of writing "snakemake" to do your tests. Shell aliases are your friends (e.g. $ alias smk="snakemake"; $ smk --help)
 
 - Write a rule which creates the file "sample_A.txt" in a shell block (touch the file for this)
 
@@ -55,24 +55,33 @@ Here you finally defined a target output explicitely with the 'output' keyword. 
 
 - Execute "sample_A.txt" and check the file has been created.
 
-In a Snakemake recipe block (run, shell, blocks that allow you to create the output file), you have access to the rule's variables: output (which is a python array), input (python array), wildcards (python dictionnary), rule (rule name). In a python block (run), you acces them as is:
-  print(output)
+  $ smk sample_A.txt 
+
+Calling the rule name still works though, as long as your output doesn't have any wildcard.
+
+In a Snakemake recipe block (blocks that allow you to create the output file: 'run', 'shell', 'script'), you have access to the rule's variables: output (which is a python array), input (python array), wildcards (python dictionnary), rule (rule name). 
+
+In a python block (run), you acces such variable as is:
+  run: 
+    print(output)
+
 In a string, you access them as dictionnary keyword:
-  print(f"First input: {input[0]})
-  shell("""
-    echo "Rule name: {rule}"
-  """)
+  run:
+    print(f"First input: {input[0]})
+    shell("""
+      echo "Rule name: {rule}"
+    """)
 
 
 - Modify the rule to write the rule name in the output file (you can redirect the output of the echo command in the output).
  
 - Execute the target and check you have the rule name printed in the output file. It should be empty.
 
-- Read the output Snakemake gave you: "Nothing to be done". That is because we already created the file once, and Snakemake is happy with that. TO update the file, we actually have to tell Snakemake we want to reproduce it.
+- Read the output Snakemake gave you: "Nothing to be done". That is because we already created the file once, and Snakemake is happy with that. To update the file, we actually have to tell Snakemake we want to reproduce/overwrite it.
 
 - Read the Snakemake command help and look for the option to force the target creation  ($ snakemake --help)
 
-- Execute the target and chekc you have the rule name printed in the output file.
+- Execute the target and check you have the rule name printed in the output file.
 
 - Modify the rule to have the rule and the letter 'A' written in the target file: "Rule: {rule} A"
 
@@ -89,9 +98,41 @@ In a string, you access them as dictionnary keyword:
 
 - Read the Snakemake error message: You have two rules that create the same target, Snakemake can't decide which one to execute.
 
-- Read the rule_order section from the Snakemake manual.
+- Read the section for dealing with ambiguous rules in the Snakemake manual.
 
-- Set  your rule order, giving the first rule priority.
+- Set your rule order accordingly, giving priority to the latest rule.
 
-- Execute the target, and check you have the new rule name printed in it. Else check your rule order.
+- Execute the target, and check you have the new rule name printed in it. Else check your rule order again.
 
+You can invert the rule order, reproduce the file and check it contains the first rule name inside.
+
+# ----------
+# Wildcards
+# ----------
+- Write a rule which writes the letter "B" in the file "sample_B.txt"
+
+Notice the redundancy in the code for creating sample_A.txt and sample_B.txt (file name, file content). Let's create a generic rule that allows enough flexibility to create whatever sample file.
+
+- Find and read the wildcards section in the Snakemake manual.
+
+- Write a rule to create the file "sample_{any}.txt"
+
+- Execute the rule to create the files "sample_C.txt".
+
+- Modify the rule to write the rule name {rule} and the {any} wildcard in the output file.
+
+- Reproduce the file "sample_C.txt". It should contain the last rule name as well as the letter 'C'.
+
+- Execute the rule to produce the rule 'sample_666.txt'.
+
+The last rule actually allows to create any kind of sample. Now we want to limit it to the creation of sample file names containing one and only one letter, no number or other character.
+
+- Make sure you read how to use wildcard_constraints in the wildcards section from the Snakemake documentation.
+ 
+- Duplicate the last rule and add the wildcard constraint for the {any} wildcard to make it accept one letter only.
+
+- Use the rule to produce the file 'sample_D.txt'. Thsi shouldn't work because snakemake can use the two last rules to produce it.
+
+- Solve the rule order between the last two rules and produce the file 'sample_d.txt'. Check the file content to make sure the last rule has been used.
+
+- Produce the file 'sample_777.txt'. Look at its content and notice it has been created with the previous rule, not the last one despite its priority. 

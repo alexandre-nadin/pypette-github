@@ -7,9 +7,11 @@
 
 - Read the Snakemake error message: You have two rules that create the same target, Snakemake can't decide which one to execute.
 
-- Read the rule_order section from the Snakemake manual.
+- Read the section for dealing with ambiguous rules in the Snakemake manual.
 
-- Set  your rule order, giving the first rule priority.
+- Set your rule order accordingly, giving priority to the latest rule.
 
-- Execute the target, and check you have the new rule name printed in it. Else check your rule order.
+- Execute the target, and check you have the new rule name printed in it. Else check your rule order again.
+
+You can invert the rule order, reproduce the file and check it contains the first rule name inside.
 
