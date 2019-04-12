@@ -9,6 +9,10 @@ pipeline:
         cores: 6
         ram: '32gb'
         outFilterMismatchNmax: 10
+      counter:
+        name: "featureCounts"
+        version: "1.6.2"
+        cores: 4
     fastq:
       qc:
         fastqc:

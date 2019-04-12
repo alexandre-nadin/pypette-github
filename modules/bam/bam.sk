@@ -207,16 +207,16 @@ rule bam__counts:
     sumcounts = "{someprefix}/{sample_name}.counts.summary",
     bam       = "{someprefix}/{sample_name}.bam.annot"
   run: 
-    paired ='-p' if pipeman.config.project.pair_end else ''
-    cores = 4
-    strandedness = 2
+    paired   = '-p' if pipeman.config.project.pair_end else ''
+    cores    = pipeman.config.pipeline.mapping.counter.cores
+    stranded = 2
     cmd = """
       featureCounts               \
         --tmpDir $TMPDIR          \
         -T {cores}                \
         {paired}                  \
         -C                        \
-        -s {strandedness}         \
+        -s {stranded}             \
         -t exon                   \
         -F GTF                    \
         -a {input.gtf}            \
