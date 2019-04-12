@@ -53,52 +53,6 @@ def bam__sampleReadGroup(sample):
 def bam__runFlowCellID(run):
   return run.split('_').pop()[1:]
 
-# ---------------
-# Mapping Genome 
-# ---------------
-@cluster__prefixMountPoint
-def bam__genomeDir():
-  return os.path.join(
-    pipeman.config.cluster.genomeDir,
-    pipeman.config.project.genome.name
-  )
-
-def exome__targetDir():
-  return os.path.join(
-    bam__genomeDir(),
-    "annotation",
-    "exomes_targets")
-
-def exome__intervalListFmt():
-  return os.path.join(
-    exome__targetDir(),
-    "agilent_v7_sureselect_{}.interval_list")
-
-def exome__targetIntervals():
-  return exome__intervalListFmt().format("MergedProbes")
-
-def exome__baitIntervals():
-  return exome__intervalListFmt().format("Regions")
-
-def bam__genomeFasta():
-  """
-  Retrieves the genome fastq using cluster and project metadata parameters.
-  """
-  return os.path.join(
-    bam__genomeDir(),
-    "fa",
-    pipeman.config.project.genome.name + ".fa"
-  )
-
-def bam__genomeIndex():
-  """
-  Retrieves the genome index using cluster and project metadata parameters.
-  """
-  return os.path.join(
-    bam__genomeDir(),
-    pipeman.config.pipeline.modules.mapping.aligner.name
-  )
-
 # ---------
 # Merging
 # ---------
