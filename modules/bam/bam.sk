@@ -1,4 +1,6 @@
 include: 'bam.py'
+pipeman.includeModule("genomes/genome.sk")
+pipeman.includeModule("genomes/gencode.sk")
 
 """ Allowed Sorting Processes """
 sortingTools = ('picard', 'samtools')
@@ -158,7 +160,7 @@ rule bam__makeIndex:
     cmd = """
       picard BuildBamIndex I={input} O={output}
     """
-    exshell(input, output, cmd, **wildcards)
+    texshell(**vars())
 
 rule bam__hsMetrics:
   input:  "{someprefix}.bam"
@@ -175,7 +177,7 @@ rule bam__hsMetrics:
     """
     exshell(
       input, output, cmd, **wildcards,
-      genomeFasta = bam__genomeFasta(),
+      genomeFasta = genome__fasta(),
       baitIntervals = exome__baitIntervals(), 
       targetIntervals = exome__targetIntervals())
 
@@ -186,5 +188,42 @@ rule bam__sampleHsMetricsAll:
   run:
     touch(output)
 
-pipeman.toClean("bam_*.done")
-
+# -------
+# Counts
+# -------
+# Strandedness
+#   0: unstranded
+#   1: forward
+#   2: reverse
+# -t exon :  Explicitating default value. This way only reads on exons are counted, and then summarized at gene level (by default). If '-f' is used, summarization would be at feature level (=exon by exon).*
+# -C      :  do NOT count chimeric fragments in PE data, i.e. paired reads mapping on different chromosomes *
+# -R BAM  :  Annotates the original bam files. We don't need this bam for now *
+rule bam__counts:
+  input:
+    bam = "{someprefix}/{sample_name}.bam",
+    gtf = gencode__gtf()
+  output:
+    counts    = "{someprefix}/{sample_name}.counts",
+    sumcounts = "{someprefix}/{sample_name}.counts.summary",
+    bam       = "{someprefix}/{sample_name}.bam.annot"
+  run: 
+    paired   = '-p' if pipeman.config.project.pair_end else ''
+    cores    = pipeman.config.pipeline.mapping.counter.cores
+    stranded = 2
+    cmd = """
+      featureCounts               \
+        --tmpDir $TMPDIR          \
+        -T {cores}                \
+        {paired}                  \
+        -C                        \
+        -s {stranded}             \
+        -t exon                   \
+        -F GTF                    \
+        -a {input.gtf}            \
+        -g gene_name              \
+        -R BAM                    \
+        -o {output.counts}        \
+        {input.bam}               \
+       2> {input}.subread.log
+    """
+    texshell(**vars())
