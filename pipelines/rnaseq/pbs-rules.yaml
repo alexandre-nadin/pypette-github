@@ -59,9 +59,6 @@ bam__sortSamplePicard:
 bam__sortSampleSamtools:
   do: True
 
-bam__mergedSampleStatsAll:
-  do: True
-
 bam__sampleStats:
   do: True
 
