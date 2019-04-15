@@ -27,10 +27,7 @@ config__projectMetadata:
 config__tempConfs:
   do: True
 
-config__allConfigs:
-  do: True
-
-fastq_merging__mergeReads_all:
+config__all:
   do: True
 
 fastq_qc__reads:
@@ -48,17 +45,10 @@ fastq__mapSamples:
 fastq__linkRead:
   do: True
 
-fastq__linkReads_all:
-  do: True
-  ncpus: 2
-
 bam_star__alignReads:
   do: True
   ncpus: '{pipeman.config.pipeline.modules.mapping.aligner.cores}'
   mem: '{pipeman.config.pipeline.modules.mapping.aligner.ram}'
-
-bam_star__alignReadsAll:
-  do: True
 
 bam__markDuplicates:
   do: True
@@ -78,16 +68,10 @@ bam__sampleStats:
 bam__mergeSample:
   do: True
 
-bam__mergeSampleAll:
-  do: True
-
 bam__makeIndex:
   do: True
 
 bam__hsMetrics:
-  do: True
-
-bam__sampleHsMetricsAll:
   do: True
 
 multiqc__report:
