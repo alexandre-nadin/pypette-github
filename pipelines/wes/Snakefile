@@ -1,3 +1,8 @@
 pipeman.includeModule("config/config.sk")
-pipeman.includeModule("fastq/fastq.sk")
-pipeman.includeModule("bam/bam.sk")
+
+def includeModules():
+  pipeman.includeModule("fastq/fastq.sk")
+  pipeman.includeModule("bam/bam.sk")
+
+if not config__areSomeMissing():
+  includeModules()

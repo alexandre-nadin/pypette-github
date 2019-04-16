@@ -24,3 +24,14 @@ def config__setConfigs(**kwargs):
   if error:
     pipeman.log.error(config__msgErrorConfigFiles())
     raise
+
+def config__areSomeMissing():
+  areMissing = False
+  missingFiles = []
+  for conf in config__config_files:
+    if not os.path.exists(conf):
+      missingFiles.append(conf)
+      areMissing = True
+  if areMissing:
+    pipeman.log.info(f"Configuration files are missing: {missingFiles}") 
+  return areMissing
