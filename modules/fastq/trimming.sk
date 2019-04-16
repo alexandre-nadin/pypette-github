@@ -102,8 +102,8 @@ rule fastq_trimming__bbduk:
   run:
     inputReads  = " \\\n".join(
       [ x for x in [ 
-          "in={}".format(input.r1[0]), 
-          "in2={}".format(input.r2[0]) if input.r2 else None] 
+          "in={}".format(input.r1), 
+          "in2={}".format(input.r2) if input.r2 else None] 
         if x ])
     outputReads = " \\\n".join(
       [ x for x in [
@@ -112,6 +112,7 @@ rule fastq_trimming__bbduk:
             if len(inputReads) == 2 and output.r2 
             else None ] 
         if x ])
+
     cmd = """
       bbduk.sh               \\
         {inputReads}         \\
@@ -129,3 +130,5 @@ rule fastq_trimming__bbduk:
         overwrite=true
     """
     texshell(**vars())
+
+ruleorder: samples__runs > fastq_trimming__bbduk > fastq_trimming__trimmomatic > fastq_trimming__cutadapt

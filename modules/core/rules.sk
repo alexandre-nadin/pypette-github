@@ -134,14 +134,18 @@ def writeCmdLog(cmd=None, **kwargs):
   if 'sample_name' not in kwargs.keys():
     kwargs['sample_name'] = 'all'
 
+  cmd = cmd.format(**kwargs)
+
   from utils.strings import StringFormatter
   logCmd = (
     StringFormatter(logCmdTemplate())
-      .formatPartialMap(keepMissingKeys=True, **kwargs))
+      .formatPartialMap(keepMissingKeys=True, **kwargs)
+      )
 
   """ Keep sample's column names keywords if not specified """
   for kw in logCmd.keywords():
     if kw not in kwargs.keys() \
+    and pipeman.samples.data is not None \
     and kw in pipeman.samples.data.columns:
       kwargs[kw] = '{' + kw + "}"
 

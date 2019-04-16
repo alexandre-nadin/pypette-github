@@ -80,7 +80,7 @@ class PipelineManager(Manager):
 
   def configFromKeysString(self, string=""):
     """
-    Retreives the value of an addict from string.
+    Retrieves the value of an addict from string.
     The addict's instance name is expected:
      - to be the first element split from the string.
      - to be in the globals.
@@ -90,7 +90,7 @@ class PipelineManager(Manager):
     
   def configFromKeys(self, config, keys=[]):
     """
-    Retreives recursively the value of an addict from a list of keys.
+    Retrieves recursively the value of an addict from a list of keys.
     """
     if not keys:
       return config
