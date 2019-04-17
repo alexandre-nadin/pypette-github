@@ -8,8 +8,8 @@ rule bam_star__alignReads:
     reads_2 = lambda wildcards: fastq__mapStringSamples(
                 fastq__read, sample_read="R2", **wildcards)
   output:
-    primary   = bam__sample,
-    raw_file  = bam__samplePrefix + ".Aligned.sortedByCoord.out.bam",
+    primary   = temp(bam__sample),
+    raw_file  = temp(bam__samplePrefix + ".Aligned.sortedByCoord.out.bam"),
     out_files = [ 
       bam__samplePrefix + ext
       for ext in [ 

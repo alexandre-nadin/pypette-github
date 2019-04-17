@@ -16,7 +16,7 @@ rule fastq_merging__mergeReads:
     reads = lambda wildcards:
       fastq__mapStringSamples(fastq__chunk, **wildcards)
   output:
-    primary = fastq_merge__read
+    primary = temp(fastq_merge__read)
   run:
     if len(input.reads) == 1:
       cmd = """
