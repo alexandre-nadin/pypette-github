@@ -21,10 +21,6 @@ fastq__chunk          = fastq__chunkPrefix + "{sample_extension}"
 fastq__readPrefix     = fastq__sampleRunDir + "/{procFastqMerge}{procTrimming}{sample_name}_{sample_read}"
 fastq__read           = fastq__readPrefix + "{sample_extension}"
 
-fastq__samplesDir     = "samples/all/fastq"
-fastq__samplesRunDir  = "samples/all/runs/{sample_run}/fastq"
-fastq__samplesRunsDir = "samples/all/runs/all/fastq"
-
 pipeman.include("merge.sk")
 pipeman.include("trimming.sk")
 pipeman.include("qc.sk")

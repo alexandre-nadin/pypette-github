@@ -139,8 +139,7 @@ def writeCmdLog(cmd=None, **kwargs):
   from utils.strings import StringFormatter
   logCmd = (
     StringFormatter(logCmdTemplate())
-      .formatPartialMap(keepMissingKeys=True, **kwargs)
-      )
+      .formatPartialMap(keepMissingKeys=True, **kwargs))
 
   """ Keep sample's column names keywords if not specified """
   for kw in logCmd.keywords():
