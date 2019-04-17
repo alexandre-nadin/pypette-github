@@ -9,9 +9,9 @@ pipeman.updateWildcardConstraints(
 )
 
 
-fastq__dir = "samples/{sample_name}"
-fastq__rawFiles = "samples/rawFiles.txt"
-fastq__mappedSamples     = "samples/samples{extension}"
+fastq__dir              = "samples/{sample_name}"
+fastq__rawFiles         = "samples/rawFiles.txt"
+fastq__mappedSamples    = "samples/samples{extension}"
 fastq__mappedSamplesDft = "samples/samples.csv"
 
 fastq__sampleRunDir   = fastq__dir + "/runs/{sample_run}/fastq"
@@ -94,11 +94,7 @@ rule fastq__linkRead:
         {output.primary} 
     """
     texshell(**vars())
+
 ruleorder: samples__runs > fastq__linkRead 
 localrules: fastq__linkRead
 
-   
-# ---------
-# Cleaning
-# ---------
-pipeman.toClean("fastq_*.done")
