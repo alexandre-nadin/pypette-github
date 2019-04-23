@@ -1,5 +1,5 @@
 pipeline:
-  name: 'rnaseq'
+  name: 'wes'
   modules:
     mapping:
       aligner:
@@ -9,10 +9,6 @@ pipeline:
         cores: 6
         ram: '32gb'
         outFilterMismatchNmax: 10
-      counter:
-        name: "featureCounts"
-        version: "1.6.2"
-        cores: 4
     fastq:
       qc:
         fastqc:
@@ -22,7 +18,7 @@ pipeline:
           trimmomatic:
             mem: '10gb'
             memJava: '10240M'
-            headcrop: 'HEADCROP:12'
+            headcrop: ''
           cutadapt:
           bbduk:
       adapters:
