@@ -8,7 +8,7 @@ rule bam_bwa__alignReads:
     reads_2 = lambda wildcards: fastq__mapStringSamples(
                 fastq__read, sample_read="R2", **wildcards)
   output:
-    primary   = temp(bam__sample)
+    bam     = temp(bam__sample)
   run:
     readGroup = bam__sampleReadGroup(wildcards)
     bwa       = pipeman.config.pipeline.modules.mapping.aligner
@@ -21,7 +21,7 @@ rule bam_bwa__alignReads:
         -t {bwa.cores}      \
         {bwaGnmIdx}         \
         {reads}             \
-        > {output.primary}
+        > {output.bam}
     """
     texshell(**vars())
 

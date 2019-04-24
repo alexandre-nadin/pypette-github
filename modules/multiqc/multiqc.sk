@@ -8,14 +8,14 @@ rule multiqc__report:
     bamstats = lambda wildcards: fastq__mapStringSamples(
       bam__mergedSampleStats, **wildcards)
   output:
-    primary = multiqc__report
+    report   = multiqc__report
   run:
     dirs = [ os.path.dirname(d) for d in input ]
-    cmd = """
+    cmd  = """
       multiqc              \
         -o {multiqc__dir}  \
         {input}            \
-        -n {output.primary}
+        -n {output.report}
     """
     exshell(input, output, cmd, 
       multiqc__dir=multiqc__dir,
