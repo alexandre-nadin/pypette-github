@@ -91,14 +91,14 @@ ruleorder: samples__runs > bam__sampleStats > bam__sortSampleSamtools > bam__mar
 # -----------
 rule bam__sampleStats:
   input:
-    bam = "{someprefix}.bam"
+    bam   = "{someprefix}.bam"
   output:
-    primary = "{someprefix}.bamstats"
+    stats = "{someprefix}.bamstats"
   run:
     cmd = """
       bamtools stats       \
         -in {input.bam}    \
-        > {output.primary}
+        > {output.stats}
     """
     texshell(**vars())
 

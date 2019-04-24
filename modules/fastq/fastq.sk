@@ -38,13 +38,13 @@ rule fastq__mapRawFiles:
   configuration.
   """
   input:
-    configs  = config__config_files
+    configs = config__config_files
   output: 
-    primary  = fastq__rawFiles
+    file    = fastq__rawFiles
   run:
     runs = fastq__runsPathsProject(pipeman.project)
-    cmd = """
-      find -L {runs} -name '*.fastq.gz' > {output}
+    cmd  = """
+      find -L {runs} -name '*.fastq.gz' > {output.file}
     """
     shell(cmd)
 
@@ -55,7 +55,7 @@ rule fastq__mapSamples:
   input: 
     file    = fastq__rawFiles
   output: 
-    primary = fastq__mappedSamples
+    file    = fastq__mappedSamples
   run:
     """ File Output Header """
     sample_lines = [ FastqFile.fieldNames() ]
@@ -64,7 +64,7 @@ rule fastq__mapSamples:
       sample_lines.extend(list(map(fastq__mapFilename, fastq_files)))
 
     """ Write Output """
-    with open(output.primary, 'a') as fmap:
+    with open(output.file, 'a') as fmap:
       fmap.write(
         pipeman.samples.listsToSamplesheet(
           sample_lines, 
@@ -79,15 +79,15 @@ rule fastq__linkRead:
   Links original fastq file to the project directory.
   """
   input:
-    fastq_read = lambda wildcards:
+    read  = lambda wildcards:
       fastq__mapStringSamples("{sample_path}", **wildcards)
   output: 
-    primary    = fastq__chunk
+    chunk = fastq__chunk
   run:
     cmd = """
       ln.rel \
-        {input.fastq_read} \
-        {output.primary} 
+        {input.read} \
+        {output.chunk} 
     """
     texshell(**vars())
 

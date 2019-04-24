@@ -16,17 +16,17 @@ rule fastq_merging__mergeReads:
     reads = lambda wildcards:
       fastq__mapStringSamples(fastq__chunk, **wildcards)
   output:
-    primary = temp(fastq_merge__read)
+    read  = temp(fastq_merge__read)
   run:
     if len(input.reads) == 1:
       cmd = """
-        ln {input.reads[0]} {output.primary}
+        ln {input.reads[0]} {output.read}
       """
     else:
       cmd = """
         zcat {input.reads}   \
          | gzip              \
-         > {output.primary}
+         > {output.read}
       """
     texshell(**vars())
 

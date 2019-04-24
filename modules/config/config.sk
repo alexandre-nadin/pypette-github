@@ -27,13 +27,13 @@ config__projectMetadata = config__dir + "/project" + config__projectMedataExtens
 
 rule config__projectMetadata:
   output: 
-    primary = config__projectMetadata
+    file = config__projectMetadata
   run:
     cmd = """
       curl                                                                    \
         --fail                                                                \
         "{config__PRJ_URL}/{pipeman.project}{config__projectMedataExtension}" \
-       > {output.primary}
+       > {output.file}
     """
     shell(cmd)
 
@@ -43,10 +43,10 @@ rule config__tempConfs:
   Not implemented yet in lims API.
   """
   output:
-    primary = config__dir + "/{conf}.yaml"
+    file = config__dir + "/{conf}.yaml"
   shell:"""
     cp "{pipeman.dir_pipelines}/{pipeman.pipe_name}/{wildcards.conf}.yaml" \
-       "{output.primary}"
+       "{output.file}"
   """
 
 rule config__all:
@@ -56,7 +56,7 @@ rule config__all:
   input:
     config__config_files
   output:
-    primary = config__dir + "/all.done"
+    config__dir + "/all.done"
   run:
     touch(output)
     
