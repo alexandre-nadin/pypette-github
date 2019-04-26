@@ -1,9 +1,8 @@
 pipeman.includeModule("config/config.sk")
-
-def includeModules():
-  pipeman.includeModule("fastq/fastq.sk")
-  pipeman.includeModule("bam/bam.sk")
-  pipeman.includeModule("multiqc/multiqc.sk")
-
-if not config__areSomeMissing():
-  includeModules()
+pipeman.addConfigFiles('config/project.json')
+pipeman.loadConfigFiles()
+pipeman.includeModules(
+  "fastq/fastq.sk",
+  "bam/bam.sk",
+  "multiqc/multiqc.sk",
+  withConfigFiles=True)

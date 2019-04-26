@@ -31,6 +31,8 @@ class PipelineManager(Manager):
     self.sample_based     = True
     self.deep_structure   = True
 
+    self.configFiles    = (,)
+
   def checkVarenvAttrs(self):
     for varenv in self.__class__.VARENV_NAMES:
       self.checkVarenvAttr(varenv)
@@ -99,6 +101,31 @@ class PipelineManager(Manager):
     else:
       return config[keys[0]]
 
+  def missingConfigFiles(self):
+    """
+    Returns the required files that are missing.
+    """
+    missingFiles = []
+    for conf in self.configFiles:
+      if not os.path.exists(conf) and not os.path.isfile(conf):
+        missingFiles.append(conf)
+    return missingFiles
+
+  def addConfigFiles(self, *args):
+    self.configFiles = tuple(set( (*self.configFiles, *args) ))
+  
+  def loadConfigFiles(self):
+    """ Load configurations files """
+    missingFiles = self.missingConfigFiles()
+
+    """ Load non missing config """
+    for conf in self.configFiles:
+      if conf not in missingFiles:
+        self.config_manager.loadConfig(conf)
+
+    if missingFiles:
+      self.log.warning(f"Missing required files '{missingFiles}'")
+     
   # ------------ 
   # Snakefiles
   # ------------    
@@ -125,12 +152,21 @@ class PipelineManager(Manager):
     """ Include File """ 
     self.workflow.include(name)
 
+  def includePipeline(self, name):
+    self.include(os.path.join(self.dir_pipelines, name))
+
   def includeModule(self, name, *args, **kwargs):
     self.include(os.path.join(self.dir_modules, name), **kwargs)
 
-  def includePipeline(self, name):
-    self.include(os.path.join(self.dir_pipelines, name))
-  
+  def includeModules(self, *modules, withConfigFiles=False, **kwargs):
+    """ Check required files """
+    missingFiles = self.missingConfigFiles() 
+    if missingFiles and withConfigFiles:
+      self.log.warning(f"Couldn't include modules '{modules}': They depend on the missing files '{missingFiles}'.")
+    else:
+      for module in modules:
+        self.includeModule(module, **kwargs)
+
   def _loadModule(self, name):
     pass
  
