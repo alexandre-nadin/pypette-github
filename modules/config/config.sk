@@ -3,13 +3,15 @@ from utils.files import touch
 include: "config.py"
 
 config__dir = "config"
-config__config_files = [ 
-  os.path.join(config__dir, config)
-  for config in [ "cluster.yaml", "pipeline.yaml", "project.json", "pbs-rules.yaml" ]
-]
-# Load existing configuration by default.
-config__setConfigs()
+config__config_files = tuple(
+  f"{config__dir}/{config}"
+  for config in (
+    "cluster.yaml", 
+    "pipeline.yaml", 
+    "pbs-rules.yaml",
+   ))
 
+pipeman.addConfigFiles(*config__config_files)
 
 # -----------------
 # LIMS Parameters
@@ -54,7 +56,7 @@ rule config__all:
   Creates Project. Not different from rule 'config__projectMetadata'.
   """
   input:
-    config__config_files
+    lambda x: pipeman.configFiles
   output:
     config__dir + "/all.done"
   run:
