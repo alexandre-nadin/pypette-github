@@ -3,7 +3,7 @@ from utils.files import touch
 include: "config.py"
 
 config__dir = "config"
-config__config_files = tuple(
+config__files = tuple(
   f"{config__dir}/{config}"
   for config in (
     "cluster.yaml", 
@@ -11,7 +11,7 @@ config__config_files = tuple(
     "pbs-rules.yaml",
    ))
 
-pipeman.addConfigFiles(*config__config_files)
+pipeman.addConfigFiles(*config__files)
 
 # -----------------------
 # Internal Config files

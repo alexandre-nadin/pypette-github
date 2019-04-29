@@ -1,14 +1,14 @@
 include: 'lims.sk'
 
-config_project__file = 'config/project.json'
-pipeman.addConfigFiles(config_project__file)
+project__config = 'config/project.json'
+pipeman.addConfigFiles(project__config)
 
 # -----------------
 # Project Metadata
 # -----------------
-rule config_project__file:
+rule project__config:
   output: 
-    file = config_project__file
+    file = project__config
   run:
     cmd = """
       curl                                         \

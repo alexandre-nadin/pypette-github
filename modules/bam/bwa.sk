@@ -2,7 +2,7 @@ include: "bwa.py"
 
 rule bam_bwa__alignReads:
   input: 
-    configs = config__config_files,
+    configs = config__files,
     reads_1 = lambda wildcards: fastq__mapStringSamples(
                 fastq__read, sample_read="R1", **wildcards),
     reads_2 = lambda wildcards: fastq__mapStringSamples(

@@ -1,7 +1,9 @@
 """ Pipeline Configuration """
 pipeman.includeModules(
   "config/config.sk",
-  "config/project.sk")
+  "config/project.sk",
+  "config/samples.sk"
+)
 pipeman.loadConfigFiles()
 
 """ 

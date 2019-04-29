@@ -21,7 +21,7 @@ samplenames:
 samples:
   do: True
 
-config_project__file:
+project__config:
   do: True
 
 config__internalConf:
