@@ -13,14 +13,6 @@ config__config_files = tuple(
 
 pipeman.addConfigFiles(*config__config_files)
 
-# -----------------
-# LIMS Parameters
-# -----------------
-config__SRV_URL      = "f2.ricerca.hsr.it"
-config__PRJ_URL      = config__SRV_URL      + "/projects"
-config__SEQU_RUN_URL = config__PRJ_URL      + "/api/sequencing_run"
-config__TO_DEMUX_URL = config__SEQU_RUN_URL + "/to_demultiplex/"
-
 # ---------------
 # Metadata file
 # ---------------
