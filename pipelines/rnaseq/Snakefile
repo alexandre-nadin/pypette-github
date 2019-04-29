@@ -1,6 +1,13 @@
-pipeman.includeModule("config/config.sk")
-pipeman.addConfigFiles('config/project.json')
+""" Pipeline Configuration """
+pipeman.includeModules(
+  "config/config.sk",
+  "config/project.sk")
 pipeman.loadConfigFiles()
+
+""" 
+Pipeline Workflow 
+Loaded only if required configuration files are present.
+"""
 pipeman.includeModules(
   "fastq/fastq.sk",
   "bam/bam.sk",

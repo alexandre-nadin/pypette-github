@@ -13,25 +13,10 @@ config__config_files = tuple(
 
 pipeman.addConfigFiles(*config__config_files)
 
-# ---------------
-# Metadata file
-# ---------------
-config__projectMedataExtension = ".json"
-config__projectMetadata = config__dir + "/project" + config__projectMedataExtension
-
-rule config__projectMetadata:
-  output: 
-    file = config__projectMetadata
-  run:
-    cmd = """
-      curl                                                                    \
-        --fail                                                                \
-        "{config__PRJ_URL}/{pipeman.project}{config__projectMedataExtension}" \
-       > {output.file}
-    """
-    shell(cmd)
-
-rule config__tempConfs:
+# -----------------------
+# Internal Config files
+# -----------------------
+rule config__internalConf:
   """
   This should be taken form the lims.
   Not implemented yet in lims API.
@@ -45,7 +30,7 @@ rule config__tempConfs:
 
 rule config__all:
   """
-  Creates Project. Not different from rule 'config__projectMetadata'.
+  Generated all required configuration files.
   """
   input:
     lambda x: pipeman.configFiles

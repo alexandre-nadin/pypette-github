@@ -1,0 +1,18 @@
+include: 'lims.sk'
+
+config_project__file = 'config/project.json'
+pipeman.addConfigFiles(config_project__file)
+
+# -----------------
+# Project Metadata
+# -----------------
+rule config_project__file:
+  output: 
+    file = config_project__file
+  run:
+    cmd = """
+      curl                                         \
+        "{config_lims__URL_PRJ}/{pipeman.project}.json" \
+       > {output.file}
+    """
+    shell(cmd)
