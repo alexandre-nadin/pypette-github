@@ -3,7 +3,10 @@ samples__files     = "samples/samples.txt"
 samples__csvMap    = "samples/samples{extension}"
 samples__csvMapDft = "samples/samples.csv"
 
-pipeman.includeModule("fastq/fastq.py")
+pipeman.includeModules(
+  "fastq/fastq.py",
+  "config/runs.py")
+
 rule samples__files:
   """
   Find all the fastq files in the RUN directories specified in the 
@@ -15,7 +18,7 @@ rule samples__files:
   output: 
     file  = samples__files
   run:
-    runs  = fastq__runsPathsProject(pipeman.project)
+    runs  = runs__projectPaths(pipeman.project)
     cmd   = """
       find -L {runs} -name '*.fastq.gz' > {output.file}
     """
