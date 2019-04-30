@@ -20,19 +20,29 @@ def getTaggedVarEnvs(tag=""):
     if varenv.startswith(tag)
   ]
 
-def setTaggedVarEnvsAttrs(obj, tag="", stripTag=True):
+def camelCase(s):
+  """
+  Transforms the given string into camel case. Removes the '_'
+  """
+  title = (
+      s
+       .replace('_', ' ')
+       .title()
+       .replace(' ', ''))
+
+  """ Lowers first char """
+  if title:
+    ret = title[0].lower()
+  if len(title) > 1:
+    ret += title[1:]
+  return ret
+
+def setTaggedVarEnvsAttrs(obj, tag=""):
   """
   Gets and formats the environment variables found in os environ with the given tags.
   Sets them as the given object's attributes.
   """
   import re
   for varenv in getTaggedVarEnvs(tag=tag):
-    varenv_name = re.sub(
-      r"^{}".format(tag),
-      "",
-      varenv).lower()
- 
-    setattr(
-      obj, 
-      varenv_name,
-      os.environ[varenv])
+    var = camelCase(re.sub(rf'^{tag}', '', varenv))
+    setattr(obj, var, os.environ[varenv])

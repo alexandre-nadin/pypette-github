@@ -10,4 +10,4 @@ pipeman = pipeline.PipelineManager(namespace=globals())
 pipeman.includeModule('core/core.sk')
 
 """ Include requested pipeline """
-include: pipeman.pipe_snake
+include: pipeman.pipeSnake
