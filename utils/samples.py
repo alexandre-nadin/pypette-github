@@ -10,10 +10,10 @@ class SamplesManager(utils.manager.Manager):
   """ 
   def __init__(self, prefix, namespace):
     super(SamplesManager, self).__init__()
-    self.config_manager = utils.samples.SamplesConfigManager(
+    self.configManager = utils.samples.SamplesConfigManager(
                             config_prefix = prefix, 
                             namespace     = namespace)
-    self.data = self.config_manager.loadDftConfig() 
+    self.data = self.configManager.loadDftConfig() 
 
   def query(self, query, selectedCols=[], toDict=False):
     """
@@ -73,7 +73,7 @@ class SamplesManager(utils.manager.Manager):
     return self.queryNameOrId(nameOrId)
   
   def load(self, *args, **kwargs):
-    self.data = self.config_manager.loadConfig(*args, **kwargs)
+    self.data = self.configManager.loadConfig(*args, **kwargs)
 
   def getFields(self, fields=[]):
     return self.data[fields]
