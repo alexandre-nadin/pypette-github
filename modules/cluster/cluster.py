@@ -1,6 +1,6 @@
 def cluster__prefixMountPoint(func):
   def wrapper(*args, **kwargs):
-    mntpoint = pipeman.cluster_mnt_point.rstrip(os.path.sep)
+    mntpoint = pipeman.clusterMntPoint.rstrip(os.path.sep)
     path = func(*args, **kwargs)
     if mntpoint:
       path = path.lstrip(os.path.sep) 

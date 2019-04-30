@@ -8,28 +8,28 @@ class PipelineManager(Manager):
   """ """
   # Expected tag for application's environment variables
   VARENV_TAG = "_CPIPE_"
-  VARENV_NAMES = [ 'home', 'project', 'pipe_name', 'pipe_snake', 'cluster_mnt_point' ]
+  VARENV_NAMES = [ 'home', 'project', 'pipeName', 'pipeSnake', 'clusterMntPoint' ]
 
   def __init__(self, namespace, name="Default", sampleBased=True):
     super(PipelineManager, self).__init__()
-    environ.setTaggedVarEnvsAttrs(self, tag=self.__class__.VARENV_TAG, stripTag=True)
+    environ.setTaggedVarEnvsAttrs(self, tag=self.__class__.VARENV_TAG)
     self.checkVarenvAttrs()
     self.namespace        = namespace
-    self.dir_modules      = os.path.join(self.home, "modules")
-    self.dir_pipelines    = os.path.join(self.home, "pipelines")
+    self.modulesDir      = os.path.join(self.home, "modules")
+    self.pipelinesDir    = os.path.join(self.home, "pipelines")
     self.params           = []
     self.cleanables       = []
-    self.samples_manager  = utils.samples.SamplesManager(self.pipe_name, self.namespace)
-    self.config_manager   = PipelineConfigManager(
-                              config_prefix = self.pipe_name, 
+    self.sampleManager  = utils.samples.SamplesManager(self.pipeName, self.namespace)
+    self.configManager   = PipelineConfigManager(
+                              config_prefix = self.pipeName, 
                               namespace     = self.namespace)
-    self.sample_based = sampleBased
-    self.workflow_dir = "{sample_name}" if self.sample_based else ""
-    self.module_dir   = ""
+    self.sampleBased = sampleBased
+    self.workflowDir = "{sample_name}" if self.sampleBased else ""
+    self.moduleDir   = ""
     self.updateNamespace()
  
-    self.sample_based   = True
-    self.deep_structure = True
+    self.sampleBased   = True
+    self.deepStructure = True
 
     self.configFiles    = ()
 
@@ -64,11 +64,11 @@ class PipelineManager(Manager):
   # ---------
   @property
   def samples(self):
-    return self.samples_manager
+    return self.sampleManager
   
   @property
   def sampleExtensions(self):
-    return self.samples_manager.config_manager.extensionsDelimiters
+    return self.sampleManager.configManager.extensionsDelimiters
 
   # -----------------
   # Pipeline Config
@@ -105,26 +105,25 @@ class PipelineManager(Manager):
     """
     Returns the required files that are missing.
     """
-    missingFiles = []
-    for conf in self.configFiles:
-      if not os.path.exists(conf) and not os.path.isfile(conf):
-        missingFiles.append(conf)
-    return missingFiles
+    return [ conf
+             for conf in self.configFiles
+             if not os.path.exists(conf)
+             and not os.path.isfile(conf)
+           ]
 
   def addConfigFiles(self, *args):
     self.configFiles = tuple(set( (*self.configFiles, *args) ))
   
   def loadConfigFiles(self):
-    """ Load configurations files """
+    """ Check missing files """
     missingFiles = self.missingConfigFiles()
+    if missingFiles:
+      self.log.warning(f"Missing required files '{missingFiles}'")
 
     """ Load non missing config """
     for conf in self.configFiles:
       if conf not in missingFiles:
-        self.config_manager.loadConfig(conf)
-
-    if missingFiles:
-      self.log.warning(f"Missing required files '{missingFiles}'")
+        self.configManager.loadConfig(conf)
      
   # ------------ 
   # Snakefiles
@@ -132,31 +131,31 @@ class PipelineManager(Manager):
   def include(self, name, outDir=True, asWorkflow=""):
     """
     Includes the given file allowing to reflect the workflow of processes in the ouput dir.
-    By default, sets the pipeline manager workflow_dir to the module's basename if :outDir:.
-    Concatenates the module's basename to workflow_dir if :asWorkflow: is set (default).
+    By default, sets the pipeline manager workflowDir to the module's basename if :outDir:.
+    Concatenates the module's basename to workflowDir if :asWorkflow: is set (default).
     Example:
       :name: module3/module3.sk
-      workflow_dir = "module1/module2"
-      Sets workflow_dir to "module1/module2/module3" with :outDir: True and :asWorkflow: True
-      Sets workflow_dir to "module3" with :outDir: True and :asWorkflow: False.
-      Doesn't touch workflow_dir if :outDir: False
+      workflowDir = "module1/module2"
+      Sets workflowDir to "module1/module2/module3" with :outDir: True and :asWorkflow: True
+      Sets workflowDir to "module3" with :outDir: True and :asWorkflow: False.
+      Doesn't touch workflowDir if :outDir: False
     """
 
-    """ Set workflow_dir"""
+    """ Set workflowDir"""
     if outDir:
       basename = extensionless(os.path.basename(name))
       if asWorkflow:
-        self.workflow_dir = os.path.join(self.workflow_dir, asWorkflow)
-      self.module_dir = basename
+        self.workflowDir = os.path.join(self.workflowDir, asWorkflow)
+      self.moduleDir = basename
 
     """ Include File """ 
     self.workflow.include(name)
 
   def includePipeline(self, name):
-    self.include(os.path.join(self.dir_pipelines, name))
+    self.include(os.path.join(self.pipelinesDir, name))
 
   def includeModule(self, name, *args, **kwargs):
-    self.include(os.path.join(self.dir_modules, name), **kwargs)
+    self.include(os.path.join(self.modulesDir, name), **kwargs)
 
   def includeModules(self, *modules, withConfigFiles=False, **kwargs):
     """ Check required files """
