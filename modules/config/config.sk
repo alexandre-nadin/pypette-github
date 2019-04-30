@@ -3,7 +3,7 @@ from utils.files import touch
 include: "config.py"
 
 config__dir = "config"
-config__config_files = tuple(
+config__files = tuple(
   f"{config__dir}/{config}"
   for config in (
     "cluster.yaml", 
@@ -11,35 +11,12 @@ config__config_files = tuple(
     "pbs-rules.yaml",
    ))
 
-pipeman.addConfigFiles(*config__config_files)
+pipeman.addConfigFiles(*config__files)
 
-# -----------------
-# LIMS Parameters
-# -----------------
-config__SRV_URL      = "f2.ricerca.hsr.it"
-config__PRJ_URL      = config__SRV_URL      + "/projects"
-config__SEQU_RUN_URL = config__PRJ_URL      + "/api/sequencing_run"
-config__TO_DEMUX_URL = config__SEQU_RUN_URL + "/to_demultiplex/"
-
-# ---------------
-# Metadata file
-# ---------------
-config__projectMedataExtension = ".json"
-config__projectMetadata = config__dir + "/project" + config__projectMedataExtension
-
-rule config__projectMetadata:
-  output: 
-    file = config__projectMetadata
-  run:
-    cmd = """
-      curl                                                                    \
-        --fail                                                                \
-        "{config__PRJ_URL}/{pipeman.project}{config__projectMedataExtension}" \
-       > {output.file}
-    """
-    shell(cmd)
-
-rule config__tempConfs:
+# -----------------------
+# Internal Config files
+# -----------------------
+rule config__internalConf:
   """
   This should be taken form the lims.
   Not implemented yet in lims API.
@@ -53,7 +30,7 @@ rule config__tempConfs:
 
 rule config__all:
   """
-  Creates Project. Not different from rule 'config__projectMetadata'.
+  Generated all required configuration files.
   """
   input:
     lambda x: pipeman.configFiles

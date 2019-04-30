@@ -28,10 +28,10 @@ class PipelineManager(Manager):
     self.module_dir   = ""
     self.updateNamespace()
  
-    self.sample_based     = True
-    self.deep_structure   = True
+    self.sample_based   = True
+    self.deep_structure = True
 
-    self.configFiles    = (,)
+    self.configFiles    = ()
 
   def checkVarenvAttrs(self):
     for varenv in self.__class__.VARENV_NAMES:

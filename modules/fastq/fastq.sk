@@ -8,13 +8,7 @@ pipeman.updateWildcardConstraints(
   extension    = "\.\w+",
 )
 
-
-fastq__dir              = "samples/{sample_name}"
-fastq__rawFiles         = "samples/rawFiles.txt"
-fastq__mappedSamples    = "samples/samples{extension}"
-fastq__mappedSamplesDft = "samples/samples.csv"
-
-fastq__sampleRunDir   = fastq__dir + "/runs/{sample_run}/fastq"
+fastq__sampleRunDir   = samples__dir + "/runs/{sample_run}/fastq"
 
 fastq__chunkPrefix    = fastq__sampleRunDir + "/{sample_chunkname}"
 fastq__chunk          = fastq__chunkPrefix + "{sample_extension}"
@@ -28,47 +22,6 @@ pipeman.include("adapter.sk")
 fastq__procs = "{procFastqMerge}{procTrimming}"
 
 ruleorder: fastq_trimming__bbduk > fastq_trimming__trimmomatic > fastq_trimming__cutadapt > fastq_merging__mergeReads
-
-# ---------------------
-# Mapping fastq files
-# ---------------------
-rule fastq__mapRawFiles:
-  """
-  Find all the fastq files in the RUN directories specified in the 
-  configuration.
-  """
-  input:
-    configs = config__config_files
-  output: 
-    file    = fastq__rawFiles
-  run:
-    runs = fastq__runsPathsProject(pipeman.project)
-    cmd  = """
-      find -L {runs} -name '*.fastq.gz' > {output.file}
-    """
-    shell(cmd)
-
-rule fastq__mapSamples:
-  """   
-  Maps all the illumina filenames' metadata in a file.
-  """
-  input: 
-    file    = fastq__rawFiles
-  output: 
-    file    = fastq__mappedSamples
-  run:
-    """ File Output Header """
-    sample_lines = [ FastqFile.fieldNames() ]
-    with open(input.file, 'r') as fastq_files:
-      """ Mapped Samples Lines """
-      sample_lines.extend(list(map(fastq__mapFilename, fastq_files)))
-
-    """ Write Output """
-    with open(output.file, 'a') as fmap:
-      fmap.write(
-        pipeman.samples.listsToSamplesheet(
-          sample_lines, 
-          pipeman.sampleExtensions[wildcards.extension]))
 
 
 # -----------------

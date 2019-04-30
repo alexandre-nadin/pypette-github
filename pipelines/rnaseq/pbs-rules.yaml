@@ -21,10 +21,10 @@ samplenames:
 samples:
   do: True
 
-config__projectMetadata:
+project__config:
   do: True
 
-config__tempConfs:
+config__internalConf:
   do: True
 
 config__all:
