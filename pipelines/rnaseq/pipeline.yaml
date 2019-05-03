@@ -38,3 +38,4 @@ pipeline:
     name: CTGB
   condactivate: True
   logCommands: True
+  outDir: 'project-analysis'

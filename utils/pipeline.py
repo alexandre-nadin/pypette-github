@@ -8,7 +8,7 @@ class PipelineManager(Manager):
   """ """
   # Expected tag for application's environment variables
   VARENV_TAG = "_CPIPE_"
-  VARENV_NAMES = [ 'home', 'project', 'pipeName', 'pipeSnake', 'clusterMntPoint' ]
+  VARENV_NAMES = [ 'home', 'project', 'pipeName', 'pipeSnake', 'workflowDir', 'clusterMntPoint' ]
 
   def __init__(self, namespace, name="Default", sampleBased=True):
     super(PipelineManager, self).__init__()
@@ -24,21 +24,27 @@ class PipelineManager(Manager):
                               config_prefix = self.pipeName, 
                               namespace     = self.namespace)
     self.sampleBased = sampleBased
-    self.workflowDir = "{sample_name}" if self.sampleBased else ""
     self.moduleDir   = ""
     self.updateNamespace()
  
     self.sampleBased   = True
     self.deepStructure = True
 
+    """ Required Config Files """
     self.configFiles    = ()
+
+    """ Load internal default config """
+    self._loadConfigFiles()
+
+    """ Set default working dir """
+    self.setDefaultWorkingDir()
 
   def checkVarenvAttrs(self):
     for varenv in self.__class__.VARENV_NAMES:
       self.checkVarenvAttr(varenv)
 
   def checkVarenvAttr(self, attr):
-    assert hasattr(self, attr)
+      assert hasattr(self, attr), f"Environment variable '{attr}' not found."
 
   @property
   def workflow(self):
@@ -124,7 +130,38 @@ class PipelineManager(Manager):
     for conf in self.configFiles:
       if conf not in missingFiles:
         self.configManager.loadConfig(conf)
-     
+ 
+  def _loadConfigFiles(self):
+    """ 
+    Loads the pipeline's internal config files
+    """
+    for conf in self._configFiles():
+      self.configManager.loadConfig(conf)
+
+  def _configFiles(self):
+    """
+    Returns the given pipeline's internal config files.
+    """
+    import glob
+    exts = ("yaml", 'json')
+    ret = [] 
+    for ext in exts:
+      ret.extend(
+        glob.glob(f"{self.pipelinesDir}/{self.pipeName}/*.{ext}"))
+    return ret
+
+  def defaultWorkingDir(self):
+    return os.path.join(
+      self.workflowDir, 
+      self.config.pipeline.outDir,
+      self.project)
+
+  def setDefaultWorkingDir(self):
+    outDir = self.defaultWorkingDir()
+    os.makedirs(outDir, exist_ok=True)
+    os.chdir(outDir)
+
+  
   # ------------ 
   # Snakefiles
   # ------------    
