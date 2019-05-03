@@ -8,23 +8,26 @@ class PipelineManager(Manager):
   """ """
   # Expected tag for application's environment variables
   VARENV_TAG = "_CPIPE_"
-  VARENV_NAMES = [ 'home', 'project', 'pipeName', 'pipeSnake', 'workflowDir', 'clusterMntPoint' ]
+  VARENV_NAMES = ( 
+    'home', 'project', 'pipeName', 'pipeSnake', 
+    'execDir', 'workflowDir', 'clusterMntPoint',
+  )
 
   def __init__(self, namespace, name="Default", sampleBased=True):
     super(PipelineManager, self).__init__()
     environ.setTaggedVarEnvsAttrs(self, tag=self.__class__.VARENV_TAG)
     self.checkVarenvAttrs()
-    self.namespace        = namespace
-    self.modulesDir      = os.path.join(self.home, "modules")
-    self.pipelinesDir    = os.path.join(self.home, "pipelines")
-    self.params           = []
-    self.cleanables       = []
-    self.sampleManager  = utils.samples.SamplesManager(self.pipeName, self.namespace)
-    self.configManager   = PipelineConfigManager(
+    self.namespace     = namespace
+    self.modulesDir    = os.path.join(self.home, "modules")
+    self.pipelinesDir  = os.path.join(self.home, "pipelines")
+    self.params        = []
+    self.cleanables    = []
+    self.sampleManager = utils.samples.SamplesManager(self.pipeName, self.namespace)
+    self.configManager = PipelineConfigManager(
                               config_prefix = self.pipeName, 
                               namespace     = self.namespace)
-    self.sampleBased = sampleBased
-    self.moduleDir   = ""
+    self.sampleBased   = sampleBased
+    self.moduleDir     = ""
     self.updateNamespace()
  
     self.sampleBased   = True
@@ -157,10 +160,14 @@ class PipelineManager(Manager):
       self.project)
 
   def setDefaultWorkingDir(self):
-    outDir = self.defaultWorkingDir()
-    os.makedirs(outDir, exist_ok=True)
-    os.chdir(outDir)
+    if not self.hasCustomDir():
+      outDir = self.defaultWorkingDir()
+      os.makedirs(outDir, exist_ok=True)
+      os.chdir(outDir)
+    self.log.info(f"Working dir set to '{os.getcwd()}'")
 
+  def hasCustomDir(self):
+    return self.workflow.workdir_init != self.execDir
   
   # ------------ 
   # Snakefiles
