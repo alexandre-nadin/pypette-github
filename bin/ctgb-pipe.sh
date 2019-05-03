@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 SCRIPT_PATH=$(readlink -f "${BASH_SOURCE[0]}")
 SCRIPT_DIR=$(dirname "${SCRIPT_PATH}")
+EXEC_DIR="$(readlink -f $(pwd))"
 
 PIPELINE_SNAKEFILE="Snakefile"
 VARENVS_TAG="_CPIPE_"
@@ -181,6 +182,7 @@ function exportVarenvs() {
   exportCpipeVarenv "WORKFLOW_DIR" "$WORKFLOW_DIR"
   exportCpipeVarenv "CLUSTER_MNT_POINT" "$CLUSTER_MNT_POINT"
   exportCpipeVarenv "PYTHON_SYSPATH" "$(pythonSysPath)"
+  exportCpipeVarenv "EXEC_DIR" "$EXEC_DIR"
   export PYTHONPATH=${PYTHONPATH:+${PYTHONPATH}":"}$(pathHome)
 }
 
