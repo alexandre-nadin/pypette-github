@@ -1,17 +1,15 @@
 #!/usr/bin/env bash
 set -euf -o pipefail
-mkdir -p ~/dev/ctgb
-cd ~/dev/ctgb
+mkdir -p "$WORKFLOW_DIR"
+cd "$WORKFLOW_DIR"
 
-mkdir -p "${CTGB__DIR_PROJECTS:-./projects}"
-mkdir -p ./runs
-
-# Mount Illumina directory
-CLUSTER_PATH="./cluster"
 function mountClusterPoint() {
-  mkdir -p "$CLUSTER_PATH"
-  mountpoint -q "$CLUSTER_PATH" \
-   || sshfs -o nonempty anadin@172.21.151.42:${1:-/} "$CLUSTER_PATH"
+  mkdir -p "$CLUSTER_MNT_POINT"
+  mountpoint -q "$CLUSTER_MNT_POINT" \
+   || sshfs -o nonempty anadin@172.21.151.42:${1:-/} "$CLUSTER_MNT_POINT"
 }
 
-mountClusterPoint "/"
+# Mount cluster directory if specified
+if [ ! -z "${CLUSTER_MNT_POINT:+x}" ]; then
+  mountClusterPoint "/"
+fi

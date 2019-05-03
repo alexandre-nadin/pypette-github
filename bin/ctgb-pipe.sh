@@ -32,7 +32,7 @@ cat << EOFMAN
       SNAKEMAKE_OPTIONs will be passed to the Snakemake command.
 
   USAGE
-      $ $0 --prj PROJECT -p PIPELINE [-o SNAKEMAKE_OPTION ...]
+      $ $0 --prj PROJECT -p PIPELINE [--smk SNAKEMAKE_OPTION ...]
 
   OPTIONS
       --prj
@@ -46,9 +46,6 @@ cat << EOFMAN
 
       --ls-modules
           Lists available modules in ctgb-pipe.
-
-      -d|--directory
-          Working directory for Snakemake. Default 'CTGB__DIR_PROJECTS' if set or 'pwd'
 
       --smk|--snake-options
           List of options to pass to Snakemake. 
@@ -95,9 +92,9 @@ function initParams() {
   PROJECT=""
   PIPELINE=""
   SNAKE_OPTIONS=()
-  SNAKE_DIR=""
   VERBOSE=false
   CLUSTER_MNT_POINT=${CLUSTER_MNT_POINT:-""}
+  WORKFLOW_DIR=${WORKFLOW_DIR:-""}
 }
 
 function checkParams() {
@@ -124,24 +121,7 @@ function checkPipeline() {
 }
 
 function checkDirs() {
-  checkSnakeDir
-}
-
-function checkSnakeDir() {
-  #
-  # Set default SNAKE_DIR if not defined
-  # Either it is specified in option, CTGB__DIR_PROJECTS if set,
-  # or current directory './'
-  #
-  if isParamGiven "$SNAKE_DIR"; then
-    :
-  else
-    if [ -z ${CTGB__DIR_PROJECTS+x} ]; then
-      SNAKE_DIR=$(pwd)
-    else
-      SNAKE_DIR="$CTGB__DIR_PROJECTS" 
-    fi 
-  fi
+  :
 }
 
 # ----------
@@ -181,7 +161,6 @@ function cmdSnakemake() {
   cat << eol | xargs
   \snakemake
    --snakefile $(pathPipelineSnakefile root)
-   --directory "${SNAKE_DIR}/${PROJECT}"
    ${SNAKE_OPTIONS[@]}
 eol
 }
@@ -199,6 +178,7 @@ function exportVarenvs() {
   exportCpipeVarenv "PROJECT" "$PROJECT"
   exportCpipeVarenv "PIPE_NAME" "$PIPELINE"
   exportCpipeVarenv "PIPE_SNAKE" $(pathPipelineSnakefile $PIPELINE)
+  exportCpipeVarenv "WORKFLOW_DIR" "$WORKFLOW_DIR"
   exportCpipeVarenv "CLUSTER_MNT_POINT" "$CLUSTER_MNT_POINT"
   exportCpipeVarenv "PYTHON_SYSPATH" "$(pythonSysPath)"
   export PYTHONPATH=${PYTHONPATH:+${PYTHONPATH}":"}$(pathHome)
