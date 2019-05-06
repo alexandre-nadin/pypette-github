@@ -1,0 +1,25 @@
+include: 'lims.sk'
+
+seqrun__config = 'config/run.json'
+pipeman.addConfigFiles(seqrun__config)
+
+# -----------------
+# Project Metadata
+# -----------------
+rule seqrun__config:
+  output: 
+    file = seqrun__config
+  run:
+    cmd = """
+      curl                                         \
+	"{config_lims__URL_SEQRUN}/{pipeman.project}.json" \
+       > {output.file}
+    """
+    shell(cmd)
+    pipeman.configManager.loadConfig(output.file)
+
+rule seqrun__projects:
+  input: 
+    seqrun__config
+  run:
+    print(f"{os.linesep.join(pipeman.config.run.projects.keys())}")
