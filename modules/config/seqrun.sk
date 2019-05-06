@@ -20,6 +20,6 @@ rule seqrun__config:
 
 rule seqrun__projects:
   input: 
-    seqrun__config
+    lambda x: pipeman.configFiles
   run:
     print(f"{os.linesep.join(pipeman.config.run.projects.keys())}")
