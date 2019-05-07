@@ -44,6 +44,6 @@ rule fastq__linkRead:
     """
     texshell(**vars())
 
-ruleorder: samples__runs > fastq__linkRead 
+ruleorder: samples__all > samples__runs > fastq__linkRead
 localrules: fastq__linkRead
 
