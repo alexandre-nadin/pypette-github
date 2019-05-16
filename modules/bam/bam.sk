@@ -6,8 +6,9 @@ pipeman.includeModule("genomes/exome.sk")
 """ Allowed Sorting Processes """
 sortingTools = ('picard', 'samtools')
 pipeman.updateWildcardConstraints(
-  procSorted = "(sorted/({})/)?".format("|".join(sortingTools)),
-  procMarkDup = "(markdup/)?",
+  procSorted    = "(sorted/({})/)?".format("|".join(sortingTools)),
+  procMarkDup   = "(markdup/)?",
+  procBamMerged = "(merged/)?"
 )
 
 bam__mappingDir   = fastq__sampleRunDir + "/" + fastq__procs + "mapped" + bam__alignerDir(append=True)
@@ -23,12 +24,8 @@ bam__sampleDir    = fastq_merge__dir + "/{procTrimming}" + bam__relDir
 bam__sortedSamplePrefix = bam__sampleDir + bam__sorterDir(append=True) + "/{sample_name}"
 bam__sortedSample = bam__sortedSamplePrefix + ".bam"
 
-""" Sample Merged Bams Output Targets """
-bam__pipelineDir = "fastq/all/{procTrimming}" + bam__relDir + "/merged/{procSorted}{procMarkDup}"
-bam__mergedSampleDir    = "samples/{sample_name}/" + bam__pipelineDir 
-bam__mergedSamplePrefix = bam__mergedSampleDir + "{sample_name}"
-bam__mergedSample       = bam__mergedSamplePrefix + ".bam"
-bam__mergedSampleStats  = bam__mergedSamplePrefix + ".bamstats"
+bam__pipeTarget = f"{fastq__pipeTarget}{bam__relDir}/{{procBamMerged}}{{procSorted}}{{procMarkDup}}"
+bam__sampleTarget = f"{bam__pipeTarget}{{sample_name}}"
 
 # Note: Include the aligner found in pipeline configuration file after this
 #       file's variables, as aligner's rules should depend on the variables 

@@ -20,9 +20,9 @@ pipeman.include("trimming.sk")
 pipeman.include("qc.sk")
 pipeman.include("adapter.sk")
 fastq__procs = "{procFastqMerge}{procTrimming}"
+fastq__pipeTarget = f"{fastq__sampleRunDir}/{fastq__procs}"
 
 ruleorder: fastq_trimming__bbduk > fastq_trimming__trimmomatic > fastq_trimming__cutadapt > fastq_merging__mergeReads
-
 
 # -----------------
 # Link fastq reads
