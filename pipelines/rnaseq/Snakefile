@@ -13,5 +13,5 @@ Loaded only if required configuration files are present.
 pipeman.includeModules(
   "fastq/fastq.sk",
   "bam/bam.sk",
-  "multiqc/multiqc.sk",
+  "qc/qc_rnaseq.sk",
   withConfigFiles=True)
