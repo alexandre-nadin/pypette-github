@@ -78,7 +78,7 @@ class SamplesManager(utils.manager.Manager):
   def getFields(self, fields=[]):
     return self.data[fields]
 
-  def buildStringFromKeywords(self, s, unique=True, **kwargs):
+  def buildStringFromKeywords(self, s, unique=True, interpreteAll=False, **kwargs):
     """
     Returns list of string by formatting the given string :s: with selected columns from filtered samples.
     This is done by:
@@ -87,14 +87,18 @@ class SamplesManager(utils.manager.Manager):
      - Querying sample DataFrame and selects matching columns.
     """
     from utils.strings import StringFormatter
-
-    """ Formatted String """
-    fs = StringFormatter(s).formatPartialMap(keepMissingKeys=True, **kwargs)
+    queryFilter = dict(kwargs.items())
 
     """ Check all """
     for col in self.data.columns:
       if col in kwargs.keys() and kwargs[col] == 'all':
-        kwargs.pop(col, None)
+        queryFilter.pop(col, None)
+        if interpreteAll:
+          kwargs.pop(col, None) 
+
+    
+    """ Formatted String """
+    fs = StringFormatter(s).formatPartialMap(keepMissingKeys=True, **kwargs)
 
     """ Required Columns """
     required_cols = [ col 
@@ -105,7 +109,7 @@ class SamplesManager(utils.manager.Manager):
     """ Set Query Dict """
     query_dict = {
       key: val
-      for key, val in kwargs.items()
+      for key, val in queryFilter.items()
       if key in self.data.columns 
     }
     if query_dict:
