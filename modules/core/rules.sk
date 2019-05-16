@@ -115,7 +115,7 @@ eol
       :
   """.replace('\\', '\\\\')
 
-def shellPreCmds(cmd=None, **kwargs):
+def shellPreCmds(cmd='', **kwargs):
   ret = cmd
   if cmd:
     if config__valueOf('condactivate'):
@@ -150,7 +150,7 @@ def writeCmdLog(cmd=None, **kwargs):
 
   shell(logCmd, **kwargs)
 
-def texshell(cmd=None, **kwargs):
+def texshell(cmd='', **kwargs):
   """
   Formats the given command.
   Prepands the system's conda activation if specified in configuration.
