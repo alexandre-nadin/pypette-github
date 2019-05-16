@@ -1,44 +1,26 @@
 multiqc__dir          = "multiqc"
-multiqc__report       = "samples/all/" + bam__pipelineDir + "report.html"
+qc_rnaseq__multiqcTarget = f"{bam__pipeTarget}multiqc.html"
+bamStatsTarget = f"{bam__sampleTarget}.bamstats"
 
-rule multiqc__report:
+rule qc_rnaseq__multiqc:
   input:
     fastqcs  = lambda wildcards: fastq__mapStringSamples(
-      fastq_qc__readZip, **wildcards),
+      fastq_qc__readZip, 
+      interpreteAll=True,
+      **wildcards),
     bamstats = lambda wildcards: fastq__mapStringSamples(
-      bam__mergedSampleStats, **wildcards)
+      bamStatsTarget, 
+      interpreteAll=True,
+      **wildcards)
   output:
-    report   = multiqc__report
+    report   = qc_rnaseq__multiqcTarget
   run:
-    dirs = [ os.path.dirname(d) for d in input ]
-    cmd  = """
+    cmd  = f"""
       multiqc              \
         -o {multiqc__dir}  \
         {input}            \
         -n {output.report}
     """
-    exshell(input, output, cmd, 
-      multiqc__dir=multiqc__dir,
-      **wildcards)
+    texshell(**vars())
 
-bamStats = "samples/{sample_name}/runs/{sample_run}/fastq/{procFastqMerge}{procTrimming}mapped/STAR/{procBamMerged}{sample_name}.bamstats"
-rule lsbams:
-  output:
-    "samples/{sample_name}/runs/{sample_run}/fastq/merged/mapped/STAR/merged/report.html"
-  run:
-    bams = fastq__mapStringSamples(
-      "samples/{sample_name}/runs/{sample_run}/fastq/merged/mapped/STAR/merged/{sample_name}.bam", 
-      interpreteAll=True,
-      **wildcards
-    )
-    print(f"bams requested:\n{bams}")
-
-    bamstats = fastq__mapStringSamples(
-      bamStats,
-      interpreteAll=True,
-      **wildcards
-    )
-    print(f"bamstats requested:\n{bamstats}")
-    touch(output)
-
-ruleorder: lsbams > samples__all > samples__runs #> lsbams
+ruleorder: qc_rnaseq__multiqc > samples__all > samples__runs
