@@ -77,9 +77,9 @@ rule sampleAShellRun:
 # $ smk sample_A.txt
 ruleorder: sampleAShellRun > sampleA
 
-# --------------
-# Sample Files
-# --------------
+# -----------
+# Wildcards
+# -----------
 rule sampleB:
   output:
     "sample_B.txt"

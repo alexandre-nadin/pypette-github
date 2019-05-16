@@ -1,4 +1,5 @@
 include: 'lims.sk'
+include: 'seqrun.py'
 
 seqrun__config = 'config/run.json'
 pipeman.addConfigFiles(seqrun__config)
@@ -17,9 +18,3 @@ rule seqrun__config:
     """
     shell(cmd)
     pipeman.configManager.loadConfig(output.file)
-
-rule seqrun__projects:
-  input: 
-    lambda x: pipeman.configFiles
-  run:
-    print(f"{os.linesep.join(pipeman.config.run.projects.keys())}")
