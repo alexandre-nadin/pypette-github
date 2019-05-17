@@ -1,8 +1,7 @@
 """ Pipeline Configuration """
 pipeman.includeModules(
   "config/config.sk",
-  "config/project.sk",
-  "config/samples.sk"
+  "config/seqrun.sk",
 )
 pipeman.loadConfigFiles()
 
@@ -11,7 +10,5 @@ Pipeline Workflow
 Loaded only if required configuration files are present.
 """
 pipeman.includeModules(
-  "fastq/fastq.sk",
-  "bam/bam.sk",
-  "qc/qc_rnaseq.sk",
+  "qc/qc_seqrun.sk",
   withConfigFiles=True)

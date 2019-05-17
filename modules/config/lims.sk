@@ -1,4 +1,4 @@
 config_lims__URL_SRV      = "f2.ricerca.hsr.it"
-config_lims__URL_PRJ      = config_lims__URL_SRV      + "/projects"
-config_lims__URL_SEQU_RUN = config_lims__URL_PRJ      + "/api/sequencing_run"
-config_lims__URL_TO_DEMUX = config_lims__URL_SEQU_RUN + "/to_demultiplex/"
+config_lims__URL_PRJ      = config_lims__URL_SRV    + "/projects"
+config_lims__URL_SEQRUN   = config_lims__URL_PRJ    + "/api/sequencing_run"
+config_lims__URL_TO_DEMUX = config_lims__URL_SEQRUN + "/to_demultiplex/"

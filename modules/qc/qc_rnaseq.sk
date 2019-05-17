@@ -1,0 +1,26 @@
+multiqc__dir          = "multiqc"
+qc_rnaseq__multiqcTarget = f"{bam__pipeTarget}multiqc.html"
+bamStatsTarget = f"{bam__sampleTarget}.bamstats"
+
+rule qc_rnaseq__multiqc:
+  input:
+    fastqcs  = lambda wildcards: fastq__mapStringSamples(
+      fastq_qc__readZip, 
+      interpreteAll=True,
+      **wildcards),
+    bamstats = lambda wildcards: fastq__mapStringSamples(
+      bamStatsTarget, 
+      interpreteAll=True,
+      **wildcards)
+  output:
+    report   = qc_rnaseq__multiqcTarget
+  run:
+    cmd  = f"""
+      multiqc              \
+        -o {multiqc__dir}  \
+        {input}            \
+        -n {output.report}
+    """
+    texshell(**vars())
+
+ruleorder: qc_rnaseq__multiqc > samples__all > samples__runs

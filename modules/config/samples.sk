@@ -45,3 +45,4 @@ rule samples__map:
         pipeman.samples.listsToSamplesheet(
           sampleLines, 
           pipeman.sampleExtensions[wildcards.extension]))
+    texshell(**vars())

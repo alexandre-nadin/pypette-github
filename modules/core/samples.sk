@@ -18,29 +18,28 @@ rule samples:
 # Wildcards
 # -----------
 rule samples__runs:
-  input: lambda wildcards:
+  input: 
+    lambda wildcards:
     fastq__mapStringSamples('samples/{sample_name}/runs/{sample_run}', 
       withResult=True,
       **wildcards)
   output:
-    "samples/{sample_name}/runs/{sample_run}{suffix}"
+    "samples/{sample_name}/runs/all{suffix}"
   run:
     cmd = """
       touch {output}
     """
     texshell(**vars())
-
+  
 rule samples__all:
   input: lambda wildcards:
-    fastq__mapStringSamples("samples/{sample_name}", 
+    fastq__mapStringSamples("samples/{sample_name}/runs/{sample_run}", 
       withResult=True, 
       **wildcards)
   output:
-    "samples/all{suffix}"
+    "samples/all/runs/{sample_run}{suffix}"
   run:
     cmd = """
       touch {output}
     """
     texshell(**vars())
-
-ruleorder: samples__all > samples__runs

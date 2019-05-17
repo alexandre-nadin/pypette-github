@@ -146,12 +146,19 @@ class PipelineManager(Manager):
     Returns the given pipeline's internal config files.
     """
     import glob
-    exts = ("yaml", 'json')
     ret = [] 
-    for ext in exts:
+    for ext in self.configManager.extensions:
       ret.extend(
-        glob.glob(f"{self.pipelinesDir}/{self.pipeName}/*.{ext}"))
+        glob.glob(f"{self.pipelinesDir}/{self.pipeName}/*{ext}"))
     return ret
+
+  @property
+  def pipelines(self):
+    return [
+      path 
+      for path in next(os.walk(self.pipelinesDir))[1]
+      if not path.startswith('.')
+    ]
 
   def defaultWorkingDir(self):
     return os.path.join(

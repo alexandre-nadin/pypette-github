@@ -1,0 +1,64 @@
+rule seqrun__qc:
+  input: 
+    seqrun__config,
+    prjsQC = lambda x: seqrun__projectsQC()
+  output:
+    "qc.done"
+  run:
+    cmd = """
+      touch {output}
+    """
+    texshell(**vars())
+
+# ------------------------------------
+# QC on all sequencing run's projects
+# ------------------------------------
+rule seqrun__projectQC:
+  """ Produces a single project's QC """
+  input:
+    prjSamples = lambda wildcards: seqrun__projectSamples(wildcards.prj),
+    prjQcReal  = lambda wildcards: seqrun__projectQcReal(wildcards.prj)
+  output:
+    qc = seqrun__projectQCTarget
+  run:
+    print(f"Linking '{output}' from input '{input}'")
+    cmd = """
+      ln {input.prjQcReal} {output.qc}
+    """
+    texshell(**vars())
+
+rule seqrun__projectQcReal:
+  output:
+    prjQC = "{prj}/qcReal.html"
+  run:
+    pipeline = seqrun__projectPipeline(wildcards.prj)
+    debugOpts = seqrun__debugOptions()
+    target = project__sampleTarget
+    cmd = """
+      ctgb-pipe                   \
+        -p {pipeline}             \
+        --prj {wildcards.prj}     \
+        --smk "{target} {debugOpts}"
+      """
+    texshell(**vars())
+
+rule seqrun__projectSamples:
+  output:
+    prjSamples = project__samplesTarget()
+  run:
+    pipeline = seqrun__projectPipeline(wildcards.prj)
+    debugOpts = seqrun__debugOptions()
+    config.debug = False
+    target = project__sampleTarget
+    if pipeline:
+      cmd = f"""
+        ctgb-pipe                   \
+          -p {pipeline}             \
+          --prj {wildcards.prj}     \
+          --smk "{target} {debugOpts}"
+      """
+      texshell(**vars())
+      touch(output)
+    else:
+      pipeman.log.warning(
+        f"Could not find relevant pipeline for project {wildcards.prj} among {pipeman.pipelines}.")

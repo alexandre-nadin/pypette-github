@@ -6,6 +6,9 @@ cluster:
     structured: 'Y'
     projectTag: 'Project_'
     sampleTag: 'Sample_'
+    outDir: "sequencing-runs"
   genomeDir: "/lustre1/genomes"
   tmpdir: "/lustre2/scratch/tmp"
   condactivate: True
+  projects:
+    outDir: "project-analysis"
