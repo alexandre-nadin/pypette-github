@@ -1,3 +1,7 @@
+pipeman.updateWildcardConstraints(
+  prj = "\w+"
+)
+
 rule seqrun__qc:
   input: 
     seqrun__config,
@@ -16,24 +20,25 @@ rule seqrun__qc:
 rule seqrun__projectQC:
   """ Produces a single project's QC """
   input:
-    prjSamples = lambda wildcards: seqrun__projectSamples(wildcards.prj),
-    prjQcReal  = lambda wildcards: seqrun__projectQcReal(wildcards.prj)
+    prjQcPath  = lambda wildcards: seqrun__projectQcPath(wildcards.prj)
   output:
     qc = seqrun__projectQCTarget
   run:
-    print(f"Linking '{output}' from input '{input}'")
     cmd = """
-      ln {input.prjQcReal} {output.qc}
+      ln.rel {input.prjQcPath} {output.qc}
     """
     texshell(**vars())
 
-rule seqrun__projectQcReal:
+rule seqrun__projectQcPath:
+  input:
+    prjSamples = lambda wildcards: seqrun__projectSamples(wildcards.prj)
   output:
-    prjQC = "{prj}/qcReal.html"
+    prjQc = seqrun__projectQcPathTarget() 
   run:
-    pipeline = seqrun__projectPipeline(wildcards.prj)
+    pipeline  = seqrun__projectPipeline(wildcards.prj)
+    target  = seqrun__projectQcTarget(wildcards.prj, formatted=True)
     debugOpts = seqrun__debugOptions()
-    target = project__sampleTarget
+    config.debug = False # TODO: Taken care with texshell(subCommand=True)
     cmd = """
       ctgb-pipe                   \
         -p {pipeline}             \
