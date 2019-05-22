@@ -1,4 +1,5 @@
 import utils.pipeline
+include: "core.py"
 include: "rules.sk"
 include: "samples.sk"
 

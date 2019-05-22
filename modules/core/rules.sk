@@ -150,7 +150,7 @@ def writeCmdLog(cmd=None, **kwargs):
 
   shell(logCmd, **kwargs)
 
-def texshell(cmd='', **kwargs):
+def texshell(cmd='', isSubCmd=False, **kwargs):
   """
   Formats the given command.
   Prepands the system's conda activation if specified in configuration.
@@ -166,7 +166,7 @@ def texshell(cmd='', **kwargs):
     writeCmdLog(shellCmd, **kwargs)
 
   """ Debug mode """
-  if config__valueOf('debug'):
+  if config__valueOf('debug') and not isSubCmd:
     touch(kwargs['output'])
   else:
     shell(shellCmd, **kwargs) 

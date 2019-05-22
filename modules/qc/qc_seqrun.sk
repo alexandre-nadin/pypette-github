@@ -1,7 +1,11 @@
+pipeman.updateWildcardConstraints(
+  prj = "\w+"
+)
+
 rule seqrun__qc:
   input: 
     seqrun__config,
-    prjsQC = lambda x: seqrun__projectsQC()
+    prjsQc = lambda x: seqrun__projectsQc()
   output:
     "qc.done"
   run:
@@ -16,48 +20,41 @@ rule seqrun__qc:
 rule seqrun__projectQC:
   """ Produces a single project's QC """
   input:
-    prjSamples = lambda wildcards: seqrun__projectSamples(wildcards.prj),
-    prjQcReal  = lambda wildcards: seqrun__projectQcReal(wildcards.prj)
+    prjQcPath  = lambda wildcards: seqrun__projectQcPath(wildcards.prj)
   output:
-    qc = seqrun__projectQCTarget
+    qc = seqrun__projectQcTarget
   run:
-    print(f"Linking '{output}' from input '{input}'")
     cmd = """
-      ln {input.prjQcReal} {output.qc}
+      ln.rel {input.prjQcPath} {output.qc}
     """
     texshell(**vars())
 
-rule seqrun__projectQcReal:
+rule seqrun__projectQcPath:
+  input:
+    prjSamples = lambda wildcards: project__samplesMetaPath(wildcards.prj)
   output:
-    prjQC = "{prj}/qcReal.html"
+    prjQc = project__qcPathFmt() 
   run:
     pipeline = seqrun__projectPipeline(wildcards.prj)
-    debugOpts = seqrun__debugOptions()
-    target = project__sampleTarget
-    cmd = """
-      ctgb-pipe                   \
-        -p {pipeline}             \
-        --prj {wildcards.prj}     \
-        --smk "{target} {debugOpts}"
-      """
-    texshell(**vars())
+    target = project__pipelineQcTarget(pipeline, formatted=True)
+    cmd = core__subCmd(
+      pipeline=pipeline,
+      project=wildcards.prj,
+      target=target)
+    texshell(isSubCmd=True, **vars())
 
-rule seqrun__projectSamples:
+rule project__samplesMetaPath:
   output:
-    prjSamples = project__samplesTarget()
+    prjSamples = project__samplesTargetPath()
   run:
     pipeline = seqrun__projectPipeline(wildcards.prj)
-    debugOpts = seqrun__debugOptions()
-    config.debug = False
-    target = project__sampleTarget
+    target = project__samplesTarget
     if pipeline:
-      cmd = f"""
-        ctgb-pipe                   \
-          -p {pipeline}             \
-          --prj {wildcards.prj}     \
-          --smk "{target} {debugOpts}"
-      """
-      texshell(**vars())
+      cmd = core__subCmd(
+        pipeline=pipeline,
+        project=wildcards.prj,
+        target=target)
+      texshell(isSubCmd=True, **vars())
       touch(output)
     else:
       pipeman.log.warning(
