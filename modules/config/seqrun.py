@@ -1,9 +1,6 @@
 pipeman.includeModule('config/project.py')
 seqrun__projectQcTarget = "{prj}/multiqc.html"
 
-def seqrun__debugOptions():
-  return f"--config debug={config.debug}" if config.debug and config.debug in [True, False] else ''
-
 def seqrun__projectsQc():
   """ Returns the seqrun's projects QC targets """
   return [ 

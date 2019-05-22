@@ -36,33 +36,25 @@ rule seqrun__projectQcPath:
     prjQc = project__qcPathFmt() 
   run:
     pipeline = seqrun__projectPipeline(wildcards.prj)
-    target   = project__pipelineQcTarget(pipeline, formatted=True)
-    debugOpts = seqrun__debugOptions()
-    config.debug = False # TODO: Taken care with texshell(subCommand=True)
-    cmd = """
-      ctgb-pipe                   \
-        -p {pipeline}             \
-        --prj {wildcards.prj}     \
-        --smk "{target} {debugOpts}"
-      """
-    texshell(**vars())
+    target = project__pipelineQcTarget(pipeline, formatted=True)
+    cmd = core__subCmd(
+      pipeline=pipeline,
+      project=wildcards.prj,
+      target=target)
+    texshell(isSubCmd=True, **vars())
 
 rule project__samplesMetaPath:
   output:
     prjSamples = project__samplesTargetPath()
   run:
     pipeline = seqrun__projectPipeline(wildcards.prj)
-    debugOpts = seqrun__debugOptions()
-    config.debug = False
     target = project__samplesTarget
     if pipeline:
-      cmd = f"""
-        ctgb-pipe                   \
-          -p {pipeline}             \
-          --prj {wildcards.prj}     \
-          --smk "{target} {debugOpts}"
-      """
-      texshell(**vars())
+      cmd = core__subCmd(
+        pipeline=pipeline,
+        project=wildcards.prj,
+        target=target)
+      texshell(isSubCmd=True, **vars())
       touch(output)
     else:
       pipeman.log.warning(
