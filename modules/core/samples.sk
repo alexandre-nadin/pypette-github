@@ -29,7 +29,7 @@ rule samples__runs:
     cmd = """
       touch {output}
     """
-    texshell(**vars())
+    exshell(**vars())
   
 rule samples__all:
   input: lambda wildcards:
@@ -42,4 +42,4 @@ rule samples__all:
     cmd = """
       touch {output}
     """
-    texshell(**vars())
+    exshell(**vars())

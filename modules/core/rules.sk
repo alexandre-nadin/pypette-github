@@ -150,7 +150,7 @@ def writeCmdLog(cmd=None, **kwargs):
 
   shell(logCmd, **kwargs)
 
-def texshell(cmd='', isSubCmd=False, **kwargs):
+def exshell(cmd='', isSubCmd=False, **kwargs):
   """
   Formats the given command.
   Prepands the system's conda activation if specified in configuration.
@@ -170,36 +170,6 @@ def texshell(cmd='', isSubCmd=False, **kwargs):
     touch(kwargs['output'])
   else:
     shell(shellCmd, **kwargs) 
-
-def exshell(input, output, cmd, **wildcards):
-  """
-  Formats the given command.
-  Prepands the system's conda activation if specified in configuration.
-  Prints the target's log if specified in the configuration.
-  Executes the command if debug mode not set in configuration.
-  """
-
-  """ Format command string """
-  shellCmd = cmd.format(input=input, output=output, **wildcards)
-
-  """ Add condactivate to command if specified """
-  if config__valueOf('condactivate'):
-    shellCmd = """
-      set +eu 
-      condactivate 2> /dev/null
-      set -eu
-    """ + shellCmd
-
-  """ Print target's log """
-  if config__valueOf('logCommands'):
-    logcmd = shellCmd.replace('\\', '\\\\')
-    shell(logCmdTemplate())
-
-  """ Debug mode """
-  if config__valueOf('debug'):
-    touch(output)
-  else:
-    shell(shellCmd)                                
 
 pipeman.toClean("help_*.done")
 

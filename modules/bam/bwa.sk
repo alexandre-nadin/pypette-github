@@ -23,6 +23,6 @@ rule bam_bwa__alignReads:
         {reads}             \
         > {output.bam}
     """
-    texshell(**vars())
+    exshell(**vars())
 
 ruleorder: samples__runs > bam_bwa__alignReads 

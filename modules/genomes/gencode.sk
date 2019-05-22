@@ -10,4 +10,4 @@ rule gencode__gtf:
       curl "{gtfUrl}" \
         -o {output.gtf}
     """
-    texshell(**vars())
+    exshell(**vars())

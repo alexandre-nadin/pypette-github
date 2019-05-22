@@ -54,7 +54,7 @@ rule bam__markDuplicates:
       ASSUME_SORTED=true                              \
       METRICS_FILE={output.metrics}                    
     """
-    texshell(**vars())
+    exshell(**vars())
 
 # --------------
 # Sorting Bams
@@ -69,7 +69,7 @@ rule bam__sortSamplePicard:
         SORT_ORDER=unsorted   \
         O={output}
     """
-    texshell(**vars())
+    exshell(**vars())
 
 rule bam__sortSampleSamtools:
   input:  "{anyprefix}{sample_name}.bam"
@@ -79,7 +79,7 @@ rule bam__sortSampleSamtools:
       samtools view -Su {input}    \
        | samtools sort -o {output}  
     """
-    texshell(**vars())
+    exshell(**vars())
 
 ruleorder: samples__runs > bam__sampleStats > bam__sortSampleSamtools > bam__markDuplicates
 
@@ -97,7 +97,7 @@ rule bam__sampleStats:
         -in {input.bam}    \
         > {output.stats}
     """
-    texshell(**vars())
+    exshell(**vars())
 
 ruleorder: samples__all > bam__sampleStats
 
@@ -128,7 +128,7 @@ rule bam__mergeSample:
         ln.rel -f {input.bam} {output.bam}
       """
     merge_prefixes = picardMergeInputString(input.bam)
-    texshell(**vars())
+    exshell(**vars())
 
 ruleorder: bam__mergeSample > samples__runs
 
@@ -139,7 +139,7 @@ rule bam__makeIndex:
     cmd = """
       picard BuildBamIndex I={input} O={output}
     """
-    texshell(**vars())
+    exshell(**vars())
 
 rule bam__hsMetrics:
   input:  
@@ -159,7 +159,7 @@ rule bam__hsMetrics:
         R={genomeFasta}                \
         VALIDATION_STRINGENCY=SILENT
     """
-    texshell(**vars())
+    exshell(**vars())
 
 ruleorder: samples__all > bam__hsMetrics
 
@@ -201,4 +201,4 @@ rule bam__counts:
         {input.bam}               \
        2> {input}.subread.log
     """
-    texshell(**vars())
+    exshell(**vars())

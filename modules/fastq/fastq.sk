@@ -42,7 +42,7 @@ rule fastq__linkRead:
         {input.read} \
         {output.chunk} 
     """
-    texshell(**vars())
+    exshell(**vars())
 
 ruleorder: samples__all > samples__runs > fastq__linkRead
 localrules: fastq__linkRead
