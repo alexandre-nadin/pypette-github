@@ -1,3 +1,4 @@
+include: 'project.py'
 include: 'lims.sk'
 
 project__config = 'config/project.json'

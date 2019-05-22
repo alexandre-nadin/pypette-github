@@ -1,67 +1,23 @@
-seqrun__projectQCTarget = "{prj}/multiqc.html"
-project__sampleTarget = "samples/samples.csv" # take it from config module
-project__QcPathTarget = ""
+pipeman.includeModule('config/project.py')
+seqrun__projectQcTarget = "{prj}/multiqc.html"
 
 def seqrun__debugOptions():
   return f"--config debug={config.debug}" if config.debug and config.debug in [True, False] else ''
 
-def seqrun__projectsQC():
+def seqrun__projectsQc():
   """ Returns the seqrun's projects QC targets """
   return [ 
-    seqrun__projectQCTarget.format(prj=prj)
+    seqrun__projectQcTarget.format(prj=prj)
     for prj in pipeman.config.run.projects.keys() 
   ]
 
-def seqrun__projectSamples(prj):
-  """ Returns a project samples file's absolute path """
+def seqrun__projectQcPath(prj): # TODO: move to qc_seqrun?
   return os.path.join(
-    seqrun__projectDir(prj),  # TODO: Move in relevant module file related to project
-    project__sampleTarget)
-
-def project__samplesTarget():
-  return os.path.join(
-    seqrun__projectsDir(),
-    "{prj}",
-    project__sampleTarget
+    project__dir(prj),
+    project__pipelineQcTarget(
+      seqrun__projectPipeline(prj),
+      formatted=True)
   )
-
-def seqrun__projectQcPath(prj):      # TODO: move to qc_seqrun?
-  return os.path.join(
-    seqrun__projectDir(prj),
-    seqrun__projectQcTarget(prj, formatted=True)
-  )
-
-def seqrun__projectQcTarget(prj, formatted=False):
-  pipeman.includeModule(
-    "qc/qc_{pipeline}.py"
-     .format(pipeline=seqrun__projectPipeline(prj)))
-  target = qc__multiqcStd
-  if formatted:
-    target = target.format(sample_run=pipeman.project)
-  return target
-
-# ---------------
-# Project Paths
-# ---------------
-def seqrun__projectQcPathTarget():
-  return os.path.join(
-    seqrun__projectDirTarget(),
-    "{prefix}multiqc.html"
-  )
-
-def seqrun__projectDirTarget():
-  return os.path.join(
-    seqrun__projectsDir(), 
-    "{prj}")
-
-
-def seqrun__projectDir(prj):
-  return seqrun__projectDirTarget().format(prj=prj)
-
-def seqrun__projectsDir():
-  return os.path.join(
-    pipeman.workflowDir,
-    pipeman.config.cluster.projects.outDir)
 
 # ------------------------------
 # Project pipeline information
