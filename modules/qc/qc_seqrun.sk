@@ -12,7 +12,7 @@ rule seqrun__qc:
     cmd = """
       touch {output}
     """
-    texshell(**vars())
+    exshell(**vars())
 
 # ------------------------------------
 # QC on all sequencing run's projects
@@ -27,7 +27,7 @@ rule seqrun__projectQC:
     cmd = """
       ln.rel {input.prjQcPath} {output.qc}
     """
-    texshell(**vars())
+    exshell(**vars())
 
 rule seqrun__projectQcPath:
   input:
@@ -41,7 +41,7 @@ rule seqrun__projectQcPath:
       pipeline=pipeline,
       project=wildcards.prj,
       target=target)
-    texshell(isSubCmd=True, **vars())
+    exshell(isSubCmd=True, **vars())
 
 rule project__samplesMetaPath:
   output:
@@ -54,7 +54,7 @@ rule project__samplesMetaPath:
         pipeline=pipeline,
         project=wildcards.prj,
         target=target)
-      texshell(isSubCmd=True, **vars())
+      exshell(isSubCmd=True, **vars())
       touch(output)
     else:
       pipeman.log.warning(

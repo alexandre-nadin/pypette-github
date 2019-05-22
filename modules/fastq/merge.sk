@@ -28,6 +28,6 @@ rule fastq_merging__mergeReads:
          | gzip              \
          > {output.read}
       """
-    texshell(**vars())
+    exshell(**vars())
 
 ruleorder: samples__runs > fastq_merging__mergeReads

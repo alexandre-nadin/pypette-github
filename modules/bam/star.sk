@@ -36,6 +36,6 @@ rule bam_star__alignReads:
   
      ln.rel -f {output.raw_file} {output.bam}
     """
-    texshell(**vars())
+    exshell(**vars())
 
 ruleorder: samples__runs > bam_star__alignReads 

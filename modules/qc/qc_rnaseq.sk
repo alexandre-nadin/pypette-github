@@ -21,6 +21,6 @@ rule qc_rnaseq__multiqc:
         {input}            \
         -n {output.report}
     """
-    texshell(**vars())
+    exshell(**vars())
 
 ruleorder: qc_rnaseq__multiqc > samples__all > samples__runs

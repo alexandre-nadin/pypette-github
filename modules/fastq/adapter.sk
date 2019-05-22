@@ -22,4 +22,4 @@ rule fastq_adapter__fasta_adapters:
 
       rm {output[0]}.tmp1 {output[0]}.tmp2
     """
-    texshell(**vars())
+    exshell(**vars())

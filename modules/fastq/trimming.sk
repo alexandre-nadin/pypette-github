@@ -61,7 +61,7 @@ rule fastq_trimming__trimmomatic:
         {trimmomatic.headcrop}                
       touch {output}
     """
-    texshell(**vars())
+    exshell(**vars())
 
 # ---------
 # Cutadapt
@@ -84,7 +84,7 @@ rule fastq_trimming__cutadapt:
         {input.fastq}            \
        > "{output.fastq}.log"
     """
-    texshell(**vars())
+    exshell(**vars())
 
 # ------
 # BBDUK
@@ -129,6 +129,6 @@ rule fastq_trimming__bbduk:
         forcetrimright2=0    \\
         overwrite=true
     """
-    texshell(**vars())
+    exshell(**vars())
 
 ruleorder: samples__runs > fastq_trimming__bbduk > fastq_trimming__trimmomatic > fastq_trimming__cutadapt
