@@ -41,4 +41,4 @@ def samples__mapWildcardString(**kwargs):
   """
   wcOutput   = samples__formatWildcardOutput(**kwargs)
   wcFilters  = samples__wildcardFilters(wcOutput)
-  return fastq__mapStringSamples(wcOutput, **wcFilters)
+  return pipeman.samples.map(wcOutput, **wcFilters)

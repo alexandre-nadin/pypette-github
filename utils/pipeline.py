@@ -132,14 +132,14 @@ class PipelineManager(Manager):
     """ Load non missing config """
     for conf in self.configFiles:
       if conf not in missingFiles:
-        self.configManager.loadConfig(conf)
+        self.configManager.load(conf)
  
   def _loadConfigFiles(self):
     """ 
     Loads the pipeline's internal config files
     """
     for conf in self._configFiles():
-      self.configManager.loadConfig(conf)
+      self.configManager.load(conf)
 
   def _configFiles(self):
     """
@@ -284,7 +284,6 @@ class PipelineManager(Manager):
 class PipelineConfigManager(utils.configs.ConfigManagerTemplate):
   def __init__(self, *args, **kwargs):
     super(PipelineConfigManager, self).__init__('config', *args, **kwargs)
-    self.loadDftConfig()
 
   @property
   def extensions(self):
@@ -294,7 +293,7 @@ class PipelineConfigManager(utils.configs.ConfigManagerTemplate):
   def configfileBase(self):
     return "config"
 
-  def loadConfig(self, file):
+  def load(self, file):
     """
     loads the given snakemake configuration file.
     Updates and converts it to an Addict.

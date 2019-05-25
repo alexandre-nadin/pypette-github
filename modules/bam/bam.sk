@@ -16,15 +16,15 @@ bam__samplePrefix = bam__mappingDir + "/{sample_name}"
 bam__sample       = bam__samplePrefix + ".bam"
 
 """ Sample Run Reads Output Targets """
-bam__relDir       = "mapped" + bam__alignerDir(append=True)
-bam__sampleDir    = fastq_merge__dir + "/{procTrimming}" + bam__relDir
+bam__alignerDir       = "mapped" + bam__alignerDir(append=True)
+bam__sampleDir    = fastq_merge__dir + "/{procTrimming}" + bam__alignerDir
 
 ##
 # General IO (on any bam file).
 bam__sortedSamplePrefix = bam__sampleDir + bam__sorterDir(append=True) + "/{sample_name}"
 bam__sortedSample = bam__sortedSamplePrefix + ".bam"
 
-bam__pipeTarget = f"{fastq__pipeTarget}{bam__relDir}/{{procBamMerged}}{{procSorted}}{{procMarkDup}}"
+bam__pipeTarget = f"{fastq__pipeTarget}{bam__alignerDir}/{{procBamMerged}}{{procSorted}}{{procMarkDup}}"
 bam__sampleTarget = f"{bam__pipeTarget}{{sample_name}}"
 
 # Note: Include the aligner found in pipeline configuration file after this
@@ -108,9 +108,9 @@ ruleorder: bam__markDuplicates > bam__sortSamplePicard > bam__sortSampleSamtools
 rule bam__mergeSample:
   input:
     bam = lambda wildcards: 
-      fastq__mapStringSamples(bam__sample, withResult=True, **wildcards)
+      pipeman.samples.map(bam__sample, withResult=True, **wildcards)
   output:
-    bam = temp("samples/{sample_name}/runs/all/fastq/" + fastq__procs + bam__relDir + "/merged/{sample_name}.bam")
+    bam = temp("samples/{sample_name}/runs/all/fastq/" + fastq__procs + bam__alignerDir + "/merged/{sample_name}.bam")
   run:
     if len(input.bam) > 1:
       cmd = """

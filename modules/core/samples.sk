@@ -20,7 +20,7 @@ rule samples:
 rule samples__runs:
   input: 
     lambda wildcards:
-    fastq__mapStringSamples('samples/{sample_name}/runs/{sample_run}', 
+    pipeman.samples.map('samples/{sample_name}/runs/{sample_run}', 
       withResult=True,
       **wildcards)
   output:
@@ -33,7 +33,7 @@ rule samples__runs:
   
 rule samples__all:
   input: lambda wildcards:
-    fastq__mapStringSamples("samples/{sample_name}/runs/{sample_run}", 
+    pipeman.samples.map("samples/{sample_name}/runs/{sample_run}", 
       withResult=True, 
       **wildcards)
   output:

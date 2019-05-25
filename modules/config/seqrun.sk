@@ -17,4 +17,4 @@ rule seqrun__config:
        > {output.file}
     """
     shell(cmd)
-    pipeman.configManager.loadConfig(output.file)
+    pipeman.configManager.load(output.file)

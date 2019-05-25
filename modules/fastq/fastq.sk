@@ -33,7 +33,7 @@ rule fastq__linkRead:
   """
   input:
     read  = lambda wildcards:
-      fastq__mapStringSamples("{sample_path}", **wildcards)
+      pipeman.samples.map("{sample_path}", **wildcards)
   output: 
     chunk = fastq__chunk
   run:
