@@ -20,9 +20,9 @@ retaining the pipeline target system flexible.
 # HEADCROP: for QUANTSEQ, leave empty for TruSeq #
 rule fastq_trimming__trimmomatic:
   input: 
-    r1 = lambda wildcards: fastq__mapStringSamples(
+    r1 = lambda wildcards: pipeman.samples.map(
                 fastq__read, sample_read="R1", **wildcards),
-    r2 = lambda wildcards: fastq__mapStringSamples(
+    r2 = lambda wildcards: pipeman.samples.map(
                 fastq__read, sample_read="R2", **wildcards),
     adapters = "adapters/trimmomatic/adapters.fa"
   output: 
@@ -91,9 +91,9 @@ rule fastq_trimming__cutadapt:
 # ------
 rule fastq_trimming__bbduk:
   input: 
-    r1 = lambda wildcards: fastq__mapStringSamples(
+    r1 = lambda wildcards: pipeman.samples.map(
                 fastq_merge__read, sample_read="R1", **wildcards),
-    r2 = lambda wildcards: fastq__mapStringSamples(
+    r2 = lambda wildcards: pipeman.samples.map(
                 fastq_merge__read, sample_read="R2", **wildcards),
     adapters = "adapters/bbduk/adapters.fa"
   output: 

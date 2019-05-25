@@ -4,11 +4,11 @@ bamStatsTarget = f"{bam__sampleTarget}.bamstats"
 
 rule qc_rnaseq__multiqc:
   input:
-    fastqcs  = lambda wildcards: fastq__mapStringSamples(
+    fastqcs  = lambda wildcards: pipeman.samples.map(
       fastq_qc__readZip, 
       interpreteAll=True,
       **wildcards),
-    bamstats = lambda wildcards: fastq__mapStringSamples(
+    bamstats = lambda wildcards: pipeman.samples.map(
       bamStatsTarget, 
       interpreteAll=True,
       **wildcards)

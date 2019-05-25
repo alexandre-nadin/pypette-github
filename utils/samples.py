@@ -72,11 +72,38 @@ class SamplesManager(utils.manager.Manager):
     """
     return self.queryNameOrId(nameOrId)
   
-  def load(self, file=None, **kwargs):
-    self.data = self.configManager.load(file, **kwargs)
+  def load(self, file=None, once=False, **kwargs):
+    if self.data is not None and once:
+      pass
+    else:
+      self.data = self.configManager.load(file, **kwargs)
 
   def getFields(self, fields=[]):
     return self.data[fields]
+
+  def addStringFixes(self, s, prefix="", suffix="", **kwargs):
+    """
+    Adds the given :prefix: and :suffix: to the :s: string
+    """
+    return f"{prefix}{s}{suffix}"
+
+  def map(self, s, mapSuffix=True, withResult=False, **kwargs):
+    self.load(once=True)
+    if mapSuffix:
+      res = self.buildStringFromKeywords(
+              self.addStringFixes(s, **kwargs), 
+              **kwargs)
+    else:
+      res = [ 
+        self.addStringFixes(bstring, **kwargs)
+        for bstring in self.buildStringFromKeywords(s, **kwargs)
+      ]
+    
+    if withResult and not res:
+      self.log.error(f"No result found for query '{s}' and keywords {kwargs}.")
+      raise 
+    else:
+      return res
 
   def buildStringFromKeywords(self, s, unique=True, interpreteAll=False, **kwargs):
     """
