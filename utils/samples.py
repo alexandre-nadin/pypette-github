@@ -72,8 +72,8 @@ class SamplesManager(utils.manager.Manager):
     """
     return self.queryNameOrId(nameOrId)
   
-  def load(self, *args, **kwargs):
-    self.data = self.configManager.loadConfig(*args, **kwargs)
+  def load(self, file=None, **kwargs):
+    self.data = self.configManager.load(file, **kwargs)
 
   def getFields(self, fields=[]):
     return self.data[fields]
@@ -163,13 +163,14 @@ class SamplesConfigManager(utils.configs.ConfigManagerTemplate):
   
   @property
   def configfileBase(self):
-    return "samples"
+    return "samples/samples"
  
-  def loadConfig(self, file, indexlowcase_cols=True):
+  def load(self, file=None, indexlowcase_cols=True):
     """
     Loads a samples file into a pandas dataframe.
     If specified, lowercases the column names. 
     """
+    file = self.configFileDefault if file is None else file 
     import pandas as pd
     data = pd.read_csv(
       file, 

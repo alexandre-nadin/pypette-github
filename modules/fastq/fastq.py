@@ -18,7 +18,7 @@ def fastq__mapFilename(filename):
 
 def fastq__loadSamples(**kwargs):
   if pipeman.samples.data is None:
-    pipeman.samples.load(samples__csvMapDft.format(**kwargs))
+    pipeman.samples.load()
 
 def fastq__addStringFixes(s, prefix="", suffix="", **kwargs):
   """
