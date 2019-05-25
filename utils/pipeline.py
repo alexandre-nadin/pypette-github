@@ -284,7 +284,6 @@ class PipelineManager(Manager):
 class PipelineConfigManager(utils.configs.ConfigManagerTemplate):
   def __init__(self, *args, **kwargs):
     super(PipelineConfigManager, self).__init__('config', *args, **kwargs)
-    self.loadDftConfig()
 
   @property
   def extensions(self):

@@ -1,7 +1,7 @@
 samples__dir       = "samples/{sample_name}"
 samples__files     = "samples/samples.txt"
-samples__csvMap    = "samples/samples{extension}"
-samples__csvMapDft = "samples/samples.csv"
+samples__csvMap    = pipeman.samples.configManager.configfileBase + "{extension}"
+samples__csvMapDft = pipeman.samples.configManager.configFileDefault
 
 pipeman.includeModules(
   "fastq/fastq.py",

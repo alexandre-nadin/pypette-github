@@ -13,7 +13,7 @@ class SamplesManager(utils.manager.Manager):
     self.configManager = utils.samples.SamplesConfigManager(
                             config_prefix = prefix, 
                             namespace     = namespace)
-    self.data = self.configManager.loadDftConfig() 
+    self.data = None
 
   def query(self, query, selectedCols=[], toDict=False):
     """
