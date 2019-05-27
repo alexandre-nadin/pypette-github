@@ -1,0 +1,69 @@
+counts__pipeTarget = f"{bam__pipeTarget}counts"
+
+# -------
+# Counts
+# -------
+# Strandedness
+#   0: unstranded
+#   1: forward
+#   2: reverse
+# -t exon :  Explicitating default value. This way only reads on exons are counted, and then summarized at gene level (by default). If '-f' is used, summarization would be at feature level (=exon by exon).*
+# -C      :  do NOT count chimeric fragments in PE data, i.e. paired reads mapping on different chromosomes *
+# -R BAM  :  Annotates the original bam files. We don't need this bam for now *
+rule counts__sample:
+  input:
+    bam = "{someprefix}/{sample_name}.bam",
+    gtf = gencode__gtf()
+  output:
+    counts    = "{someprefix}/{sample_name}.counts",
+    sumcounts = "{someprefix}/{sample_name}.counts.summary",
+    bam       = "{someprefix}/{sample_name}.bam.annot"
+  run: 
+    paired   = '-p' if pipeman.config.project.pair_end else ''
+    cores    = pipeman.config.pipeline.mapping.counter.cores
+    stranded = 2
+    cmd = """
+      featureCounts               \
+        --tmpDir $TMPDIR          \
+        -T {cores}                \
+        {paired}                  \
+        -C                        \
+        -s {stranded}             \
+        -t exon                   \
+        -F GTF                    \
+        -a {input.gtf}            \
+        -g gene_name              \
+        -R BAM                    \
+        -o {output.counts}        \
+        {input.bam}               \
+       2> {input}.subread.log
+    """
+    exshell(**vars())
+
+rule counts__merged:
+  input:
+    bams   = lambda wildcards: pipeman.samples.map(
+               f"samples/{{sample_name}}/runs/all/fastq/{fastq__procs}{bam__alignerDir}/merged/{{sample_name}}.counts",
+               **wildcards)
+  output:
+    counts = f"samples/all/runs/all/fastq/{fastq__procs}{bam__alignerDir}/merged/all.counts"
+  run:
+    import pandas as pd
+    import os
+    import glob
+    from functools import reduce
+
+    try:
+      reduce(
+        pd.merge,
+        [ pd.read_csv(f, delimiter='\t', skiprows=1)
+          for f in input.bams
+        ]
+      ).to_csv(output.counts, sep="\t")
+    except pd.errors.EmptyDataError as ede:
+      pipeman.log.warning(f"Empty Data: {ede}")
+
+    cmd = ""
+    exshell(**vars()) 
+
+ruleorder: counts__merged > counts__sample
