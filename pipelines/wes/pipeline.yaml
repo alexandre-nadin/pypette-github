@@ -28,9 +28,9 @@ pipeline:
   sampleBased: True
   deepStructure: True
   sequencing:
-    platform: Illumina
+    platform: 'Illumina'
   center:
-    name: CTGB
-  condactivate: True
+    name: 'CTGB'
+  condactivate: 'base'
   logCommands: True
   outDir: 'project-analysis'
