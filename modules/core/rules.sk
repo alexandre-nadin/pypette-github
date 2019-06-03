@@ -118,12 +118,14 @@ eol
 def shellPreCmds(cmd='', **kwargs):
   ret = cmd
   if cmd:
-    if config__valueOf('condactivate'):
-      ret = """
+    env = config__valueOf('condactivate')
+    if env:
+      ret = f"""
         set +eu 
-        condactivate 2> /dev/null
+        condactivate {env} 2> /dev/null
         set -eu
-      """ + cmd
+        {cmd}
+      """
   return ret
 
 def writeCmdLog(cmd=None, **kwargs):
