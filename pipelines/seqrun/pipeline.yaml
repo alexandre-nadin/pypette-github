@@ -6,6 +6,6 @@ pipeline:
     name: 'Illumina'
   center:
     name: 'CTGB'
-  condactivate: 'base'
+  condactivate: False
   logCommands: True
   outDir: 'sequencing-runs' 

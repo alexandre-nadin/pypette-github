@@ -115,19 +115,6 @@ eol
       :
   """.replace('\\', '\\\\')
 
-def shellPreCmds(cmd='', **kwargs):
-  ret = cmd
-  if cmd:
-    env = config__valueOf('condactivate')
-    if env:
-      ret = f"""
-        set +eu 
-        condactivate {env} 2> /dev/null
-        set -eu
-        {cmd}
-      """
-  return ret
-
 def writeCmdLog(cmd=None, **kwargs):
   if not kwargs['output']:
     kwargs['output'].append(kwargs['rule'])
@@ -152,6 +139,26 @@ def writeCmdLog(cmd=None, **kwargs):
 
   shell(logCmd, **kwargs)
 
+def cmdActivateConda():
+  env = config__valueOf('condactivate')
+  if env:
+    ret = f"""
+      set +eu 
+      condactivate {env} 2> /dev/null
+      set -eu
+    """
+  else:
+    ret = ""
+  return ret
+
+def cmdSourceShellEnv():
+  env = pipeman.shellEnv
+  if env:
+    ret = f"source {env}"
+  else:
+    ret = ""
+  return ret
+ 
 def exshell(cmd='', isSubCmd=False, **kwargs):
   """
   Formats the given command.
@@ -161,7 +168,13 @@ def exshell(cmd='', isSubCmd=False, **kwargs):
   """
 
   """ Add condactivate to command if specified """
-  shellCmd = shellPreCmds(cmd)
+  if cmd:
+    shellCmd = f"""
+      {cmdSourceShellEnv()}
+      {cmd}
+    """
+  else:
+    shellCmd = cmd
 
   """ Print target's log """
   if config__valueOf('logCommands'):
