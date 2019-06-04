@@ -8,5 +8,4 @@ export CLUSTER_MNT_POINT=""
 export TMPDIR='/lustre2/scratch/tmp'
 "${_dir}/set-dirs"
 
-condactivate ctgb-pipe
 ctgb-pipe "$@"

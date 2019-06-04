@@ -158,6 +158,15 @@ function listModules() (
     2> /dev/null
 )
 
+function envPipeline() {
+  printf "pipe-${PIPELINE}" \
+   | tr '[[:upper:]]' '[[:lower:]]'
+}
+
+function envActivate() {
+  condactivate $(envPipeline)
+}
+
 function cmdSnakemake() {
   cat << eol | xargs
   \snakemake
