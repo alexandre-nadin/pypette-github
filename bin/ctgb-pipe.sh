@@ -190,6 +190,7 @@ function exportVarenvs() {
   exportCpipeVarenv "PIPE_SNAKE" $(pathPipelineSnakefile $PIPELINE)
   exportCpipeVarenv "WORKFLOW_DIR" "$WORKFLOW_DIR"
   exportCpipeVarenv "CLUSTER_MNT_POINT" "$CLUSTER_MNT_POINT"
+  exportCpipeVarenv "SHELL_ENV" "$SHELL_ENV"
   exportCpipeVarenv "PYTHON_SYSPATH" "$(pythonSysPath)"
   exportCpipeVarenv "EXEC_DIR" "$EXEC_DIR"
   export PYTHONPATH=${PYTHONPATH:+${PYTHONPATH}":"}$(pathHome)
