@@ -12,7 +12,7 @@ explain_rules:
 helpRule:
   do: True
 
-rules__pbsRessources:
+rules__updatePbsRessources:
   do: True
 
 samplenames:
@@ -21,7 +21,10 @@ samplenames:
 samples:
   do: True
 
-project__config:
+samples__runs:
+  do: True
+
+samples__all:
   do: True
 
 config__internalConf:
@@ -30,19 +33,40 @@ config__internalConf:
 config__all:
   do: True
 
+project__config:
+  do: True
+
+samples__files:
+  do: True
+
+samples__map:
+  do: True
+
+fastq_merging__mergeReads:
+  do: True
+
+fastq_trimming__trimmomatic:
+  do: True
+  ncpus: "{pipeman.config.pipeline.modules.fastq.trimming.trimmers.trimmomatic.cores}"
+  mem: "{pipeman.config.pipeline.modules.fastq.trimming.trimmers.trimmomatic.mem}"
+
+fastq_trimming__cutadapt:
+  do: True
+
+fastq_trimming__bbduk:
+  do: True
+
 fastq_qc__reads:
   do: True
+  ncpus: "{pipeman.config.pipeline.modules.fastq.qc.fastqc.cores}"
 
-fastq_qc__readsAll:
-  do: True
-
-fastq__mapRawFiles:
-  do: True
-
-fastq__mapSamples:
+fastq_adapter__fasta_adapters:
   do: True
 
 fastq__linkRead:
+  do: True
+
+gencode__gtf:
   do: True
 
 bam_star__alignReads:
@@ -71,6 +95,18 @@ bam__makeIndex:
 bam__hsMetrics:
   do: True
 
-multiqc__report:
+counts__sample:
+  do: True
+
+counts__merged:
+  do: True
+
+qc_rnaseq__multiqc:
+  do: True
+
+helpRules:
+  do: True
+
+listRules:
   do: True
 
