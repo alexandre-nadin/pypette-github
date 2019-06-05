@@ -47,7 +47,7 @@ rule helpRule:
     pipeman.log.info(helpRuleMsg(name_rules[0] if name_rules else None))
     touch(output)
   
-rule help:
+rule helpRules:
   """
   Lists of all available rules with essential attributes.
   """
@@ -56,6 +56,15 @@ rule help:
     for rule in workflow.rules:
       msg += helpRuleMsg(rule)
     pipeman.log.info(msg)
+
+rule listRules:
+  """ Lists all available rules """
+  run:
+    pipeman.log.info(os.linesep + os.linesep.join(
+      [ f"  {rule}"
+        for rule in workflow.rules
+      ]
+    ))
 
 def config__hasKey(key, config=None):
   """ 
