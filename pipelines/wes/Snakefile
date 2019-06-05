@@ -1,3 +1,17 @@
-pipeman.includeModule("config/config.sk")
-pipeman.includeModule("fastq/fastq.sk")
-pipeman.includeModule("mapping/mapping.sk")
+""" Pipeline Configuration """
+pipeman.includeModules(
+  "config/config.sk",
+  "config/project.sk",
+  "config/samples.sk"
+)
+pipeman.loadConfigFiles()
+
+""" 
+Pipeline Workflow 
+Loaded only if required configuration files are present.
+"""
+pipeman.includeModules(
+  "fastq/fastq.sk",
+  "bam/bam.sk",
+  "qc/qc_wes.sk"
+  withConfigFiles=True)

@@ -47,7 +47,7 @@ rule helpRule:
     pipeman.log.info(helpRuleMsg(name_rules[0] if name_rules else None))
     touch(output)
   
-rule help:
+rule helpRules:
   """
   Lists of all available rules with essential attributes.
   """
@@ -56,6 +56,15 @@ rule help:
     for rule in workflow.rules:
       msg += helpRuleMsg(rule)
     pipeman.log.info(msg)
+
+rule listRules:
+  """ Lists all available rules """
+  run:
+    pipeman.log.info(os.linesep + os.linesep.join(
+      [ f"  {rule}"
+        for rule in workflow.rules
+      ]
+    ))
 
 def config__hasKey(key, config=None):
   """ 
@@ -101,18 +110,65 @@ def logCmdTemplate():
 
         INPUT:
         $(echo {input} | tr ' ' '\n')
-  
+
+        RULE:
+        {rule}
+
         COMMAND: 
-        $(echo "{logcmd}")
+        {cmd}
   
         OUTPUT:
         $(echo {output} | tr ' ' '\n') \n
 
 eol
       :
-  """
+  """.replace('\\', '\\\\')
 
-def exshell(input, output, cmd, **wildcards):
+def writeCmdLog(cmd=None, **kwargs):
+  if not kwargs['output']:
+    kwargs['output'].append(kwargs['rule'])
+
+  # TODO: Auto attribute missing fields in output. 
+  if 'sample_name' not in kwargs.keys():
+    kwargs['sample_name'] = 'all'
+
+  cmd = cmd.format(**kwargs)
+
+  from utils.strings import StringFormatter
+  logCmd = (
+    StringFormatter(logCmdTemplate())
+      .formatPartialMap(keepMissingKeys=True, **kwargs))
+
+  """ Keep sample's column names keywords if not specified """
+  for kw in logCmd.keywords():
+    if kw not in kwargs.keys() \
+    and pipeman.samples.data is not None \
+    and kw in pipeman.samples.data.columns:
+      kwargs[kw] = '{' + kw + "}"
+
+  shell(logCmd, **kwargs)
+
+def cmdActivateConda():
+  env = config__valueOf('condactivate')
+  if env:
+    ret = f"""
+      set +eu 
+      condactivate {env} 2> /dev/null
+      set -eu
+    """
+  else:
+    ret = ""
+  return ret
+
+def cmdSourceShellEnv():
+  env = pipeman.shellEnv
+  if env:
+    ret = f"source {env}"
+  else:
+    ret = ""
+  return ret
+ 
+def exshell(cmd='', isSubCmd=False, **kwargs):
   """
   Formats the given command.
   Prepands the system's conda activation if specified in configuration.
@@ -120,28 +176,24 @@ def exshell(input, output, cmd, **wildcards):
   Executes the command if debug mode not set in configuration.
   """
 
-  """ Format command string """
-  shellCmd = cmd.format(input=input, output=output, **wildcards)
-
   """ Add condactivate to command if specified """
-  if config__valueOf('condactivate'):
-    shellCmd = """
-      set +eu 
-      source /home/$USER/.bash_profile
-      condactivate 2> /dev/null
-      set -eu
-    """ + shellCmd
+  if cmd:
+    shellCmd = f"""
+      {cmdSourceShellEnv()}
+      {cmd}
+    """
+  else:
+    shellCmd = cmd
 
   """ Print target's log """
   if config__valueOf('logCommands'):
-    logcmd = shellCmd.replace('\\', '\\\\')
-    shell(logCmdTemplate())
+    writeCmdLog(shellCmd, **kwargs)
 
   """ Debug mode """
-  if config__valueOf('debug'):
-    touch(output)
+  if config__valueOf('debug') and not isSubCmd:
+    touch(kwargs['output'])
   else:
-    shell(shellCmd)                                
+    shell(shellCmd, **kwargs) 
 
 pipeman.toClean("help_*.done")
 

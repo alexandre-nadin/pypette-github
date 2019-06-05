@@ -1,0 +1,14 @@
+""" Pipeline Configuration """
+pipeman.includeModules(
+  "config/config.sk",
+  "config/seqrun.sk",
+)
+pipeman.loadConfigFiles()
+
+""" 
+Pipeline Workflow 
+Loaded only if required configuration files are present.
+"""
+pipeman.includeModules(
+  "qc/qc_seqrun.sk",
+  withConfigFiles=True)

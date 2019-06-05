@@ -1,3 +1,5 @@
+include: "samples.py"
+
 rule samplenames:
   """
   List all sample names.
@@ -12,3 +14,32 @@ rule samples:
   run:
     print(pipeman.samples.data)
 
+# -----------
+# Wildcards
+# -----------
+rule samples__runs:
+  input: 
+    lambda wildcards:
+    pipeman.samples.map('samples/{sample_name}/runs/{sample_run}', 
+      withResult=True,
+      **wildcards)
+  output:
+    "samples/{sample_name}/runs/all{suffix}"
+  run:
+    cmd = """
+      touch {output}
+    """
+    exshell(**vars())
+  
+rule samples__all:
+  input: lambda wildcards:
+    pipeman.samples.map("samples/{sample_name}/runs/{sample_run}", 
+      withResult=True, 
+      **wildcards)
+  output:
+    "samples/all/runs/{sample_run}{suffix}"
+  run:
+    cmd = """
+      touch {output}
+    """
+    exshell(**vars())

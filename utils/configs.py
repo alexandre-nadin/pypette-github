@@ -24,11 +24,7 @@ class ConfigManagerTemplate(Manager):
     return "Returns a tuple of possible extensions."
 
   @overrideProperty
-  def configFileDefault(self):
-    return "Returns the default configuration file name."
-
-  @overrideProperty
-  def loadConfig(self, file):
+  def load(self, file):
     return "Correctly loads data from the given file."
 
   @property
@@ -42,7 +38,7 @@ class ConfigManagerTemplate(Manager):
     """
     config = self.configFileDefault
     if config:
-      return self.loadConfig(config)
+      return self.load(config)
     else:
       return None
 

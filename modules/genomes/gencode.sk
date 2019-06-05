@@ -1,0 +1,13 @@
+pipeman.includeModule("genomes/genome.sk")
+include: "gencode.py"
+
+rule gencode__gtf:
+  output:
+    gtf = gencode__gtf()
+  run:
+    gtfUrl = gencode__gtfUrl()
+    cmd = """
+      curl "{gtfUrl}" \
+        -o {output.gtf}
+    """
+    exshell(**vars())

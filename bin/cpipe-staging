@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+_dir=$(readlink -f $(dirname "${BASH_SOURCE[0]}"))
+
+## Include binaries
+export PATH="${PATH}":"${_dir}"
+export WORKFLOW_DIR="/lustre2/scratch/${USER}"
+export CLUSTER_MNT_POINT=""
+export TMPDIR='/lustre2/scratch/tmp'
+export SHELL_ENV='/lustre1/ctgb-usr/.bashrc'
+"${_dir}/set-dirs"
+
+ctgb-pipe "$@"

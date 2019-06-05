@@ -10,10 +10,10 @@ class SamplesManager(utils.manager.Manager):
   """ 
   def __init__(self, prefix, namespace):
     super(SamplesManager, self).__init__()
-    self.config_manager = utils.samples.SamplesConfigManager(
+    self.configManager = utils.samples.SamplesConfigManager(
                             config_prefix = prefix, 
                             namespace     = namespace)
-    self.data = self.config_manager.loadDftConfig() 
+    self.data = None
 
   def query(self, query, selectedCols=[], toDict=False):
     """
@@ -72,13 +72,40 @@ class SamplesManager(utils.manager.Manager):
     """
     return self.queryNameOrId(nameOrId)
   
-  def load(self, *args, **kwargs):
-    self.data = self.config_manager.loadConfig(*args, **kwargs)
+  def load(self, file=None, once=False, **kwargs):
+    if self.data is not None and once:
+      pass
+    else:
+      self.data = self.configManager.load(file, **kwargs)
 
   def getFields(self, fields=[]):
     return self.data[fields]
 
-  def buildStringFromKeywords(self, s, unique=True, **kwargs):
+  def addStringFixes(self, s, prefix="", suffix="", **kwargs):
+    """
+    Adds the given :prefix: and :suffix: to the :s: string
+    """
+    return f"{prefix}{s}{suffix}"
+
+  def map(self, s, mapSuffix=True, withResult=False, **kwargs):
+    self.load(once=True)
+    if mapSuffix:
+      res = self.buildStringFromKeywords(
+              self.addStringFixes(s, **kwargs), 
+              **kwargs)
+    else:
+      res = [ 
+        self.addStringFixes(bstring, **kwargs)
+        for bstring in self.buildStringFromKeywords(s, **kwargs)
+      ]
+    
+    if withResult and not res:
+      self.log.error(f"No result found for query '{s}' and keywords {kwargs}.")
+      raise 
+    else:
+      return res
+
+  def buildStringFromKeywords(self, s, unique=True, interpreteAll=False, **kwargs):
     """
     Returns list of string by formatting the given string :s: with selected columns from filtered samples.
     This is done by:
@@ -87,20 +114,29 @@ class SamplesManager(utils.manager.Manager):
      - Querying sample DataFrame and selects matching columns.
     """
     from utils.strings import StringFormatter
- 
+    queryFilter = dict(kwargs.items())
+
+    """ Check all """
+    for col in self.data.columns:
+      if col in kwargs.keys() and kwargs[col] == 'all':
+        queryFilter.pop(col, None)
+        if interpreteAll:
+          kwargs.pop(col, None) 
+
+    
     """ Formatted String """
-    fs = StringFormatter(s).formatMapFlexi(kwargs, nokeyword=False)
-  
+    fs = StringFormatter(s).formatPartialMap(keepMissingKeys=True, **kwargs)
+
     """ Required Columns """
     required_cols = [ col 
       for col in self.data.columns 
       if col in fs.keywords() 
     ]
-  
+
     """ Set Query Dict """
     query_dict = {
       key: val
-      for key, val in kwargs.items()
+      for key, val in queryFilter.items()
       if key in self.data.columns 
     }
     if query_dict:
@@ -113,11 +149,10 @@ class SamplesManager(utils.manager.Manager):
     
     """ Query DataFrame """
     samples = self.query(query, selectedCols=required_cols)
-
     ret = [
-      fs.formatMapFlexi(
-        dict(zip(required_cols, values)), 
-        nokeyword=True)
+      fs.formatPartialMap(
+        keepMissingKeys=False,
+        **dict(zip(required_cols, values)))
       for values in samples.values
       if not samples.empty
     ]
@@ -155,13 +190,14 @@ class SamplesConfigManager(utils.configs.ConfigManagerTemplate):
   
   @property
   def configfileBase(self):
-    return "samples"
+    return "samples/samples"
  
-  def loadConfig(self, file, indexlowcase_cols=True):
+  def load(self, file=None, indexlowcase_cols=True):
     """
     Loads a samples file into a pandas dataframe.
     If specified, lowercases the column names. 
     """
+    file = self.configFileDefault if file is None else file 
     import pandas as pd
     data = pd.read_csv(
       file, 

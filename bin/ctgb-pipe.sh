@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 SCRIPT_PATH=$(readlink -f "${BASH_SOURCE[0]}")
 SCRIPT_DIR=$(dirname "${SCRIPT_PATH}")
+EXEC_DIR="$(readlink -f $(pwd))"
 
 PIPELINE_SNAKEFILE="Snakefile"
 VARENVS_TAG="_CPIPE_"
@@ -32,7 +33,7 @@ cat << EOFMAN
       SNAKEMAKE_OPTIONs will be passed to the Snakemake command.
 
   USAGE
-      $ $0 --prj PROJECT -p PIPELINE [-o SNAKEMAKE_OPTION ...]
+      $ $0 --prj PROJECT -p PIPELINE [--smk SNAKEMAKE_OPTION ...]
 
   OPTIONS
       --prj
@@ -46,9 +47,6 @@ cat << EOFMAN
 
       --ls-modules
           Lists available modules in ctgb-pipe.
-
-      -d|--directory
-          Working directory for Snakemake. Default 'CTGB__DIR_PROJECTS' if set or 'pwd'
 
       --smk|--snake-options
           List of options to pass to Snakemake. 
@@ -95,9 +93,9 @@ function initParams() {
   PROJECT=""
   PIPELINE=""
   SNAKE_OPTIONS=()
-  SNAKE_DIR=""
   VERBOSE=false
   CLUSTER_MNT_POINT=${CLUSTER_MNT_POINT:-""}
+  WORKFLOW_DIR=${WORKFLOW_DIR:-""}
 }
 
 function checkParams() {
@@ -124,24 +122,7 @@ function checkPipeline() {
 }
 
 function checkDirs() {
-  checkSnakeDir
-}
-
-function checkSnakeDir() {
-  #
-  # Set default SNAKE_DIR if not defined
-  # Either it is specified in option, CTGB__DIR_PROJECTS if set,
-  # or current directory './'
-  #
-  if isParamGiven "$SNAKE_DIR"; then
-    :
-  else
-    if [ -z ${CTGB__DIR_PROJECTS+x} ]; then
-      SNAKE_DIR=$(pwd)
-    else
-      SNAKE_DIR="$CTGB__DIR_PROJECTS" 
-    fi 
-  fi
+  :
 }
 
 # ----------
@@ -177,11 +158,19 @@ function listModules() (
     2> /dev/null
 )
 
+function envPipeline() {
+  printf "pipe-${PIPELINE}" \
+   | tr '[[:upper:]]' '[[:lower:]]'
+}
+
+function envActivate() {
+  condactivate $(envPipeline)
+}
+
 function cmdSnakemake() {
   cat << eol | xargs
   \snakemake
    --snakefile $(pathPipelineSnakefile root)
-   --directory "${SNAKE_DIR}/${PROJECT}"
    ${SNAKE_OPTIONS[@]}
 eol
 }
@@ -199,8 +188,16 @@ function exportVarenvs() {
   exportCpipeVarenv "PROJECT" "$PROJECT"
   exportCpipeVarenv "PIPE_NAME" "$PIPELINE"
   exportCpipeVarenv "PIPE_SNAKE" $(pathPipelineSnakefile $PIPELINE)
+  exportCpipeVarenv "WORKFLOW_DIR" "$WORKFLOW_DIR"
   exportCpipeVarenv "CLUSTER_MNT_POINT" "$CLUSTER_MNT_POINT"
+  exportCpipeVarenv "SHELL_ENV" "$SHELL_ENV"
+  exportCpipeVarenv "PYTHON_SYSPATH" "$(pythonSysPath)"
+  exportCpipeVarenv "EXEC_DIR" "$EXEC_DIR"
   export PYTHONPATH=${PYTHONPATH:+${PYTHONPATH}":"}$(pathHome)
+}
+
+function pythonSysPath() {
+  python -c 'import sys; print(" ".join(sys.path))'
 }
 
 function cpipeVarenvOf() {
@@ -208,7 +205,7 @@ function cpipeVarenvOf() {
 }
 
 function exportCpipeVarenv() {
-  eval "export $(cpipeVarenvOf ${1})=${2}"
+  eval "export $(cpipeVarenvOf ${1})=\"${2}\""
 }
 
 # -------

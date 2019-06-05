@@ -1,0 +1,165 @@
+include: 'bam.py'
+pipeman.includeModule("genomes/genome.sk")
+pipeman.includeModule("genomes/gencode.sk")
+pipeman.includeModule("genomes/exome.sk")
+
+""" Allowed Sorting Processes """
+sortingTools = ('picard', 'samtools')
+pipeman.updateWildcardConstraints(
+  procSorted    = "(sorted/({})/)?".format("|".join(sortingTools)),
+  procMarkDup   = "(markdup/)?",
+  procBamMerged = "(merged/)?"
+)
+
+bam__mappingDir   = fastq__sampleRunDir + "/" + fastq__procs + "mapped" + bam__alignerDir(append=True)
+bam__samplePrefix = bam__mappingDir + "/{sample_name}"
+bam__sample       = bam__samplePrefix + ".bam"
+
+""" Sample Run Reads Output Targets """
+bam__alignerDir       = "mapped" + bam__alignerDir(append=True)
+bam__sampleDir    = fastq_merge__dir + "/{procTrimming}" + bam__alignerDir
+
+##
+# General IO (on any bam file).
+bam__sortedSamplePrefix = bam__sampleDir + bam__sorterDir(append=True) + "/{sample_name}"
+bam__sortedSample = bam__sortedSamplePrefix + ".bam"
+
+bam__pipeTarget = f"{fastq__pipeTarget}{bam__alignerDir}/{{procBamMerged}}{{procSorted}}{{procMarkDup}}"
+bam__sampleTarget = f"{bam__pipeTarget}{{sample_name}}"
+
+# Note: Include the aligner found in pipeline configuration file after this
+#       file's variables, as aligner's rules should depend on the variables 
+#       declared above.
+bam__includeAlignerModule()
+
+# -----------------
+# Mark Duplicates
+# -----------------
+bam__sampleMarkdupPrefix = "{anyprefix}markdup/{sample_name}"
+rule bam__markDuplicates:
+  input: 
+    bam     = "{anyprefix}{sample_name}.bam"
+  output: 
+    bam     = bam__sampleMarkdupPrefix + ".bam",
+    bai     = bam__sampleMarkdupPrefix + ".bai",
+    metrics = bam__sampleMarkdupPrefix + ".metrics"
+  run:
+    cmd = """
+      picard MarkDuplicates                           \
+      I={input.bam}                                   \
+      O={output.bam}                                  \
+      CREATE_INDEX=true                               \
+      VALIDATION_STRINGENCY=SILENT                    \
+      REMOVE_DUPLICATES=false                         \
+      ASSUME_SORTED=true                              \
+      METRICS_FILE={output.metrics}                    
+    """
+    exshell(**vars())
+
+# --------------
+# Sorting Bams
+# --------------
+rule bam__sortSamplePicard:
+  input:  "{anyprefix}{sample_name}.bam"
+  output: "{anyprefix}sorted/picard/{sample_name}.bam",
+  run:
+    cmd = """
+      picard SortSam          \
+        I={input}             \
+        SORT_ORDER=unsorted   \
+        O={output}
+    """
+    exshell(**vars())
+
+rule bam__sortSampleSamtools:
+  input:  "{anyprefix}{sample_name}.bam"
+  output: "{anyprefix}sorted/samtools/{sample_name}.bam"
+  run:
+    cmd = """
+      samtools view -Su {input}    \
+       | samtools sort -o {output}  
+    """
+    exshell(**vars())
+
+ruleorder: samples__runs > bam__sampleStats > bam__sortSampleSamtools > bam__markDuplicates
+
+# -----------
+# Bam Stats
+# -----------
+rule bam__sampleStats:
+  input:
+    bam   = "{someprefix}.bam"
+  output:
+    stats = "{someprefix}.bamstats"
+  run:
+    cmd = """
+      bamtools stats       \
+        -in {input.bam}    \
+        > {output.stats}
+    """
+    exshell(**vars())
+
+ruleorder: samples__all > bam__sampleStats
+
+# ------------
+# Merge BAMs
+# ------------
+ruleorder: bam__markDuplicates > bam__sortSamplePicard > bam__sortSampleSamtools > bam__mergeSample
+rule bam__mergeSample:
+  input:
+    bam = lambda wildcards: 
+      pipeman.samples.map(bam__sample, withResult=True, **wildcards)
+  output:
+    bam = temp("samples/{sample_name}/runs/all/fastq/" + fastq__procs + bam__alignerDir + "/merged/{sample_name}.bam")
+  run:
+    if len(input.bam) > 1:
+      cmd = """
+        picard MergeSamFiles                            \
+          {merge_prefixes}                              \
+          O={output.bam}                                \
+          CREATE_INDEX=true                             \
+          MSD=true                                      \
+          TMP_DIR=$TMPDIR                               \
+          VALIDATION_STRINGENCY=SILENT                  \
+         > {output.bam}.log
+      """
+    else:
+      cmd = """
+        ln.rel -f {input.bam} {output.bam}
+      """
+    merge_prefixes = picardMergeInputString(input.bam)
+    exshell(**vars())
+
+ruleorder: bam__mergeSample > samples__runs
+
+rule bam__makeIndex:
+  input:  "{someprefix}.bam"
+  output: "{someprefix}.bai"
+  run:
+    cmd = """
+      picard BuildBamIndex I={input} O={output}
+    """
+    exshell(**vars())
+
+rule bam__hsMetrics:
+  input:  
+    "{someprefix}.bam"
+  output: 
+    "{someprefix}_hsMetrics.txt"
+  run:
+    genomeFasta     = genome__fasta()
+    baitIntervals   = exome__baitIntervals()
+    targetIntervals = exome__targetIntervals()
+    cmd = """
+      picard CollectHsMetrics          \
+        BI={baitIntervals}             \
+        TI={targetIntervals}           \
+        I={input}                      \
+        O={output}                     \
+        R={genomeFasta}                \
+        VALIDATION_STRINGENCY=SILENT
+    """
+    exshell(**vars())
+
+ruleorder: samples__all > bam__hsMetrics
+

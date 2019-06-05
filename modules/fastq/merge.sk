@@ -1,43 +1,33 @@
-fastq_merge__dir        = fastq__readDir
-fastq_merge__readPrefix = fastq_merge__dir + "/{procTrimming}{sample_name}_{sample_read}"
+pipeman.updateWildcardConstraints(
+  procFastqMerge = "(merged/)",
+)
+fastq_merge__dir        = fastq__sampleRunDir
+fastq_merge__readPrefix = fastq_merge__dir + "/{procFastqMerge}{sample_name}_{sample_read}"
 fastq_merge__read       = fastq_merge__readPrefix + "{sample_extension}"
 
 # ---------------
 # Merging Reads
 # ---------------
-rule fastq_merging__mergeReads_all:
-  """
-  Merges all sample reads filtered by the given wildcards.
-  """
-  input:
-    reads_1 = lambda wildcards: fastq__mapStringSamples(
-                fastq_merge__read, sample_read="R1", **wildcards),
-    reads_2 = lambda wildcards: fastq__mapStringSamples(
-                fastq_merge__read, sample_read="R2", **wildcards)
-  output:
-    primary = fastq__dirAll + "/mergeReads.all"
-  run:
-    touch(output)
-
 rule fastq_merging__mergeReads:
   """
   Merges sample reads filtered by the given wildcards.
   """
   input:
     reads = lambda wildcards:
-      fastq__mapStringSamples(fastq__chunk, **wildcards)
+      pipeman.samples.map(fastq__chunk, **wildcards)
   output:
-    primary = fastq_merge__read
+    read  = temp(fastq_merge__read)
   run:
     if len(input.reads) == 1:
       cmd = """
-        ln {input.reads[0]} {output.primary}
+        ln {input.reads[0]} {output.read}
       """
     else:
       cmd = """
         zcat {input.reads}   \
          | gzip              \
-         > {output.primary}
+         > {output.read}
       """
-    exshell(input, output, cmd, **wildcards)
+    exshell(**vars())
 
+ruleorder: samples__runs > fastq_merging__mergeReads

@@ -8,35 +8,46 @@ class PipelineManager(Manager):
   """ """
   # Expected tag for application's environment variables
   VARENV_TAG = "_CPIPE_"
-  VARENV_NAMES = [ 'home', 'project', 'pipe_name', 'pipe_snake', 'cluster_mnt_point' ]
+  VARENV_NAMES = ( 
+    'home', 'project', 'pipeName', 'pipeSnake', 
+    'execDir', 'workflowDir', 'clusterMntPoint', 'shellEnv',
+  )
 
   def __init__(self, namespace, name="Default", sampleBased=True):
     super(PipelineManager, self).__init__()
-    environ.setTaggedVarEnvsAttrs(self, tag=self.__class__.VARENV_TAG, stripTag=True)
+    environ.setTaggedVarEnvsAttrs(self, tag=self.__class__.VARENV_TAG)
     self.checkVarenvAttrs()
-    self.namespace        = namespace
-    self.dir_modules      = os.path.join(self.home, "modules")
-    self.dir_pipelines    = os.path.join(self.home, "pipelines")
-    self.params           = []
-    self.cleanables       = []
-    self.samples_manager  = utils.samples.SamplesManager(self.pipe_name, self.namespace)
-    self.config_manager   = PipelineConfigManager(
-                              config_prefix = self.pipe_name, 
+    self.namespace     = namespace
+    self.modulesDir    = os.path.join(self.home, "modules")
+    self.pipelinesDir  = os.path.join(self.home, "pipelines")
+    self.params        = []
+    self.cleanables    = []
+    self.sampleManager = utils.samples.SamplesManager(self.pipeName, self.namespace)
+    self.configManager = PipelineConfigManager(
+                              config_prefix = self.pipeName, 
                               namespace     = self.namespace)
-    self.sample_based = sampleBased
-    self.workflow_dir = "{sample_name}" if self.sample_based else ""
-    self.module_dir   = ""
+    self.sampleBased   = sampleBased
+    self.moduleDir     = ""
     self.updateNamespace()
  
-    self.sample_based     = True
-    self.deep_structure   = True
+    self.sampleBased   = True
+    self.deepStructure = True
+
+    """ Required Config Files """
+    self.configFiles    = ()
+
+    """ Load internal default config """
+    self._loadConfigFiles()
+
+    """ Set default working dir """
+    self.setDefaultWorkingDir()
 
   def checkVarenvAttrs(self):
     for varenv in self.__class__.VARENV_NAMES:
       self.checkVarenvAttr(varenv)
 
   def checkVarenvAttr(self, attr):
-    assert hasattr(self, attr)
+      assert hasattr(self, attr), f"Environment variable '{attr}' not found."
 
   @property
   def workflow(self):
@@ -62,11 +73,11 @@ class PipelineManager(Manager):
   # ---------
   @property
   def samples(self):
-    return self.samples_manager
+    return self.sampleManager
   
   @property
   def sampleExtensions(self):
-    return self.samples_manager.config_manager.extensionsDelimiters
+    return self.sampleManager.configManager.extensionsDelimiters
 
   # -----------------
   # Pipeline Config
@@ -80,7 +91,7 @@ class PipelineManager(Manager):
 
   def configFromKeysString(self, string=""):
     """
-    Retreives the value of an addict from string.
+    Retrieves the value of an addict from string.
     The addict's instance name is expected:
      - to be the first element split from the string.
      - to be in the globals.
@@ -90,7 +101,7 @@ class PipelineManager(Manager):
     
   def configFromKeys(self, config, keys=[]):
     """
-    Retreives recursively the value of an addict from a list of keys.
+    Retrieves recursively the value of an addict from a list of keys.
     """
     if not keys:
       return config
@@ -99,38 +110,113 @@ class PipelineManager(Manager):
     else:
       return config[keys[0]]
 
+  def missingConfigFiles(self):
+    """
+    Returns the required files that are missing.
+    """
+    return [ conf
+             for conf in self.configFiles
+             if not os.path.exists(conf)
+             and not os.path.isfile(conf)
+           ]
+
+  def addConfigFiles(self, *args):
+    self.configFiles = tuple(set( (*self.configFiles, *args) ))
+  
+  def loadConfigFiles(self):
+    """ Check missing files """
+    missingFiles = self.missingConfigFiles()
+    if missingFiles:
+      self.log.warning(f"Missing required files '{missingFiles}'")
+
+    """ Load non missing config """
+    for conf in self.configFiles:
+      if conf not in missingFiles:
+        self.configManager.load(conf)
+ 
+  def _loadConfigFiles(self):
+    """ 
+    Loads the pipeline's internal config files
+    """
+    for conf in self._configFiles():
+      self.configManager.load(conf)
+
+  def _configFiles(self):
+    """
+    Returns the given pipeline's internal config files.
+    """
+    import glob
+    ret = [] 
+    for ext in self.configManager.extensions:
+      ret.extend(
+        glob.glob(f"{self.pipelinesDir}/{self.pipeName}/*{ext}"))
+    return ret
+
+  @property
+  def pipelines(self):
+    return [
+      path 
+      for path in next(os.walk(self.pipelinesDir))[1]
+      if not path.startswith('.')
+    ]
+
+  def defaultWorkingDir(self):
+    return os.path.join(
+      self.workflowDir, 
+      self.config.pipeline.outDir,
+      self.project)
+
+  def setDefaultWorkingDir(self):
+    if not self.hasCustomDir():
+      outDir = self.defaultWorkingDir()
+      os.makedirs(outDir, exist_ok=True)
+      os.chdir(outDir)
+    self.log.info(f"Working dir set to '{os.getcwd()}'")
+
+  def hasCustomDir(self):
+    return self.workflow.workdir_init != self.execDir
+  
   # ------------ 
   # Snakefiles
   # ------------    
   def include(self, name, outDir=True, asWorkflow=""):
     """
     Includes the given file allowing to reflect the workflow of processes in the ouput dir.
-    By default, sets the pipeline manager workflow_dir to the module's basename if :outDir:.
-    Concatenates the module's basename to workflow_dir if :asWorkflow: is set (default).
+    By default, sets the pipeline manager workflowDir to the module's basename if :outDir:.
+    Concatenates the module's basename to workflowDir if :asWorkflow: is set (default).
     Example:
       :name: module3/module3.sk
-      workflow_dir = "module1/module2"
-      Sets workflow_dir to "module1/module2/module3" with :outDir: True and :asWorkflow: True
-      Sets workflow_dir to "module3" with :outDir: True and :asWorkflow: False.
-      Doesn't touch workflow_dir if :outDir: False
+      workflowDir = "module1/module2"
+      Sets workflowDir to "module1/module2/module3" with :outDir: True and :asWorkflow: True
+      Sets workflowDir to "module3" with :outDir: True and :asWorkflow: False.
+      Doesn't touch workflowDir if :outDir: False
     """
 
-    """ Set workflow_dir"""
+    """ Set workflowDir"""
     if outDir:
       basename = extensionless(os.path.basename(name))
       if asWorkflow:
-        self.workflow_dir = os.path.join(self.workflow_dir, asWorkflow)
-      self.module_dir = basename
+        self.workflowDir = os.path.join(self.workflowDir, asWorkflow)
+      self.moduleDir = basename
 
     """ Include File """ 
     self.workflow.include(name)
 
-  def includeModule(self, name, *args, **kwargs):
-    self.include(os.path.join(self.dir_modules, name), **kwargs)
-
   def includePipeline(self, name):
-    self.include(os.path.join(self.dir_pipelines, name))
-  
+    self.include(os.path.join(self.pipelinesDir, name))
+
+  def includeModule(self, name, *args, **kwargs):
+    self.include(os.path.join(self.modulesDir, name), **kwargs)
+
+  def includeModules(self, *modules, withConfigFiles=False, **kwargs):
+    """ Check required files """
+    missingFiles = self.missingConfigFiles() 
+    if missingFiles and withConfigFiles:
+      self.log.warning(f"Couldn't include modules '{modules}': They depend on the missing files '{missingFiles}'.")
+    else:
+      for module in modules:
+        self.includeModule(module, **kwargs)
+
   def _loadModule(self, name):
     pass
  
@@ -198,7 +284,6 @@ class PipelineManager(Manager):
 class PipelineConfigManager(utils.configs.ConfigManagerTemplate):
   def __init__(self, *args, **kwargs):
     super(PipelineConfigManager, self).__init__('config', *args, **kwargs)
-    self.loadDftConfig()
 
   @property
   def extensions(self):
@@ -208,7 +293,7 @@ class PipelineConfigManager(utils.configs.ConfigManagerTemplate):
   def configfileBase(self):
     return "config"
 
-  def loadConfig(self, file):
+  def load(self, file):
     """
     loads the given snakemake configuration file.
     Updates and converts it to an Addict.
