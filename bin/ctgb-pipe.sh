@@ -216,11 +216,11 @@ function verbecho() {
 }
 
 function infecho() {
-  printf "Info: $@\n"
+  printf "Info: $@\n" >&2
 }
 
 function errexit() {
-  printf "Error: $@\n\n"
+  printf "Error: $@\n\n" >&2
   msgManual
   exit 1
 }
