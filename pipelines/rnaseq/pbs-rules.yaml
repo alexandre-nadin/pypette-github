@@ -1,5 +1,5 @@
 __default__:
-  name: '{pipeman.config.project.bioinfo_pipeline}'
+  name: '{pipeman.config.pipeline.name}-{rule}'
   select: 1
   ncpus: 1
   mem: '1gb'

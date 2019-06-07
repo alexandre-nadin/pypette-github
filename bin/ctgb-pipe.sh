@@ -10,7 +10,7 @@ VARENVS_TAG="_CPIPE_"
 # Snakemake functions
 # ---------------------
 function baseSnakemake() {
-  exportVarenvs
+  #exportVarenvs
   command snakemake "$@"
 }
 
@@ -168,11 +168,14 @@ function envActivate() {
 }
 
 function cmdSnakemake() {
-  cat << eol | xargs
-  \snakemake
-   --snakefile $(pathPipelineSnakefile root)
-   ${SNAKE_OPTIONS[@]}
+  cat << eol 
+  \snakemake  \
+   --snakefile $(pathPipelineSnakefile root) \
+   ${SNAKE_OPTIONS[@]}  
 eol
+  #\
+ #  $(clusterVarEnvsStr)
+  
 }
 
 function execSnakemake() {
@@ -187,13 +190,14 @@ function exportVarenvs() {
   exportCpipeVarenv "HOME" $(pathHome)
   exportCpipeVarenv "PROJECT" "$PROJECT"
   exportCpipeVarenv "PIPE_NAME" "$PIPELINE"
+  exportCpipeVarenv "PIPE_ENV" "$(envPipeline)"
   exportCpipeVarenv "PIPE_SNAKE" $(pathPipelineSnakefile $PIPELINE)
   exportCpipeVarenv "WORKFLOW_DIR" "$WORKFLOW_DIR"
   exportCpipeVarenv "CLUSTER_MNT_POINT" "$CLUSTER_MNT_POINT"
   exportCpipeVarenv "SHELL_ENV" "$SHELL_ENV"
-  exportCpipeVarenv "PYTHON_SYSPATH" "$(pythonSysPath)"
-  exportCpipeVarenv "EXEC_DIR" "$EXEC_DIR"
   export PYTHONPATH=${PYTHONPATH:+${PYTHONPATH}":"}$(pathHome)
+  exportCpipeVarenv "PYTHON_SYSPATH" "$(pythonSysPath) $PYTHONPATH"
+  exportCpipeVarenv "EXEC_DIR" "$EXEC_DIR"
 }
 
 function pythonSysPath() {
@@ -204,7 +208,37 @@ function cpipeVarenvOf() {
   printf "${VARENVS_TAG}${1}"
 }
 
+_varenvs=()
+function clusterEnvs() {
+  local varStrs=()
+  local varStr=''
+  for var in "${_varenvs[@]}"; do
+    varStr="$var=\"${!var}\""
+    if [ ${#varStrs} -gt 0 ]; then
+      varStrs=("${varStrs[@]}" "$varStr")
+    else
+      varStrs=("$varStr")
+    fi
+  done
+  str.join -d ',' "${varStrs[@]}"
+}
+
+function clusterVarEnvsStr() {
+  local str=''
+  if [ ${#_varenvs} -gt 0 ]; then
+    str="--cluster \'qsub -v $(clusterEnvs)\'"
+  fi
+  #printf -- "--cluster 'qsub $str'"
+  printf -- "$str"
+}
+
 function exportCpipeVarenv() {
+  local var="$(cpipeVarenvOf ${1})"
+  if [ ${#_varenvs} -gt 0 ]; then
+    _varenvs=(${_varenvs[@]} "$var") 
+  else
+    _varenvs=("$var")
+  fi
   eval "export $(cpipeVarenvOf ${1})=\"${2}\""
 }
 

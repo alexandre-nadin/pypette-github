@@ -163,7 +163,8 @@ def cmdActivateConda():
 def cmdSourceShellEnv():
   env = pipeman.shellEnv
   if env:
-    ret = f"source {env}"
+    ret = ""
+    #ret = f"source {env}"
   else:
     ret = ""
   return ret
@@ -239,4 +240,4 @@ HERE
           pbsout = "{{output[0]}}")
     shell(cmd)
 
-localrules: rules__pbsRessources
+localrules: explain_rules, helpRule, helpRules, listRules, rules__updatePbsRessources, 
