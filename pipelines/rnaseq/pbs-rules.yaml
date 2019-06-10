@@ -1,5 +1,5 @@
 __default__:
-  name: '{pipeman.config.pipeline.name}-{rule}'
+  name: '{pipeman.config.pipeline.name}'
   select: 1
   ncpus: 1
   mem: '1gb'
