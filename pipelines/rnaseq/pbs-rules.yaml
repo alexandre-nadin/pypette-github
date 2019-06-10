@@ -78,12 +78,18 @@ bam_star__alignReads:
 
 bam__markDuplicates:
   do: True
+  ncpus: "{pipeman.config.pipeline.modules.mapping.markdup.cores}"
+  mem: "{pipeman.config.pipeline.modules.mapping.markdup.mem}"
 
 bam__sortSamplePicard:
   do: True
+  ncpus: "{pipeman.config.pipeline.modules.mapping.sorter.picard.cores}"
+  mem: "{pipeman.config.pipeline.modules.mapping.sorter.picard.mem}"
 
 bam__sortSampleSamtools:
   do: True
+  ncpus: "{pipeman.config.pipeline.modules.mapping.sorter.samtools.cores}"
+  mem: "{pipeman.config.pipeline.modules.mapping.sorter.samtools.mem}"
 
 bam__sampleStats:
   do: True

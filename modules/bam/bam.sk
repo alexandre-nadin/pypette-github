@@ -40,9 +40,9 @@ rule bam__markDuplicates:
   input: 
     bam     = "{anyprefix}{sample_name}.bam"
   output: 
-    bam     = bam__sampleMarkdupPrefix + ".bam",
-    bai     = bam__sampleMarkdupPrefix + ".bai",
-    metrics = bam__sampleMarkdupPrefix + ".metrics"
+    bam     = temp(f"{bam__sampleMarkdupPrefix}.bam"    ),
+    bai     = temp(f"{bam__sampleMarkdupPrefix}.bai"    ),
+    metrics =      f"{bam__sampleMarkdupPrefix}.metrics"
   run:
     cmd = """
       picard MarkDuplicates                           \
@@ -61,19 +61,19 @@ rule bam__markDuplicates:
 # --------------
 rule bam__sortSamplePicard:
   input:  "{anyprefix}{sample_name}.bam"
-  output: "{anyprefix}sorted/picard/{sample_name}.bam",
+  output: temp("{anyprefix}sorted/picard/{sample_name}.bam"),
   run:
     cmd = """
       picard SortSam          \
         I={input}             \
-        SORT_ORDER=unsorted   \
+        SORT_ORDER=coordinate \
         O={output}
     """
     exshell(**vars())
 
 rule bam__sortSampleSamtools:
   input:  "{anyprefix}{sample_name}.bam"
-  output: "{anyprefix}sorted/samtools/{sample_name}.bam"
+  output: temp("{anyprefix}sorted/samtools/{sample_name}.bam")
   run:
     cmd = """
       samtools view -Su {input}    \
@@ -113,9 +113,10 @@ rule bam__mergeSample:
     bam = temp("samples/{sample_name}/runs/all/fastq/" + fastq__procs + bam__alignerDir + "/merged/{sample_name}.bam")
   run:
     if len(input.bam) > 1:
+      mergePrefixes = picardMergeInputString(input.bam)
       cmd = """
         picard MergeSamFiles                            \
-          {merge_prefixes}                              \
+          {mergePrefixes}                               \
           O={output.bam}                                \
           CREATE_INDEX=true                             \
           MSD=true                                      \
@@ -127,7 +128,6 @@ rule bam__mergeSample:
       cmd = """
         ln.rel -f {input.bam} {output.bam}
       """
-    merge_prefixes = picardMergeInputString(input.bam)
     exshell(**vars())
 
 ruleorder: bam__mergeSample > samples__runs

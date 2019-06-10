@@ -7,12 +7,22 @@ pipeline:
         command: "STAR"
         version: "STAR_2.5.3a"
         cores: 6
-        ram: '32gb'
+        ram: '64gb'
         outFilterMismatchNmax: 10
       counter:
         name: "featureCounts"
         version: "1.6.2"
         cores: 4
+      sorter:
+        picard:
+          cores: 4
+          mem: '12gb'
+        samtools:
+          cores: 4
+          mem: '12gb'
+      markdup:
+        cores: 4
+        mem: '12gb'
     fastq:
       qc:
         fastqc:
