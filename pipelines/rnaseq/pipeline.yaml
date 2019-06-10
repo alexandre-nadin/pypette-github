@@ -20,11 +20,14 @@ pipeline:
       trimming:
         trimmers:
           trimmomatic:
+            cores: 8
             mem: '10gb'
             memJava: '10240M'
             headcrop: 'HEADCROP:12'
           cutadapt:
           bbduk:
+            cores: 8
+            mem: '10gb'
       adapters:
         base: &baseAdapters "Adapters.fasta" 
         cutadapt: *baseAdapters

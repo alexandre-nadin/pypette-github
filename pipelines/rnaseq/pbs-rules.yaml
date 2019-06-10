@@ -55,6 +55,8 @@ fastq_trimming__cutadapt:
 
 fastq_trimming__bbduk:
   do: True
+  ncpus: "{pipeman.config.pipeline.modules.fastq.trimming.trimmers.bbduk.cores}"
+  mem: "{pipeman.config.pipeline.modules.fastq.trimming.trimmers.bbduk.mem}"
 
 fastq_qc__reads:
   do: True
