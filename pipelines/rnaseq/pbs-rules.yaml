@@ -71,6 +71,9 @@ fastq__linkRead:
 gencode__gtf:
   do: True
 
+gencode__bed:
+  do: True
+
 bam_star__alignReads:
   do: True
   ncpus: '{pipeman.config.pipeline.modules.mapping.aligner.cores}'
@@ -105,6 +108,7 @@ bam__hsMetrics:
 
 counts__sample:
   do: True
+  ncpus: "{pipeman.config.pipeline.modules.mapping.counter.cores}"
 
 counts__merged:
   do: True

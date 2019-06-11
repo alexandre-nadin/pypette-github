@@ -2,6 +2,9 @@ pipeman.includeModule("genomes/genome.sk")
 include: "gencode.py"
 
 rule gencode__gtf:
+  """
+  Downloads the required GTF file.
+  """
   output:
     gtf = gencode__gtf()
   run:
@@ -9,5 +12,27 @@ rule gencode__gtf:
     cmd = """
       curl "{gtfUrl}" \
         -o {output.gtf}
+    """
+    exshell(**vars())
+
+rule gencode__bed:
+  """
+  Converts the required GTF into a bed file.
+  """
+  input:
+    gtf = "{someprefix}.gtf.gz"
+  output:
+    bed = temp("{someprefix}.bed")
+  run:
+    cmd = """
+      gunzip -c {input.gtf}                     \
+       | awk '{{ 
+           if ($0 ~ "transcript_id") 
+             print $0; 
+           else 
+             print $0" transcript_id \"\";"; 
+         }}'                                    \
+       | gtf2bed                                \
+      > {output.bed}
     """
     exshell(**vars())
