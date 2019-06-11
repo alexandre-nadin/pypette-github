@@ -26,11 +26,11 @@ rule fastq_trimming__trimmomatic:
                 fastq__read, sample_read="R2", **wildcards),
     adapters = "adapters/trimmomatic/adapters.fa"
   output: 
-    r1       = temp(fastq_trimming__dir + "/trimmomatic/{sample_name}_R1.fastq.gz"),
-    r1u      = temp(fastq_trimming__dir + "/trimmomatic/{sample_name}_R1_UNPAIRED.fastq.gz"),
-    r2       = temp(fastq_trimming__dir + "/trimmomatic/{sample_name}_R2.fastq.gz"),
-    r2u      = temp(fastq_trimming__dir + "/trimmomatic/{sample_name}_R2_UNPAIRED.fastq.gz"),
-    trimlog  =      fastq_trimming__dir + "/trimmomatic/{sample_name}.trimlog",
+    r1       = temp(f"{fastq_trimming__dir}/trimmomatic/{{sample_name}}_R1.fastq.gz"),
+    r1u      = temp(f"{fastq_trimming__dir}/trimmomatic/{{sample_name}}_R1_UNPAIRED.fastq.gz"),
+    r2       = temp(f"{fastq_trimming__dir}/trimmomatic/{{sample_name}}_R2.fastq.gz"),
+    r2u      = temp(f"{fastq_trimming__dir}/trimmomatic/{{sample_name}}_R2_UNPAIRED.fastq.gz"),
+    trimlog  =      f"{fastq_trimming__dir}/trimmomatic/{{sample_name}}.trimlog",
   run:
     inputReads = [ x for x in [ 
                      input.r1[0], 
