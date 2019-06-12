@@ -20,7 +20,7 @@ rule fastq_merging__mergeReads:
   run:
     if len(input.reads) == 1:
       cmd = """
-        ln {input.reads[0]} {output.read}
+        ln.rel {input.reads[0]} {output.read}
       """
     else:
       cmd = """

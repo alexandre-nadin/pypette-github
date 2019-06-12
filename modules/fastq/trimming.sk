@@ -129,6 +129,7 @@ rule fastq_trimming__bbduk:
         forcetrimleft=0      \\
         forcetrimright2=0    \\
         overwrite=true
+      touch {output}
     """
     exshell(**vars())
 

@@ -1,8 +1,8 @@
 # --------------
 # Input/Output
 # --------------
-fastq_qc__htmlExt     = ".fastqc.html"
-fastq_qc__zipExt      = ".fastqc.zip"
+fastq_qc__htmlExt     = "_fastqc.html"
+fastq_qc__zipExt      = "_fastqc.zip"
 
 fastq_qc__readPrefix = fastq_merge__readPrefix
 fastq_qc__readHtml = fastq_qc__readPrefix + fastq_qc__htmlExt

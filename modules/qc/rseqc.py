@@ -1,3 +1,5 @@
+import addict
+
 def rseqc__inferExperiment(file):
   """
   Reads an infer_experiment output file. 
