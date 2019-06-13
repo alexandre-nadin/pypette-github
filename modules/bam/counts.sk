@@ -17,7 +17,8 @@ rule counts__sample:
     inferExp  = "{someprefix}/{sample_name}.inferExperiment",
     gtf       = lambda x: gencode__gtf()
   output:
-    counts    =      "{someprefix}/{sample_name}.counts",
+    counts    = temp("{someprefix}/{sample_name}.counts"),
+    countsGz  =      "{someprefix}/{sample_name}.counts.gz",
     sumcounts =      "{someprefix}/{sample_name}.counts.summary",
     bam       = temp("{someprefix}/{sample_name}.bam.featureCounts.bam"),
     log       =      "{someprefix}/{sample_name}.log"
@@ -40,6 +41,8 @@ rule counts__sample:
         -o {output.counts}        \
         {input.bam}               \
        2> {output.log}
+
+      gzip -c {output.counts} > {output.countsGz}
     """
     exshell(**vars())
 
