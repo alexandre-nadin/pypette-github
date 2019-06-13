@@ -1,25 +1,29 @@
-multiqc__dir          = "multiqc"
-qc_rnaseq__multiqcTarget = f"{bam__pipeTarget}multiqc.html"
-bamStatsTarget = f"{bam__sampleTarget}.bamstats"
+LANG = "LC_ALL=en_US.utf8 LANG=en_US.utf8"
 
 rule qc_rnaseq__multiqc:
   input:
-    fastqcs  = lambda wildcards: pipeman.samples.map(
+    fastqcs   = lambda wildcards: pipeman.samples.map(
       fastq_qc__readZip, 
       interpreteAll=True,
       **wildcards),
-    bamstats = lambda wildcards: pipeman.samples.map(
-      bamStatsTarget, 
+    bamstats  = lambda wildcards: pipeman.samples.map(
+      f"{bam__sampleTarget}.bamstats",
+      interpreteAll=True,
+      **wildcards),
+    bamCounts = lambda wildcards: pipeman.samples.map(
+      f"{bam__sampleTarget}.counts",
       interpreteAll=True,
       **wildcards)
   output:
-    report   = qc_rnaseq__multiqcTarget
+    report   =           f"{bam__pipeTarget}multiqc_report.html",
+    data     = directory(f"{bam__pipeTarget}multiqc_data")
   run:
+    outDir = bam__pipeTarget.format(**wildcards)
     cmd  = f"""
-      multiqc              \
-        -o {multiqc__dir}  \
-        {input}            \
-        -n {output.report}
+      {LANG} multiqc       \
+        -f                 \
+        -o {outDir}        \
+        {input} 
     """
     exshell(**vars())
 
