@@ -173,6 +173,7 @@ function envPipeline() {
 }
 
 function envActivate() {
+  infecho "Executing in '$(envPipeline)' conda environment."
   condactivate $(envPipeline)
 }
 
