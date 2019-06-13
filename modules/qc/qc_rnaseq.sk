@@ -6,12 +6,12 @@ rule qc_rnaseq__multiqc:
       fastq_qc__readZip, 
       interpreteAll=True,
       **wildcards),
-    bamstats  = lambda wildcards: pipeman.samples.map(
-      f"{bam__sampleTarget}.bamstats",
+    inferExp  = lambda wildcards: pipeman.samples.map(
+      f"{bam__sampleTarget}.inferExperiment",
       interpreteAll=True,
       **wildcards),
     bamCounts = lambda wildcards: pipeman.samples.map(
-      f"{bam__sampleTarget}.counts",
+      f"{bam__sampleTarget}.counts.summary",
       interpreteAll=True,
       **wildcards)
   output:
