@@ -20,6 +20,10 @@ function parseParams() {
         --smk|--snake-options)
           SNAKE_OPTIONS+=("$2") && shift
           ;;
+
+        -c|--conda-env)
+          CONDA_ENV="$2" && shift
+          ;;
   
         -h|--help)
           manual && exit

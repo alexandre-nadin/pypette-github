@@ -51,6 +51,10 @@ cat << EOFMAN
       --smk|--snake-options
           List of options to pass to Snakemake. 
 
+      -c|--conda-env
+          Specifies the conda environment in which the pipeline is to be executed.
+          Default is 'pipe-PIPELINE'.
+
       -v|--verbose
           Makes this command verbose.
 
@@ -96,6 +100,7 @@ function initParams() {
   VERBOSE=false
   CLUSTER_MNT_POINT=${CLUSTER_MNT_POINT:-""}
   WORKFLOW_DIR=${WORKFLOW_DIR:-""}
+  CONDA_ENV=""
 }
 
 function checkParams() {
@@ -158,9 +163,13 @@ function listModules() (
     2> /dev/null
 )
 
-function envPipeline() {
+function envPipelineDft() {
   printf "pipe-${PIPELINE}" \
    | tr '[[:upper:]]' '[[:lower:]]'
+}
+
+function envPipeline() {
+  printf "${CONDA_ENV:-$(envPipelineDft)}"
 }
 
 function envActivate() {
