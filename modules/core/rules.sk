@@ -208,7 +208,7 @@ rule rules__updatePbsRessources:
   """ 
   run:
     cmd = """
-      output=pbs-rules.yaml
+      output=cluster-rules.yaml
       ## Update default:
       if [ ! -f "$output" ] || ! grep -s -q "^__default__:" "$output"; then
         # Default Ressources

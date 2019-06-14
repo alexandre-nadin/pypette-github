@@ -8,7 +8,7 @@ config__files = tuple(
   for config in (
     "cluster.yaml", 
     "pipeline.yaml", 
-    "pbs-rules.yaml",
+    "cluster-rules.yaml",
    ))
 
 pipeman.addConfigFiles(*config__files)
