@@ -5,9 +5,23 @@ pipeline:
       aligner:
         name: "bwa"
         command: "bwa"
-        version: "0.7.15-r1140"
+        version: "0.7.17-r1188"
         cores: 6
-        ram: '32gb'
+        ram: '64gb'
+      counter:
+        name: "featureCounts"
+        version: "1.6.4"
+        cores: 4
+      sorter:
+        picard:
+          cores: 4
+          mem: '12gb'
+        samtools:
+          cores: 4
+          mem: '12gb'
+      markdup:
+        cores: 4
+        mem: '12gb'
     fastq:
       qc:
         fastqc:
@@ -15,11 +29,14 @@ pipeline:
       trimming:
         trimmers:
           trimmomatic:
+            cores: 8
             mem: '10gb'
             memJava: '10240M'
-            headcrop: ''
+            headcrop: 
           cutadapt:
           bbduk:
+            cores: 8
+            mem: '10gb'
       adapters:
         base: &baseAdapters "Adapters.fasta"
         cutadapt: *baseAdapters

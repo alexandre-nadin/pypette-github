@@ -11,7 +11,7 @@ pipeline:
         outFilterMismatchNmax: 10
       counter:
         name: "featureCounts"
-        version: "1.6.2"
+        version: "1.6.4"
         cores: 4
       sorter:
         picard:

@@ -1,15 +1,21 @@
 __default__:
-  name: '{pipeman.config.pipeline.name}'
+  name: '{pipeman.config.project.bioinfo_pipeline}'
   select: 1
   ncpus: 1
   mem: '1gb'
-  error: 'pbs/{output[0]}.err' 
-  output: 'pbs/{output[0]}.out'
+  error: '{output[0]}.pbserr' 
+  output: '{output[0]}.pbsout'
 
 explain_rules:
   do: True
 
 helpRule:
+  do: True
+
+helpRules:
+  do: True
+
+listRules:
   do: True
 
 rules__updatePbsRessources:
@@ -60,7 +66,6 @@ fastq_trimming__bbduk:
 
 fastq_qc__reads:
   do: True
-  ncpus: "{pipeman.config.pipeline.modules.fastq.qc.fastqc.cores}"
 
 fastq_adapter__fasta_adapters:
   do: True
@@ -74,7 +79,7 @@ gencode__gtf:
 gencode__bed:
   do: True
 
-bam_star__alignReads:
+bam_bwa__alignReads:
   do: True
   ncpus: '{pipeman.config.pipeline.modules.mapping.aligner.cores}'
   mem: '{pipeman.config.pipeline.modules.mapping.aligner.ram}'
@@ -106,19 +111,6 @@ bam__makeIndex:
 bam__hsMetrics:
   do: True
 
-counts__sample:
-  do: True
-  ncpus: "{pipeman.config.pipeline.modules.mapping.counter.cores}"
-
-counts__merged:
-  do: True
-
-qc_rnaseq__multiqc:
-  do: True
-
-helpRules:
-  do: True
-
-listRules:
+qc_wes__multiqc:
   do: True
 
