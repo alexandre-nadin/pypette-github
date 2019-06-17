@@ -59,7 +59,7 @@ class PipelineManager(Manager):
     Returns the path to the given pipeline's snakefile.
     """
     return os.path.join(
-      self.home, "pipelines", self.name, "{}.sk".format(self.name)
+      self.home, "pipelines", self.name, "f{self.name}.sk")
     )
 
   def updateNamespace(self):
@@ -239,7 +239,7 @@ class PipelineManager(Manager):
     all_set = True
     for param in params:
       if not self.configFromKeysString(param):
-        self.log.warning("Parameter '{}' not found in configuration.".format(param))
+        self.log.warning(f"Parameter '{param}' not found in configuration.")
         all_set = False
     if not all_set:
       raise
