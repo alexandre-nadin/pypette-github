@@ -22,6 +22,8 @@ pipeline:
       markdup:
         cores: 4
         mem: '12gb'
+      flagstat:
+        mem: '2gb'
     fastq:
       qc:
         fastqc:

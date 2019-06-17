@@ -111,6 +111,10 @@ bam__makeIndex:
 bam__hsMetrics:
   do: True
 
+bam__flagstat:
+  do: True
+  mem: "{pipeman.config.pipeline.modules.mapping.flagstat.mem}"
+
 qc_wes__multiqc:
   do: True
 

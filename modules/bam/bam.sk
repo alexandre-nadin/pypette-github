@@ -165,3 +165,10 @@ rule bam__hsMetrics:
 
 ruleorder: samples__all > bam__hsMetrics
 
+rule bam__flagstat:
+  input:  "{someprefix}.bam"
+  output: "{someprefix}_flagstat.txt"
+  run:
+    cmd = """
+      samtools flagstat {input} > {output}
+    """
