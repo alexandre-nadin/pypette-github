@@ -2,16 +2,20 @@ LANG = "LC_ALL=en_US.utf8 LANG=en_US.utf8"
 
 rule qc_wes__multiqc:
   input:
-    fastqcs   = lambda wildcards: pipeman.samples.map(
+    fastqcs    = lambda wildcards: pipeman.samples.map(
       fastq_qc__readZip, 
       interpreteAll=True,
       **wildcards),
-    inferExp  = lambda wildcards: pipeman.samples.map(
-      f"{bam__sampleTarget}.inferExperiment",
+    mdMetrics  = lambda wildcards: pipeman.samples.map(
+      f"{bam__sampleTarget}.metrics",
       interpreteAll=True,
       **wildcards),
-    bamCounts = lambda wildcards: pipeman.samples.map(
-      f"{bam__sampleTarget}.counts.summary",
+    hsMetrics  = lambda wildcards: pipeman.samples.map(
+      f"{bam__sampleTarget}_hsMetrics.txt",
+      interpreteAll=True,
+      **wildcards),
+    flagstat   = lambda wildcards: pipeman.samples.map(
+      f"{bam__sampleTarget}_flagstat.txt",
       interpreteAll=True,
       **wildcards)
   output:
