@@ -41,7 +41,7 @@ rule seqrun__projectQcPath:
       pipeline=pipeline,
       project=wildcards.prj,
       target=target)
-    exshell(isSubCmd=True, **vars())
+    exshell(**vars(), isSubCmd=True)
 
 rule project__samplesMetaPath:
   output:
