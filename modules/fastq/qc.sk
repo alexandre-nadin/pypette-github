@@ -5,8 +5,8 @@ fastq_qc__htmlExt     = "_fastqc.html"
 fastq_qc__zipExt      = "_fastqc.zip"
 
 fastq_qc__readPrefix = fastq_merge__readPrefix
-fastq_qc__readHtml = fastq_qc__readPrefix + fastq_qc__htmlExt
-fastq_qc__readZip  = fastq_qc__readPrefix + fastq_qc__zipExt
+fastq_qc__readHtml   = fastq_qc__readPrefix + fastq_qc__htmlExt
+fastq_qc__readZip    = fastq_qc__readPrefix + fastq_qc__zipExt
 
 # --------------
 # Fastq Quality
