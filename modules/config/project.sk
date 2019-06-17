@@ -17,3 +17,5 @@ rule project__config:
        > {output.file}
     """
     shell(cmd)
+
+localrules: project__config

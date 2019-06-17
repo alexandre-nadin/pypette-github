@@ -54,8 +54,10 @@ rule project__samplesMetaPath:
         pipeline=pipeline,
         project=wildcards.prj,
         target=target)
-      exshell(isSubCmd=True, **vars())
+      exshell(**vars(), isSubCmd=True)
       touch(output)
     else:
       pipeman.log.warning(
         f"Could not find relevant pipeline for project {wildcards.prj} among {pipeman.pipelines}.")
+
+localrules: project__samplesMetaPath, seqrun__projectQcPath
