@@ -59,7 +59,7 @@ class PipelineManager(Manager):
     Returns the path to the given pipeline's snakefile.
     """
     return os.path.join(
-      self.home, "pipelines", self.name, "f{self.name}.sk")
+      self.home, "pipelines", self.name, f"{self.name}.sk"
     )
 
   def updateNamespace(self):
