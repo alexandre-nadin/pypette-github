@@ -10,7 +10,6 @@ VARENVS_TAG="_CPIPE_"
 # Snakemake functions
 # ---------------------
 function baseSnakemake() {
-  exportVarenvs
   command snakemake "$@"
 }
 

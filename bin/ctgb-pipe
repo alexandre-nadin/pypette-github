@@ -43,8 +43,12 @@ function parseParams() {
           VERBOSE=true
           ;;
   
-        *)
+        -*)
           errorUnrecOpt "$1"
+          ;;
+ 
+        *)
+          echo "Taking snakemake command: '$1'"
           ;;
   
       esac
