@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+source pipe.sh
+
 SCRIPT_PATH=$(readlink -f "${BASH_SOURCE[0]}")
 SCRIPT_DIR=$(dirname "${SCRIPT_PATH}")
 EXEC_DIR="$(readlink -f $(pwd))"
@@ -26,7 +28,7 @@ function smk() {
 # Manual
 # -------
 function manual() {
-cat << EOFMAN
+  cat << EOFMAN
   
   DESCRIPTION
       Launches a CTGB PIPELINE for the given PROJECT.
@@ -64,13 +66,6 @@ cat << EOFMAN
 EOFMAN
 }
 
-function msgManual() {
-  cat << eol
-Please consult the following help:
-$(manual)
-eol
-}
-
 # ------
 # Paths
 # ------
@@ -105,25 +100,17 @@ function initParams() {
 
 function checkParams() {
   checkDirs
-  checkProject
+  pipe::checkProject
   checkPipeline
-}
-
-function isParamGiven() {
-  [ ! -z ${1:+x} ] 
 }
 
 function existsPipeline() {
   [ -f $(pathPipelineSnakefile ${1}) ]
 }
 
-function checkProject() {
-  isParamGiven "$PROJECT"    || errorParamNotGiven "PROJECT"
-}
-
 function checkPipeline() {
-  isParamGiven "$PIPELINE"   || errorParamNotGiven "PIPELINE"
-  existsPipeline "$PIPELINE" || errorPipelineNotExist "$PIPELINE"
+  pipe::isParamGiven "$PIPELINE" || pipe::errorParamNotGiven "PIPELINE"
+  existsPipeline "$PIPELINE"     || errorPipelineNotExist "$PIPELINE"
 }
 
 function checkDirs() {
@@ -173,7 +160,7 @@ function envPipeline() {
 }
 
 function envActivate() {
-  infecho "Executing in '$(envPipeline)' conda environment."
+  pipe::infecho "Executing in '$(envPipeline)' conda environment."
   condactivate $(envPipeline)
 }
 
@@ -189,7 +176,7 @@ eol
 }
 
 function execSnakemake() {
-  infecho "\$ $(cmdSnakemake)\n"
+  pipe::infecho "\$ $(cmdSnakemake)\n"
   eval "$(cmdSnakemake)"
 }
 
@@ -255,46 +242,12 @@ function exportCpipeVarenv() {
 # -------
 # Errors
 # -------
-function verbecho() {
-  ${VERBOSE} && printf "$@\n" || : 
-}
-
-function infecho() {
-  printf "Info: $@\n"
-}
-
-function errexit() {
-  printf "Error: $@\n\n"
-  msgManual
-  exit 1
-}
-
-function msgUnrecOpt() {
-  cat << eol
-Unrecognized option '$@'.
-eol
-}
-
-function errorUnrecOpt() {
-  errexit "$(msgUnrecOpt $@)"
-}
-
-function msgParamNotGiven() {
-  cat << eol
-Parameter ${1} not given.
-eol
-}
-
-function errorParamNotGiven() {
-  errexit "$(msgParamNotGiven $1)"
-}
-
 function msgPipelineNotExist() {
-cat << eol
+  cat << eol
 Pipeline "$(pathPipelineSnakefile ${1})" not found in '$(pathPipelines)/'.
 eol
 }
 
 function errorPipelineNotExist() {
-  errexit "$(msgPipelineNotExist $1)"
+  pipe::errexit "$(msgPipelineNotExist $1)"
 } 

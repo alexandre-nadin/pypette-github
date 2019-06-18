@@ -1,0 +1,148 @@
+#!/usr/bin/env bash
+set -euf -o pipefail
+source pipe.sh
+
+function fromrnaseq() {
+  echo "fromrnaseq: $(pipe::cmd)"
+}
+echo "cmd: $(pipe::cmd)"
+fromrnaseq
+echo "cmdType: $(pipe::cmdType)"
+
+_dir=$(readlink -f $(dirname "${BASH_SOURCE[0]}"))
+_cmd=$(basename "${BASH_SOURCE[0]}")
+PIPELINE=${_cmd##pipe-}
+EXEC_TYPES=(staging local)
+
+function cmdPipeline() {
+  cat << eol | xargs
+  $(cmdPipelineType)
+   -p $PIPELINE   
+   --prj $PROJECT 
+   --smk \"$(smkParams)\"
+eol
+}
+
+function cmdPipelineType() {
+  printf "cpipe${TYPEXEC:+-$TYPEXEC}"
+}
+
+function smkParams() {
+  printf "$TARGET $(smkOptions)"
+}
+
+function smkOptions() {
+  cat << eol | xargs
+  --jobs 32 
+  --latency-wait 30 
+  --rerun-incomplete
+  --cluster-config $(clusterConfig)
+  --cluster "'$(cmdQsub)'"
+  --debug=${DEBUG}
+eol
+}
+
+function clusterConfig() {
+  printf "${CLUSTER_CONFIG:-$(clusterConfigDft)}"
+}
+
+function clusterConfigDft() {
+  readlink -f "$(clusterConfigDftTemplate)"
+}
+
+function clusterConfigDftTemplate() {
+  printf "${_dir}/../pipelines/${PIPELINE:-PIPELINE}/cluster-rules.yaml"
+}
+
+function cmdQsub() {
+  cat << eol | xargs
+  qsub 
+    -V 
+    -N {cluster.name} 
+    -l select={cluster.select}:ncpus={cluster.ncpus}:mem={cluster.mem}
+eol
+}
+
+# -------------------
+# Parse parameters
+# -------------------
+function parseParams() {
+  while [ $# -ge 1 ]
+  do
+      case "$1" in
+        --prj)
+          PROJECT="$2"          && shift
+          ;;
+
+        --target)
+          TARGET="$2"           && shift 
+          ;;
+
+        --cluster-rules)
+          CLUSTER_RULES="$2"    && shift
+          ;;
+
+        --typexec)
+          TYPEXEC="$2"          && shift
+          ;;
+
+        --debug)
+          DEBUG=true
+          ;;
+
+        -h|--help)
+          manual && exit
+          ;;
+  
+        -v|--verbose)
+          VERBOSE=true
+          ;;
+  
+        *)
+          pipe::errorUnrecOpt "$1"
+          ;;
+  
+      esac
+      shift
+  done
+}
+
+function manual() {
+  cat << eol
+
+  DESCRIPTION
+      Launches a CTGB PIPELINE for the given PROJECT.
+
+  USAGE
+      $ $0                               \
+          -p|--prj PROJECT               \ 
+          -t|--target TARGET             \ 
+          [ -c|--cluster-rules FILE ]    \ 
+          [ -t|--typexec $(str.join -d '|' $(execTypes)) ] \ 
+          [ -d|--debug ]                 \
+          [ -v|--verbose ]               
+
+  OPTIONS
+      -p|--prj
+          Name of the project to analyze.
+
+      -t|--target
+          Name of the target file.
+
+      -c|--cluster-rules
+          Yaml file with all the pipeline's rules for cluster execution. 
+          Default is $(clusterConfigDftTemplate).
+
+      -t|--typexec
+          The type of execution of the pipeline. Can be one among $(execTypes).
+
+      -d|--debug
+          Execute the pipeline in debug mode.
+
+      -v|--verbose
+          Makes this command verbose.
+
+      -h|--help
+          Displays this help manual.
+eol
+}
