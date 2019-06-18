@@ -172,3 +172,4 @@ rule bam__flagstat:
     cmd = """
       samtools flagstat {input} > {output}
     """
+    exshell(**vars())
