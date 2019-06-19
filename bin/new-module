@@ -1,3 +1,0 @@
-#!/usr/bin/env bash
-#set -euf -o pipefail
-new-snakefile module "$1" 
