@@ -26,33 +26,34 @@ rule fastq_trimming__trimmomatic:
                 fastq__read, sample_read="R2", **wildcards),
     adapters = "adapters/trimmomatic/adapters.fa"
   output: 
-    r1       = temp(fastq_trimming__dir + "/trimmomatic/{sample_name}_R1.fastq.gz"),
-    r1u      = temp(fastq_trimming__dir + "/trimmomatic/{sample_name}_R1_UNPAIRED.fastq.gz"),
-    r2       = temp(fastq_trimming__dir + "/trimmomatic/{sample_name}_R2.fastq.gz"),
-    r2u      = temp(fastq_trimming__dir + "/trimmomatic/{sample_name}_R2_UNPAIRED.fastq.gz"),
+    r1       = temp(f"{fastq_trimming__dir}/trimmomatic/{{sample_name}}_R1.fastq.gz"),
+    r1u      = temp(f"{fastq_trimming__dir}/trimmomatic/{{sample_name}}_R1_UNPAIRED.fastq.gz"),
+    r2       = temp(f"{fastq_trimming__dir}/trimmomatic/{{sample_name}}_R2.fastq.gz"),
+    r2u      = temp(f"{fastq_trimming__dir}/trimmomatic/{{sample_name}}_R2_UNPAIRED.fastq.gz"),
+    trimlog  =      f"{fastq_trimming__dir}/trimmomatic/{{sample_name}}.trimlog",
   run:
-    inputReads  = " \\\n".join(
-                  [ x for x in [ 
-                      input.r1[0], 
-                      input.r2[0] if input.r2 else None] 
-                    if x ])
-    outputReads = " \\\n".join([ output.r1 ])
-    if len(inputReads) == 2:
+    inputReads = [ x for x in [ 
+                     input.r1[0], 
+                     input.r2[0] if input.r2 else None] 
+                   if x ]
+    inputString   = " \\\n".join(inputReads)
+
+    outputReads   = [ output.r1 ]
+    if input.r2:
       outputReads += [ output.r1u, output.r2, output.r2u ]
 
+    outputString  = " \\\n".join(outputReads)
+
     trimmomatic   = pipeman.config.pipeline.modules.fastq.trimming.trimmers.trimmomatic
-    pairendedness ='PE' if pipeman.config.project.pair_end else 'SE'
+    pairendedness = 'PE' if input.r2 else 'SE'
                  
     cmd = """
-      java                                    
-        -Djava.io.tmpdir=$TMPDIR              \\
-        -Xmx{trimmomatic.memJava}             \\
-        -jar trimmomatic-0.32.jar             \\
+        trimmomatic                           \\
         {pairendedness}                       \\
         -phred33                              \\
-        -trimlog {output.r1}.log              \\
-        {inputReads}                          \\
-        {outputReads}                         \\
+        -trimlog {output.trimlog}             \\
+        {inputString}                         \\
+        {outputString}                        \\
         ILLUMINACLIP:{input.adapters}:2:30:10 \\
         LEADING:3                             \\
         TRAILING:3                            \\
@@ -109,7 +110,7 @@ rule fastq_trimming__bbduk:
       [ x for x in [
           "out={}".format(output.r1),
           "out2={}".format(output.r2) 
-            if len(inputReads) == 2 and output.r2 
+            if input.r2 
             else None ] 
         if x ])
 
@@ -128,6 +129,7 @@ rule fastq_trimming__bbduk:
         forcetrimleft=0      \\
         forcetrimright2=0    \\
         overwrite=true
+      touch {output}
     """
     exshell(**vars())
 

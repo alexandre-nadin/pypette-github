@@ -1,0 +1,34 @@
+LANG = "LC_ALL=en_US.utf8 LANG=en_US.utf8"
+
+rule qc_wes__multiqc:
+  input:
+    fastqcs    = lambda wildcards: pipeman.samples.map(
+      fastq_qc__readZip, 
+      interpreteAll=True,
+      **wildcards),
+    mdMetrics  = lambda wildcards: pipeman.samples.map(
+      f"{bam__sampleTarget}.metrics",
+      interpreteAll=True,
+      **wildcards),
+    hsMetrics  = lambda wildcards: pipeman.samples.map(
+      f"{bam__sampleTarget}_hsMetrics.txt",
+      interpreteAll=True,
+      **wildcards),
+    flagstat   = lambda wildcards: pipeman.samples.map(
+      f"{bam__sampleTarget}_flagstat.txt",
+      interpreteAll=True,
+      **wildcards)
+  output:
+    report   =           f"{bam__pipeTarget}multiqc_report.html",
+    data     = directory(f"{bam__pipeTarget}multiqc_data")
+  run:
+    outDir = bam__pipeTarget.format(**wildcards)
+    cmd  = f"""
+      {LANG} multiqc       \
+        -f                 \
+        -o {outDir}        \
+        {input} 
+    """
+    exshell(**vars())
+
+ruleorder: qc_wes__multiqc > samples__all > samples__runs

@@ -45,5 +45,3 @@ rule fastq__linkRead:
     exshell(**vars())
 
 ruleorder: samples__all > samples__runs > fastq__linkRead
-localrules: fastq__linkRead
-

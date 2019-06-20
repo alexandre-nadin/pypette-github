@@ -1,3 +1,4 @@
+pipeman.includeModule('qc/rseqc.sk')
 counts__pipeTarget = f"{bam__pipeTarget}counts"
 
 # -------
@@ -11,24 +12,27 @@ counts__pipeTarget = f"{bam__pipeTarget}counts"
 # -C      :  do NOT count chimeric fragments in PE data, i.e. paired reads mapping on different chromosomes *
 # -R BAM  :  Annotates the original bam files. We don't need this bam for now *
 rule counts__sample:
-  input:
-    bam = "{someprefix}/{sample_name}.bam",
-    gtf = gencode__gtf()
+  input: 
+    bam       = "{someprefix}/{sample_name}.bam",
+    inferExp  = "{someprefix}/{sample_name}.inferExperiment",
+    gtf       = lambda x: gencode__gtf()
   output:
-    counts    = "{someprefix}/{sample_name}.counts",
-    sumcounts = "{someprefix}/{sample_name}.counts.summary",
-    bam       = "{someprefix}/{sample_name}.bam.annot"
+    counts    = temp("{someprefix}/{sample_name}.counts"),
+    countsGz  =      "{someprefix}/{sample_name}.counts.gz",
+    sumcounts =      "{someprefix}/{sample_name}.counts.summary",
+    bam       = temp("{someprefix}/{sample_name}.bam.featureCounts.bam"),
+    log       =      "{someprefix}/{sample_name}.log"
   run: 
-    paired   = '-p' if pipeman.config.project.pair_end else ''
-    cores    = pipeman.config.pipeline.mapping.counter.cores
-    stranded = 2
+    inferExp  = rseqc__inferExperiment(input.inferExp)
+    cores     = pipeman.config.pipeline.modules.mapping.counter.cores
+    paired    = '-p' if inferExp.isPairEnd else ''
     cmd = """
       featureCounts               \
         --tmpDir $TMPDIR          \
         -T {cores}                \
         {paired}                  \
         -C                        \
-        -s {stranded}             \
+        -s {inferExp.fcStrand}    \
         -t exon                   \
         -F GTF                    \
         -a {input.gtf}            \
@@ -36,7 +40,9 @@ rule counts__sample:
         -R BAM                    \
         -o {output.counts}        \
         {input.bam}               \
-       2> {input}.subread.log
+       2> {output.log}
+
+      gzip -c {output.counts} > {output.countsGz}
     """
     exshell(**vars())
 
