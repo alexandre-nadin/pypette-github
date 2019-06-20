@@ -18,9 +18,10 @@ rule fastq_merging__mergeReads:
   output:
     read  = temp(fastq_merge__read)
   run:
+    input.reads.sort()
     if len(input.reads) == 1:
       cmd = """
-        ln {input.reads[0]} {output.read}
+        ln.rel {input.reads[0]} {output.read}
       """
     else:
       cmd = """

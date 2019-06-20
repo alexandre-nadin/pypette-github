@@ -9,7 +9,7 @@ function parseParams() {
   while [ $# -ge 1 ]
   do
       case "$1" in
-        --prj)
+        --project)
           PROJECT="$2" && shift
           ;;
 
@@ -17,8 +17,12 @@ function parseParams() {
           PIPELINE="$2" && shift
           ;;
   
-        --smk|--snake-options)
+        --snakemake)
           SNAKE_OPTIONS+=("$2") && shift
+          ;;
+
+        -c|--conda-env)
+          CONDA_ENV="$2" && shift
           ;;
   
         -h|--help)
@@ -26,12 +30,12 @@ function parseParams() {
           ;;
   
         --ls-pipes)
-          listPipelines
+          pipe::listPipelines
           exit
           ;;
   
         --ls-modules)
-          listModules
+          pipe::listModules
           exit
           ;;
 
@@ -44,7 +48,11 @@ function parseParams() {
           ;;
   
         *)
-          errorUnrecOpt "$1"
+          pipe::errorUnrecOpt "$1"
+          ;;
+ 
+        *)
+          echo "Taking snakemake command: '$1'"
           ;;
   
       esac

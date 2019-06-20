@@ -4,22 +4,23 @@ rule fastq_adapter__fasta_adapters:
   input: 
     fasta = lambda wildcards: fastq_adapter__toolAdapters(wildcards.trimmingTool)
   output: 
-    "adapters/{trimmingTool}/adapters.fa"
+    fasta = "adapters/{trimmingTool}/adapters.fa"
   wildcard_constraints:
     trimmingTool = '|'.join(trimmingTools)
   run:
     cmd = """
+      condactivate
       ## Substitute uracil in timin; Remove empty lines.
       perl -pe 'if(!m/^>/){{ tr/U/T/}}' {input.fasta} \
-       | grep . > {output[0]}.tmp1
+       | grep . > {output.fasta}.tmp1
 
-      reverse_fasta < {output[0]}.tmp1 \
+      reverse_fasta < {output.fasta}.tmp1 \
        | perl -lpe 'if(m/^>/){{$_=$_."_reverse"}}' \
-       > {output[0]}.tmp2
+       > {output.fasta}.tmp2
+ 
+      cat {output.fasta}.tmp1 {output.fasta}.tmp2 \
+       > {output.fasta}
 
-      cat {output[0]}.tmp1 {output[0]}.tmp2 \
-       > {output[0]}
-
-      rm {output[0]}.tmp1 {output[0]}.tmp2
+      rm {output.fasta}.tmp1 {output.fasta}.tmp2
     """
     exshell(**vars())

@@ -1,11 +1,17 @@
-def gencode__gtfTemplateName():
-  return "gencode.v{genome.gencode.version}.{genome.gencode.annotation_type}.gtf.gz"
+def gencode__baseName():
+  return "gencode.v{genome.gencode.version}.{genome.gencode.annotation_type}"
+
+# -----------
+# GTF Files
+# -----------
+def gencode__gtfTemplate():
+  return gencode__baseName() + ".gtf.gz"
 
 @formatGenome
 def gencode__gtf():
   return os.path.join(
     genome__annotationDir(),
-    gencode__gtfTemplateName())
+    gencode__gtfTemplate())
 
 @formatGenome
 def gencode__gtfUrl():
@@ -13,4 +19,16 @@ def gencode__gtfUrl():
     "ftp://ftp.ebi.ac.uk/pub/databases/gencode",
     "Gencode_{genome.species.common_name}",
     "release_{genome.gencode.version}",
-    gencode__gtfTemplateName())
+    gencode__gtfTemplate())
+
+# ----------
+# Bed Files
+# ----------
+def gencode__bedTemplate():
+  return gencode__baseName() + ".bed"
+
+@formatGenome
+def gencode__bed():
+  return os.path.join(
+    genome__annotationDir(),
+    gencode__bedTemplate())

@@ -40,7 +40,7 @@ def bam__sampleReadGroup(sample):
   experimentName = fcid + "_" + sample.sample_name
   platform       = pipeman.config.pipeline.sequencing.platform
   center         = pipeman.config.pipeline.center.name 
-  return "\t".join([
+  return "\\t".join([
     "@RG",
     "ID:" + experimentName,
     "PL:" + platform,

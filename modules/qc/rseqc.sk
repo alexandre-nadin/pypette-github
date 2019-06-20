@@ -1,0 +1,18 @@
+include: "rseqc.py"
+
+rule rseqc__inferExperiment:
+  input:
+    bam = "{someprefix}/{sample_name}.bam",
+    bai = "{someprefix}/{sample_name}.bai",
+    bed = lambda x: gencode__bed()
+  output: 
+    inf = "{someprefix}/{sample_name}.inferExperiment"
+  run:
+    cmd = """
+      infer_experiment.py \
+        -r {input.bed}    \
+        -i {input.bam}    \
+       > {output.inf}
+    """
+    exshell(**vars())
+

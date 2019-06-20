@@ -18,3 +18,5 @@ rule seqrun__config:
     """
     shell(cmd)
     pipeman.configManager.load(output.file)
+
+localrules: seqrun__config

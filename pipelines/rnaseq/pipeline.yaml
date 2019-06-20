@@ -7,12 +7,22 @@ pipeline:
         command: "STAR"
         version: "STAR_2.5.3a"
         cores: 6
-        ram: '32gb'
+        ram: '64gb'
         outFilterMismatchNmax: 10
       counter:
         name: "featureCounts"
-        version: "1.6.2"
+        version: "1.6.4"
         cores: 4
+      sorter:
+        picard:
+          cores: 4
+          mem: '12gb'
+        samtools:
+          cores: 4
+          mem: '12gb'
+      markdup:
+        cores: 4
+        mem: '12gb'
     fastq:
       qc:
         fastqc:
@@ -20,11 +30,14 @@ pipeline:
       trimming:
         trimmers:
           trimmomatic:
+            cores: 8
             mem: '10gb'
             memJava: '10240M'
             headcrop: 'HEADCROP:12'
           cutadapt:
           bbduk:
+            cores: 8
+            mem: '10gb'
       adapters:
         base: &baseAdapters "Adapters.fasta" 
         cutadapt: *baseAdapters

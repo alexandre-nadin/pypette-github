@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+set -euf -o pipefail
+source pipetype.sh
+
+# -------------------
+# Parse parameters
+# -------------------
+function runFlow() {
+  pipetype::parseParams "$@"
+  pipetype::checkParams
+  pipetype::execPipeline
+}
+
+runFlow "$@"
