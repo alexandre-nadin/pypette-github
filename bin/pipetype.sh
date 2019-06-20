@@ -20,6 +20,7 @@ function pipetype::manual() {
           --target TARGET             \ 
           [ --cluster-rules FILE ]    \ 
           [ --typexec $(str.join -d '|' ${pipetype__TYPEXECS[@]}) ] \ 
+          [ --force ]                 \ 
           [ -d|--debug ]              \ 
           [ -v|--verbose ] 
 
@@ -66,6 +67,10 @@ function pipetype::parseParams() {
 
         --typexec)
           TYPEXEC="$2"          && shift
+          ;;
+
+        --force)
+          FORCE=true
           ;;
 
         -d|--debug)
@@ -172,7 +177,8 @@ function pipetype::smkOptionsBase() {
   --jobs 32 
   --latency-wait 30 
   --rerun-incomplete
-  ${DEBUG:+--config debug=${DEBUG}}
+  ${FORCE:+--force}
+  ${DEBUG:+--config debug=True}
 eol
 }
 
