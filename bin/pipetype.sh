@@ -5,6 +5,15 @@ pipe::setManual pipetype::manual
 pipetype__TYPEXECS=(staging local)
 pipetype__paramsMandatory=(PROJECT TARGET)
 
+# ----------
+# Workflow
+# ----------
+function pipetype::runFlow() {
+  pipetype::parseParams "$@"
+  pipetype::checkParams
+  pipetype::execPipeline
+}
+
 # --------------
 # CLI & Parsing
 # --------------
@@ -26,10 +35,10 @@ function pipetype::manual() {
 
   OPTIONS
       --project
-          Name of the project to analyze.
+          Name of the project to process.
 
       --target
-          Name of the target file.
+          Name of the target file to be produced by the pipeline.
 
       --cluster-rules
           Yaml file with all the pipeline's rules for cluster execution. 
@@ -37,6 +46,7 @@ function pipetype::manual() {
 
       --typexec
           The type of execution of the pipeline. Can be one among [ ${pipetype__TYPEXECS[@]} ].
+          Default means production mode.
 
       -d|--debug
           Execute the pipeline in debug mode.
