@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
+source pipe.sh
+
 SCRIPT_PATH=$(readlink -f "${BASH_SOURCE[0]}")
 SCRIPT_DIR=$(dirname "${SCRIPT_PATH}")
 EXEC_DIR="$(readlink -f $(pwd))"
 
-PIPELINE_SNAKEFILE="Snakefile"
 VARENVS_TAG="_CPIPE_"
 
 # ---------------------
@@ -25,18 +26,19 @@ function smk() {
 # -------
 # Manual
 # -------
+cpipe__paramsMandatory=(PROJECT PIPELINE)
 function manual() {
-cat << EOFMAN
+  cat << EOFMAN
   
   DESCRIPTION
       Launches a CTGB PIPELINE for the given PROJECT.
       SNAKEMAKE_OPTIONs will be passed to the Snakemake command.
 
   USAGE
-      $ $0 --prj PROJECT -p PIPELINE [--smk SNAKEMAKE_OPTION ...]
+      $ $0 --project PROJECT -p PIPELINE [--snakemake SNAKEMAKE_OPTION ...]
 
   OPTIONS
-      --prj
+      --project
           Name of the project to analyse.
 
       -p|--pipeline
@@ -48,7 +50,7 @@ cat << EOFMAN
       --ls-modules
           Lists available modules in ctgb-pipe.
 
-      --smk|--snake-options
+      --snakemake
           List of options to pass to Snakemake. 
 
       -c|--conda-env
@@ -62,32 +64,6 @@ cat << EOFMAN
           Displays this help manual.
     
 EOFMAN
-}
-
-function msgManual() {
-  cat << eol
-Please consult the following help:
-$(manual)
-eol
-}
-
-# ------
-# Paths
-# ------
-function pathHome() {
-  readlink -f "${SCRIPT_DIR}/.."
-}
-
-function pathPipelines() {
-  printf "$(pathHome)/pipelines"
-}
-
-function pathPipelineSnakefile() {
-  printf "$(pathPipelines)/${1}/${PIPELINE_SNAKEFILE}"
-}
-
-function pathModules() {
-  printf "$(pathHome)/modules"
 }
 
 # -----------
@@ -104,65 +80,14 @@ function initParams() {
 }
 
 function checkParams() {
-  checkDirs
-  checkProject
-  checkPipeline
+  pipe::checkParams ${cpipe__paramsMandatory[@]}
+  pipe::checkPipeline
 }
 
-function isParamGiven() {
-  [ ! -z ${1:+x} ] 
-}
-
-function existsPipeline() {
-  [ -f $(pathPipelineSnakefile ${1}) ]
-}
-
-function checkProject() {
-  isParamGiven "$PROJECT"    || errorParamNotGiven "PROJECT"
-}
-
-function checkPipeline() {
-  isParamGiven "$PIPELINE"   || errorParamNotGiven "PIPELINE"
-  existsPipeline "$PIPELINE" || errorPipelineNotExist "$PIPELINE"
-}
-
-function checkDirs() {
-  :
-}
 
 # ----------
 # Commands 
 # ----------
-function msgListPipelines() {
-  cat << eol
-Available pipelines: 
-eol
-}
-
-function listPipelines() (
-  cd "$(pathPipelines)"
-  set +f
-  msgListPipelines
-  ls -1 */{,*/}${PIPELINE_SNAKEFILE}     \
-   | sed "s|/\?${PIPELINE_SNAKEFILE}$||" \
-   | xargs                          \
-   2>/dev/null
-)
-
-function msgListModules() {
-  cat << eol
-Available modules: 
-eol
-}
-
-function listModules() (
-  cd "$(pathModules)"
-  set +f
-  msgListModules 
-  ls */{,*/}*.{sk,snake} \
-    2> /dev/null
-)
-
 function envPipelineDft() {
   printf "pipe-${PIPELINE}" \
    | tr '[[:upper:]]' '[[:lower:]]'
@@ -173,39 +98,38 @@ function envPipeline() {
 }
 
 function envActivate() {
-  infecho "Executing in '$(envPipeline)' conda environment."
+  pipe::infecho "Executing in '$(envPipeline)' conda environment."
   condactivate $(envPipeline)
 }
 
 function cmdSnakemake() {
   cat << eol 
   \snakemake  \
-   --snakefile $(pathPipelineSnakefile root) \
+   --snakefile $(pipe::pathPipelineSnakefile root) \
    ${SNAKE_OPTIONS[@]}  
 eol
-  #\
- #  $(clusterVarEnvsStr)
-  
 }
 
 function execSnakemake() {
-  infecho "\$ $(cmdSnakemake)\n"
+  pipe::infecho "\$ $(cmdSnakemake)\n"
   eval "$(cmdSnakemake)"
 }
 
 # ---------
 # Env Vars
 # ---------
+_varenvs=()
+
 function exportVarenvs() {
-  exportCpipeVarenv "HOME" $(pathHome)
+  exportCpipeVarenv "HOME" $(pipe::homeDir)
   exportCpipeVarenv "PROJECT" "$PROJECT"
   exportCpipeVarenv "PIPE_NAME" "$PIPELINE"
   exportCpipeVarenv "PIPE_ENV" "$(envPipeline)"
-  exportCpipeVarenv "PIPE_SNAKE" $(pathPipelineSnakefile $PIPELINE)
+  exportCpipeVarenv "PIPE_SNAKE" $(pipe::pathPipelineSnakefile $PIPELINE)
   exportCpipeVarenv "WORKFLOW_DIR" "$WORKFLOW_DIR"
   exportCpipeVarenv "CLUSTER_MNT_POINT" "$CLUSTER_MNT_POINT"
   exportCpipeVarenv "SHELL_ENV" "$SHELL_ENV"
-  export PYTHONPATH=${PYTHONPATH:+${PYTHONPATH}":"}$(pathHome)
+  export PYTHONPATH=${PYTHONPATH:+${PYTHONPATH}":"}$(pipe::homeDir)
   exportCpipeVarenv "PYTHON_SYSPATH" "$(pythonSysPath) $PYTHONPATH"
   exportCpipeVarenv "EXEC_DIR" "$EXEC_DIR"
 }
@@ -214,37 +138,9 @@ function pythonSysPath() {
   python -c 'import sys; print(" ".join(sys.path))'
 }
 
-function cpipeVarenvOf() {
-  printf "${VARENVS_TAG}${1}"
-}
-
-_varenvs=()
-function clusterEnvs() {
-  local varStrs=()
-  local varStr=''
-  for var in "${_varenvs[@]}"; do
-    varStr="$var=\"${!var}\""
-    if [ ${#varStrs} -gt 0 ]; then
-      varStrs=("${varStrs[@]}" "$varStr")
-    else
-      varStrs=("$varStr")
-    fi
-  done
-  str.join -d ',' "${varStrs[@]}"
-}
-
-function clusterVarEnvsStr() {
-  local str=''
-  if [ ${#_varenvs} -gt 0 ]; then
-    str="--cluster \'qsub -v $(clusterEnvs)\'"
-  fi
-  #printf -- "--cluster 'qsub $str'"
-  printf -- "$str"
-}
-
 function exportCpipeVarenv() {
   local var="$(cpipeVarenvOf ${1})"
-  if [ ${#_varenvs} -gt 0 ]; then
+  if [ ${#_varenvs[@]} -gt 0 ]; then
     _varenvs=(${_varenvs[@]} "$var") 
   else
     _varenvs=("$var")
@@ -252,49 +148,6 @@ function exportCpipeVarenv() {
   eval "export $(cpipeVarenvOf ${1})=\"${2}\""
 }
 
-# -------
-# Errors
-# -------
-function verbecho() {
-  ${VERBOSE} && printf "$@\n" || : 
+function cpipeVarenvOf() {
+  printf "${VARENVS_TAG}${1}"
 }
-
-function infecho() {
-  printf "Info: $@\n"
-}
-
-function errexit() {
-  printf "Error: $@\n\n"
-  msgManual
-  exit 1
-}
-
-function msgUnrecOpt() {
-  cat << eol
-Unrecognized option '$@'.
-eol
-}
-
-function errorUnrecOpt() {
-  errexit "$(msgUnrecOpt $@)"
-}
-
-function msgParamNotGiven() {
-  cat << eol
-Parameter ${1} not given.
-eol
-}
-
-function errorParamNotGiven() {
-  errexit "$(msgParamNotGiven $1)"
-}
-
-function msgPipelineNotExist() {
-cat << eol
-Pipeline "$(pathPipelineSnakefile ${1})" not found in '$(pathPipelines)/'.
-eol
-}
-
-function errorPipelineNotExist() {
-  errexit "$(msgPipelineNotExist $1)"
-} 
