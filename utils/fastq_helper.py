@@ -23,7 +23,7 @@ class FastqFile(object):
 
   regex_fields.update({
     'sample_path':      "\w+",
-    'sample_run':       "\w+",
+    'sample_run':       "[\w-]+",
     'sample_basename':  "\w+",
     'sample_chunkname': field_sep.join(val for key, val in regex_fields.items()),
     'sample_extension': "\.fastq\.gz" 

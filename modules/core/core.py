@@ -1,10 +1,10 @@
 def core__subCmd(pipeline, project, target):
   """ Returns a cpipe sub-command string to be executed """
   return f"""
-    ctgb-pipe                        \
-      -p {pipeline}                  \
-      --prj {project}                \
-      --smk "{core__smkCmd(target)}"
+    pipe-{pipeline}       \
+      --project {project} \
+      --target {target}    \
+      --typexec staging
   """
 
 def core__smkCmd(target):

@@ -135,8 +135,10 @@ rule bam__mergeSample:
 ruleorder: bam__mergeSample > samples__runs
 
 rule bam__makeIndex:
-  input:  "{someprefix}.bam"
-  output: "{someprefix}.bai"
+  input:       
+         "{someprefix}.bam"
+  output: 
+    temp("{someprefix}.bai")
   run:
     cmd = """
       picard BuildBamIndex I={input} O={output}

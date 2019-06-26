@@ -1,3 +1,7 @@
+_dir=$(readlink -f $(dirname "${BASH_SOURCE[0]}")) 
+PIPELINE='seqrun'
+export PATH="${PATH}:$(readlink -f ${_dir}/../bin)"
+
 # Project
 export project=PersicoA_435_Autism_Rna_Seq
 
