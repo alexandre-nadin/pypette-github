@@ -20,7 +20,7 @@ def project__dirFmt():
 def project__qcPathFmt():
   return os.path.join(
     project__dirFmt(),
-    "{prefix}multiqc.html")
+    "{prefix}multiqc_report.html")
 
 def project__dir(prj):
   return project__dirFmt().format(prj=prj)

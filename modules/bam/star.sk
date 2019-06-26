@@ -8,12 +8,14 @@ rule bam_star__alignReads:
     reads_2 = lambda wildcards: pipeman.samples.map(
                 fastq__read, sample_read="R2", **wildcards)
   output:
-    bam       = temp(bam__sample),
-    raw_file  = temp(f"{bam__mappingDir}/Aligned.sortedByCoord.out.bam"),
-    out_files = [ 
+    bam     = temp(bam__sample),
+    tab      = temp(f"{bam__mappingDir}/SJ.out.tab"),
+    tabgz    =      f"{bam__mappingDir}/SJ.out.tab.gz",
+    rawFile  = temp(f"{bam__mappingDir}/Aligned.sortedByCoord.out.bam"),
+    outFiles = [ 
       f"{bam__mappingDir}{ext}"
       for ext in [ 
-        "/Log.out", "/Log.progress.out", "/Log.final.out", "/SJ.out.tab" 
+        "/Log.out", "/Log.progress.out", "/Log.final.out",
       ]],
     log       = f"{bam__samplePrefix}.log"
   run:
@@ -34,7 +36,8 @@ rule bam_star__alignReads:
        --readFilesCommand zcat                              \
       > {output.log}
   
-     ln {output.raw_file} {output.bam}
+     ln {output.rawFile} {output.bam}
+     gzip -c {output.tab} > {output.tabgz}
     """
     exshell(**vars())
 

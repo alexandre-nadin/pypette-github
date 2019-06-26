@@ -3,8 +3,8 @@ __default__:
   select: 1
   ncpus: 1
   mem: '1gb'
-  error: '{output[0]}.pbserr' 
-  output: '{output[0]}.pbsout'
+  error: 'pbs/{output[0]}.err' 
+  output: 'pbs/{output[0]}.out'
 
 explain_rules:
   do: True
