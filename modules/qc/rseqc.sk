@@ -12,6 +12,7 @@ rule rseqc__inferExperiment:
       infer_experiment.py \
         -r {input.bed}    \
         -i {input.bam}    \
+        -s 5000000        \
        > {output.inf}
     """
     exshell(**vars())
