@@ -16,3 +16,18 @@ rule rseqc__inferExperiment:
     """
     exshell(**vars())
 
+rule rseqc__readsDistribution:
+  input:
+    bam  = "{someprefix}/{sample_name}.bam",
+    bai  = "{someprefix}/{sample_name}.bai",
+    bed  = lambda x: gencode__bed()
+  output:
+    dist = "{someprefix}/{sample_name}.reads_distribution"
+  run:
+    cmd = """
+      reads_distribution.py \
+        -i {input.bam}      \
+        -r {input.bed}      \
+       > {output.dist}
+    """
+    exshell(**vars())
