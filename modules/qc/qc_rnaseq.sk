@@ -13,6 +13,14 @@ rule qc_rnaseq__multiqc:
     bamCounts = lambda wildcards: pipeman.samples.map(
       f"{bam__sampleTarget}.counts.summary",
       interpreteAll=True,
+      **wildcards),
+    bamstat    = lambda wildcards: pipeman.samples.map(
+      f"{bam__sampleTarget}.bamstats",
+      interpreteAll=True,
+      **wildcards),
+    readsDist  = lambda wildcards: pipeman.samples.map(
+      f"{bam__sampleTarget}.reads_distribution",
+      interpreteAll=True,
       **wildcards)
   output:
     report   =           f"{bam__pipeTarget}multiqc_report.html",
