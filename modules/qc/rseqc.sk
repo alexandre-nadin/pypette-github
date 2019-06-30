@@ -26,7 +26,7 @@ rule rseqc__readsDistribution:
     dist = "{someprefix}/{sample_name}.reads_distribution"
   run:
     cmd = """
-      reads_distribution.py \
+      read_distribution.py \
         -i {input.bam}      \
         -r {input.bed}      \
        > {output.dist}
