@@ -1,5 +1,5 @@
 pipeman.includeModule('config/project.py')
-seqrun__projectQcTarget = "{prj}/multiqc.html"
+seqrun__projectQcTarget = "{prj}/multiqc_report.html"
 
 def seqrun__projectsQc():
   """ Returns the seqrun's projects QC targets """

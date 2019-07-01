@@ -14,15 +14,15 @@ rule samples__files:
   """
   input:
     confs = config__files,
-    prj   = project__config 
+    prj   = project__config
   output: 
     file  = samples__files
   run:
-    runs  = runs__projectPaths(pipeman.project)
-    cmd   = """
+    runs  = " ".join(runs__projectPaths(pipeman.project))
+    cmd   = f"""
       find -L {runs} -name '*.fastq.gz' > {output.file}
     """
-    shell(cmd)
+    exshell(**vars())
 
 rule samples__map:
   """   

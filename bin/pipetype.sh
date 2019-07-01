@@ -11,7 +11,15 @@ pipetype__paramsMandatory=(PROJECT TARGET)
 function pipetype::runFlow() {
   pipetype::parseParams "$@"
   pipetype::checkParams
+  pipetype::exportVarenvs
   pipetype::execPipeline
+}
+
+function pipetype::exportVarenvs() {
+  export TYPEXEC
+  export FORCE
+  export DEBUG
+  export VERBOSE
 }
 
 # --------------
@@ -159,15 +167,6 @@ function pipetype::cmdTypexec() {
   printf "cpipe${TYPEXEC:+-$TYPEXEC}"
 }
 
-function pipetype::cmdQsub() {
-  cat << "eol"
-  qsub 
-    -V 
-    -N {cluster.name} 
-    -l select={cluster.select}:ncpus={cluster.ncpus}:mem={cluster.mem}
-eol
-}
-
 # -------------------
 # Snakemake Options
 # -------------------
@@ -196,6 +195,10 @@ function pipetype::smkOptionsCluster() {
   ! pipetype::smkUseClusterOptions || pipetype::smkOptionsClusterStr
 }
 
+function pipetype::smkUseClusterOptions() {
+  ! pipe::isParamGiven "TYPEXEC" || [ "${TYPEXEC}" != 'local' ];
+}
+
 function pipetype::smkOptionsClusterStr() {
   cat << eol
   --cluster-config $(pipetype::clusterRules)
@@ -203,8 +206,13 @@ function pipetype::smkOptionsClusterStr() {
 eol
 }
 
-function pipetype::smkUseClusterOptions() {
-  ! pipe::isParamGiven "TYPEXEC" || [ "${TYPEXEC}" != 'local' ];
+function pipetype::cmdQsub() {
+  cat << "eol"
+  qsub 
+    -V 
+    -N {cluster.name} 
+    -l select={cluster.select}:ncpus={cluster.ncpus}:mem={cluster.mem}
+eol
 }
 
 

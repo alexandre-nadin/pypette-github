@@ -18,15 +18,6 @@ def runs__projectTag():
     tag = ""
   return tag
 
-@cluster__prefixMountPoint
-def runs__path(runid):
-  """
-  Builds the path of the given runid.
-  """
-  return os.path.join(
-    pipeman.config.cluster.sequencingRuns.dir, 
-    runid)
-   
 def runs__paths(check_runs=True):
   """
   Retrieves the runs' directory.
@@ -40,6 +31,15 @@ def runs__paths(check_runs=True):
     runs__checkRuns(runs_dirs)
   return runs_dirs
 
+@cluster__prefixMountPoint
+def runs__path(runid):
+  """
+  Builds the path of the given runid.
+  """
+  return os.path.join(
+    pipeman.config.cluster.sequencingRuns.dir, 
+    runid)
+   
 def runs__checkRuns(runs=[]):
   """
   Checks the given run paths exist.

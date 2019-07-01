@@ -23,7 +23,7 @@ class FastqFile(object):
 
   regex_fields.update({
     'sample_path':      "\w+",
-    'sample_run':       "\w+",
+    'sample_run':       "[\w-]+",
     'sample_basename':  "\w+",
     'sample_chunkname': field_sep.join(val for key, val in regex_fields.items()),
     'sample_extension': "\.fastq\.gz" 
@@ -39,22 +39,27 @@ class FastqFile(object):
         regex_fields['sample_read'], 
         regex_fields['sample_chunknb']
       ]
-    ]) + "({regex_fields['sample_extension']})"
+    ]) + f"({regex_fields['sample_extension']})"
 
   def __init__(self, filename, run_name=""):
     self.sample_path = os.path.abspath(filename).strip()
     self.sample_basename = os.path.basename(self.sample_path)
-    (
-      self.sample_name, 
-      self.sample_number, 
-      self.sample_lane, 
-      self.sample_read,
-      self.sample_chunknb, 
-      self.sample_extension,
-    ) = re.search(
-          self.fields_regex_str, 
-          self.sample_basename
-        ).groups()
+   
+    try:
+      (
+        self.sample_name, 
+        self.sample_number, 
+        self.sample_lane, 
+        self.sample_read,
+        self.sample_chunknb, 
+        self.sample_extension,
+      ) = re.search(
+            self.fields_regex_str, 
+            self.sample_basename
+          ).groups()
+    except AttributeError as ae:
+      sys.stderr.write(f"File {filename} doesn't seem to follow Illumina's fastq naming convention.\n")
+
     self.sample_chunkname = self.sample_basename.rstrip(self.sample_extension)
     self.sample_run = run_name 
 

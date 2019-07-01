@@ -15,7 +15,7 @@ def rseqc__inferExperiment(file):
     float(read.split(':')[1].strip())
     for read in data[1:4] ]
 
-  stranded = True if abs(readsHalf1 - readsHalf2) < 0.1 else False
+  stranded = True if abs(readsHalf1 - readsHalf2) >= 0.2 else False
 
   if not stranded:
     strandedness = 'unstranded'
