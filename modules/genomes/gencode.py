@@ -53,14 +53,14 @@ def gencode__bed():
 @formatUcscAnnot
 def gencode__ucscAnnotBaseName():
   return os.path.join(
-    genome__annotationDir,
+    genome__annotationDir(),
     pipeman.config.databases.ucsc.gencodeBaseName)
 
 def gencode__ucscGenePred():
-  return gencode__ucscAnnotBaseNameTmpl + ".genePred"
+  return gencode__ucscAnnotBaseName() + ".genePred"
 
 def gencode__ucscBed():
-  return gencode__ucscAnnotBaseNameTmpl + ".bed.gz"
+  return gencode__ucscAnnotBaseName() + ".bed.gz"
 
 def gencode__ucscAnnot():
-  return gencode__ucscAnnotBaseNameTmpl + ".txt.gz"
+  return gencode__ucscAnnotBaseName() + ".txt.gz"
