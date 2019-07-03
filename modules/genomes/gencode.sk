@@ -36,3 +36,46 @@ rule gencode__bed:
       > {output.bed}
     """
     exshell(**vars())
+
+# ------
+# UCSC
+# ------
+rule gencode__ucscGenePred:
+  """
+  Gets the required genePred file.
+  """
+  output: 
+    genePred    = gencode__ucscGenePred()
+  run:
+    annotUrl    = gencode__ucscAnnotUrl
+    cmd = f"""
+      curl "{gencode__ucscAnnotUrl()}"  \
+       | gunzip                         \
+       | cut -f2-11                     \ 
+       | genePredToBed stdin stdout     \
+       | gzip                           \
+       > {output.genePred}
+    """
+    exshell(**vars())
+  
+rule gencode__ucscBed:
+  """
+  Gets the required bed file.
+  """
+  input:
+    bed = "{someprefix}.genePred"
+  output:
+    bed = temp("{someprefix}.bed.gz")
+  run:
+    cmd = """
+      gunzip -c {input.gtf}                     \
+       | awk '{{ 
+           if ($0 ~ "transcript_id") 
+             print $0; 
+           else 
+             print $0" transcript_id \\"\\";"; 
+         }}'                                    \
+       | gtf2bed                                \
+      > {output.bed}
+    """
+    exshell(**vars())

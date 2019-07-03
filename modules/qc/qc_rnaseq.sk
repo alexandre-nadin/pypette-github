@@ -18,10 +18,10 @@ rule qc_rnaseq__multiqc:
       f"{bam__sampleTarget}.bamstats",
       interpreteAll=True,
       **wildcards),
-    readsDist  = lambda wildcards: pipeman.samples.map(
-      f"{bam__sampleTarget}.reads_distribution",
-      interpreteAll=True,
-      **wildcards)
+    #readsDist  = lambda wildcards: pipeman.samples.map(
+    #  f"{bam__sampleTarget}.reads_distribution",
+    #  interpreteAll=True,
+    #  **wildcards)
   output:
     report   =           f"{bam__pipeTarget}multiqc_report.html",
     data     = directory(f"{bam__pipeTarget}multiqc_data")
