@@ -4,19 +4,19 @@ rule qc_wes__multiqc:
   input:
     fastqcs    = lambda wildcards: pipeman.samples.map(
       fastq_qc__readZip, 
-      interpreteAll=True,
+      derefKwargs=['sample_name',],
       **wildcards),
     mdMetrics  = lambda wildcards: pipeman.samples.map(
       f"{bam__sampleTarget}.metrics",
-      interpreteAll=True,
+      derefKwargs=['sample_name',],
       **wildcards),
     hsMetrics  = lambda wildcards: pipeman.samples.map(
       f"{bam__sampleTarget}_hsMetrics.txt",
-      interpreteAll=True,
+      derefKwargs=['sample_name',],
       **wildcards),
     flagstat   = lambda wildcards: pipeman.samples.map(
       f"{bam__sampleTarget}_flagstat.txt",
-      interpreteAll=True,
+      derefKwargs=['sample_name',],
       **wildcards)
   output:
     report   =           f"{bam__pipeTarget}multiqc_report.html",
