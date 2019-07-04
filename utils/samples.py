@@ -114,12 +114,10 @@ class SamplesManager(utils.manager.Manager):
 
     """ Check all """
     for col in self.data.columns:
-      if col in kwargs.keys() and kwargs[col] == 'all':
+      if col in kwargs.keys() and kwargs[col] in ['all', 'each']:
         queryFilter.pop(col, None)
         if interpreteAll:
           kwargs.pop(col, None) 
-
-    
     """ Formatted String """
     fs = StringFormatter(s).formatPartialMap(keepMissingKeys=True, **kwargs)
 
@@ -128,7 +126,6 @@ class SamplesManager(utils.manager.Manager):
       for col in self.data.columns 
       if col in fs.keywords() 
     ]
-
     """ Set Query Dict """
     query_dict = {
       key: val
