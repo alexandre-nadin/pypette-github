@@ -1,0 +1,17 @@
+vcf__pipeTarget   = f"{bam__pipeTarget}varcall"
+vcf__sampleTarget = f"{vcf__pipeTarget}/{{sample_name}}"
+
+rule varcall__freebayes:
+  input: 
+    bams = lambda wildcards: pipeman.samples.map(
+      f"{bam__sampleTarget}.bam", 
+      derefKwargs = ['sample_name',],
+      **wildcards)
+  output:
+    vcf = f"{vcf__sampleTarget}.vcf"
+  run:
+    cmd = f"""
+      # Fix the fb calling here
+      freebayes {input.bams} > {output.vcf}
+    """
+    exshell(**vars())
