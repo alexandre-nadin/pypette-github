@@ -118,6 +118,7 @@ class SamplesManager(utils.manager.Manager):
         queryFilter.pop(col, None)
         if col in derefKwargs:
           kwargs.pop(col, None) 
+
     """ Formatted String """
     fs = StringFormatter(s).formatPartialMap(keepMissingKeys=True, **kwargs)
 
@@ -126,12 +127,14 @@ class SamplesManager(utils.manager.Manager):
       for col in self.data.columns 
       if col in fs.keywords() 
     ]
+
     """ Set Query Dict """
     query_dict = {
       key: val
       for key, val in queryFilter.items()
       if key in self.data.columns 
     }
+
     if query_dict:
       query = " and ".join([
         "{}=='{}'".format(key, val)
