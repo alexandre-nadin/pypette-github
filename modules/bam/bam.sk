@@ -17,14 +17,11 @@ bam__sample       = bam__samplePrefix + ".bam"
 
 """ Sample Run Reads Output Targets """
 bam__alignerDir       = "mapped" + bam__alignerDir(append=True)
-bam__sampleDir    = fastq_merge__dir + "/{procTrimming}" + bam__alignerDir
 
 ##
 # General IO (on any bam file).
-bam__sortedSamplePrefix = bam__sampleDir + bam__sorterDir(append=True) + "/{sample_name}"
-bam__sortedSample = bam__sortedSamplePrefix + ".bam"
 
-bam__pipeTarget = f"{fastq__pipeTarget}{bam__alignerDir}/{{procBamMerged}}{{procSorted}}{{procMarkDup}}"
+bam__pipeTarget   = f"{fastq__pipeTarget}{bam__alignerDir}/{{procBamMerged}}{{procSorted}}{{procMarkDup}}"
 bam__sampleTarget = f"{bam__pipeTarget}{{sample_name}}"
 
 # Note: Include the aligner found in pipeline configuration file after this
