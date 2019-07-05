@@ -101,7 +101,7 @@ class SamplesManager(utils.manager.Manager):
     else:
       return res
 
-  def buildStringFromKeywords(self, s, unique=True, interpreteAll=False, **kwargs):
+  def buildStringFromKeywords(self, s, unique=True, derefKwargs=[], **kwargs):
     """
     Returns list of string by formatting the given string :s: with selected columns from filtered samples.
     This is done by:
@@ -114,12 +114,10 @@ class SamplesManager(utils.manager.Manager):
 
     """ Check all """
     for col in self.data.columns:
-      if col in kwargs.keys() and kwargs[col] == 'all':
+      if col in kwargs.keys() and kwargs[col] in ['all', 'each']:
         queryFilter.pop(col, None)
-        if interpreteAll:
+        if col in derefKwargs:
           kwargs.pop(col, None) 
-
-    
     """ Formatted String """
     fs = StringFormatter(s).formatPartialMap(keepMissingKeys=True, **kwargs)
 
@@ -128,7 +126,6 @@ class SamplesManager(utils.manager.Manager):
       for col in self.data.columns 
       if col in fs.keywords() 
     ]
-
     """ Set Query Dict """
     query_dict = {
       key: val
