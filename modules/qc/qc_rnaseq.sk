@@ -4,24 +4,24 @@ rule qc_rnaseq__multiqc:
   input:
     fastqcs   = lambda wildcards: pipeman.samples.map(
       fastq_qc__readZip, 
-      interpreteAll=True,
+      derefKwargs=['sample_name',],
       **wildcards),
     inferExp  = lambda wildcards: pipeman.samples.map(
       f"{bam__sampleTarget}.inferExperiment",
-      interpreteAll=True,
+      derefKwargs=['sample_name',],
       **wildcards),
     bamCounts = lambda wildcards: pipeman.samples.map(
       f"{bam__sampleTarget}.counts.summary",
-      interpreteAll=True,
+      derefKwargs=['sample_name',],
       **wildcards),
     bamstat    = lambda wildcards: pipeman.samples.map(
       f"{bam__sampleTarget}.bamstats",
-      interpreteAll=True,
+      derefKwargs=['sample_name',],
       **wildcards),
-    #readsDist  = lambda wildcards: pipeman.samples.map(
-    #  f"{bam__sampleTarget}.reads_distribution",
-    #  interpreteAll=True,
-    #  **wildcards)
+    readsDist  = lambda wildcards: pipeman.samples.map(
+      f"{bam__sampleTarget}.reads_distribution",
+      derefKwargs=['sample_name',],
+      **wildcards)
   output:
     report   =           f"{bam__pipeTarget}multiqc_report.html",
     data     = directory(f"{bam__pipeTarget}multiqc_data")

@@ -19,12 +19,12 @@ rule samples:
 # -----------
 rule samples__runs:
   input: 
-    lambda wildcards:
-    pipeman.samples.map('samples/{sample_name}/runs/{sample_run}', 
+    lambda wildcards: pipeman.samples.map(
+      'samples/{sample_name}/runs/{sample_run}/', 
       withResult=True,
       **wildcards)
   output:
-    "samples/{sample_name}/runs/all{suffix}"
+    "samples/{sample_name}/runs/each/{suffix}"
   run:
     cmd = """
       touch {output}
@@ -32,12 +32,13 @@ rule samples__runs:
     exshell(**vars())
   
 rule samples__all:
-  input: lambda wildcards:
-    pipeman.samples.map("samples/{sample_name}/runs/{sample_run}", 
+  input: 
+    lambda wildcards: pipeman.samples.map(
+      "samples/{sample_name}/runs/{sample_run}/", 
       withResult=True, 
       **wildcards)
   output:
-    "samples/all/runs/{sample_run}{suffix}"
+    "samples/each/runs/{sample_run}/{suffix}"
   run:
     cmd = """
       touch {output}

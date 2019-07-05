@@ -13,7 +13,7 @@ class FastqFile(object):
   # 
 
   regex_fields = addict.Dict(
-    ('sample_name',      "\w+"       ),
+    ('sample_name',      "[\w]+"     ),
     ('sample_number',    "S\d+"      ),
     ('sample_lane',      "L\d+"      ),
     ('sample_read',      "R[12]"     ),
