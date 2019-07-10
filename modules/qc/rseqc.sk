@@ -17,18 +17,18 @@ rule rseqc__inferExperiment:
     """
     exshell(**vars())
 
-rule rseqc__readsDistribution:
+rule rseqc__readDistribution:
   input:
     bam  = "{someprefix}/{sample_name}.bam",
     bai  = "{someprefix}/{sample_name}.bai",
-    bed  = lambda x: gencode__bed()
+    bed  = lambda x: f"{gencode__ucscAnnotBaseName()}.bed"
   output:
-    dist = "{someprefix}/{sample_name}.reads_distribution"
+    dist = "{someprefix}/{sample_name}.read_distribution"
   run:
     cmd = """
-      read_distribution.py \
+      read_distribution.py  \
         -i {input.bam}      \
-        -r {input.bed}      \
+        -r {input.bed} \
        > {output.dist}
     """
     exshell(**vars())

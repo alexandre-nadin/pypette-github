@@ -15,7 +15,7 @@ rule gencode__gtf:
     """
     exshell(**vars())
 
-rule gencode__bed:
+rule gencode__gtfToBed:
   """
   Converts the required GTF into a bed file.
   """
@@ -36,3 +36,64 @@ rule gencode__bed:
       > {output.bed}
     """
     exshell(**vars())
+
+# ------
+# UCSC
+# ------
+rule gencode__ucscAnnot:
+  """ 
+  Gets the raw txt annotation file.
+  """
+  output:
+    annot = gencode__ucscAnnot()
+  run:
+    cmd = f"""
+      curl "{gencode__ucscAnnotUrl()}" \
+       > {output.annot}
+    """
+    exshell(**vars())
+
+rule gencode__ucscGenePred:
+  """
+  Gets the required genePred file.
+  """
+  input:
+    annot    = lambda x: gencode__ucscAnnot()
+  output: 
+    genePred    = gencode__ucscGenePred()
+  run:
+    cmd = f"""
+      gunzip -c {input.annot} \
+       | cut -f2-11           \
+       | gzip                 \
+       > {output.genePred}
+    """
+    exshell(**vars())
+  
+rule gencode__ucscBedgz:
+  """
+  Gets the required bed file.
+  """
+  input:
+    pred = lambda x: gencode__ucscGenePred()
+  output:
+    bed  = gencode__ucscBedgz()
+  run:
+    cmd = """
+      genePredToBed {input.pred} stdout \
+       | gzip                           \
+       > {output.bed}
+    """
+    exshell(**vars())
+
+rule gencode__ucscBed:
+  input:
+    bed = lambda x: gencode__ucscBedgz()
+  output:
+    bed = gencode__ucscBed()
+  run:
+    cmd = """
+      gunzip -c {input.bed} > {output.bed}
+    """
+    exshell(**vars())
+
