@@ -33,7 +33,7 @@ def formatUcscAnnot(func):
 def gencode__ucscAnnotUrl():
   return os.path.join(
     pipeman.config.databases.ucsc.gencodeUrl,
-    pipeman.config.databases.ucsc.gencodeBaseName + "txt.gz")
+    pipeman.config.databases.ucsc.gencodeBaseName + ".txt.gz")
 
 # ----------
 # Bed Files
@@ -57,10 +57,13 @@ def gencode__ucscAnnotBaseName():
     pipeman.config.databases.ucsc.gencodeBaseName)
 
 def gencode__ucscGenePred():
-  return gencode__ucscAnnotBaseName() + ".genePred"
+  return gencode__ucscAnnotBaseName() + ".genePred.gz"
+
+def gencode__ucscBedgz():
+  return gencode__ucscAnnotBaseName() + ".bed.gz"
 
 def gencode__ucscBed():
-  return gencode__ucscAnnotBaseName() + ".bed.gz"
+  return gencode__ucscAnnotBaseName() + ".bed"
 
 def gencode__ucscAnnot():
   return gencode__ucscAnnotBaseName() + ".txt.gz"

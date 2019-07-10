@@ -15,7 +15,7 @@ rule gencode__gtf:
     """
     exshell(**vars())
 
-rule gencode__bed:
+rule gencode__gtfToBed:
   """
   Converts the required GTF into a bed file.
   """
@@ -40,42 +40,60 @@ rule gencode__bed:
 # ------
 # UCSC
 # ------
+rule gencode__ucscAnnot:
+  """ 
+  Gets the raw txt annotation file.
+  """
+  output:
+    annot = gencode__ucscAnnot()
+  run:
+    cmd = f"""
+      curl "{gencode__ucscAnnotUrl()}" \
+       > {output.annot}
+    """
+    exshell(**vars())
+
 rule gencode__ucscGenePred:
   """
   Gets the required genePred file.
   """
+  input:
+    annot    = lambda x: gencode__ucscAnnot()
   output: 
     genePred    = gencode__ucscGenePred()
   run:
-    annotUrl    = gencode__ucscAnnotUrl
     cmd = f"""
-      curl "{gencode__ucscAnnotUrl()}"  \
-       | gunzip                         \
-       | cut -f2-11                     \ 
-       | genePredToBed stdin stdout     \
-       | gzip                           \
+      gunzip -c {input.annot} \
+       | cut -f2-11           \
+       | gzip                 \
        > {output.genePred}
     """
     exshell(**vars())
   
-rule gencode__ucscBed:
+rule gencode__ucscBedgz:
   """
   Gets the required bed file.
   """
   input:
-    bed = "{someprefix}.genePred"
+    pred = lambda x: gencode__ucscGenePred()
   output:
-    bed = temp("{someprefix}.bed.gz")
+    bed  = gencode__ucscBedgz()
   run:
     cmd = """
-      gunzip -c {input.gtf}                     \
-       | awk '{{ 
-           if ($0 ~ "transcript_id") 
-             print $0; 
-           else 
-             print $0" transcript_id \\"\\";"; 
-         }}'                                    \
-       | gtf2bed                                \
-      > {output.bed}
+      genePredToBed {input.pred} stdout \
+       | gzip                           \
+       > {output.bed}
     """
     exshell(**vars())
+
+rule gencode__ucscBed:
+  input:
+    bed = lambda x: gencode__ucscBedgz()
+  output:
+    bed = gencode__ucscBed()
+  run:
+    cmd = """
+      gunzip -c {input.bed} > {output.bed}
+    """
+    exshell(**vars())
+
