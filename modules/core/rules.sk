@@ -106,7 +106,7 @@ def logCmdTemplate():
       cat << eol                        \
         | sed -s 's|^ [[:blank:]]*||g'  \
         | sed -s 's| [[:blank:]]*$| |g' \
-        > {output[0]}.log
+        > {output[0]}.info
 
         INPUT:
         $(echo {input} | tr ' ' '\n')
