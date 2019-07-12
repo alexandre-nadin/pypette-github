@@ -1,3 +1,4 @@
+include: "counts.py"
 pipeman.includeModule('qc/rseqc.sk')
 counts__pipeTarget = f"{bam__pipeTarget}counts"
 
@@ -21,7 +22,7 @@ rule counts__sample:
     countsGz  =      "{someprefix}/{sample_name}.counts.gz",
     sumcounts =      "{someprefix}/{sample_name}.counts.summary",
     bam       = temp("{someprefix}/{sample_name}.bam.featureCounts.bam"),
-    log       =      "{someprefix}/{sample_name}.log"
+    log       =      "{someprefix}/{sample_name}.counts.log"
   run: 
     inferExp  = rseqc__inferExperiment(input.inferExp)
     cores     = pipeman.config.pipeline.modules.mapping.counter.cores
@@ -48,28 +49,19 @@ rule counts__sample:
 
 rule counts__merged:
   input:
-    bams   = lambda wildcards: pipeman.samples.map(
-               f"samples/{{sample_name}}/runs/all/fastq/{fastq__procs}{bam__alignerDir}/merged/{{sample_name}}.counts",
+    counts = lambda wildcards: pipeman.samples.map(
+         f"{bam__sampleTarget}.counts.gz",
+         derefKwargs=['sample_name',],
                **wildcards)
   output:
-    counts = f"samples/all/runs/all/fastq/{fastq__procs}{bam__alignerDir}/merged/all.counts"
+    counts = f"{bam__sampleTarget}.geneCounts.gz"
   run:
-    import pandas as pd
-    import os
-    import glob
-    from functools import reduce
-
-    try:
-      reduce(
-        pd.merge,
-        [ pd.read_csv(f, delimiter='\t', skiprows=1)
-          for f in input.bams
-        ]
-      ).to_csv(output.counts, sep="\t")
-    except pd.errors.EmptyDataError as ede:
-      pipeman.log.warning(f"Empty Data: {ede}")
-
     cmd = ""
     exshell(**vars()) 
+    try:
+      mergedDf = counts__mergedGenesDataFrameFromCounts(input.counts)
+      mergedDf.to_csv(output.counts, sep="\t", compression='gzip')
+    except pd.errors.EmptyDataError as ede:
+      pipeman.log.warning(f"Empty Data: {ede}")
 
 ruleorder: counts__merged > counts__sample
