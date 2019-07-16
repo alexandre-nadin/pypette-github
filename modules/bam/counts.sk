@@ -60,7 +60,7 @@ rule counts__merged:
     exshell(**vars()) 
     try:
       mergedDf = counts__mergedGenesDataFrameFromCounts(input.counts)
-      mergedDf.to_csv(output.counts, sep="\t", compression='gzip')
+      mergedDf.to_csv(output.counts, sep="\t", index=False, compression='gzip')
     except pd.errors.EmptyDataError as ede:
       pipeman.log.warning(f"Empty Data: {ede}")
 

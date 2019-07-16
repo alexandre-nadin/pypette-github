@@ -18,11 +18,6 @@ def counts__genesDataFrames(files, compression='gzip'):
     for f in files
   ]
 
-def counts__genesDataFrame(df):
-  """ Actually selects the first and last columns of the given dataframe """
-  assert(len(df.columns) > 2)
-  return df.copy().iloc[:, [0, -1]]
-
 def counts__fmtColnames(df):
   """ Formats the given dataframe's column names. """
   new = df.copy()
