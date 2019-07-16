@@ -25,3 +25,6 @@ def counts__fmtColnames(df):
     colname.rstrip('.bam') 
     for colname in df.columns.map(os.path.basename) ]   
   return new
+
+def counts__stdCols():
+  return [ 'Geneid', 'Chr', 'Start', 'End', 'Strand', 'Length' ]

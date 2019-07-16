@@ -1,0 +1,12 @@
+include: "dge.py"
+
+rule dge__dseq2:
+  input: 
+    metadata = "samples/metadata.tsv"
+  params:
+    fCountsDataCols = counts__stdCols(),
+    dge = lambda wildcards, input: dge__deseq2ParamsDft(input.metadata)
+  script: 
+    "deseq2.R"
+
+localrules: dge__dseq2

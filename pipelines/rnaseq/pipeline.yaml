@@ -43,6 +43,16 @@ pipeline:
         cutadapt: *baseAdapters
         trimmomatic: *baseAdapters
         bbduk: "BBDUK/adapters.fa"
+    dge:
+      design:
+        string: ""
+        factors: []
+        refFactor: ""
+        refLevel: "naive"
+      minCounts: 10
+      minSamples: 3
+      alpha: 0.05
+
   sampleBased: True
   deepStructure: True
   sequencing:

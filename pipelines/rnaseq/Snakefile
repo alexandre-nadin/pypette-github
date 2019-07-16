@@ -15,4 +15,5 @@ pipeman.includeModules(
   "bam/bam.sk",
   "bam/counts.sk",
   "qc/qc_rnaseq.sk",
+  "dge/dge.sk",
   withConfigFiles=True)
