@@ -2,14 +2,16 @@ import pandas as pd
 
 def dge__deseq2ParamsDft(metadataFile):
   """ Get default parameters """
+  data = pd.read_csv(metadataFile, delimiter='\t')
   factors = [ 
     column
-    for column in pd.read_csv(metadataFile, delimiter='\t').columns
+    for column in data.columns
     if 'sample' not in column.lower()
   ]
   
   refFactor = factors[0]
-  string = f"~{refFactor}"
+  refLevel  = data[refFactor][0]
+  string    = f"~{refFactor}"
 
   """ Substitute default params if not defined """
   dge = pipeman.config.pipeline.modules.dge
@@ -19,6 +21,9 @@ def dge__deseq2ParamsDft(metadataFile):
   if not dge.design.refFactor:
     pipeman.log.info(f"Default DGE design refFactor: {refFactor}")
     dge.design.refFactor = refFactor
+  if not dge.design.refLevel:
+    pipeman.log.info(f"Default DGE design refLevel: {refLevel}")
+    dge.design.refLevel = refLevel
   if not dge.design.string:
     pipeman.log.info(f"Default DGE design string: {string}")
     dge.design.string = string 

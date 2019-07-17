@@ -7,36 +7,14 @@ library("ggplot2")
 # ---------------------
 # Snakemake parameters
 # ---------------------
-print("in R script")
 smkp   <- snakemake@params
 smkin  <- snakemake@input
 smkout <- snakemake@output
 
-print(smkp)
-print(smkin)
-print(smkout)
-quit()
-
-smkp <- list(
-  fCountsDataCols = c('Geneid', 'Chr', 'Start', 'End', 'Strand', 'Length'),
-  dge= list(
-    design= list(
-      string = "~condition",
-      factors= c('condition', 'age', 'origin'),
-      refFactor= "condition",
-      refLevel = "naive"),
-    minCounts=10, 
-    minSamples=3,
-    alpha=0.05))
-
-smkin <- list(
-  counts="counts.txt", 
-  metadata="metadata.txt")
-
 # ---------------
 # FeatureCounts
 # ---------------
-fCounts <- read.delim(file = smkin$counts, header = TRUE)
+fCounts <- read.delim(file=smkin$counts, header=TRUE)
 fCountsData <- fCounts[
   , 
   -which(
@@ -65,7 +43,7 @@ dga <- DESeq(object = ddsFiltered,
              minReplicatesForReplace = Inf)
 
 # TODO: PLOT
-grDevices::png("plotDistEsts.png")
+grDevices::png(smkout$distEstims)
 plotDispEsts(dga)
 dev.off()
 
@@ -90,14 +68,14 @@ for (contrast in contrasts) {
 # --------
 # MA plot 
 # --------
-grDevices::pdf("MAPlot.pdf")
+grDevices::pdf(smkout$maPlot)
 lapply(dresults, DESeq2::plotMA)
 dev.off()
 
 # -------------
 # Volcano Plot 
 # -------------
-grDevices::pdf("volcanoPlot.pdf")
+grDevices::pdf(smkout$volcanoPlot)
 for (i in 1:length(dresults)){
   plot(
     x    = dresults[[i]]$log2FoldChange,
@@ -144,7 +122,8 @@ rownames(sampleDistMatrix) <-
         obj=vsd)))
 colnames(sampleDistMatrix) <- NULL
 colors <- colorRampPalette( rev(brewer.pal(9, "Blues")) )(255)
-grDevices::png("pheatmap.png")
+
+grDevices::png(smkout$pheatMap)
 pheatmap(
   cellwidth=NA, cellheight=NA,
   sampleDistMatrix,
@@ -158,7 +137,7 @@ dev.off()
 # -----
 # PCA
 # -----
-grDevices::pdf("PCA.pdf")
+grDevices::pdf(smkout$pca)
 for (factor in smkp$dge$design$factors) {
   pcaData <- plotPCA(
     vsd,
