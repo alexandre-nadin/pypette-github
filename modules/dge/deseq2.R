@@ -1,8 +1,8 @@
-#library("DESeq2")
-#library("RColorBrewer")
-#library("pheatmap")
-#library("ggplot2")
-##library("edgeR")
+library("DESeq2")
+library("RColorBrewer")
+library("pheatmap")
+library("ggplot2")
+#library("edgeR")
 
 # ---------------------
 # Snakemake parameters

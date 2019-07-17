@@ -1,8 +1,14 @@
 include: "dge.py"
 
+dge__pipeTarget   = f"{bam__pipeTarget}dge"
+dge__sampleTarget = f"{dge__pipeTarget}/{{sample_name}}"
+
 rule dge__dseq2:
   input: 
-    metadata = "samples/metadata.tsv"
+    metadata = "samples/metadata.tsv",
+    counts   = f"{bam__sampleTarget}.geneCounts.gz"
+  output:
+    dge      = f"{dge__sampleTarget}.dge"
   params:
     fCountsDataCols = counts__stdCols(),
     dge = lambda wildcards, input: dge__deseq2ParamsDft(input.metadata)
