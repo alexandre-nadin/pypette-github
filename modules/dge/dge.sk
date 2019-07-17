@@ -1,0 +1,20 @@
+include: "dge.py"
+
+dge__pipeTarget   = f"{bam__pipeTarget}dge"
+dge__sampleTarget = f"{dge__pipeTarget}/{{sample_name}}"
+
+rule dge__dseq2:
+  input: 
+    metadata    = "samples/metadata.tsv",
+    counts      = f"{bam__sampleTarget}.geneCounts.gz"
+  output:
+    distEstims  = f"{dge__sampleTarget}.distEstimsPlot.png",
+    maPlot      = f"{dge__sampleTarget}.maPlot.pdf",
+    volcanoPlot = f"{dge__sampleTarget}.volcanoPlot.pdf",
+    pheatMap    = f"{dge__sampleTarget}.pheatMap.png",
+    pca         = f"{dge__sampleTarget}.pca.pdf"
+  params:
+    fCountsDataCols = counts__stdCols(),
+    dge = lambda wildcards, input: dge__deseq2ParamsDft(input.metadata)
+  script: 
+    "deseq2.R"
