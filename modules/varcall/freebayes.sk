@@ -2,16 +2,41 @@ vcf__pipeTarget   = f"{bam__pipeTarget}varcall"
 vcf__sampleTarget = f"{vcf__pipeTarget}/{{sample_name}}"
 
 rule varcall__freebayes:
-  input: 
+  input:
     bams = lambda wildcards: pipeman.samples.map(
-      f"{bam__sampleTarget}.bam", 
-      derefKwargs = ['sample_name',],
-      **wildcards)
+             f"{bam__sampleTarget}.bam",
+             derefKwargs = ['sample_name',],
+             **wildcards),
+    ref_genome_fa = lambda x: genome__fasta()
   output:
-    vcf = f"{vcf__sampleTarget}.vcf"
+    vcf = f"{vcf__sampleTarget}.vcf.gz"
   run:
     cmd = f"""
-      # Fix the fb calling here
-      freebayes {input.bams} > {output.vcf}
+      freebayes -f {input.ref_genome_fa}  \
+        -F 0.2                            \
+        -C 2                              \
+        -q 20                             \
+        -m 1                              \
+        --genotype-qualities              \
+        --min-repeat-entropy 1            \
+        --report-genotype-likelihood-max  \
+        -b {input.bams}                   \
+       | vcfsort                          \
+       | vcfuniq                          \
+       | vcfsort                          \
+       | vcffixup -                       \
+       | bgzip -fc                        \
+       > {output.vcf}
+    """
+    exshell(**vars())
+
+rule varcall__index:
+  input:
+    vcf = "{someprefix}"
+  output:
+    idx = "{someprefix}.tbi"
+  run:
+    cmd = f"""
+      tabix -f {input.vcf}
     """
     exshell(**vars())
