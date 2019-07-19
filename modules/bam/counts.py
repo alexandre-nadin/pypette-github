@@ -14,7 +14,6 @@ def counts__genesDataFrames(files, compression='gzip'):
   """ Creates all samples' gene counts dataframes """
   return [ 
     pd.read_csv(f, delimiter='\t', skiprows=1, compression=compression)
-      .iloc[:, [0, -1]]
     for f in files
   ]
 

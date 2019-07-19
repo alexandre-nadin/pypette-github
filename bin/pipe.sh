@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+# bash
 
 # -------------------------
 # Command Base Parameters
