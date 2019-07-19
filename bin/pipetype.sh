@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+# bash
 source pipe.sh
 pipe::setManual pipetype::manual
 
@@ -29,32 +29,35 @@ function pipetype::manual() {
   cat << eol
 
   DESCRIPTION
-      Launches the $(pipetype::pipeline) pipeline for the given PROJECT.
+      Launches the $(pipetype::pipeline) pipeline to produce a TARGET file for the given PROJECT.
 
   USAGE
-      $ $0                   \ 
+      $ $0 \ 
           --project PROJECT           \ 
-          --target TARGET             \ 
+	  --target TARGET             \ 
           [ --cluster-rules FILE ]    \ 
           [ --typexec $(str.join -d '|' ${pipetype__TYPEXECS[@]}) ] \ 
           [ --force ]                 \ 
-          [ -d|--debug ]              \ 
-          [ -v|--verbose ] 
+          [ --debug ]                 \ 
+          [ --verbose ] 
 
   OPTIONS
-      --project
+      -p|--project
           Name of the project to process.
 
-      --target
+      -t|--target
           Name of the target file to be produced by the pipeline.
 
-      --cluster-rules
+      -c|--cluster-rules
           Yaml file with all the pipeline's rules for cluster execution. 
           Default is $(pipetype::clusterRulesDft).
 
-      --typexec
+      -x|--typexec
           The type of execution of the pipeline. Can be one among [ ${pipetype__TYPEXECS[@]} ].
           Default means production mode.
+
+      -f|--force
+          Forces the generation of the TARGET.
 
       -d|--debug
           Execute the pipeline in debug mode.
@@ -71,23 +74,23 @@ function pipetype::parseParams() {
   while [ $# -ge 1 ]
   do
       case "$1" in
-        --project)
+        -p|--project)
           PROJECT="$2"          && shift
           ;;
 
-        --target)
+        -t|--target)
           TARGET="$2"           && shift 
           ;;
 
-        --cluster-rules)
+        -c|--cluster-rules)
           CLUSTER_RULES="$2"    && shift
           ;;
 
-        --typexec)
+        -x|--typexec)
           TYPEXEC="$2"          && shift
           ;;
 
-        --force)
+        -f|--force)
           FORCE=true
           ;;
 
@@ -103,7 +106,7 @@ function pipetype::parseParams() {
           VERBOSE=true
           ;;
   
-        *)
+        -*)
           pipe::errorUnrecOpt "$1"
           ;;
   
