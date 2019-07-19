@@ -48,7 +48,7 @@ pipeline:
         string: ""
         factors: []
         refFactor: ""
-        refLevel: "naive"
+        refLevel: ""
       minCounts: 10
       minSamples: 3
       alpha: 0.05
