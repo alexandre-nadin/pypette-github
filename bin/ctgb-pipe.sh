@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+# bash
 source pipe.sh
 
 SCRIPT_PATH=$(readlink -f "${BASH_SOURCE[0]}")
