@@ -6,7 +6,7 @@ dge__sampleTarget = f"{dge__pipeTarget}/{{sample_name}}"
 rule dge__dseq2:
   input: 
     metadata    = "samples/metadata.tsv",
-    counts      = f"{bam__sampleTarget}.geneCounts.gz"
+    counts      = f"{bam__sampleTarget}.mergedCounts.gz"
   output:
     distEstims  = f"{dge__sampleTarget}.distEstimsPlot.png",
     maPlot      = f"{dge__sampleTarget}.maPlot.pdf",
