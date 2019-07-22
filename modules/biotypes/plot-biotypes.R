@@ -36,7 +36,7 @@ biotypes_function <- function(counts_file,
   row.names(counts) <- annotation_info$Geneid 
   colnames(counts) = colnames(import_counts)[7:ncol(import_counts)]
   # dictionary from previos rule 
-  dict <- read.delim(dictionary_file, header=FALSE, sep = ' ')
+  dict <- read.delim(dictionary_file, header=FALSE)
   #n_s is the MIN_NUM_OF_EXPRESSED_SAMPLE
   n_s = samples
   dir.create(png_folder, showWarnings = F, recursive = T)
@@ -91,7 +91,7 @@ biotypes_function <- function(counts_file,
     colnames(counts) = colnames(import_counts)[7:ncol(import_counts)]
     #Update the plots' feature
     Main ="Biotypes distribution among samples, using RPKM"
-    filename_TABLE = "biotypes_percentages_RPKM.txt"
+    filename_TABLE = paste(png_folder, "/biotypes_percentages_RPKM.txt", sep='')
     ylabel_opt = 'RPKM'
     Main_pie = "PieChart of RPKM to biotypes"
   }  
@@ -287,7 +287,7 @@ biotypes_function <- function(counts_file,
 
 biotypes_function(
   counts_file = snakemake@input[["counts"]], 
-  dictionary_file = snakemake@input[["dic"]],
+  dictionary_file = snakemake@input[["biotypes"]],
   png_folder = snakemake@output[['pngs']], 
   samples = snakemake@params[["min_samples"]],
   filterEXP = snakemake@params[["filterEXP"]],

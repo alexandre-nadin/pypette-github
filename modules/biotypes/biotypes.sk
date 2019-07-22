@@ -1,5 +1,3 @@
-#configfile: 'config.yaml'
-
 biotypes__pipeTarget   = f"{bam__pipeTarget}biotypes"
 biotypes__sampleTarget = f"{biotypes__pipeTarget}/{{sample_name}}"
 
@@ -9,7 +7,7 @@ rule biotypes:
     counts = lambda wildcards: pipeman.samples.map(
                f"{bam__sampleTarget}.mergedCounts.gz" ,
                **wildcards),
-    dic    = f"{bam__pipeTarget}dictionary_b.map"
+    biotypes    = gencode__biotypes()
   output:
     pngs   = directory(f"{biotypes__sampleTarget}_pngs")
   params: 
@@ -22,25 +20,4 @@ rule biotypes:
     perc2plot   = 0.001,
     GGPLOT      = 'T'  
   script:
-    "biotypes_f.R"
-    
-  
-## create the gene-biotype dictionary
-#rule biotype_dictionary:
-#  input:
-#    gtf=config['gencode_path']+ config['species']+'/'+ config['version']+'/'+config['annotation']+'.gtf'
-#    #config['gencode_path']+ config['species']+'/'+ config['version']+'/'+config['annotation']+'.ensg2gene_symbol2biotype.map'
-#  output:
-#    dictionary = 'biotypes_dictionary.map'
-#  shell: """
-#    grep -v '#' {input.gtf}                     \
-#     | awk '($3=="gene") {{print}}'             \
-#     | cut -f9                                  \
-#     | sed 's/;\s/\t/g'                         \
-#     | grep_columns gene_id gene_type gene_name \
-#     | sed -e 's/gene_[a-z]\+\s//g'             \
-#     | tr -d "\\""                              \
-#     | awk '{{print $3, $2}}'                   \
-#     > {output.dictionary} 
-#    """
-#
+    "plot-biotypes.R"
