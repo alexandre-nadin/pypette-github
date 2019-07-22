@@ -4,8 +4,19 @@ def gencode__baseName():
 # -----------
 # GTF Files
 # -----------
+@formatGenome
+def gencode__gtfUrl():
+  return os.path.join(
+    "ftp://ftp.ebi.ac.uk/pub/databases/gencode",
+    "Gencode_{genome.species.common_name}",
+    "release_{genome.gencode.version}",
+    gencode__gtfTemplate())
+
 def gencode__gtfTemplate():
   return gencode__baseName() + ".gtf.gz"
+
+def gencode__biotypesTemplate():
+  return gencode__baseName() + ".biotypes.tsv.gz"
 
 @formatGenome
 def gencode__gtf():
@@ -14,12 +25,10 @@ def gencode__gtf():
     gencode__gtfTemplate())
 
 @formatGenome
-def gencode__gtfUrl():
+def gencode__biotypes():
   return os.path.join(
-    "ftp://ftp.ebi.ac.uk/pub/databases/gencode",
-    "Gencode_{genome.species.common_name}",
-    "release_{genome.gencode.version}",
-    gencode__gtfTemplate())
+    genome__annotationDir(),
+    gencode__biotypesTemplate())
 
 def formatUcscAnnot(func):
   def wrapper(*args, **kwargs):
