@@ -11,11 +11,11 @@ rule biotypes:
                **wildcards),
     dic    = f"{bam__pipeTarget}dictionary_b.map"
   output:
-    pngs   = f"{biotypes__sampleTarget}_pngs"
+    pngs   = directory(f"{biotypes__sampleTarget}_pngs")
   params: 
     min_samples = 1,
     filterEXP   = 'TRUE',
-    USErpkm     = 'FALSE',
+    USErpkm     = 'TRUE',
     plotPIE     = 'TRUE',
     singleSAMPLEplot = 'T',
     TABLE       = 'TRUE',
