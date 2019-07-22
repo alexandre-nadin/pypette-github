@@ -1,27 +1,25 @@
 #!/usr/bin/Rscript
-
-biotypes_function <- function(counts_file,
-                              dictionary_file, 
-                              png_folder = 'Biotypes_plots/', 
-                              samples=0, 
-                              filterEXP=TRUE, 
-                              USErpkm=FALSE, 
-                              plotPIE=TRUE,
-                              singleSAMPLEplot=TRUE,
-                              TABLE = TRUE,
-                              perc2plot=0.01,
-                              GGPLOT= TRUE ) {  
+suppressMessages(library("limma"))
+suppressMessages(library("edgeR"))
+suppressMessages(library("GEOquery"))
+suppressMessages(library("ggplot2"))
+suppressMessages(library("RColorBrewer"))
   
-  # LIBRARY required #
-  suppressMessages(library("limma"))
-  suppressMessages(library("edgeR"))
-  suppressMessages(library("GEOquery"))
-  suppressMessages(library("ggplot2"))
-  suppressMessages(library("RColorBrewer"))
+biotypes_function <- function(countsFile,
+                              biotypesFile, 
+                              pngFolder = 'Biotypes_plots/', 
+                              minSamples=0, 
+                              filterExp=TRUE, 
+                              useRpkm=FALSE, 
+                              plotPie=TRUE,
+                              sglSamplePlot=TRUE,
+                              writeTable = TRUE,
+                              perc2plot=0.01,
+                              useGgplot= TRUE ) {  
   
   # read the counts on the merged counts file 
   # reads the annotation info from the counts of one sample
-  import_counts <- read.delim(file = counts_file, header = T)
+  import_counts <- read.delim(file = countsFile, header = T)
   annotation_info  <- import_counts[,1:6]
     if (ncol(import_counts)-6 ==1) {
     counts <- matrix(data=import_counts[,7:ncol(import_counts)], 
@@ -36,10 +34,10 @@ biotypes_function <- function(counts_file,
   row.names(counts) <- annotation_info$Geneid 
   colnames(counts) = colnames(import_counts)[7:ncol(import_counts)]
   # dictionary from previos rule 
-  dict <- read.delim(dictionary_file, header=FALSE)
+  dict <- read.delim(biotypesFile, header=FALSE)
   #n_s is the MIN_NUM_OF_EXPRESSED_SAMPLE
-  n_s = samples
-  dir.create(png_folder, showWarnings = F, recursive = T)
+  n_s = minSamples
+  dir.create(pngFolder, showWarnings = F, recursive = T)
 
   # save counts matrix and annotation in the DGElist object {require library edgeR}
   y.all <-DGEList(counts=counts, genes=annotation_info)
@@ -58,18 +56,18 @@ biotypes_function <- function(counts_file,
   cpm <- cpm(counts, log=T)
 
   # PLOT text and file names
-  # when filterEXP = F
+  # when filterExp = F
   Mtext="All the genes have been considered" 
-  # when USErpkm = F
+  # when useRpkm = F
   Main ="Biotypes distribution among samples, using raw counts"
   Main_pie = "PieChart of raw counts to biotypes"
-  filename_TABLE = paste(png_folder,"/biotypes_percentages_counts.txt", sep='')
+  filename_writeTable = paste(pngFolder,"/biotypes_percentages_counts.txt", sep='')
   ylabel_opt = 'Counts'
   # use all genes
   isexpr = row.names(counts) == row.names(counts)
 
   # When filter EXP is T I include to the analysis just the expressed genes
-  if (filterEXP) {  
+  if (filterExp) {  
     # consider only the genes whose counts are more than 1cpm in at least n_s sample
     isexpr = rowSums(cpm(counts)>1) >= n_s
     # count how many genes pass this filter:
@@ -82,8 +80,8 @@ biotypes_function <- function(counts_file,
     # update Mtext
     Mtext=paste(nexp, " expressed genes have been considered\n", sep="")
   }
-  # When USErpkm is T I use the rpkm instead of the counts 
-  if (USErpkm) {
+  # When useRpkm is T I use the rpkm instead of the counts 
+  if (useRpkm) {
     rpkm = rpkm(y.all, log=F, gene.length=y.all$genes$Length)[isexpr,]
     # Here is the trick: I call 'counts' the rpkm values, 
     # in order to apply the same code on different data...like a flying cow
@@ -91,7 +89,7 @@ biotypes_function <- function(counts_file,
     colnames(counts) = colnames(import_counts)[7:ncol(import_counts)]
     #Update the plots' feature
     Main ="Biotypes distribution among samples, using RPKM"
-    filename_TABLE = paste(png_folder, "/biotypes_percentages_RPKM.txt", sep='')
+    filename_writeTable = paste(pngFolder, "/biotypes_percentages_RPKM.txt", sep='')
     ylabel_opt = 'RPKM'
     Main_pie = "PieChart of RPKM to biotypes"
   }  
@@ -107,14 +105,14 @@ biotypes_function <- function(counts_file,
     summary = cbind(summary, s)
   }
   colnames(summary) = colnames(counts) # samples
-  rownames(summary) = biotypes # biotypes
+  rownames(summary) = biotypes 
   colors=colorRampPalette(c("red","green","blue","yellow","black","orange","pink","grey"))(length(biotypes))
   # show just the biotypes represented more than perc2plot 
   exp = rowSums(summary)/sum(summary)> perc2plot 
   leg = biotypes[exp]
   legcol = colors[exp]
   yleg = max(colSums(summary))/4
-  png_summary_file = paste(png_folder,'/biotypes_summary.png',sep = '')
+  png_summary_file = paste(pngFolder,'/biotypes_summary.png',sep = '')
   png(png_summary_file, width=1600, height=1200, pointsize=20)
   par(xpd=TRUE, mar=c(20,5,10,3))
   barplot(summary, main=Main, col=colors, cex.axis=1.3, las=1, names.arg=colnames(summary), cex=1.3, las=2, bty="L")
@@ -122,8 +120,8 @@ biotypes_function <- function(counts_file,
   legend(x=0, y=-yleg*2.5 , legend=leg, fill=legcol, horiz=F, ncol=3, cex=1.3, bty="n")
   dev.off()
   # plot using ggplot
-  if (GGPLOT) { 
-    png_file_summary_ggplot = paste(png_folder,'/biotypes_summary_ggplot.png',sep = '')
+  if (useGgplot) { 
+    png_file_summary_ggplot = paste(pngFolder,'/biotypes_summary_ggplot.png',sep = '')
     my_biotypes<- rep(biotypes,ncol(summary))
     my_exp <- rep(exp,ncol(summary))
     my_count_tot=c(summary[,1])
@@ -149,7 +147,7 @@ biotypes_function <- function(counts_file,
 
   # total boxplot
   cpm <- as.matrix(cpm[isexpr,])
-  png_file = paste(png_folder, "/biotypes_boxplot.png", sep="")
+  png_file = paste(pngFolder, "/biotypes_boxplot.png", sep="")
   png(png_file, width=1600, height=1200, pointsize=20)
   par(mar=c(16,5,7,7))
    boxplot(ylab="log2NormalizedExpression", 
@@ -163,8 +161,8 @@ biotypes_function <- function(counts_file,
   dev.off()
 
   # ggplot
-  if (GGPLOT) {
-    png_file_biotypes_ggplot = paste(png_folder, "/biotypes_boxplot_ggplot.png", sep="") 
+  if (useGgplot) {
+    png_file_biotypes_ggplot = paste(pngFolder, "/biotypes_boxplot_ggplot.png", sep="") 
     cpm_biolist = data.frame(cpm = rowMeans(cpm), biotypes = biolist[isexpr])
     boxp = ggplot(cpm_biolist, aes(x=biotypes, y = cpm)) + 
            geom_boxplot(colour="black", fill = "#56B4E9") + 
@@ -183,9 +181,9 @@ biotypes_function <- function(counts_file,
   }
 
   # plot also graphs for single sample 
-  if (singleSAMPLEplot) { 
+  if (sglSamplePlot) { 
     for (i in 1:ncol(counts)) {
-      png_file = paste(png_folder, "/biotypes_boxplot_for_",colnames(counts)[i],".png", sep="")
+      png_file = paste(pngFolder, "/biotypes_boxplot_for_",colnames(counts)[i],".png", sep="")
       png(png_file, width=1600, height=1200, pointsize=20)
       par(mar=c(16,5,7,7))
       boxplot(
@@ -198,8 +196,8 @@ biotypes_function <- function(counts_file,
         cex=0.3)
       dev.off()
 
-      if (GGPLOT) {
-        png_file_biotypes_ggplot_tmp = paste(png_folder, "/biotypes_boxplot_", colnames(counts)[i], "_ggplot.png", sep="")
+      if (useGgplot) {
+        png_file_biotypes_ggplot_tmp = paste(pngFolder, "/biotypes_boxplot_", colnames(counts)[i], "_ggplot.png", sep="")
         cpm_biolist = data.frame(cpm = cpm[,i] , biotypes = biolist[isexpr])
         boxp_tmp = ggplot(cpm_biolist, aes(x=biotypes, y = cpm))  +
                    geom_boxplot(colour="black", fill = "#56B4E9") + 
@@ -219,12 +217,12 @@ biotypes_function <- function(counts_file,
     }
   }
   
-  if (plotPIE) {
+  if (plotPie) {
     biotypes = levels(biolist)
     pp = unlist(lapply(biotypes, function (x) sum(counts[which(biolist[isexpr]==x),])))
     names(pp)= biotypes
     colors=colorRampPalette(c("red","green","blue","yellow","black","orange","pink","grey"))(length(pp))
-    png_file = paste(png_folder, "/biotypes_pie.png", sep="")
+    png_file = paste(pngFolder, "/biotypes_pie.png", sep="")
     png(png_file,width=1400,height=1800,pointsize=20)
     par(mar=c(10,3,3,3),xpd=T)
     pie(pp,
@@ -233,8 +231,8 @@ biotypes_function <- function(counts_file,
         main=Main_pie)
     legend(x=-1.1, y=-0.9, legend=biotypes, fill=colors, horiz=F, ncol=3)
     dev.off()
-    if (GGPLOT) { 
-      png_file_biotypes_ggplot_pie = paste(png_folder, "/Biotypes_pie_ggplot.png", sep="")
+    if (useGgplot) { 
+      png_file_biotypes_ggplot_pie = paste(pngFolder, "/Biotypes_pie_ggplot.png", sep="")
       pp_plot = as.data.frame(pp)
       pp_plot$biotype = row.names(pp_plot)
       pp_plot$perc = pp/sum(pp)
@@ -256,7 +254,7 @@ biotypes_function <- function(counts_file,
     }
 
     # Single pie for single sample
-    if (singleSAMPLEplot) {
+    if (sglSamplePlot) {
       summary = c()
       for (i in 1:ncol(counts)) {
         t = counts[,i]
@@ -269,7 +267,7 @@ biotypes_function <- function(counts_file,
 
       nplot = ncol(summary)
       for (i in 1:nplot) {
-        png_file = paste(png_folder, "/biotypes_pie_", colnames(summary)[i], ".png", sep="")
+        png_file = paste(pngFolder, "/biotypes_pie_", colnames(summary)[i], ".png", sep="")
         png(png_file, width=1600, height=1600, pointsize=20)
         pie(summary[,i], col=colors, labels=ifelse(summary[,i]/sum(summary[,i])>perc2plot,names(summary[,i]),""), radius=0.8, main=colnames(summary[,i]))
         dev.off()
@@ -277,23 +275,31 @@ biotypes_function <- function(counts_file,
     }
   }
   
-  if (TABLE) {
+  if (writeTable) {
     percent=t(t(summary)/colSums(summary))*100
-    write.table(percent,filename_TABLE, row.names=T, col.names=T, quote=F, sep="\t")
+    write.table(percent,filename_writeTable, row.names=T, col.names=T, quote=F, sep="\t")
   }
 
   return()
 }
 
+
+# ---------------------
+# Snakemake parameters
+# ---------------------
+smkp   <- snakemake@params
+smkin  <- snakemake@input
+smkout <- snakemake@output
+
 biotypes_function(
-  counts_file = snakemake@input[["counts"]], 
-  dictionary_file = snakemake@input[["biotypes"]],
-  png_folder = snakemake@output[['pngs']], 
-  samples = snakemake@params[["min_samples"]],
-  filterEXP = snakemake@params[["filterEXP"]],
-  USErpkm = snakemake@params[["USErpkm"]],
-  plotPIE = snakemake@params[["plotPIE"]],
-  singleSAMPLEplot = snakemake@params[["singleSAMPLEplot"]],
-  TABLE = snakemake@params[["TABLE"]],
-  perc2plot = snakemake@params[["perc2plot"]],
-  GGPLOT = snakemake@params[["GGPLOT"]])    
+  countsFile    = smkin$counts,
+  biotypesFile  = smkin$biotypes,
+  pngFolder     = smkout$pngs,
+  minSamples    = smkp$biotypes$minSamples,
+  filterExp     = smkp$biotypes$filterExp,
+  useRpkm       = smkp$biotypes$useRpkm,
+  plotPie       = smkp$biotypes$plotPie,
+  sglSamplePlot = smkp$biotypes$sglSamplePlot,
+  writeTable    = smkp$biotypes$writeTable,
+  perc2plot     = smkp$biotypes$perc2plot,
+  useGgplot     = smkp$biotypes$useGgplot)
