@@ -2,7 +2,6 @@ include: "star.py"
 
 rule bam_star__alignReads:
   input: 
-    configs = config__files,
     reads_1 = lambda wildcards: pipeman.samples.map(
                 fastq__read, sample_read="R1", **wildcards),
     reads_2 = lambda wildcards: pipeman.samples.map(
