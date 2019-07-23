@@ -122,7 +122,7 @@ def logCmdTemplate():
 
 eol
       :
-  """.replace('\\', '\\\\')
+  """
 
 def writeCmdLog(cmd=None, **kwargs):
   if not kwargs['output']:
@@ -132,7 +132,7 @@ def writeCmdLog(cmd=None, **kwargs):
   if 'sample_name' not in kwargs.keys():
     kwargs['sample_name'] = 'all'
 
-  cmd = cmd.format(**kwargs)
+  cmd = cmd.format(**kwargs).replace('\\', '\\\\').replace('$', '\$')
 
   from utils.strings import StringFormatter
   logCmd = (
