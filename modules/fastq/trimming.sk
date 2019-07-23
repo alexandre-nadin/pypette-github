@@ -20,10 +20,8 @@ retaining the pipeline target system flexible.
 # HEADCROP: for QUANTSEQ, leave empty for TruSeq #
 rule fastq_trimming__trimmomatic:
   input: 
-    r1 = lambda wildcards: pipeman.samples.map(
-                fastq__read, sample_read="R1", **wildcards),
-    r2 = lambda wildcards: pipeman.samples.map(
-                fastq__read, sample_read="R2", **wildcards),
+    r1       = pipeman.input(fastq__read, sample_read="R1"),
+    r2       = pipeman.input(fastq__read, sample_read="R2"),
     adapters = "adapters/trimmomatic/adapters.fa"
   output: 
     r1       = temp(f"{fastq_trimming__dir}/trimmomatic/{{sample_name}}_R1.fastq.gz"),
@@ -92,14 +90,12 @@ rule fastq_trimming__cutadapt:
 # ------
 rule fastq_trimming__bbduk:
   input: 
-    r1 = lambda wildcards: pipeman.samples.map(
-                fastq_merge__read, sample_read="R1", **wildcards),
-    r2 = lambda wildcards: pipeman.samples.map(
-                fastq_merge__read, sample_read="R2", **wildcards),
+    r1       = pipeman.input(fastq_merge__read, sample_read="R1"),
+    r2       = pipeman.input(fastq_merge__read, sample_read="R2"),
     adapters = "adapters/bbduk/adapters.fa"
   output: 
-    r1 = temp(fastq_trimming__dir + "/bbduk/{sample_name}_R1.fastq.gz"),
-    r2 = temp(fastq_trimming__dir + "/bbduk/{sample_name}_R2.fastq.gz"),
+    r1       = temp(fastq_trimming__dir + "/bbduk/{sample_name}_R1.fastq.gz"),
+    r2       = temp(fastq_trimming__dir + "/bbduk/{sample_name}_R2.fastq.gz"),
   run:
     inputReads  = " \\\n".join(
       [ x for x in [ 

@@ -4,9 +4,7 @@ biotypes__sampleTarget = f"{biotypes__pipeTarget}/{{sample_name}}"
 """ Assesses and plots biotypes distributions """
 rule biotypes:
   input: 
-    counts   = lambda wildcards: pipeman.samples.map(
-                 f"{bam__sampleTarget}.mergedCounts.gz" ,
-                 **wildcards),
+    counts   = pipeman.input(f"{bam__sampleTarget}.mergedCounts.gz"),
     biotypes = gencode__biotypes()
   output:
     pngs     = directory(f"{biotypes__sampleTarget}_pngs")

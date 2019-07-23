@@ -49,10 +49,9 @@ rule counts__featureCounts:
 
 rule counts__mergedCounts:
   input:
-    counts = lambda wildcards: pipeman.samples.map(
-         f"{bam__sampleTarget}.counts.gz",
-         derefKwargs=['sample_name',],
-               **wildcards)
+    counts = pipeman.input(
+               f"{bam__sampleTarget}.counts.gz",
+               derefKwargs=['sample_name',])
   output:
     counts = f"{bam__sampleTarget}.mergedCounts.gz"
   run:

@@ -3,10 +3,9 @@ vcf__sampleTarget = f"{vcf__pipeTarget}/{{sample_name}}"
 
 rule varcall__freebayes:
   input:
-    bams = lambda wildcards: pipeman.samples.map(
+    bams = pipeman.input(
              f"{bam__sampleTarget}.bam",
-             derefKwargs = ['sample_name',],
-             **wildcards),
+             derefKwargs = ['sample_name',]),
     ref_genome_fa = lambda x: genome__fasta()
   output:
     vcf = f"{vcf__sampleTarget}.vcf.gz"

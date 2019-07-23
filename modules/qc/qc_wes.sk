@@ -2,22 +2,18 @@ LANG = "LC_ALL=en_US.utf8 LANG=en_US.utf8"
 
 rule qc_wes__multiqc:
   input:
-    fastqcs    = lambda wildcards: pipeman.samples.map(
+    fastqcs    = pipeman.input(
       fastq_qc__readZip, 
-      derefKwargs=['sample_name',],
-      **wildcards),
-    mdMetrics  = lambda wildcards: pipeman.samples.map(
+      derefKwargs=['sample_name',]),
+    mdMetrics  = pipeman.input(
       f"{bam__sampleTarget}.metrics",
-      derefKwargs=['sample_name',],
-      **wildcards),
-    hsMetrics  = lambda wildcards: pipeman.samples.map(
+      derefKwargs=['sample_name',]),
+    hsMetrics  = pipeman.input(
       f"{bam__sampleTarget}_hsMetrics.txt",
-      derefKwargs=['sample_name',],
-      **wildcards),
-    flagstat   = lambda wildcards: pipeman.samples.map(
+      derefKwargs=['sample_name',]),
+    flagstat   = pipeman.input(
       f"{bam__sampleTarget}_flagstat.txt",
-      derefKwargs=['sample_name',],
-      **wildcards)
+      derefKwargs=['sample_name',])
   output:
     report   =           f"{bam__pipeTarget}multiqc_report.html",
     data     = directory(f"{bam__pipeTarget}multiqc_data")

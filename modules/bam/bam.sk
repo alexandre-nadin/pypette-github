@@ -106,12 +106,10 @@ ruleorder: samples__all > bam__sampleStats
 ruleorder: bam__markDuplicates > bam__sortSamplePicard > bam__sortSampleSamtools > bam__mergeSample
 rule bam__mergeSample:
   input:
-    bam = lambda wildcards: 
-      pipeman.samples.map(
-        bam__sample, 
-        derefKwargs = ['sample_run',],
-        withResult=True, 
-        **wildcards)
+    bam = pipeman.input(
+            bam__sample, 
+            derefKwargs = ['sample_run',],
+            withResult=True)
   output:
     bam = temp("samples/{sample_name}/runs/{sample_run}/fastq/" + fastq__procs + bam__alignerDir + "/merged/{sample_name}.bam")
   run:
