@@ -5,14 +5,18 @@ rule samplenames:
   List all sample names.
   """
   run:
-    print(pipeman.samples.data['sample_name'])
+    data = pipeman.samples.map("{sample_name}")
+    print(f"Sample names:\n{data}")
 
 rule samples:
   """
   List all samples.
   """
   run:
+    data = pipeman.samples.map("{sample_name}")
     print(pipeman.samples.data)
+
+localrules: samples, samplenames
 
 # -----------
 # Wildcards
