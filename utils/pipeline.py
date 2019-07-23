@@ -79,6 +79,12 @@ class PipelineManager(Manager):
   def sampleExtensions(self):
     return self.sampleManager.configManager.extensionsDelimiters
 
+  def input(self, *args, **kwargs):
+    """ 
+    Allows more clarity to Snakemake input definitions 
+    """
+    return lambda wildcards: self.samples.map(*args, **wildcards, **kwargs)
+    
   # -----------------
   # Pipeline Config
   # -----------------
