@@ -7,8 +7,8 @@ pipeman.includeModules(
 pipeman.loadConfigFiles()
 
 """ 
-Pipeline Workflow 
-Loaded only if required configuration files are present.
+Pipeline Workflow.
+Modules are loaded only if required configuration files above are present.
 """
 pipeman.includeModules(
   "fastq/fastq.sk",
