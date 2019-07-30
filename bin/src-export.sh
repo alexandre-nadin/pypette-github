@@ -4,10 +4,10 @@ export PATH="${PATH}:${_dir}"
 
 # Temporary way of activating conda environments
 if [ ${#_CPIPE_PIPE_ENV} -gt 0 ]; then
-  echo "Sourcing SHELL_ENV '$SHELL_ENV'"
+  printf "Sourcing SHELL_ENV '$SHELL_ENV'\n" >&2
   source $SHELL_ENV
   type -a condactivate
-  echo "Activating conda env '$_CPIPE_PIPE_ENV'."
+  printf "Activating conda env '$_CPIPE_PIPE_ENV'.\n" >&2
   condeactivate || true
   condactivate $_CPIPE_PIPE_ENV
 else
