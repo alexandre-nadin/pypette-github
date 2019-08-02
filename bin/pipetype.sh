@@ -2,7 +2,7 @@
 source pipe.sh
 pipe::setManual pipetype::manual
 
-pipetype__TYPEXECS=(staging local)
+pipetype__TYPEXECS=(production staging local)
 pipetype__paramsMandatory=(PROJECT TARGET)
 
 # ----------
@@ -33,12 +33,12 @@ function pipetype::manual() {
 
   USAGE
       $ $0 \ 
-          --project PROJECT           \ 
-	  --target TARGET             \ 
-          [ --cluster-rules FILE ]    \ 
-          [ --typexec $(str.join -d '|' ${pipetype__TYPEXECS[@]}) ] \ 
-          [ --force ]                 \ 
-          [ --debug ]                 \ 
+          --project PROJECT                              \ 
+	  --target TARGET                                \ 
+          [ --cluster-rules FILE ]                       \ 
+          [ --typexec $(pipetype::choiceTypexec) ]         \ 
+          [ --force ]                                    \ 
+          [ --debug ]                                    \ 
           [ --verbose ] 
 
   OPTIONS
@@ -53,8 +53,8 @@ function pipetype::manual() {
           Default is $(pipetype::clusterRulesDft).
 
       -x|--typexec
-          The type of execution of the pipeline. Can be one among [ ${pipetype__TYPEXECS[@]} ].
-          Default means production mode.
+          The type of execution of the pipeline. Can be one among [ $(pipetype::choiceTypexec) ].
+          Default is '${pipetype__TYPEXECS[0]}'.
 
       -f|--force
           Forces the generation of the TARGET.
@@ -131,7 +131,11 @@ function pipetype::matchTypexec() {
 }
 
 function pipetype::msgTypexecNotExist() {
-  printf "Given '$1' type for --typexec option is not available."
+  printf "Given '$1' type for --typexec option is not available. Available types are: $(pipetype::choiceTypexec)."
+}
+
+function pipetype::choiceTypexec() {
+  str.join -d '|' ${pipetype__TYPEXECS[@]}
 }
 
 # -----------------------
@@ -146,11 +150,11 @@ function pipetype::name() {
 }
 
 function pipetype::cmdPrefix() {
-  printf "pipe-"
+  printf "pypette-"
 }
 
 # ---------------------
-# CTGB Pipe Execution
+# Pipeline Execution
 # ---------------------
 function pipetype::execPipeline() {
   pipe::infecho "\$ $(pipetype::cmdPipeline)"
@@ -167,7 +171,7 @@ eol
 }
 
 function pipetype::cmdTypexec() {
-  printf "cpipe${TYPEXEC:+-$TYPEXEC}"
+  printf "pipe-${TYPEXEC:-${pipetype__TYPEXECS[0]}}"
 }
 
 # -------------------
