@@ -53,7 +53,7 @@ function pipetype::manual() {
           Default is $(pipetype::clusterRulesDft).
 
       -x|--typexec
-          The type of execution of the pipeline. Can be one among [ $(pipetype::choiceTypexec) ].
+          The type of execution of the pipeline. Can be one among [$(pipetype::choiceTypexec)].
           Default is '${pipetype__TYPEXECS[0]}'.
 
       -f|--force
@@ -116,7 +116,7 @@ function pipetype::parseParams() {
 }
 
 function pipetype::checkParams() {
-  pipe::checkParams ${pipetype__paramsMandatory[@]}
+  pipe::requireParams ${pipetype__paramsMandatory[@]}
   pipetype::checkTypexec
 }
 
