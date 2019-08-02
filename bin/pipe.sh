@@ -154,6 +154,8 @@ function manual() {
       -h|--help
           Displays this help manual.
     
+
+
 EOFMAN
 }
 

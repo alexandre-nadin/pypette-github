@@ -67,6 +67,8 @@ function pipetype::manual() {
 
       -h|--help
           Displays this help manual.
+
+
 eol
 }
 
