@@ -9,4 +9,4 @@ export TMPDIR='/tmp'
 export SHELL_ENV="$HOME/local-usr/.bashrc"
 "${_dir}/set-dirs"
 
-ctgb-pipe "$@"
+pipe "$@"

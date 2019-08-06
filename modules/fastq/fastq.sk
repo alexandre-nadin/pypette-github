@@ -32,8 +32,7 @@ rule fastq__linkRead:
   Links original fastq file to the project directory.
   """
   input:
-    read  = lambda wildcards:
-      pipeman.samples.map("{sample_path}", **wildcards)
+    read  = pipeman.input("{sample_path}")
   output: 
     chunk = fastq__chunk
   run:

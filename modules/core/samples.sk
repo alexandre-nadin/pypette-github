@@ -5,24 +5,27 @@ rule samplenames:
   List all sample names.
   """
   run:
-    print(pipeman.samples.data['sample_name'])
+    data = pipeman.input("{sample_name}")
+    print(f"Sample names:\n{data}")
 
 rule samples:
   """
   List all samples.
   """
   run:
+    data = pipeman.input("{sample_name}")
     print(pipeman.samples.data)
+
+localrules: samples, samplenames
 
 # -----------
 # Wildcards
 # -----------
 rule samples__runs:
   input: 
-    lambda wildcards: pipeman.samples.map(
+    pipeman.input(
       'samples/{sample_name}/runs/{sample_run}/', 
-      withResult=True,
-      **wildcards)
+      withResult=True)
   output:
     "samples/{sample_name}/runs/each/{suffix}"
   run:
@@ -33,10 +36,9 @@ rule samples__runs:
   
 rule samples__all:
   input: 
-    lambda wildcards: pipeman.samples.map(
+    pipeman.input(
       "samples/{sample_name}/runs/{sample_run}/", 
-      withResult=True, 
-      **wildcards)
+      withResult=True)
   output:
     "samples/each/runs/{sample_run}/{suffix}"
   run:

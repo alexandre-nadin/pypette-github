@@ -43,6 +43,24 @@ pipeline:
         cutadapt: *baseAdapters
         trimmomatic: *baseAdapters
         bbduk: "BBDUK/adapters.fa"
+    dge:
+      design:
+        string: ""
+        factors: []
+        refFactor: ""
+        refLevel: ""
+      minCounts: 10
+      minSamples: 3
+      alpha: 0.05
+    biotypes:
+      minSamples: 1
+      filterExp: 'T'
+      useRpkm: 'T'
+      plotPie: 'T'
+      sglSamplePlot: 'T'
+      writeTable: 'T'
+      perc2plot: 0.001
+      useGgplot: 'T' 
   sampleBased: True
   deepStructure: True
   sequencing:

@@ -1,8 +1,8 @@
-#!/usr/bin/env bash
+# bash
 source pipe.sh
 pipe::setManual pipetype::manual
 
-pipetype__TYPEXECS=(staging local)
+pipetype__TYPEXECS=(production staging local)
 pipetype__paramsMandatory=(PROJECT TARGET)
 
 # ----------
@@ -29,32 +29,35 @@ function pipetype::manual() {
   cat << eol
 
   DESCRIPTION
-      Launches the $(pipetype::pipeline) pipeline for the given PROJECT.
+      Launches the $(pipetype::pipeline) pipeline to produce a TARGET file for the given PROJECT.
 
   USAGE
-      $ $0                   \ 
-          --project PROJECT           \ 
-          --target TARGET             \ 
-          [ --cluster-rules FILE ]    \ 
-          [ --typexec $(str.join -d '|' ${pipetype__TYPEXECS[@]}) ] \ 
-          [ --force ]                 \ 
-          [ -d|--debug ]              \ 
-          [ -v|--verbose ] 
+      $ $0 \ 
+          --project PROJECT                              \ 
+	  --target TARGET                                \ 
+          [ --cluster-rules FILE ]                       \ 
+          [ --typexec $(pipetype::choiceTypexec) ]         \ 
+          [ --force ]                                    \ 
+          [ --debug ]                                    \ 
+          [ --verbose ] 
 
   OPTIONS
-      --project
+      -p|--project
           Name of the project to process.
 
-      --target
+      -t|--target
           Name of the target file to be produced by the pipeline.
 
-      --cluster-rules
+      -c|--cluster-rules
           Yaml file with all the pipeline's rules for cluster execution. 
           Default is $(pipetype::clusterRulesDft).
 
-      --typexec
-          The type of execution of the pipeline. Can be one among [ ${pipetype__TYPEXECS[@]} ].
-          Default means production mode.
+      -x|--typexec
+          The type of execution of the pipeline. Can be one among [$(pipetype::choiceTypexec)].
+          Default is '${pipetype__TYPEXECS[0]}'.
+
+      -f|--force
+          Forces the generation of the TARGET.
 
       -d|--debug
           Execute the pipeline in debug mode.
@@ -64,6 +67,8 @@ function pipetype::manual() {
 
       -h|--help
           Displays this help manual.
+
+
 eol
 }
 
@@ -71,23 +76,23 @@ function pipetype::parseParams() {
   while [ $# -ge 1 ]
   do
       case "$1" in
-        --project)
+        -p|--project)
           PROJECT="$2"          && shift
           ;;
 
-        --target)
+        -t|--target)
           TARGET="$2"           && shift 
           ;;
 
-        --cluster-rules)
+        -c|--cluster-rules)
           CLUSTER_RULES="$2"    && shift
           ;;
 
-        --typexec)
+        -x|--typexec)
           TYPEXEC="$2"          && shift
           ;;
 
-        --force)
+        -f|--force)
           FORCE=true
           ;;
 
@@ -103,7 +108,7 @@ function pipetype::parseParams() {
           VERBOSE=true
           ;;
   
-        *)
+        -*)
           pipe::errorUnrecOpt "$1"
           ;;
   
@@ -113,7 +118,7 @@ function pipetype::parseParams() {
 }
 
 function pipetype::checkParams() {
-  pipe::checkParams ${pipetype__paramsMandatory[@]}
+  pipe::requireParams ${pipetype__paramsMandatory[@]}
   pipetype::checkTypexec
 }
 
@@ -128,7 +133,11 @@ function pipetype::matchTypexec() {
 }
 
 function pipetype::msgTypexecNotExist() {
-  printf "Given '$1' type for --typexec option is not available."
+  printf "Given '$1' type for --typexec option is not available. Available types are: $(pipetype::choiceTypexec)."
+}
+
+function pipetype::choiceTypexec() {
+  str.join -d '|' ${pipetype__TYPEXECS[@]}
 }
 
 # -----------------------
@@ -143,11 +152,11 @@ function pipetype::name() {
 }
 
 function pipetype::cmdPrefix() {
-  printf "pipe-"
+  printf "pypette-"
 }
 
 # ---------------------
-# CTGB Pipe Execution
+# Pipeline Execution
 # ---------------------
 function pipetype::execPipeline() {
   pipe::infecho "\$ $(pipetype::cmdPipeline)"
@@ -164,7 +173,7 @@ eol
 }
 
 function pipetype::cmdTypexec() {
-  printf "cpipe${TYPEXEC:+-$TYPEXEC}"
+  printf "pipe-${TYPEXEC:-${pipetype__TYPEXECS[0]}}"
 }
 
 # -------------------

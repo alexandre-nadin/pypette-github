@@ -1,3 +1,4 @@
+include: "counts.py"
 pipeman.includeModule('qc/rseqc.sk')
 counts__pipeTarget = f"{bam__pipeTarget}counts"
 
@@ -11,7 +12,7 @@ counts__pipeTarget = f"{bam__pipeTarget}counts"
 # -t exon :  Explicitating default value. This way only reads on exons are counted, and then summarized at gene level (by default). If '-f' is used, summarization would be at feature level (=exon by exon).*
 # -C      :  do NOT count chimeric fragments in PE data, i.e. paired reads mapping on different chromosomes *
 # -R BAM  :  Annotates the original bam files. We don't need this bam for now *
-rule counts__sample:
+rule counts__featureCounts:
   input: 
     bam       = "{someprefix}/{sample_name}.bam",
     inferExp  = "{someprefix}/{sample_name}.inferExperiment",
@@ -21,7 +22,7 @@ rule counts__sample:
     countsGz  =      "{someprefix}/{sample_name}.counts.gz",
     sumcounts =      "{someprefix}/{sample_name}.counts.summary",
     bam       = temp("{someprefix}/{sample_name}.bam.featureCounts.bam"),
-    log       =      "{someprefix}/{sample_name}.log"
+    log       =      "{someprefix}/{sample_name}.counts.log"
   run: 
     inferExp  = rseqc__inferExperiment(input.inferExp)
     cores     = pipeman.config.pipeline.modules.mapping.counter.cores
@@ -46,30 +47,20 @@ rule counts__sample:
     """
     exshell(**vars())
 
-rule counts__merged:
+rule counts__mergedCounts:
   input:
-    bams   = lambda wildcards: pipeman.samples.map(
-               f"samples/{{sample_name}}/runs/all/fastq/{fastq__procs}{bam__alignerDir}/merged/{{sample_name}}.counts",
-               **wildcards)
+    counts = pipeman.input(
+               f"{bam__sampleTarget}.counts.gz",
+               derefKwargs=['sample_name',])
   output:
-    counts = f"samples/all/runs/all/fastq/{fastq__procs}{bam__alignerDir}/merged/all.counts"
+    counts = f"{bam__sampleTarget}.mergedCounts.gz"
   run:
-    import pandas as pd
-    import os
-    import glob
-    from functools import reduce
-
+    cmd = ""
+    exshell(**vars()) 
     try:
-      reduce(
-        pd.merge,
-        [ pd.read_csv(f, delimiter='\t', skiprows=1)
-          for f in input.bams
-        ]
-      ).to_csv(output.counts, sep="\t")
+      mergedDf = counts__mergedGenesDataFrameFromCounts(input.counts)
+      mergedDf.to_csv(output.counts, sep="\t", index=False, compression='gzip')
     except pd.errors.EmptyDataError as ede:
       pipeman.log.warning(f"Empty Data: {ede}")
 
-    cmd = ""
-    exshell(**vars()) 
-
-ruleorder: counts__merged > counts__sample
+ruleorder: counts__mergedCounts > counts__featureCounts
