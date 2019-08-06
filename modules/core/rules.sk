@@ -1,6 +1,6 @@
-#!/usr/bin/env python
+from utils.files import touch
 
-explain_rules_fields = ['name', 'wildcard_names', '_wildcard_constraints', 'snakefile']
+core__rulesFields = ['name', 'wildcard_names', '_wildcard_constraints', 'snakefile']
 rule explain_rules:
   """
   Lists all available rules (snakemake -l) but also gives more
@@ -8,10 +8,236 @@ rule explain_rules:
   """
   run:
     print('\t|\t'.join([_rule_field.upper() 
-                       for _rule_field in explain_rules_fields
+                       for _rule_field in core__rulesFields
                     ]))
     for _rule in rules.__dict__.keys():
       print('\t|\t'.join([str(rules.__dict__[_rule].__dict__[_rule_field]) 
-                              for _rule_field in explain_rules_fields
+                              for _rule_field in core__rulesFields
                         ]))
 
+def helpRuleAttr(rule, attr, name=None, inline=True):
+  """
+  Retrieves the rule's given attribute and formats it for the help output.
+  """
+  val = getattr(rule, attr)
+  return "  {}{}{}".format(
+    name.upper() if name else attr.upper(), 
+    "\n    " if inline else " ",
+    #os.linesep.join([ s for s in str(val).splitlines() ])
+    str(val).strip()
+      .replace(" ", "  ")
+      if val else val,
+  )
+
+def helpRuleMsg(rule):
+  return "\n\n{}\n{}\n{}\n{}\n".format(
+    helpRuleAttr(rule, "name", "rule", inline=False).strip(),
+    helpRuleAttr(rule, "docstring", "doc"),
+    helpRuleAttr(rule, "input"),
+    helpRuleAttr(rule, "output")
+  )
+
+rule helpRule:
+  """
+  Lists given rule with essential attributes. 
+  """
+  output: "help__{name}.done"
+  run:
+    name_rules = [ r for r in workflow.rules if r.name==wildcards.name ]
+    pipeman.log.info(helpRuleMsg(name_rules[0] if name_rules else None))
+    touch(output)
+  
+rule helpRules:
+  """
+  Lists of all available rules with essential attributes.
+  """
+  run:
+    msg = ""
+    for rule in workflow.rules:
+      msg += helpRuleMsg(rule)
+    pipeman.log.info(msg)
+
+rule listRules:
+  """ Lists all available rules """
+  run:
+    pipeman.log.info(os.linesep + os.linesep.join(
+      [ f"  {rule}"
+        for rule in workflow.rules
+      ]
+    ))
+
+def config__hasKey(key, config=None):
+  """ 
+  Checks the given :key: exists in the given/default :config: .
+  """
+  return config in pipeman.config.keys() \
+           and key in pipeman.config[config].keys() \
+         or config is None  \
+           and key in pipeman.config 
+
+def config__valueFromKey(key, config=None):
+  """
+  Retrieves the given :key: from the given or default :config: if it exists.
+  """
+  if  config__hasKey(key, config):
+    if config is None:
+      val = pipeman.config[key]
+    else:
+      val = pipeman.config[config][key]
+  else:
+    val = None
+  return val
+
+def config__valueOf(key):
+  return config__valueFromKey(key, 'pipeline') \
+      or config__valueFromKey(key)
+
+def config__useCondactivate():
+  return config__valueOf('condactivate')
+
+def config__logCommands():
+  return config__valueOf('logCommands')
+
+def config__isDebugMode():
+  return config__valueOf('debug')
+
+def logCmdTemplate():
+  return """
+      cat << eol                        \
+        | sed -s 's|^ [[:blank:]]*||g'  \
+        | sed -s 's| [[:blank:]]*$| |g' \
+        > {output[0]}.info
+
+        INPUT:
+        $(echo {input} | tr ' ' '\n')
+
+        RULE:
+        {rule}
+
+        COMMAND: 
+        {cmd}
+  
+        OUTPUT:
+        $(echo {output} | tr ' ' '\n') \n
+
+eol
+      :
+  """
+
+def writeCmdLog(cmd=None, **kwargs):
+  if not kwargs['output']:
+    kwargs['output'].append(kwargs['rule'])
+
+  # TODO: Auto attribute missing fields in output. 
+  if 'sample_name' not in kwargs.keys():
+    kwargs['sample_name'] = 'all'
+
+  cmd = cmd.format(**kwargs).replace('\\', '\\\\').replace('$', '\$')
+
+  from utils.strings import StringFormatter
+  logCmd = (
+    StringFormatter(logCmdTemplate())
+      .formatPartialMap(keepMissingKeys=True, **kwargs))
+
+  """ Keep sample's column names keywords if not specified """
+  for kw in logCmd.keywords():
+    if kw not in kwargs.keys() \
+    and pipeman.samples.data is not None \
+    and kw in pipeman.samples.data.columns:
+      kwargs[kw] = '{' + kw + "}"
+
+  shell(logCmd, **kwargs)
+
+def cmdActivateConda():
+  env = config__valueOf('condactivate')
+  if env:
+    ret = f"""
+      set +eu 
+      condactivate {env} 2> /dev/null
+      set -eu
+    """
+  else:
+    ret = ""
+  return ret
+
+def cmdSourceShellEnv():
+  env = pipeman.shellEnv
+  if env:
+    ret = ""
+    #ret = f"source {env}"
+  else:
+    ret = ""
+  return ret
+ 
+def exshell(cmd='', isSubCmd=False, **kwargs):
+  """
+  Formats the given command.
+  Prepands the system's conda activation if specified in configuration.
+  Prints the target's log if specified in the configuration.
+  Executes the command if debug mode not set in configuration.
+  """
+
+  """ Add condactivate to command if specified """
+  if cmd:
+    shellCmd = f"""
+      {cmdSourceShellEnv()}
+      {cmd}
+    """
+  else:
+    shellCmd = cmd
+
+  """ Print target's log """
+  if config__valueOf('logCommands'):
+    writeCmdLog(shellCmd, **kwargs)
+
+  """ Debug mode """
+  if config__valueOf('debug') and not isSubCmd:
+    touch(kwargs['output'])
+  else:
+    shell(shellCmd, **kwargs) 
+
+pipeman.toClean("help_*.done")
+
+# ----------------
+# PBS Ressources
+# ----------------
+rule rules__updatePbsRessources:
+  """
+  Looks for all the pipeline's available rules write default cluster configuration
+  in the 'yaml' file.
+  """ 
+  run:
+    cmd = """
+      output=cluster-rules.yaml
+      ## Update default:
+      if [ ! -f "$output" ] || ! grep -s -q "^__default__:" "$output"; then
+        # Default Ressources
+        cat << HERE > "$output"
+__default__:
+  name: '{pbsname}'
+  select: 1
+  ncpus: 1
+  mem: '1gb'
+  error: '{pbsout}.pbserr' 
+  output: '{pbsout}.pbsout'
+
+HERE
+
+      fi
+
+      # Fetches all rules from the executed Snakemake pipeline
+      for _rule in {_rules}; do
+        grep -s -q "^$_rule" "$output" \
+         || cat << HERE >> "$output"
+$_rule:
+  do: True
+
+HERE
+    done
+    """.format(
+          output=output, _rules=" ".join(rules.__dict__.keys()), 
+          pbsname = "{{pipeman.config.project.bioinfo_pipeline}}",
+          pbsout = "{{output[0]}}")
+    shell(cmd)
+
+localrules: explain_rules, helpRule, helpRules, listRules, rules__updatePbsRessources, 

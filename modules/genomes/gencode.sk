@@ -1,0 +1,123 @@
+pipeman.includeModule("genomes/genome.sk")
+include: "gencode.py"
+
+rule gencode__gtf:
+  """
+  Downloads the required GTF file.
+  """
+  output:
+    gtf = gencode__gtf()
+  run:
+    gtfUrl = gencode__gtfUrl()
+    cmd = """
+      curl "{gtfUrl}" \
+        -o {output.gtf}
+    """
+    exshell(**vars())
+
+rule gencode__gtfToBed:
+  """
+  Converts the required GTF into a bed file.
+  """
+  input:
+    gtf = "{someprefix}.gtf.gz"
+  output:
+    bed = temp("{someprefix}.bed")
+  run:
+    cmd = """
+      gunzip -c {input.gtf}                     \
+       | awk '{{ 
+           if ($0 ~ "transcript_id") 
+             print $0; 
+           else 
+             print $0" transcript_id \\"\\";"; 
+         }}'                                    \
+       | gtf2bed                                \
+      > {output.bed}
+    """
+    exshell(**vars())
+
+rule gencode__gtfToBiotypes:
+  """
+  Creates a gene-biotype dictionary from a GTF
+  """
+  input:
+    gtf      = "{someprefix}.gtf.gz"
+  output:
+    biotypes = "{someprefix}.biotypes.tsv.gz"
+  run:
+    cmd = """
+      gunzip -c {input.gtf}                       \
+       | grep -v '#'                              \
+       | awk '($3=="gene") {{print}}'             \
+       | cut -f9                                  \
+       | sed 's/;\s/\t/g'                         \
+       | grep_columns gene_id gene_type gene_name \
+       | sed -e 's/gene_[a-z]\+\s//g'             \
+       | tr -d "\\""                              \
+       | awk '{{OFS="\t"; print $3, $2}}'         \
+       | gzip                                     \
+       > {output.biotypes} 
+    """
+    exshell(**vars())
+
+
+# ------
+# UCSC
+# ------
+rule gencode__ucscAnnot:
+  """ 
+  Gets the raw txt annotation file.
+  """
+  output:
+    annot = gencode__ucscAnnot()
+  run:
+    cmd = f"""
+      curl "{gencode__ucscAnnotUrl()}" \
+       > {output.annot}
+    """
+    exshell(**vars())
+
+rule gencode__ucscGenePred:
+  """
+  Gets the required genePred file.
+  """
+  input:
+    annot    = lambda x: gencode__ucscAnnot()
+  output: 
+    genePred    = gencode__ucscGenePred()
+  run:
+    cmd = f"""
+      gunzip -c {input.annot} \
+       | cut -f2-11           \
+       | gzip                 \
+       > {output.genePred}
+    """
+    exshell(**vars())
+  
+rule gencode__ucscBedgz:
+  """
+  Gets the required bed file.
+  """
+  input:
+    pred = lambda x: gencode__ucscGenePred()
+  output:
+    bed  = gencode__ucscBedgz()
+  run:
+    cmd = """
+      genePredToBed {input.pred} stdout \
+       | gzip                           \
+       > {output.bed}
+    """
+    exshell(**vars())
+
+rule gencode__ucscBed:
+  input:
+    bed = lambda x: gencode__ucscBedgz()
+  output:
+    bed = gencode__ucscBed()
+  run:
+    cmd = """
+      gunzip -c {input.bed} > {output.bed}
+    """
+    exshell(**vars())

@@ -1,0 +1,18 @@
+""" Pipeline Configuration """
+pipeman.includeModules(
+  "config/config.sk",
+  "config/project.sk",
+  "config/samples.sk"
+)
+pipeman.loadConfigFiles()
+
+""" 
+Pipeline Workflow 
+Loaded only if required configuration files are present.
+"""
+pipeman.includeModules(
+  "fastq/fastq.sk",
+  "bam/bam.sk",
+  "qc/qc_wes.sk",
+  "varcall/freebayes.sk",
+  withConfigFiles=True)

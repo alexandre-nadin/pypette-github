@@ -1,0 +1,108 @@
+# --------------------
+# Rules and keywords
+# --------------------
+rule sayHello:
+  shell: """
+    echo "Hello World"
+  """
+# $ snakemake sayHello
+
+rule helloFromShell:
+  shell: """
+    echo "Hello from shell"
+  """
+# $ snakemake helloFromShell
+
+rule helloFromPython:
+  run:
+    print("Hello from  Python!")
+# $ snakemake helloFromPython
+
+rule helloFromShellAndPython:
+  run:
+    print("Hello from  Python!")
+  # Can't have both run and shell keywords
+  #shell: """
+  #  echo "Hello from shell"
+  #"""
+# $ snakemake helloFromShellAndPython
+
+"""
+ SyntaxError in line 18 of /home/alexn/data/alexn/dev/ctgb/snakemake-tuto/Snakefile:
+Multiple run or shell keywords in rule helloFromShellAndPython. (Snakefile, line 18)
+"""
+
+rule helloFromPythonShell:
+  run:
+    shell("echo Hello from Python Shell!")
+# $ snakemake helloFromPythonShell
+
+# --------------
+# Target Files
+# --------------
+rule sampleA:
+  output: "sample_A.txt"
+  #shell:"""
+  #  touch sample_A.txt
+  #"""
+  #
+  ## Print rule name in file
+  #shell:"""
+  #  echo "{rule}" > sample_A.txt
+  #"""
+  #
+  ## Print the rule name and letter A
+  #shell: """
+  #  echo "Rule '{rule}': A" > sample_A.txt
+  #"""
+  #
+  ## Don't repeat the target file name
+  shell: """
+    echo "Rule '{rule}': A" > {output[0]}
+  """
+# $ alias snakemake='smk'
+# $ smk sample_A.txt
+#
+
+
+# ---------------------
+# Conflicting Targets
+# ---------------------
+rule sampleAShellRun:
+  output: 
+    "sample_A.txt"
+  shell:"""
+    echo "Rule '{rule}': A" > {output[0]}
+  """
+# $ smk sample_A.txt
+ruleorder: sampleAShellRun > sampleA
+
+# -----------
+# Wildcards
+# -----------
+rule sampleB:
+  output:
+    "sample_B.txt"
+  shell: """
+    echo "Rule '{rule}': B" > {output[0]}
+  """
+
+rule sampleAny:
+  output:
+    "sample_{any}.txt"
+  #shell: """
+  #  touch {output[0]}
+  #"""
+  shell: """
+    echo "Rule '{rule}': {wildcards.any}" > {output[0]}
+  """
+
+rule sampleLetter:
+  output:
+    "sample_{any}.txt"
+  wildcard_constraints:
+    any = "[a-zA-Z]"
+  shell: """
+    echo "Rule '{rule}': {wildcards.any}" > {output[0]}
+  """
+ruleorder: sampleLetter > sampleAny

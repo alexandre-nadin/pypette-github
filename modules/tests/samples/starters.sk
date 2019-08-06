@@ -1,0 +1,31 @@
+include: "samples.sk"
+
+# ---------------------------------------------------
+#  3 ways of including a python/snakemake module
+# ---------------------------------------------------
+# Give either module's absolute path or path relative to the current one here.
+include: "starters.py"
+pipeman.include("starters.py")
+
+# Give either module's absolute path, relative to here, or relative to 
+# the modules directory.
+pipeman.includeModule("tests/samples/starters.py")
+
+rule starters:
+  """
+  Presents all starter samples.
+  """
+  output: "all.starters"
+  run:
+    print(msgStarters(getStartersDict()))
+    open(output[0], 'a').close()
+
+rule choseStarter:
+  """
+  Asks to chose between all sample starters.
+  """
+  input: rules.starters.output
+  run:
+    print("Which one will you chose?")
+
+pipeman.toClean("*.starters")

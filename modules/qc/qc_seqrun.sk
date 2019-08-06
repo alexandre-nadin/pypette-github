@@ -1,0 +1,63 @@
+pipeman.updateWildcardConstraints(
+  prj = "\w+"
+)
+
+rule seqrun__qc:
+  input: 
+    seqrun__config,
+    prjsQc = lambda x: seqrun__projectsQc()
+  output:
+    "qc.done"
+  run:
+    cmd = """
+      touch {output}
+    """
+    exshell(**vars())
+
+# ------------------------------------
+# QC on all sequencing run's projects
+# ------------------------------------
+rule seqrun__projectQC:
+  """ Produces a single project's QC """
+  input:
+    prjQcPath  = lambda wildcards: seqrun__projectQcPath(wildcards.prj)
+  output:
+    qc = seqrun__projectQcTarget
+  run:
+    cmd = """
+      ln.rel {input.prjQcPath} {output.qc}
+    """
+    exshell(**vars())
+
+rule seqrun__projectQcPath:
+  input:
+    prjSamples = lambda wildcards: project__samplesMetaPath(wildcards.prj)
+  output:
+    prjQc = project__qcPathFmt() 
+  run:
+    pipeline = seqrun__projectPipeline(wildcards.prj)
+    target = project__pipelineQcTarget(pipeline, formatted=True)
+    cmd = core__subCmd(
+      pipeline=pipeline,
+      project=wildcards.prj,
+      target=target)
+    exshell(**vars(), isSubCmd=True)
+
+rule project__samplesMetaPath:
+  output:
+    prjSamples = project__samplesTargetPath()
+  run:
+    pipeline = seqrun__projectPipeline(wildcards.prj)
+    target = project__samplesTarget
+    if pipeline:
+      cmd = core__subCmd(
+        pipeline=pipeline,
+        project=wildcards.prj,
+        target=target)
+      exshell(**vars(), isSubCmd=True)
+      touch(output)
+    else:
+      pipeman.log.warning(
+        f"Could not find relevant pipeline for project {wildcards.prj} among {pipeman.pipelines}.")
+
+localrules: project__samplesMetaPath, seqrun__projectQcPath

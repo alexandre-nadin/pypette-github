@@ -1,0 +1,48 @@
+samples__dir       = "samples/{sample_name}"
+samples__files     = "samples/samples.txt"
+samples__csvMap    = pipeman.samples.configManager.configfileBase + "{extension}"
+samples__csvMapDft = pipeman.samples.configManager.configFileDefault
+
+pipeman.includeModules(
+  "fastq/fastq.py",
+  "config/runs.py")
+
+rule samples__files:
+  """
+  Find all the fastq files in the RUN directories specified in the 
+  configuration.
+  """
+  input:
+    confs = config__files,
+    prj   = project__config
+  output: 
+    file  = samples__files
+  run:
+    runs  = " ".join(runs__projectPaths(pipeman.project))
+    cmd   = f"""
+      find -L {runs} -name '*.fastq.gz' > {output.file}
+    """
+    exshell(**vars())
+
+rule samples__map:
+  """   
+  Maps all the illumina filenames' metadata in a file.
+  """
+  input: 
+    file = samples__files
+  output: 
+    file = samples__csvMap
+  run:
+    """ File Output Header """
+    sampleLines = [ FastqFile.fieldNames() ]
+    with open(input.file, 'r') as fqFiles:
+      """ Mapped Samples Lines """
+      sampleLines.extend(list(map(fastq__mapFilename, fqFiles)))
+
+    """ Write Output """
+    with open(output.file, 'a') as fmap:
+      fmap.write(
+        pipeman.samples.listsToSamplesheet(
+          sampleLines, 
+          pipeman.sampleExtensions[wildcards.extension]))
+    exshell(**vars())

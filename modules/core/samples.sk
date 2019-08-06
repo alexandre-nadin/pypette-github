@@ -1,15 +1,48 @@
-#!/usr/bin/env python
+include: "samples.py"
+
 rule samplenames:
   """
   List all sample names.
   """
   run:
-    print(pipeman.samples.data['sample_name'])
+    data = pipeman.input("{sample_name}")
+    print(f"Sample names:\n{data}")
 
 rule samples:
   """
   List all samples.
   """
   run:
+    data = pipeman.input("{sample_name}")
     print(pipeman.samples.data)
 
+localrules: samples, samplenames
+
+# -----------
+# Wildcards
+# -----------
+rule samples__runs:
+  input: 
+    pipeman.input(
+      'samples/{sample_name}/runs/{sample_run}/', 
+      withResult=True)
+  output:
+    "samples/{sample_name}/runs/each/{suffix}"
+  run:
+    cmd = """
+      touch {output}
+    """
+    exshell(**vars())
+  
+rule samples__all:
+  input: 
+    pipeman.input(
+      "samples/{sample_name}/runs/{sample_run}/", 
+      withResult=True)
+  output:
+    "samples/each/runs/{sample_run}/{suffix}"
+  run:
+    cmd = """
+      touch {output}
+    """
+    exshell(**vars())

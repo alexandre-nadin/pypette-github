@@ -1,0 +1,41 @@
+include: "samples.py"
+
+rule sample:
+  """
+  Presents a sample.
+  """
+  output: "{p}.sample"
+  run:
+    print(msgPoke(pipeman.samples.queryFirstNameOrId(wildcards.p)))
+    open(output[0], 'a').close()
+
+rule evol:
+  """
+  Describes an evolution.
+  """
+  input: "{p}.sample"
+  output: "{p}.evol"
+  run:
+    print(msgEvol(pipeman.samples.queryFirstNameOrId(wildcards.p)))
+    open(output[0], 'a').close()
+
+rule evols:
+  """
+  Describes all evolutions.
+  """
+  input: "{p}.sample"
+  output: "{p}.evols"
+  run:
+    print(msgEvols(pipeman.samples.queryFirstNameOrId(wildcards.p)))
+    open(output[0], 'a').close()
+
+rule supids:
+  """
+  Retrieves all samples with sample_id > {id} in target '{id}.supids'.
+  """
+  output: "{p}.supids"
+  run:
+    print(pipeman.samples.query("sample_id>{}".format(wildcards.p)))
+    open(output[0], 'a').close()
+    
+pipeman.toClean("*.sample", "*.evol", "*.evols", "*.supids")

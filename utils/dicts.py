@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 def toAddict(func):
   import addict
   def wrapper(*args, **kwargs):
@@ -16,3 +15,11 @@ def popFirst(func):
     dic = dic[list(dic.keys())[0]] if dic else {}
     return dic
   return wrapper
+
+class Default(dict):
+  def __init__(self, d, keepMissingKeys=False):
+    self.keepMissingKeys = keepMissingKeys
+    super(Default, self).__init__(d)
+
+  def __missing__(self, key):
+    return '{' + key + '}' if self.keepMissingKeys else ''
