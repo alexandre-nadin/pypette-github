@@ -1,0 +1,25 @@
+# -------------------------
+# Rules and keywords
+# -------------------------
+- Write a rule which prints 'Hello world'
+
+- Execute the rule. For that you give Snakemake the name of the rule to execute.
+
+- Look for distinction between 'run' and 'shell' keyword
+
+- Write a rule which prints "Hello from shell' using the 'shell' keyword (if nto already done)
+
+- Execute the rule
+
+- Write rule which prints "Hello from python' using the 'run' keyword
+
+- Execute the rule
+
+- Write rule which prints the two above messages using both the 'run' and 'shell' keywords.
+
+- Execute that rule. It should fail. Read the error message. 'shell' and 'run' are mutually exclusive keywords. Comment one of the two block to make Snakemake work.
+
+- Find a way to print "Hello from Python Shell!" from the shell, but inside a 'run' block (Hint: There is a python Snakemake function for that)
+
+- Look at your rule names. Would someone else be able to guess what they do simply looking at their names? Show them to a colleague.
+

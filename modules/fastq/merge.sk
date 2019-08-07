@@ -1,0 +1,34 @@
+pipeman.updateWildcardConstraints(
+  procFastqMerge = "(merged/)",
+)
+fastq_merge__dir        = fastq__sampleRunDir
+fastq_merge__readPrefix = fastq_merge__dir + "/{procFastqMerge}{sample_name}_{sample_read}"
+fastq_merge__read       = fastq_merge__readPrefix + "{sample_extension}"
+
+# ---------------
+# Merging Reads
+# ---------------
+rule fastq_merging__mergeReads:
+  """
+  Merges sample reads filtered by the given wildcards.
+  """
+  input:
+    reads = 
+      pipeman.input(fastq__chunk)
+  output:
+    read  = temp(fastq_merge__read)
+  run:
+    input.reads.sort()
+    if len(input.reads) == 1:
+      cmd = """
+        ln.rel {input.reads[0]} {output.read}
+      """
+    else:
+      cmd = """
+        zcat {input.reads}   \
+         | gzip              \
+         > {output.read}
+      """
+    exshell(**vars())
+
+ruleorder: samples__runs > fastq_merging__mergeReads

@@ -1,0 +1,46 @@
+include: "fastq.py"
+
+pipeman.updateWildcardConstraints(
+  **FastqFile.regex_fields,
+  preprocesses = "(/\w+/)*?",
+  anyprefix    = ".*",
+  someprefix   = ".+",
+  extension    = "\.\w+",
+)
+
+fastq__sampleRunDir   = samples__dir + "/runs/{sample_run}/fastq"
+
+fastq__chunkPrefix    = fastq__sampleRunDir + "/{sample_chunkname}"
+fastq__chunk          = fastq__chunkPrefix + "{sample_extension}"
+fastq__readPrefix     = fastq__sampleRunDir + "/{procFastqMerge}{procTrimming}{sample_name}_{sample_read}"
+fastq__read           = fastq__readPrefix + "{sample_extension}"
+
+pipeman.include("merge.sk")
+pipeman.include("trimming.sk")
+pipeman.include("qc.sk")
+pipeman.include("adapter.sk")
+fastq__procs = "{procFastqMerge}{procTrimming}"
+fastq__pipeTarget = f"{fastq__sampleRunDir}/{fastq__procs}"
+
+ruleorder: fastq_trimming__bbduk > fastq_trimming__trimmomatic > fastq_trimming__cutadapt > fastq_merging__mergeReads
+
+# -----------------
+# Link fastq reads
+# -----------------
+rule fastq__linkRead:
+  """
+  Links original fastq file to the project directory.
+  """
+  input:
+    read  = pipeman.input("{sample_path}")
+  output: 
+    chunk = fastq__chunk
+  run:
+    cmd = """
+      ln.rel \
+        {input.read} \
+        {output.chunk} 
+    """
+    exshell(**vars())
+
+ruleorder: samples__all > samples__runs > fastq__linkRead

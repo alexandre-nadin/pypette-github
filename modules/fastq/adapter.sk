@@ -1,0 +1,26 @@
+include: "adapter.py"
+
+rule fastq_adapter__fasta_adapters:
+  input: 
+    fasta = lambda wildcards: fastq_adapter__toolAdapters(wildcards.trimmingTool)
+  output: 
+    fasta = "adapters/{trimmingTool}/adapters.fa"
+  wildcard_constraints:
+    trimmingTool = '|'.join(trimmingTools)
+  run:
+    cmd = """
+      condactivate
+      ## Substitute uracil in timin; Remove empty lines.
+      perl -pe 'if(!m/^>/){{ tr/U/T/}}' {input.fasta} \
+       | grep . > {output.fasta}.tmp1
+
+      reverse_fasta < {output.fasta}.tmp1 \
+       | perl -lpe 'if(m/^>/){{$_=$_."_reverse"}}' \
+       > {output.fasta}.tmp2
+ 
+      cat {output.fasta}.tmp1 {output.fasta}.tmp2 \
+       > {output.fasta}
+
+      rm {output.fasta}.tmp1 {output.fasta}.tmp2
+    """
+    exshell(**vars())

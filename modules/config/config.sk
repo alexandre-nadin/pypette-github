@@ -1,0 +1,45 @@
+import utils.dicts
+from utils.files import touch
+include: "config.py"
+
+config__dir = "config"
+config__files = tuple(
+  f"{config__dir}/{config}"
+  for config in (
+    "cluster.yaml", 
+    "pipeline.yaml", 
+    "cluster-rules.yaml",
+    "databases.yaml",
+   ))
+
+pipeman.addConfigFiles(*config__files)
+
+# -----------------------
+# Internal Config files
+# -----------------------
+rule config__internalConf:
+  """
+  This should be taken form the lims.
+  Not implemented yet in lims API.
+  """
+  output:
+    file = config__dir + "/{conf}.yaml"
+  shell:"""
+    cp "{pipeman.pipelinesDir}/{pipeman.pipeName}/{wildcards.conf}.yaml" \
+       "{output.file}"
+  """
+
+rule config__all:
+  """
+  Generated all required configuration files.
+  """
+  input:
+    lambda x: pipeman.configFiles
+  output:
+    config__dir + "/all.done"
+  run:
+    touch(output)
+
+localrules: config__internalConf, config__all
+    
+pipeman.toClean(config__dir + "/*.done")

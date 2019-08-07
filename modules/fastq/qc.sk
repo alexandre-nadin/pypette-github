@@ -1,0 +1,30 @@
+# --------------
+# Input/Output
+# --------------
+fastq_qc__htmlExt     = "_fastqc.html"
+fastq_qc__zipExt      = "_fastqc.zip"
+
+fastq_qc__readPrefix = fastq_merge__readPrefix
+fastq_qc__readHtml   = fastq_qc__readPrefix + fastq_qc__htmlExt
+fastq_qc__readZip    = fastq_qc__readPrefix + fastq_qc__zipExt
+
+# --------------
+# Fastq Quality
+# --------------
+rule fastq_qc__reads:
+  """
+  Produces a Fastqc report for whatever the given fastq reads.
+  """
+  input: 
+    fastq = "{path}.fastq.gz"
+  output:
+    html  = "{path}" + fastq_qc__htmlExt,
+    zip   = "{path}" + fastq_qc__zipExt
+  run:
+    fastqc = pipeman.config.pipeline.modules.fastq.qc.fastqc
+    cmd = """
+      fastqc -t {fastqc.cores} {input}
+    """
+    exshell(**vars())
+
+ruleorder: samples__runs > fastq_qc__reads

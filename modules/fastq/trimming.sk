@@ -1,0 +1,132 @@
+trimmingTools = ('trimmomatic', 'cutadapt', 'bbduk')
+pipeman.updateWildcardConstraints(
+  procTrimming = "(trimmed/({})/)?".format('|'.join(trimmingTools)),
+)
+
+fastq_trimming__dir = fastq__sampleRunDir + "/{procFastqMerge}trimmed"
+
+# ------------
+# Trimmomatic
+# ------------
+"""
+Applies the trimming to the given sample in output.
+Maps the existing reads R1 and R2 for the given sample in output.
+Input and output files are generated depending on the existing reads.
+If R2 doesn't exist, the pair end output files are still produced, empty.
+They will later be dealt with as ghost files. 
+This is a way of keeping the rule clean, avoiding code redundancy and
+retaining the pipeline target system flexible.
+"""
+# HEADCROP: for QUANTSEQ, leave empty for TruSeq #
+rule fastq_trimming__trimmomatic:
+  input: 
+    r1       = pipeman.input(fastq__read, sample_read="R1"),
+    r2       = pipeman.input(fastq__read, sample_read="R2"),
+    adapters = "adapters/trimmomatic/adapters.fa"
+  output: 
+    r1       = temp(f"{fastq_trimming__dir}/trimmomatic/{{sample_name}}_R1.fastq.gz"),
+    r1u      = temp(f"{fastq_trimming__dir}/trimmomatic/{{sample_name}}_R1_UNPAIRED.fastq.gz"),
+    r2       = temp(f"{fastq_trimming__dir}/trimmomatic/{{sample_name}}_R2.fastq.gz"),
+    r2u      = temp(f"{fastq_trimming__dir}/trimmomatic/{{sample_name}}_R2_UNPAIRED.fastq.gz"),
+    trimlog  =      f"{fastq_trimming__dir}/trimmomatic/{{sample_name}}.trimlog",
+  run:
+    inputReads = [ x for x in [ 
+                     input.r1[0], 
+                     input.r2[0] if input.r2 else None] 
+                   if x ]
+    inputString   = " \\\n".join(inputReads)
+
+    outputReads   = [ output.r1 ]
+    if input.r2:
+      outputReads += [ output.r1u, output.r2, output.r2u ]
+
+    outputString  = " \\\n".join(outputReads)
+
+    trimmomatic   = pipeman.config.pipeline.modules.fastq.trimming.trimmers.trimmomatic
+    pairendedness = 'PE' if input.r2 else 'SE'
+                 
+    cmd = """
+        trimmomatic                           \\
+        {pairendedness}                       \\
+        -phred33                              \\
+        -trimlog {output.trimlog}             \\
+        {inputString}                         \\
+        {outputString}                        \\
+        ILLUMINACLIP:{input.adapters}:2:30:10 \\
+        LEADING:3                             \\
+        TRAILING:3                            \\
+        SLIDINGWINDOW:4:15                    \\
+        MINLEN:15                             \\
+        {trimmomatic.headcrop}                
+      touch {output}
+    """
+    exshell(**vars())
+
+# ---------
+# Cutadapt
+# ---------
+rule fastq_trimming__cutadapt:
+  input: 
+    fastq    = "{someprefix}/{fastq}.fastq.gz",
+    adapters = "adapters/cutadapt/adapters.fa"
+  output: 
+    fastq    = temp("{someprefix}/trimmed/cutadapt/{fastq}.fastq.gz")
+  run:
+    cmd = """
+      cutadapt                   \
+        -b file:{input.adapters} \
+        --trim-n                 \
+        -q 30,30                 \
+        -u 13                    \
+        -m 15                    \
+        -o {output.fastq}        \
+        {input.fastq}            \
+       > "{output.fastq}.log"
+    """
+    exshell(**vars())
+
+# ------
+# BBDUK
+# ------
+rule fastq_trimming__bbduk:
+  input: 
+    r1       = pipeman.input(fastq_merge__read, sample_read="R1"),
+    r2       = pipeman.input(fastq_merge__read, sample_read="R2"),
+    adapters = "adapters/bbduk/adapters.fa"
+  output: 
+    r1       = temp(fastq_trimming__dir + "/bbduk/{sample_name}_R1.fastq.gz"),
+    r2       = temp(fastq_trimming__dir + "/bbduk/{sample_name}_R2.fastq.gz"),
+  run:
+    inputReads  = " \\\n".join(
+      [ x for x in [ 
+          "in={}".format(input.r1), 
+          "in2={}".format(input.r2) if input.r2 else None] 
+        if x ])
+    outputReads = " \\\n".join(
+      [ x for x in [
+          "out={}".format(output.r1),
+          "out2={}".format(output.r2) 
+            if input.r2 
+            else None ] 
+        if x ])
+
+    cmd = """
+      bbduk.sh               \\
+        {inputReads}         \\
+        {outputReads}        \\
+        ref={input.adapters} \\
+        k=23                 \\
+        mink=11              \\
+        rcomp=t              \\
+        ktrim=f              \\
+        kmask=X              \\
+        qtrim=rl             \\
+        trimq=5              \\
+        forcetrimleft=0      \\
+        forcetrimright2=0    \\
+        overwrite=true
+      touch {output}
+    """
+    exshell(**vars())
+
+ruleorder: samples__runs > fastq_trimming__bbduk > fastq_trimming__trimmomatic > fastq_trimming__cutadapt

@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from easydev import Logging
 import utils.files
 from utils.manager import Manager
+from utils.classes import overrideProperty
 
 @dataclass
 class ConfigManagerTemplate(Manager):
@@ -13,10 +14,23 @@ class ConfigManagerTemplate(Manager):
   config_prefix  : str  = ""
   namespace      : dict = None
 
-  extensions = ()
   """ Attributes """
   def __post_init__(self):
     super(ConfigManagerTemplate, self).__init__()
+
+  @property
+  @overrideProperty
+  def extensions(self): 
+    return "Returns a tuple of possible extensions."
+
+  @overrideProperty
+  def load(self, file):
+    return "Correctly loads data from the given file."
+
+  @property
+  @overrideProperty
+  def configfileBase(self):
+    return "Returns the base name of configuration files, without extensions."
 
   def loadDftConfig(self):
     """
@@ -24,29 +38,28 @@ class ConfigManagerTemplate(Manager):
     """
     config = self.configFileDefault
     if config:
-      return self.loadConfig(config)
+      return self.load(config)
     else:
       return None
-
-  def loadConfig(self, file):
-    """
-    Override in relevant subclass to correctly load data from the given file.
-    """
-    raise Exception(
-      "Function {} has to be overridden in a subclass."
-       .format(sys._getframe().f_code.co_name))
 
   @property
   def configFileDefault(self):
     """
     Gives the default config file found among all possible.
     """
-    configs = self.configfiles()
+    configs = [ config
+      for config in self.configfiles()
+      if os.path.isfile(config)
+    ]
+
     if configs:
-      config = configs.pop(0)
+      config = configs[0]
       self.log.info(
         "{} files found: {}. Default taken: '{}'."
-          .format(self.config_type.capitalize(), self.configfilesExpected(), config)
+          .format(
+            self.config_type.capitalize(), 
+            configs, 
+            config)
       )
       return config
     else:
@@ -61,29 +74,17 @@ class ConfigManagerTemplate(Manager):
     Builds potential configuration file names.
     Returns only those which do exist.
     """
-    return [
-      conf for conf in self.configfilesExpected()
-        if os.path.exists(conf)
+    return [ conf
+      for conf in self.configfilesExpected()
+      if os.path.exists(conf)
     ]
 
   def configfilesExpected(self):
     """
     Returns expected default configuration files for each possible extension.
     """
-    return [ 
-      "{}{}".format(self.configfileBase, ext)
-        for ext in self.extensions
+    return [ "{}{}"
+      .format(self.configfileBase, ext)
+      for ext in self.extensions
     ]
 
-  @property
-  def configfileBase(self):
-    """
-    Returns the base name of configuration files, without extensions.
-    """
-    return (
-      "{}{}"
-        .format(
-          "{}-".format(self.config_prefix.lower() if self.config_prefix else ""),
-          self.config_type.lower()
-        )
-    )

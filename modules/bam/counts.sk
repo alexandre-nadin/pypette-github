@@ -1,0 +1,66 @@
+include: "counts.py"
+pipeman.includeModule('qc/rseqc.sk')
+counts__pipeTarget = f"{bam__pipeTarget}counts"
+
+# -------
+# Counts
+# -------
+# Strandedness
+#   0: unstranded
+#   1: forward
+#   2: reverse
+# -t exon :  Explicitating default value. This way only reads on exons are counted, and then summarized at gene level (by default). If '-f' is used, summarization would be at feature level (=exon by exon).*
+# -C      :  do NOT count chimeric fragments in PE data, i.e. paired reads mapping on different chromosomes *
+# -R BAM  :  Annotates the original bam files. We don't need this bam for now *
+rule counts__featureCounts:
+  input: 
+    bam       = "{someprefix}/{sample_name}.bam",
+    inferExp  = "{someprefix}/{sample_name}.inferExperiment",
+    gtf       = lambda x: gencode__gtf()
+  output:
+    counts    = temp("{someprefix}/{sample_name}.counts"),
+    countsGz  =      "{someprefix}/{sample_name}.counts.gz",
+    sumcounts =      "{someprefix}/{sample_name}.counts.summary",
+    bam       = temp("{someprefix}/{sample_name}.bam.featureCounts.bam"),
+    log       =      "{someprefix}/{sample_name}.counts.log"
+  run: 
+    inferExp  = rseqc__inferExperiment(input.inferExp)
+    cores     = pipeman.config.pipeline.modules.mapping.counter.cores
+    paired    = '-p' if inferExp.isPairEnd else ''
+    cmd = """
+      featureCounts               \
+        --tmpDir $TMPDIR          \
+        -T {cores}                \
+        {paired}                  \
+        -C                        \
+        -s {inferExp.fcStrand}    \
+        -t exon                   \
+        -F GTF                    \
+        -a {input.gtf}            \
+        -g gene_name              \
+        -R BAM                    \
+        -o {output.counts}        \
+        {input.bam}               \
+       2> {output.log}
+
+      gzip -c {output.counts} > {output.countsGz}
+    """
+    exshell(**vars())
+
+rule counts__mergedCounts:
+  input:
+    counts = pipeman.input(
+               f"{bam__sampleTarget}.counts.gz",
+               derefKwargs=['sample_name',])
+  output:
+    counts = f"{bam__sampleTarget}.mergedCounts.gz"
+  run:
+    cmd = ""
+    exshell(**vars()) 
+    try:
+      mergedDf = counts__mergedGenesDataFrameFromCounts(input.counts)
+      mergedDf.to_csv(output.counts, sep="\t", index=False, compression='gzip')
+    except pd.errors.EmptyDataError as ede:
+      pipeman.log.warning(f"Empty Data: {ede}")
+
+ruleorder: counts__mergedCounts > counts__featureCounts

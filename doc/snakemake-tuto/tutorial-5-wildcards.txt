@@ -1,0 +1,30 @@
+# ----------
+# Wildcards
+# ----------
+- Write a rule which writes the letter "B" in the file "sample_B.txt"
+
+Notice the redundancy in the code for creating sample_A.txt and sample_B.txt (file name, file content). Let's create a generic rule that allows enough flexibility to create whatever sample file.
+
+- Find and read the wildcards section in the Snakemake manual.
+
+- Write a rule to create the file "sample_{any}.txt"
+
+- Execute the rule to create the files "sample_C.txt".
+
+- Modify the rule to write the rule name {rule} and the {any} wildcard in the output file.
+
+- Reproduce the file "sample_C.txt". It should contain the last rule name as well as the letter 'C'.
+
+- Execute the rule to produce the rule 'sample_666.txt'.
+
+The last rule actually allows to create any kind of sample. Now we want to limit it to the creation of sample file names containing one and only one letter, no number or other character.
+
+- Make sure you read how to use wildcard_constraints in the wildcards section from the Snakemake documentation.
+ 
+- Duplicate the last rule and add the wildcard constraint for the {any} wildcard to make it accept one letter only.
+
+- Use the rule to produce the file 'sample_D.txt'. Thsi shouldn't work because snakemake can use the two last rules to produce it.
+
+- Solve the rule order between the last two rules and produce the file 'sample_d.txt'. Check the file content to make sure the last rule has been used.
+
+- Produce the file 'sample_777.txt'. Look at its content and notice it has been created with the previous rule, not the last one despite its priority. 

@@ -1,0 +1,5 @@
+pipeline: "pokestart"
+pipe:
+  rna:
+    aligner:
+      command: star
