@@ -37,7 +37,7 @@ def runs__path(runid):
   Builds the path of the given runid.
   """
   return os.path.join(
-    pipeman.config.cluster.sequencingRuns.dir, 
+    pipeman.config.cluster.sequencingRuns.rawDir, 
     runid)
    
 def runs__checkRuns(runs=[]):

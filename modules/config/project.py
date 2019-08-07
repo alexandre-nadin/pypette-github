@@ -9,7 +9,7 @@ def project__samplesTargetPath():
 
 def project__projectsDir():
   return os.path.join(
-    pipeman.workflowDir,
+    pipeman.config.cluster.stdAnalysisDir,
     pipeman.config.cluster.projects.outDir)
 
 def project__dirFmt():
