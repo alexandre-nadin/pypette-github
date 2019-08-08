@@ -1,8 +1,7 @@
 # bash
-source pipe.sh
-pipe::setManual pipetype::manual
+source pypette.sh
+pypette::setManual pipetype::manual
 
-pipetype__TYPEXECS=(production staging local)
 pipetype__paramsMandatory=(PROJECT TARGET)
 
 # ----------
@@ -36,7 +35,6 @@ function pipetype::manual() {
           --project PROJECT                              \ 
 	  --target TARGET                                \ 
           [ --cluster-rules FILE ]                       \ 
-          [ --typexec $(pipetype::choiceTypexec) ]         \ 
           [ --force ]                                    \ 
           [ --debug ]                                    \ 
           [ --verbose ] 
@@ -51,10 +49,6 @@ function pipetype::manual() {
       -c|--cluster-rules
           Yaml file with all the pipeline's rules for cluster execution. 
           Default is $(pipetype::clusterRulesDft).
-
-      -x|--typexec
-          The type of execution of the pipeline. Can be one among [$(pipetype::choiceTypexec)].
-          Default is '${pipetype__TYPEXECS[0]}'.
 
       -f|--force
           Forces the generation of the TARGET.
@@ -91,10 +85,6 @@ function pipetype::parseParams() {
           CLUSTER_RULES="$2"    && shift
           ;;
 
-        -x|--typexec)
-          TYPEXEC="$2"          && shift
-          ;;
-
         -f|--force)
           FORCE=true
           ;;
@@ -116,7 +106,7 @@ function pipetype::parseParams() {
           ;;
   
         -*)
-          pipe::errorUnrecOpt "$1"
+          pypette::errorUnrecOpt "$1"
           ;;
   
       esac
@@ -125,33 +115,14 @@ function pipetype::parseParams() {
 }
 
 function pipetype::checkParams() {
-  pipe::requireParams ${pipetype__paramsMandatory[@]}
-  pipetype::checkTypexec
-}
-
-function pipetype::checkTypexec() {
-  [ -z ${TYPEXEC:+x} ] \
-    || pipetype::matchTypexec "$TYPEXEC" \
-    || pipe::errexit "$(pipetype::msgTypexecNotExist ${TYPEXEC})"
-}
-
-function pipetype::matchTypexec() {
-  \grep  -qs " $1 " <<< " ${pipetype__TYPEXECS[@]} "
-}
-
-function pipetype::msgTypexecNotExist() {
-  printf "Given '$1' type for --typexec option is not available. Available types are: $(pipetype::choiceTypexec)."
-}
-
-function pipetype::choiceTypexec() {
-  str.join -d '|' ${pipetype__TYPEXECS[@]}
+  pypette::requireParams ${pipetype__paramsMandatory[@]}
 }
 
 # -----------------------
 # Pipeline Type Specific
 # -----------------------
 function pipetype::pipeline() {
-  pipetype::name $(pipe::extless $(pipe::cmdName))
+  pipetype::name $(pypette::extless $(pypette::cmdName))
 }
 
 function pipetype::name() {
@@ -166,22 +137,18 @@ function pipetype::cmdPrefix() {
 # Pipeline Execution
 # ---------------------
 function pipetype::execPipeline() {
-  pipe::infecho "\$ $(pipetype::cmdPipeline)"
+  pypette::infecho "\$ $(pipetype::cmdPipeline)"
   eval $(pipetype::cmdPipeline)
 }
 
 function pipetype::cmdPipeline() {
   cat << eol | tr '\n' ' '
-  $(pipetype::cmdTypexec)
+    $(pypette::cmdDir)/pypette
    -p $(pipetype::pipeline)
    --project $PROJECT 
    ${WORKDIR:+--outdir ${WORKDIR}}
    --snakemake "$(pipetype::smkParams)"
 eol
-}
-
-function pipetype::cmdTypexec() {
-  printf "pipe"
 }
 
 # -------------------
@@ -213,7 +180,7 @@ function pipetype::smkOptionsCluster() {
 }
 
 function pipetype::smkUseClusterOptions() {
-  ! pipe::isParamGiven "TYPEXEC" || [ "${TYPEXEC}" != 'local' ];
+  ! pypette::isParamGiven "TYPEXEC" || [ "${TYPEXEC}" != 'local' ];
 }
 
 function pipetype::smkOptionsClusterStr() {
@@ -245,7 +212,7 @@ function pipetype::clusterRulesDft() {
 }
 
 function pipetype::clusterRulesDftTemplate() {
-  printf "$(pipe::cmdDir)/../pipelines/$(pipetype::pipeline)/cluster-rules.yaml"
+  printf "$(pypette::cmdDir)/../pipelines/$(pipetype::pipeline)/cluster-rules.yaml"
 }
 
 
