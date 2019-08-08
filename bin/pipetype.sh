@@ -1,6 +1,6 @@
 # bash
-source pipe.sh
-pipe::setManual pipetype::manual
+source pypette.sh
+pypette::setManual pipetype::manual
 
 pipetype__TYPEXECS=(production staging local)
 pipetype__paramsMandatory=(PROJECT TARGET)
@@ -116,7 +116,7 @@ function pipetype::parseParams() {
           ;;
   
         -*)
-          pipe::errorUnrecOpt "$1"
+          pypette::errorUnrecOpt "$1"
           ;;
   
       esac
@@ -125,14 +125,14 @@ function pipetype::parseParams() {
 }
 
 function pipetype::checkParams() {
-  pipe::requireParams ${pipetype__paramsMandatory[@]}
+  pypette::requireParams ${pipetype__paramsMandatory[@]}
   pipetype::checkTypexec
 }
 
 function pipetype::checkTypexec() {
   [ -z ${TYPEXEC:+x} ] \
     || pipetype::matchTypexec "$TYPEXEC" \
-    || pipe::errexit "$(pipetype::msgTypexecNotExist ${TYPEXEC})"
+    || pypette::errexit "$(pipetype::msgTypexecNotExist ${TYPEXEC})"
 }
 
 function pipetype::matchTypexec() {
@@ -151,7 +151,7 @@ function pipetype::choiceTypexec() {
 # Pipeline Type Specific
 # -----------------------
 function pipetype::pipeline() {
-  pipetype::name $(pipe::extless $(pipe::cmdName))
+  pipetype::name $(pypette::extless $(pypette::cmdName))
 }
 
 function pipetype::name() {
@@ -166,22 +166,18 @@ function pipetype::cmdPrefix() {
 # Pipeline Execution
 # ---------------------
 function pipetype::execPipeline() {
-  pipe::infecho "\$ $(pipetype::cmdPipeline)"
+  pypette::infecho "\$ $(pipetype::cmdPipeline)"
   eval $(pipetype::cmdPipeline)
 }
 
 function pipetype::cmdPipeline() {
   cat << eol | tr '\n' ' '
-  $(pipetype::cmdTypexec)
+    $(pypette::cmdDir)/pypette
    -p $(pipetype::pipeline)
    --project $PROJECT 
    ${WORKDIR:+--outdir ${WORKDIR}}
    --snakemake "$(pipetype::smkParams)"
 eol
-}
-
-function pipetype::cmdTypexec() {
-  printf "pipe"
 }
 
 # -------------------
@@ -213,7 +209,7 @@ function pipetype::smkOptionsCluster() {
 }
 
 function pipetype::smkUseClusterOptions() {
-  ! pipe::isParamGiven "TYPEXEC" || [ "${TYPEXEC}" != 'local' ];
+  ! pypette::isParamGiven "TYPEXEC" || [ "${TYPEXEC}" != 'local' ];
 }
 
 function pipetype::smkOptionsClusterStr() {
@@ -245,7 +241,7 @@ function pipetype::clusterRulesDft() {
 }
 
 function pipetype::clusterRulesDftTemplate() {
-  printf "$(pipe::cmdDir)/../pipelines/$(pipetype::pipeline)/cluster-rules.yaml"
+  printf "$(pypette::cmdDir)/../pipelines/$(pipetype::pipeline)/cluster-rules.yaml"
 }
 
 
