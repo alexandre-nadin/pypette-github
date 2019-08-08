@@ -210,7 +210,7 @@ function pypette::parseParams() {
           ;;
 
         -o|--outdir)
-          WORKDIR="$2" && shift
+          WORKDIR=$(readlink -f "$2") && shift
           ;;
              
         -v|--verbose)

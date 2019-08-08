@@ -1,20 +1,20 @@
 # bash
 source pypette.sh
-pypette::setManual pipetype::manual
+pypette::setManual pypetype::manual
 
-pipetype__paramsMandatory=(PROJECT TARGET)
+pypetype__paramsMandatory=(PROJECT TARGET)
 
 # ----------
 # Workflow
 # ----------
-function pipetype::runFlow() {
-  pipetype::parseParams "$@"
-  pipetype::checkParams
-  pipetype::exportVarenvs
-  pipetype::execPipeline
+function pypetype::runFlow() {
+  pypetype::parseParams "$@"
+  pypetype::checkParams
+  pypetype::exportVarenvs
+  pypetype::execPipeline
 }
 
-function pipetype::exportVarenvs() {
+function pypetype::exportVarenvs() {
   export TYPEXEC
   export FORCE
   export DEBUG
@@ -24,11 +24,11 @@ function pipetype::exportVarenvs() {
 # --------------
 # CLI & Parsing
 # --------------
-function pipetype::manual() {
+function pypetype::manual() {
   cat << eol
 
   DESCRIPTION
-      Launches the $(pipetype::pipeline) pipeline to produce a TARGET file for the given PROJECT.
+      Launches the $(pypetype::pipeline) pipeline to produce a TARGET file for the given PROJECT.
 
   USAGE
       $ $0 \ 
@@ -48,7 +48,7 @@ function pipetype::manual() {
 
       -c|--cluster-rules
           Yaml file with all the pipeline's rules for cluster execution. 
-          Default is $(pipetype::clusterRulesDft).
+          Default is $(pypetype::clusterRulesDft).
 
       -f|--force
           Forces the generation of the TARGET.
@@ -69,7 +69,7 @@ function pipetype::manual() {
 eol
 }
 
-function pipetype::parseParams() {
+function pypetype::parseParams() {
   while [ $# -ge 1 ]
   do
       case "$1" in
@@ -90,7 +90,7 @@ function pipetype::parseParams() {
           ;;
 
         -o|--outdir)
-          WORKDIR="$2" && shift
+          WORKDIR=$(readlink -f "$2") && shift
           ;;
 
         --debug)
@@ -98,7 +98,7 @@ function pipetype::parseParams() {
           ;;
 
         -h|--help)
-          pipetype::manual      && exit
+          pypetype::manual      && exit
           ;;
   
         -v|--verbose)
@@ -114,58 +114,58 @@ function pipetype::parseParams() {
   done
 }
 
-function pipetype::checkParams() {
-  pypette::requireParams ${pipetype__paramsMandatory[@]}
+function pypetype::checkParams() {
+  pypette::requireParams ${pypetype__paramsMandatory[@]}
 }
 
 # -----------------------
 # Pipeline Type Specific
 # -----------------------
-function pipetype::pipeline() {
-  pipetype::name $(pypette::extless $(pypette::cmdName))
+function pypetype::pipeline() {
+  pypetype::name $(pypette::extless $(pypette::cmdName))
 }
 
-function pipetype::name() {
-  printf "${1##$(pipetype::cmdPrefix)}"
+function pypetype::name() {
+  printf "${1##$(pypetype::cmdPrefix)}"
 }
 
-function pipetype::cmdPrefix() {
+function pypetype::cmdPrefix() {
   printf "pypette-"
 }
 
 # ---------------------
 # Pipeline Execution
 # ---------------------
-function pipetype::execPipeline() {
-  pypette::infecho "\$ $(pipetype::cmdPipeline)"
-  eval $(pipetype::cmdPipeline)
+function pypetype::execPipeline() {
+  pypette::infecho "\$ $(pypetype::cmdPipeline)"
+  eval $(pypetype::cmdPipeline)
 }
 
-function pipetype::cmdPipeline() {
+function pypetype::cmdPipeline() {
   cat << eol | tr '\n' ' '
     $(pypette::cmdDir)/pypette
-   -p $(pipetype::pipeline)
+   -p $(pypetype::pipeline)
    --project $PROJECT 
    ${WORKDIR:+--outdir ${WORKDIR}}
-   --snakemake "$(pipetype::smkParams)"
+   --snakemake "$(pypetype::smkParams)"
 eol
 }
 
 # -------------------
 # Snakemake Options
 # -------------------
-function pipetype::smkParams() {
-  printf "$TARGET $(pipetype::smkOptions)"
+function pypetype::smkParams() {
+  printf "$TARGET $(pypetype::smkOptions)"
 }
 
-function pipetype::smkOptions() {
+function pypetype::smkOptions() {
   cat << eol
-  $(pipetype::smkOptionsBase)
-  $(pipetype::smkOptionsCluster)
+  $(pypetype::smkOptionsBase)
+  $(pypetype::smkOptionsCluster)
 eol
 }
 
-function pipetype::smkOptionsBase() {
+function pypetype::smkOptionsBase() {
   cat << eol
   --jobs 32 
   --latency-wait 30 
@@ -175,22 +175,22 @@ function pipetype::smkOptionsBase() {
 eol
 }
 
-function pipetype::smkOptionsCluster() {
-  ! pipetype::smkUseClusterOptions || pipetype::smkOptionsClusterStr
+function pypetype::smkOptionsCluster() {
+  ! pypetype::smkUseClusterOptions || pypetype::smkOptionsClusterStr
 }
 
-function pipetype::smkUseClusterOptions() {
+function pypetype::smkUseClusterOptions() {
   ! pypette::isParamGiven "TYPEXEC" || [ "${TYPEXEC}" != 'local' ];
 }
 
-function pipetype::smkOptionsClusterStr() {
+function pypetype::smkOptionsClusterStr() {
   cat << eol
-  --cluster-config $(pipetype::clusterRules)
-  --cluster \'$(pipetype::cmdQsub)\'
+  --cluster-config $(pypetype::clusterRules)
+  --cluster \'$(pypetype::cmdQsub)\'
 eol
 }
 
-function pipetype::cmdQsub() {
+function pypetype::cmdQsub() {
   cat << "eol"
   qsub 
     -V 
@@ -203,16 +203,16 @@ eol
 # --------------------
 # Cluster Ressources
 # --------------------
-function pipetype::clusterRules() {
-  printf "${CLUSTER_RULES:-$(pipetype::clusterRulesDft)}"
+function pypetype::clusterRules() {
+  printf "${CLUSTER_RULES:-$(pypetype::clusterRulesDft)}"
 }
 
-function pipetype::clusterRulesDft() {
-  readlink -f "$(pipetype::clusterRulesDftTemplate)"
+function pypetype::clusterRulesDft() {
+  readlink -f "$(pypetype::clusterRulesDftTemplate)"
 }
 
-function pipetype::clusterRulesDftTemplate() {
-  printf "$(pypette::cmdDir)/../pipelines/$(pipetype::pipeline)/cluster-rules.yaml"
+function pypetype::clusterRulesDftTemplate() {
+  printf "$(pypette::cmdDir)/../pipelines/$(pypetype::pipeline)/cluster-rules.yaml"
 }
 
 
