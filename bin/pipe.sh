@@ -135,6 +135,9 @@ function manual() {
       -p|--pipeline
           Name of the ctgb-pipe PIPELINE to load.
 
+      -o|--outdir
+          The directory where to write output results.
+          
       --ls-pipes
           Lists available pipelines in ctgb-pipe.
 
@@ -168,7 +171,7 @@ function pipe::initParams() {
   SNAKE_OPTIONS=()
   VERBOSE=false
   CLUSTER_MNT_POINT=${CLUSTER_MNT_POINT:-""}
-  WORKFLOW_DIR=${WORKFLOW_DIR:-""}
+  WORKDIR="" #${WORKDIR:-${EXEC_DIR}}
   CONDA_ENV=""
 }
 
@@ -206,8 +209,8 @@ function pipe::parseParams() {
           exit
           ;;
 
-        -d|--directory)
-          SNAKE_DIR="$2" && shift
+        -o|--outdir)
+          WORKDIR="$2" && shift
           ;;
              
         -v|--verbose)
@@ -276,11 +279,12 @@ function pipe::exportVarenvs() {
   pipe::exportVarenv "PIPE_NAME" "$PIPELINE"
   pipe::exportVarenv "PIPE_ENV" "$(pipe::envPipeline)"
   pipe::exportVarenv "PIPE_SNAKE" $(pipe::pathPipelineSnakefile $PIPELINE)
-  pipe::exportVarenv "WORKFLOW_DIR" "$WORKFLOW_DIR"
+  pipe::exportVarenv "WORKDIR" "$WORKDIR"
   pipe::exportVarenv "CLUSTER_MNT_POINT" "$CLUSTER_MNT_POINT"
-  pipe::exportVarenv "SHELL_ENV" "$SHELL_ENV"
+  export TMPDIR=${TMPDIR:-/lustre2/scratch/tmp}
+  export PATH="${SCRIPT_DIR}${PATH:+:${PATH}}"
   export PYTHONPATH=${PYTHONPATH:+${PYTHONPATH}":"}$(pipe::homeDir)
-  pipe::exportVarenv "PYTHON_SYSPATH" "$(pipe::pythonSysPath) $PYTHONPATH"
+  pipe::exportVarenv "PYTHON_SYSPATH" "$(pipe::pythonSysPath) ${PYTHONPATH:+${PYTHONPATH[@]}} $(pipe::homeDir)"
   pipe::exportVarenv "EXEC_DIR" "$EXEC_DIR"
 }
 

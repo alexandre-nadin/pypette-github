@@ -10,7 +10,7 @@ class PipelineManager(Manager):
   VARENV_TAG = "_CPIPE_"
   VARENV_NAMES = ( 
     'home', 'project', 'pipeName', 'pipeSnake', 
-    'execDir', 'workflowDir', 'clusterMntPoint', 'shellEnv',
+    'execDir', 'workdir', 'clusterMntPoint',
   )
 
   def __init__(self, namespace, name="Default", sampleBased=True):
@@ -168,16 +168,17 @@ class PipelineManager(Manager):
 
   def defaultWorkingDir(self):
     return os.path.join(
-      self.workflowDir, 
+      self.config.cluster.stdAnalysisDir,
       self.config.pipeline.outDir,
       self.project)
 
   def setDefaultWorkingDir(self):
     if not self.hasCustomDir():
-      outDir = self.defaultWorkingDir()
-      os.makedirs(outDir, exist_ok=True)
-      os.chdir(outDir)
-    self.log.info(f"Working dir set to '{os.getcwd()}'")
+      if not self.workdir:
+        self.workdir = self.defaultWorkingDir()
+      os.makedirs(self.workdir, exist_ok=True)
+      os.chdir(self.workdir)
+    self.log.info(f"Working directory set to '{os.getcwd()}'")
 
   def hasCustomDir(self):
     return self.workflow.workdir_init != self.execDir
@@ -188,21 +189,21 @@ class PipelineManager(Manager):
   def include(self, name, outDir=True, asWorkflow=""):
     """
     Includes the given file allowing to reflect the workflow of processes in the ouput dir.
-    By default, sets the pipeline manager workflowDir to the module's basename if :outDir:.
-    Concatenates the module's basename to workflowDir if :asWorkflow: is set (default).
+    By default, sets the pipeline manager workdir to the module's basename if :outDir:.
+    Concatenates the module's basename to workdir if :asWorkflow: is set (default).
     Example:
       :name: module3/module3.sk
-      workflowDir = "module1/module2"
-      Sets workflowDir to "module1/module2/module3" with :outDir: True and :asWorkflow: True
-      Sets workflowDir to "module3" with :outDir: True and :asWorkflow: False.
-      Doesn't touch workflowDir if :outDir: False
+      workdir = "module1/module2"
+      Sets workdir to "module1/module2/module3" with :outDir: True and :asWorkflow: True
+      Sets workdir to "module3" with :outDir: True and :asWorkflow: False.
+      Doesn't touch workdir if :outDir: False
     """
 
-    """ Set workflowDir"""
+    """ Set workdir"""
     if outDir:
       basename = extensionless(os.path.basename(name))
       if asWorkflow:
-        self.workflowDir = os.path.join(self.workflowDir, asWorkflow)
+        self.workdir = os.path.join(self.workdir, asWorkflow)
       self.moduleDir = basename
 
     """ Include File """ 

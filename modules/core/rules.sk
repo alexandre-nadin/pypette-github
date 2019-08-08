@@ -188,13 +188,13 @@ def exshell(cmd='', isSubCmd=False, **kwargs):
 
   """ Print target's log """
   if config__valueOf('logCommands'):
-    writeCmdLog(shellCmd, **kwargs)
+    writeCmdLog(cmd, **kwargs)
 
   """ Debug mode """
   if config__valueOf('debug') and not isSubCmd:
     touch(kwargs['output'])
   else:
-    shell(shellCmd, **kwargs) 
+    shell(cmd, **kwargs) 
 
 pipeman.toClean("help_*.done")
 
