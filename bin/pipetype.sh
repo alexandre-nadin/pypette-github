@@ -59,7 +59,10 @@ function pipetype::manual() {
       -f|--force
           Forces the generation of the TARGET.
 
-      -d|--debug
+      -o|--outdir
+          The directory where to write output results.
+
+      --debug
           Execute the pipeline in debug mode.
 
       -v|--verbose
@@ -96,7 +99,11 @@ function pipetype::parseParams() {
           FORCE=true
           ;;
 
-        -d|--debug)
+        -o|--outdir)
+          WORKDIR="$2" && shift
+          ;;
+
+        --debug)
           DEBUG=true
           ;;
 
@@ -168,12 +175,13 @@ function pipetype::cmdPipeline() {
   $(pipetype::cmdTypexec)
    -p $(pipetype::pipeline)
    --project $PROJECT 
+   ${WORKDIR:+--outdir ${WORKDIR}}
    --snakemake "$(pipetype::smkParams)"
 eol
 }
 
 function pipetype::cmdTypexec() {
-  printf "pipe-${TYPEXEC:-${pipetype__TYPEXECS[0]}}"
+  printf "pipe"
 }
 
 # -------------------
