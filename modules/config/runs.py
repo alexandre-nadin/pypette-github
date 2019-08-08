@@ -3,11 +3,7 @@ def runs__projectPaths(prj):
   Gets each project run path.
   """
   return [ 
-    os.path.join(
-      run, 
-      "{}{}/".format(
-        runs__projectTag(),
-        prj))
+    os.path.join(run, f"{runs__projectTag()}{prj}" )
     for run in runs__paths()
   ]
 
@@ -48,7 +44,7 @@ def runs__checkRuns(runs=[]):
   error = False
   for run in runs:
     if not os.path.isdir(run):
-      pipeman.log.error("Run {} doesn't exist.".format(run))
+      pipeman.log.error(f"Run {run} doesn't exist.")
       error = True
   if error: 
     raise
