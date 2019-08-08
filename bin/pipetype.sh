@@ -2,7 +2,6 @@
 source pypette.sh
 pypette::setManual pipetype::manual
 
-pipetype__TYPEXECS=(production staging local)
 pipetype__paramsMandatory=(PROJECT TARGET)
 
 # ----------
@@ -36,7 +35,6 @@ function pipetype::manual() {
           --project PROJECT                              \ 
 	  --target TARGET                                \ 
           [ --cluster-rules FILE ]                       \ 
-          [ --typexec $(pipetype::choiceTypexec) ]         \ 
           [ --force ]                                    \ 
           [ --debug ]                                    \ 
           [ --verbose ] 
@@ -51,10 +49,6 @@ function pipetype::manual() {
       -c|--cluster-rules
           Yaml file with all the pipeline's rules for cluster execution. 
           Default is $(pipetype::clusterRulesDft).
-
-      -x|--typexec
-          The type of execution of the pipeline. Can be one among [$(pipetype::choiceTypexec)].
-          Default is '${pipetype__TYPEXECS[0]}'.
 
       -f|--force
           Forces the generation of the TARGET.
@@ -91,10 +85,6 @@ function pipetype::parseParams() {
           CLUSTER_RULES="$2"    && shift
           ;;
 
-        -x|--typexec)
-          TYPEXEC="$2"          && shift
-          ;;
-
         -f|--force)
           FORCE=true
           ;;
@@ -126,25 +116,6 @@ function pipetype::parseParams() {
 
 function pipetype::checkParams() {
   pypette::requireParams ${pipetype__paramsMandatory[@]}
-  pipetype::checkTypexec
-}
-
-function pipetype::checkTypexec() {
-  [ -z ${TYPEXEC:+x} ] \
-    || pipetype::matchTypexec "$TYPEXEC" \
-    || pypette::errexit "$(pipetype::msgTypexecNotExist ${TYPEXEC})"
-}
-
-function pipetype::matchTypexec() {
-  \grep  -qs " $1 " <<< " ${pipetype__TYPEXECS[@]} "
-}
-
-function pipetype::msgTypexecNotExist() {
-  printf "Given '$1' type for --typexec option is not available. Available types are: $(pipetype::choiceTypexec)."
-}
-
-function pipetype::choiceTypexec() {
-  str.join -d '|' ${pipetype__TYPEXECS[@]}
 }
 
 # -----------------------
