@@ -148,27 +148,6 @@ def writeCmdLog(cmd=None, **kwargs):
 
   shell(logCmd, **kwargs)
 
-def cmdActivateConda():
-  env = config__valueOf('condactivate')
-  if env:
-    ret = f"""
-      set +eu 
-      condactivate {env} 2> /dev/null
-      set -eu
-    """
-  else:
-    ret = ""
-  return ret
-
-def cmdSourceShellEnv():
-  env = pipeman.shellEnv
-  if env:
-    ret = ""
-    #ret = f"source {env}"
-  else:
-    ret = ""
-  return ret
- 
 def exshell(cmd='', isSubCmd=False, **kwargs):
   """
   Formats the given command.
@@ -176,15 +155,6 @@ def exshell(cmd='', isSubCmd=False, **kwargs):
   Prints the target's log if specified in the configuration.
   Executes the command if debug mode not set in configuration.
   """
-
-  """ Add condactivate to command if specified """
-  if cmd:
-    shellCmd = f"""
-      {cmdSourceShellEnv()}
-      {cmd}
-    """
-  else:
-    shellCmd = cmd
 
   """ Print target's log """
   if config__valueOf('logCommands'):
