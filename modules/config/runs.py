@@ -3,16 +3,9 @@ def runs__projectPaths(prj):
   Gets each project run path.
   """
   return [ 
-    os.path.join(run, f"{runs__projectTag()}{prj}" )
+    os.path.join(run, f"{prj}" )
     for run in runs__paths()
   ]
-
-def runs__projectTag():
-  if pipeman.config.cluster.sequencingRuns.structured:
-    tag = pipeman.config.cluster.sequencingRuns.projectTag 
-  else:
-    tag = ""
-  return tag
 
 def runs__paths(check_runs=True):
   """
