@@ -44,8 +44,6 @@ pipeline:
         cutadapt: *baseAdapters
         trimmomatic: *baseAdapters
         bbduk: "BBDUK/adapters.fa"
-  sampleBased: True
-  deepStructure: True
   sequencing:
     platform: 'Illumina'
   center:

@@ -5,7 +5,6 @@ cluster:
   stdAnalysisDir: "/lustre2/standard-analysis"
   sequencingRuns:
     rawDir: "/lustre2/raw_data"
-    structured: 'Y'
     outDir: "sequencing-runs"
   genomeDir: "/lustre1/genomes"
   tmpdir: "/lustre2/scratch/tmp"
