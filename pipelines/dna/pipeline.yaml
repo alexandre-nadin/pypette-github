@@ -50,6 +50,5 @@ pipeline:
     platform: 'Illumina'
   center:
     name: 'CTGB'
-  condactivate: False
   logCommands: True
   outDir: 'projects'

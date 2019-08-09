@@ -11,6 +11,5 @@ cluster:
     outDir: "sequencing-runs"
   genomeDir: "/lustre1/genomes"
   tmpdir: "/lustre2/scratch/tmp"
-  condactivate: True
   projects:
     outDir: "projects"
