@@ -61,12 +61,9 @@ pipeline:
       writeTable: 'T'
       perc2plot: 0.001
       useGgplot: 'T' 
-  sampleBased: True
-  deepStructure: True
   sequencing:
     platform: 'Illumina'
   center:
     name: 'CTGB'
-  condactivate: False
   logCommands: True
   outDir: 'projects'

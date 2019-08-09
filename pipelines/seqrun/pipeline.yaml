@@ -1,11 +1,8 @@
 pipeline:
   name: 'seqrun'
-  sampleBased: False
-  deepStructure: True
   sequencing: 
     name: 'Illumina'
   center:
     name: 'CTGB'
-  condactivate: False
   logCommands: True
   outDir: 'sequencing-runs' 

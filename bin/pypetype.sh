@@ -15,7 +15,6 @@ function pypetype::runFlow() {
 }
 
 function pypetype::exportVarenvs() {
-  export TYPEXEC
   export FORCE
   export DEBUG
   export VERBOSE
@@ -180,7 +179,7 @@ function pypetype::smkOptionsCluster() {
 }
 
 function pypetype::smkUseClusterOptions() {
-  ! pypette::isParamGiven "TYPEXEC" || [ "${TYPEXEC}" != 'local' ];
+  ! pypette::isParamGiven "DEBUG" 
 }
 
 function pypetype::smkOptionsClusterStr() {

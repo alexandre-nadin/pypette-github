@@ -44,12 +44,9 @@ pipeline:
         cutadapt: *baseAdapters
         trimmomatic: *baseAdapters
         bbduk: "BBDUK/adapters.fa"
-  sampleBased: True
-  deepStructure: True
   sequencing:
     platform: 'Illumina'
   center:
     name: 'CTGB'
-  condactivate: False
   logCommands: True
   outDir: 'projects'

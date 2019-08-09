@@ -13,7 +13,7 @@ class PipelineManager(Manager):
     'execDir', 'workdir', 'clusterMntPoint',
   )
 
-  def __init__(self, namespace, name="Default", sampleBased=True):
+  def __init__(self, namespace, name="Default"):
     super(PipelineManager, self).__init__()
     environ.setTaggedVarEnvsAttrs(self, tag=self.__class__.VARENV_TAG)
     self.checkVarenvAttrs()
@@ -26,12 +26,8 @@ class PipelineManager(Manager):
     self.configManager = PipelineConfigManager(
                               config_prefix = self.pipeName, 
                               namespace     = self.namespace)
-    self.sampleBased   = sampleBased
     self.moduleDir     = ""
     self.updateNamespace()
- 
-    self.sampleBased   = True
-    self.deepStructure = True
 
     """ Required Config Files """
     self.configFiles    = ()

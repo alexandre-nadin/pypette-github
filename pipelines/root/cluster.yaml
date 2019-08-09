@@ -5,12 +5,8 @@ cluster:
   stdAnalysisDir: "/lustre2/standard-analysis"
   sequencingRuns:
     rawDir: "/lustre2/raw_data"
-    structured: 'Y'
-    projectTag: 'Project_'
-    sampleTag: 'Sample_'
     outDir: "sequencing-runs"
   genomeDir: "/lustre1/genomes"
   tmpdir: "/lustre2/scratch/tmp"
-  condactivate: True
   projects:
     outDir: "projects"
