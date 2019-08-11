@@ -35,6 +35,7 @@ function pypetype::manual() {
 	  --target TARGET                                \ 
           [ --cluster-rules FILE ]                       \ 
           [ --force ]                                    \ 
+          [ --keep-files-regex REGEX ]                   \
           [ --debug ]                                    \ 
           [ --verbose ] 
 
@@ -54,6 +55,9 @@ function pypetype::manual() {
 
       -o|--outdir
           The directory where to write output results.
+  
+      -k|--keep-files-regex
+          The regex pattern of the temporary files to keep (ex.: '.*merged/.*bam').
 
       --debug
           Execute the pipeline in debug mode.
@@ -90,6 +94,10 @@ function pypetype::parseParams() {
 
         -o|--outdir)
           WORKDIR=$(readlink -f "$2") && shift
+          ;;
+ 
+        -k|--keep-files-regex)
+          KEEP_FILES_REGEX="$2"       && shift
           ;;
 
         --debug)
@@ -146,6 +154,7 @@ function pypetype::cmdPipeline() {
    -p $(pypetype::pipeline)
    --project $PROJECT 
    ${WORKDIR:+--outdir ${WORKDIR}}
+   ${KEEP_FILES_REGEX:+--keep-files-regex ${KEEP_FILES_REGEX}}
    --snakemake "$(pypetype::smkParams)"
 eol
 }

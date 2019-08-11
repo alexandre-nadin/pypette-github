@@ -10,7 +10,7 @@ class PipelineManager(Manager):
   VARENV_TAG = "_CPIPE_"
   VARENV_NAMES = ( 
     'home', 'project', 'pipeName', 'pipeSnake', 
-    'execDir', 'workdir', 'clusterMntPoint',
+    'execDir', 'workdir', 'clusterMntPoint', 'keepFilesRegex',
   )
 
   def __init__(self, namespace, name="Default"):
