@@ -185,28 +185,27 @@ function pypette::parseParams() {
   do
       case "$1" in
         --project)
-          PROJECT="$2" && shift
+          PROJECT="$2"                && shift
           ;;
 
         -p|--pipeline)
-          PIPELINE="$2" && shift
+          PIPELINE="$2"               && shift
           ;;
   
         --snakemake)
-          SNAKE_OPTIONS+=("$2") && shift
+          SNAKE_OPTIONS+=("$2")       && shift
           ;;
 
         -c|--conda-env)
-          CONDA_ENV="$2" && shift
+          CONDA_ENV="$2"              && shift
           ;;
   
         -h|--help)
-          manual && exit
+          manual                      && exit
           ;;
   
         --ls-pipes)
-          pypette::listPipelines
-          exit
+          pypette::listPipelines      && exit
           ;;
   
         --ls-modules)

@@ -77,15 +77,15 @@ function pypetype::parseParams() {
   do
       case "$1" in
         -p|--project)
-          PROJECT="$2"          && shift
+          PROJECT="$2"                && shift
           ;;
 
         -t|--target)
-          TARGET="$2"           && shift 
+          TARGET="$2"                 && shift 
           ;;
 
         -c|--cluster-rules)
-          CLUSTER_RULES="$2"    && shift
+          CLUSTER_RULES="$2"          && shift
           ;;
 
         -f|--force)
@@ -105,7 +105,7 @@ function pypetype::parseParams() {
           ;;
 
         -h|--help)
-          pypetype::manual      && exit
+          pypetype::manual            && exit
           ;;
   
         -v|--verbose)
