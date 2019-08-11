@@ -50,3 +50,4 @@ pipeline:
     name: 'CTGB'
   logCommands: True
   outDir: 'projects'
+  tempFiles: 'kept-temp-files.txt'

@@ -137,6 +137,10 @@ function manual() {
 
       -o|--outdir
           The directory where to write output results.
+
+      -k|--keep-files-regex
+          The regex pattern of the temporary files to keep (ex.: '.*merged/.*bam').
+
           
       --ls-pipes
           Lists available pipelines in ctgb-pipe.
@@ -172,6 +176,7 @@ function pypette::initParams() {
   VERBOSE=false
   CLUSTER_MNT_POINT=${CLUSTER_MNT_POINT:-""}
   WORKDIR="" #${WORKDIR:-${EXEC_DIR}}
+  KEEP_FILES_REGEX=""
   CONDA_ENV=""
 }
 
@@ -213,6 +218,10 @@ function pypette::parseParams() {
           WORKDIR=$(readlink -f "$2") && shift
           ;;
              
+        -k|--keep-files-regex)
+          KEEP_FILES_REGEX="$2"       && shift
+          ;;
+
         -v|--verbose)
           VERBOSE=true
           ;;
@@ -281,6 +290,7 @@ function pypette::exportVarenvs() {
   pypette::exportVarenv "PIPE_SNAKE" $(pypette::pathPipelineSnakefile $PIPELINE)
   pypette::exportVarenv "WORKDIR" "$WORKDIR"
   pypette::exportVarenv "CLUSTER_MNT_POINT" "$CLUSTER_MNT_POINT"
+  pypette::exportVarenv "KEEP_FILES_REGEX" "$KEEP_FILES_REGEX"
   export TMPDIR=${TMPDIR:-/lustre2/scratch/tmp}
   export PATH="${SCRIPT_DIR}${PATH:+:${PATH}}"
   export PYTHONPATH=${PYTHONPATH:+${PYTHONPATH}":"}$(pypette::homeDir)

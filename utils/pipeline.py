@@ -2,7 +2,9 @@ import os
 import utils.configs, utils.samples
 from utils.manager import Manager
 from utils import environ
+from utils import regex_helper as rh
 from utils.files import extensionless
+from snakemake.io import temp
 
 class PipelineManager(Manager):
   """ """
@@ -10,8 +12,10 @@ class PipelineManager(Manager):
   VARENV_TAG = "_CPIPE_"
   VARENV_NAMES = ( 
     'home', 'project', 'pipeName', 'pipeSnake', 
-    'execDir', 'workdir', 'clusterMntPoint',
+    'execDir', 'workdir', 'clusterMntPoint', 'keepFilesRegex',
   )
+
+  TEMP_FILES = 'kept-temp-files.txt'
 
   def __init__(self, namespace, name="Default"):
     super(PipelineManager, self).__init__()
@@ -80,7 +84,43 @@ class PipelineManager(Manager):
     Allows more clarity to Snakemake input definitions 
     """
     return lambda wildcards: self.samples.map(*args, **wildcards, **kwargs)
+  
+  # ----------------
+  # Temporary files
+  # ---------------- 
+  def temp(self, name):
+    if self.isFileToKeep(name):
+      self.updateTempFiles(name)
+      return name
+    else:
+      return temp(name)
     
+
+  def isFileToKeep(self, name):
+    if self.keepFilesRegex                              \
+    and rh.isRegexInList(self.keepFilesRegex, [name,]):
+      return True
+    else:
+      return False
+
+  def updateTempFiles(self, name):
+    self.touchTempFilesFile()
+    with open(self.tempFilesFile(), 'r+') as tempFiles:
+      for tempFile in tempFiles:
+        if name in tempFile:
+          break
+      else:
+        tempFiles.write(f"{name}\n")
+
+  def touchTempFilesFile(self):
+    open(self.tempFilesFile(), 'a').close()
+      
+  def tempFilesFile(self):
+    f = self.config.pipeline.tempFiles
+    if not f:
+      f = self.TEMP_FILES
+    return f
+
   # -----------------
   # Pipeline Config
   # -----------------

@@ -37,8 +37,8 @@ rule bam__markDuplicates:
   input: 
     bam     = "{anyprefix}{sample_name}.bam"
   output: 
-    bam     = temp(f"{bam__sampleMarkdupPrefix}.bam"    ),
-    bai     = temp(f"{bam__sampleMarkdupPrefix}.bai"    ),
+    bam     = pipeman.temp(f"{bam__sampleMarkdupPrefix}.bam"    ),
+    bai     = pipeman.temp(f"{bam__sampleMarkdupPrefix}.bai"    ),
     metrics =      f"{bam__sampleMarkdupPrefix}.metrics"
   run:
     cmd = """
@@ -60,7 +60,7 @@ ruleorder: bam__markDuplicates > bam__makeIndex
 # --------------
 rule bam__sortSamplePicard:
   input:  "{anyprefix}{sample_name}.bam"
-  output: temp("{anyprefix}sorted/picard/{sample_name}.bam"),
+  output: pipeman.temp("{anyprefix}sorted/picard/{sample_name}.bam"),
   run:
     cmd = """
       picard SortSam          \
@@ -72,7 +72,7 @@ rule bam__sortSamplePicard:
 
 rule bam__sortSampleSamtools:
   input:  "{anyprefix}{sample_name}.bam"
-  output: temp("{anyprefix}sorted/samtools/{sample_name}.bam")
+  output: pipeman.temp("{anyprefix}sorted/samtools/{sample_name}.bam")
   run:
     cmd = """
       samtools view -Su {input}    \
@@ -111,7 +111,7 @@ rule bam__mergeSample:
             derefKwargs = ['sample_run',],
             withResult=True)
   output:
-    bam = temp("samples/{sample_name}/runs/{sample_run}/fastq/" + fastq__procs + bam__alignerDir + "/merged/{sample_name}.bam")
+    bam = pipeman.temp("samples/{sample_name}/runs/{sample_run}/fastq/" + fastq__procs + bam__alignerDir + "/merged/{sample_name}.bam")
   run:
     if len(input.bam) > 1:
       mergePrefixes = picardMergeInputString(input.bam)
@@ -137,7 +137,7 @@ rule bam__makeIndex:
   input:       
          "{someprefix}.bam"
   output: 
-    temp("{someprefix}.bai")
+    pipeman.temp("{someprefix}.bai")
   run:
     cmd = """
       picard BuildBamIndex I={input} O={output}
