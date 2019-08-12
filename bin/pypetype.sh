@@ -35,8 +35,8 @@ function pypetype::manual() {
 	  --target TARGET                                \ 
           [ --cluster-rules FILE ]                       \ 
           [ --force ]                                    \ 
-          [ --outdir ]                                   \
-          [ --keep-files-regex REGEX ]                   \
+          [ --outdir ]                                   \ 
+          [ --keep-files-regex REGEX ]                   \ 
           [ --debug ]                                    \ 
           [ --verbose ] 
 
