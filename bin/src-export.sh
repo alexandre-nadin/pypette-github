@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 _dir=$(readlink -f $(dirname "${BASH_SOURCE[0]}")) 
-export PATH="${PATH}:${_dir}"
+export PATH="${_dir}:${PATH}"
 
 # Temporary way of activating conda environments
 if [ ${#_CPIPE_PIPE_ENV} -gt 0 ]; then

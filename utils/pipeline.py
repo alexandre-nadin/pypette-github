@@ -2,7 +2,9 @@ import os
 import utils.configs, utils.samples
 from utils.manager import Manager
 from utils import environ
+from utils import regex_helper as rh
 from utils.files import extensionless
+from snakemake.io import temp
 
 class PipelineManager(Manager):
   """ """
@@ -10,10 +12,12 @@ class PipelineManager(Manager):
   VARENV_TAG = "_CPIPE_"
   VARENV_NAMES = ( 
     'home', 'project', 'pipeName', 'pipeSnake', 
-    'execDir', 'workflowDir', 'clusterMntPoint', 'shellEnv',
+    'execDir', 'workdir', 'clusterMntPoint', 'keepFilesRegex',
   )
 
-  def __init__(self, namespace, name="Default", sampleBased=True):
+  TEMP_FILES = 'kept-temp-files.txt'
+
+  def __init__(self, namespace, name="Default"):
     super(PipelineManager, self).__init__()
     environ.setTaggedVarEnvsAttrs(self, tag=self.__class__.VARENV_TAG)
     self.checkVarenvAttrs()
@@ -26,12 +30,8 @@ class PipelineManager(Manager):
     self.configManager = PipelineConfigManager(
                               config_prefix = self.pipeName, 
                               namespace     = self.namespace)
-    self.sampleBased   = sampleBased
     self.moduleDir     = ""
     self.updateNamespace()
- 
-    self.sampleBased   = True
-    self.deepStructure = True
 
     """ Required Config Files """
     self.configFiles    = ()
@@ -84,7 +84,43 @@ class PipelineManager(Manager):
     Allows more clarity to Snakemake input definitions 
     """
     return lambda wildcards: self.samples.map(*args, **wildcards, **kwargs)
+  
+  # ----------------
+  # Temporary files
+  # ---------------- 
+  def temp(self, name):
+    if self.isFileToKeep(name):
+      self.updateTempFiles(name)
+      return name
+    else:
+      return temp(name)
     
+
+  def isFileToKeep(self, name):
+    if self.keepFilesRegex                              \
+    and rh.isRegexInList(self.keepFilesRegex, [name,]):
+      return True
+    else:
+      return False
+
+  def updateTempFiles(self, name):
+    self.touchTempFilesFile()
+    with open(self.tempFilesFile(), 'r+') as tempFiles:
+      for tempFile in tempFiles:
+        if name in tempFile:
+          break
+      else:
+        tempFiles.write(f"{name}\n")
+
+  def touchTempFilesFile(self):
+    open(self.tempFilesFile(), 'a').close()
+      
+  def tempFilesFile(self):
+    f = self.config.pipeline.tempFiles
+    if not f:
+      f = self.TEMP_FILES
+    return f
+
   # -----------------
   # Pipeline Config
   # -----------------
@@ -168,16 +204,17 @@ class PipelineManager(Manager):
 
   def defaultWorkingDir(self):
     return os.path.join(
-      self.workflowDir, 
+      self.config.cluster.stdAnalysisDir,
       self.config.pipeline.outDir,
       self.project)
 
   def setDefaultWorkingDir(self):
     if not self.hasCustomDir():
-      outDir = self.defaultWorkingDir()
-      os.makedirs(outDir, exist_ok=True)
-      os.chdir(outDir)
-    self.log.info(f"Working dir set to '{os.getcwd()}'")
+      if not self.workdir:
+        self.workdir = self.defaultWorkingDir()
+      os.makedirs(self.workdir, exist_ok=True)
+      os.chdir(self.workdir)
+    self.log.info(f"Working directory set to '{os.getcwd()}'")
 
   def hasCustomDir(self):
     return self.workflow.workdir_init != self.execDir
@@ -188,21 +225,21 @@ class PipelineManager(Manager):
   def include(self, name, outDir=True, asWorkflow=""):
     """
     Includes the given file allowing to reflect the workflow of processes in the ouput dir.
-    By default, sets the pipeline manager workflowDir to the module's basename if :outDir:.
-    Concatenates the module's basename to workflowDir if :asWorkflow: is set (default).
+    By default, sets the pipeline manager workdir to the module's basename if :outDir:.
+    Concatenates the module's basename to workdir if :asWorkflow: is set (default).
     Example:
       :name: module3/module3.sk
-      workflowDir = "module1/module2"
-      Sets workflowDir to "module1/module2/module3" with :outDir: True and :asWorkflow: True
-      Sets workflowDir to "module3" with :outDir: True and :asWorkflow: False.
-      Doesn't touch workflowDir if :outDir: False
+      workdir = "module1/module2"
+      Sets workdir to "module1/module2/module3" with :outDir: True and :asWorkflow: True
+      Sets workdir to "module3" with :outDir: True and :asWorkflow: False.
+      Doesn't touch workdir if :outDir: False
     """
 
-    """ Set workflowDir"""
+    """ Set workdir"""
     if outDir:
       basename = extensionless(os.path.basename(name))
       if asWorkflow:
-        self.workflowDir = os.path.join(self.workflowDir, asWorkflow)
+        self.workdir = os.path.join(self.workdir, asWorkflow)
       self.moduleDir = basename
 
     """ Include File """ 

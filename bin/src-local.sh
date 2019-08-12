@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
-set -euf -o pipefail
-mkdir -p "$WORKFLOW_DIR"
-cd "$WORKFLOW_DIR"
+export CLUSTER_MNT_POINT="${HOME}/dev/ctgb/cluster"
 
 function mountClusterPoint() {
   mkdir -p "$CLUSTER_MNT_POINT"

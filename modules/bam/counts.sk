@@ -18,11 +18,11 @@ rule counts__featureCounts:
     inferExp  = "{someprefix}/{sample_name}.inferExperiment",
     gtf       = lambda x: gencode__gtf()
   output:
-    counts    = temp("{someprefix}/{sample_name}.counts"),
-    countsGz  =      "{someprefix}/{sample_name}.counts.gz",
-    sumcounts =      "{someprefix}/{sample_name}.counts.summary",
-    bam       = temp("{someprefix}/{sample_name}.bam.featureCounts.bam"),
-    log       =      "{someprefix}/{sample_name}.counts.log"
+    counts    = pipeman.temp("{someprefix}/{sample_name}.counts"),
+    countsGz  =              "{someprefix}/{sample_name}.counts.gz",
+    sumcounts =              "{someprefix}/{sample_name}.counts.summary",
+    bam       = pipeman.temp("{someprefix}/{sample_name}.bam.featureCounts.bam"),
+    log       =              "{someprefix}/{sample_name}.counts.log"
   run: 
     inferExp  = rseqc__inferExperiment(input.inferExp)
     cores     = pipeman.config.pipeline.modules.mapping.counter.cores

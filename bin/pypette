@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 set -euf -o pipefail
-source pipe.sh
-pipe::runFlow "$@"
+source pypette.sh
+pypette::runFlow "$@"

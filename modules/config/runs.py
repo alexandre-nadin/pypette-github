@@ -3,20 +3,9 @@ def runs__projectPaths(prj):
   Gets each project run path.
   """
   return [ 
-    os.path.join(
-      run, 
-      "{}{}/".format(
-        runs__projectTag(),
-        prj))
+    os.path.join(run, f"{prj}" )
     for run in runs__paths()
   ]
-
-def runs__projectTag():
-  if pipeman.config.cluster.sequencingRuns.structured:
-    tag = pipeman.config.cluster.sequencingRuns.projectTag 
-  else:
-    tag = ""
-  return tag
 
 def runs__paths(check_runs=True):
   """
@@ -37,7 +26,7 @@ def runs__path(runid):
   Builds the path of the given runid.
   """
   return os.path.join(
-    pipeman.config.cluster.sequencingRuns.dir, 
+    pipeman.config.cluster.sequencingRuns.rawDir, 
     runid)
    
 def runs__checkRuns(runs=[]):
@@ -48,7 +37,7 @@ def runs__checkRuns(runs=[]):
   error = False
   for run in runs:
     if not os.path.isdir(run):
-      pipeman.log.error("Run {} doesn't exist.".format(run))
+      pipeman.log.error(f"Run {run} doesn't exist.")
       error = True
   if error: 
     raise
