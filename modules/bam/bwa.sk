@@ -5,7 +5,7 @@ rule bam_bwa__alignReads:
     reads_1 = pipeman.input(fastq__read, sample_read="R1"),
     reads_2 = pipeman.input(fastq__read, sample_read="R2")
   output:
-    bam     = temp(bam__sample)
+    bam     = pipeman.temp(bam__sample)
   run:
     readGroup = bam__sampleReadGroup(wildcards)
     bwa       = pipeman.config.pipeline.modules.mapping.aligner

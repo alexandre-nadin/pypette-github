@@ -24,10 +24,10 @@ rule fastq_trimming__trimmomatic:
     r2       = pipeman.input(fastq__read, sample_read="R2"),
     adapters = "adapters/trimmomatic/adapters.fa"
   output: 
-    r1       = temp(f"{fastq_trimming__dir}/trimmomatic/{{sample_name}}_R1.fastq.gz"),
-    r1u      = temp(f"{fastq_trimming__dir}/trimmomatic/{{sample_name}}_R1_UNPAIRED.fastq.gz"),
-    r2       = temp(f"{fastq_trimming__dir}/trimmomatic/{{sample_name}}_R2.fastq.gz"),
-    r2u      = temp(f"{fastq_trimming__dir}/trimmomatic/{{sample_name}}_R2_UNPAIRED.fastq.gz"),
+    r1       = pipeman.temp(f"{fastq_trimming__dir}/trimmomatic/{{sample_name}}_R1.fastq.gz"),
+    r1u      = pipeman.temp(f"{fastq_trimming__dir}/trimmomatic/{{sample_name}}_R1_UNPAIRED.fastq.gz"),
+    r2       = pipeman.temp(f"{fastq_trimming__dir}/trimmomatic/{{sample_name}}_R2.fastq.gz"),
+    r2u      = pipeman.temp(f"{fastq_trimming__dir}/trimmomatic/{{sample_name}}_R2_UNPAIRED.fastq.gz"),
     trimlog  =      f"{fastq_trimming__dir}/trimmomatic/{{sample_name}}.trimlog",
   run:
     inputReads = [ x for x in [ 
@@ -70,7 +70,7 @@ rule fastq_trimming__cutadapt:
     fastq    = "{someprefix}/{fastq}.fastq.gz",
     adapters = "adapters/cutadapt/adapters.fa"
   output: 
-    fastq    = temp("{someprefix}/trimmed/cutadapt/{fastq}.fastq.gz")
+    fastq    = pipeman.temp("{someprefix}/trimmed/cutadapt/{fastq}.fastq.gz")
   run:
     cmd = """
       cutadapt                   \
@@ -94,8 +94,8 @@ rule fastq_trimming__bbduk:
     r2       = pipeman.input(fastq_merge__read, sample_read="R2"),
     adapters = "adapters/bbduk/adapters.fa"
   output: 
-    r1       = temp(fastq_trimming__dir + "/bbduk/{sample_name}_R1.fastq.gz"),
-    r2       = temp(fastq_trimming__dir + "/bbduk/{sample_name}_R2.fastq.gz"),
+    r1       = pipeman.temp(fastq_trimming__dir + "/bbduk/{sample_name}_R1.fastq.gz"),
+    r2       = pipeman.temp(fastq_trimming__dir + "/bbduk/{sample_name}_R2.fastq.gz"),
   run:
     inputReads  = " \\\n".join(
       [ x for x in [ 
