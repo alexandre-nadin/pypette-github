@@ -7,7 +7,7 @@ rule biotypes:
     counts   = pipeman.input(f"{bam__sampleTarget}.mergedCounts.gz"),
     biotypes = gencode__biotypes()
   output:
-    pngs     = directory(f"{biotypes__sampleTarget}_pngs")
+    dir      = directory(f"{biotypes__sampleTarget}")
   params: 
     biotypes = pipeman.config.pipeline.modules.biotypes,
   script:
