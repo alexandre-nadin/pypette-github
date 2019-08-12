@@ -51,7 +51,7 @@ class PipelineManager(Manager):
       self.checkVarenvAttr(varenv)
 
   def checkVarenvAttr(self, attr):
-      assert hasattr(self, attr), f"Environment variable '{attr}' not found."
+    assert hasattr(self, attr), f"Environment variable '{attr}' not found."
 
   @property
   def workflow(self):
