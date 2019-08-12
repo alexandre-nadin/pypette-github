@@ -5,6 +5,7 @@ from utils import environ
 from utils import regex_helper as rh
 from utils.files import extensionless
 from snakemake.io import temp
+import datetime
 
 class PipelineManager(Manager):
   """ """
@@ -42,12 +43,15 @@ class PipelineManager(Manager):
     """ Set default working dir """
     self.setDefaultWorkingDir()
 
+    """ Set default jobs dir """
+    self.checkJobsDir()
+
   def checkVarenvAttrs(self):
     for varenv in self.__class__.VARENV_NAMES:
       self.checkVarenvAttr(varenv)
 
   def checkVarenvAttr(self, attr):
-      assert hasattr(self, attr), f"Environment variable '{attr}' not found."
+    assert hasattr(self, attr), f"Environment variable '{attr}' not found."
 
   @property
   def workflow(self):
@@ -314,6 +318,33 @@ class PipelineManager(Manager):
         toraise = True
     if toraise:
       raise
+
+  # -----
+  # Jobs
+  # -----
+  def jobsTime(self):
+    return datetime.datetime.now().strftime('%y%m%d-%H%M%S')
+
+  @property
+  def jobsDir(self):
+    return "jobs"
+
+  @property
+  def jobsOutBase(self):
+    return f"{self.jobsDir}{os.path.sep}{self.jobsTime()}_{self.config.pipeline.name}"
+
+  def checkJobsDir(self):
+    if not os.path.isdir(self.jobsDir):
+      os.mkdir(self.jobsDir)
+
+  @property
+  def jobsName(self):
+    """ 
+    Returns the default jobs name. 
+    Truncates the name to 13 chars as the old PBS jobs submission fails when 
+    the requested job name is over 13 characters.
+    """
+    return f"{self.config.pipeline.name}-pypette"[:12]
 
   # ---------------
   # Cleaning files
