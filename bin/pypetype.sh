@@ -205,6 +205,8 @@ function pypetype::cmdQsub() {
     -V 
     -N {cluster.name} 
     -l select={cluster.select}:ncpus={cluster.ncpus}:mem={cluster.mem}
+    -o {cluster.out}
+    -e {cluster.err}
 eol
 }
 

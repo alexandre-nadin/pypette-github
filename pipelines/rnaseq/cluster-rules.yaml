@@ -1,8 +1,10 @@
 __default__:
-  name: '{pipeman.config.pipeline.name}'
+  name: '{pipeman.jobsName}'
   select: 1
   ncpus: 1
   mem: '1gb'
+  out: '{pipeman.jobsOutBase}_{rule}.out'
+  err: '{pipeman.jobsOutBase}_{rule}.err'
 
 explain_rules:
   do: True
