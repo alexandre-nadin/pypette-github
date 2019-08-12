@@ -10,5 +10,5 @@ Pipeline Workflow
 Loaded only if required configuration files are present.
 """
 pipeman.includeModules(
-  "qc/qc_seqrun.sk",
+  "qc/seqrun.sk",
   withConfigFiles=True)

@@ -254,7 +254,7 @@ function pipe::checkPipeline() {
 # Conda Environment
 # ------------------
 function pipe::envPipelineDft() {
-  printf "pipe-${PIPELINE}" \
+  printf "pypette-${PIPELINE}" \
    | tr '[[:upper:]]' '[[:lower:]]'
 }
 
