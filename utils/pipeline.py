@@ -12,8 +12,8 @@ class PipelineManager(Manager):
   # Expected tag for application's environment variables
   VARENV_TAG = "_CPIPE_"
   VARENV_NAMES = ( 
-    'home', 'project', 'pipeName', 'pipeSnake', 
-    'execDir', 'workdir', 'clusterMntPoint', 'keepFilesRegex',
+    'home', 'project', 'pipeName', 'pipeSnake', 'exeTime',
+    'exeDir', 'workdir', 'clusterMntPoint', 'keepFilesRegex',
   )
 
   TEMP_FILES = 'kept-temp-files.txt'
@@ -221,7 +221,7 @@ class PipelineManager(Manager):
     self.log.info(f"Working directory set to '{os.getcwd()}'")
 
   def hasCustomDir(self):
-    return self.workflow.workdir_init != self.execDir
+    return self.workflow.workdir_init != self.exeDir
   
   # ------------ 
   # Snakefiles
@@ -322,25 +322,24 @@ class PipelineManager(Manager):
   # -----
   # Jobs
   # -----
-  def jobsTime(self):
-    return datetime.datetime.now().strftime('%y%m%d-%H%M%S')
+  @property
+  def jobExeBase(self):
+    return f"{self.jobsExeDir}{os.path.sep}{self.jobExeTime()}_{self.config.pipeline.name}"
 
   @property
-  def jobsDir(self):
-    return "jobs"
+  def jobsExeDir(self):
+    return f"jobs{os.path.sep}{self.exeTime}"
 
-  @property
-  def jobsOutBase(self):
-    return f"{self.jobsDir}{os.path.sep}{self.jobsTime()}_{self.config.pipeline.name}"
+  def jobExeTime(self):
+    return datetime.datetime.now().strftime('%H%M%S-%f')
 
   def checkJobsDir(self):
-    if not os.path.isdir(self.jobsDir):
-      os.mkdir(self.jobsDir)
+    os.makedirs(self.jobsExeDir, exist_ok=True)
 
   @property
-  def jobsName(self):
+  def jobName(self):
     """ 
-    Returns the default jobs name. 
+    Returns the default job name. 
     Truncates the name to 13 chars as the old PBS jobs submission fails when 
     the requested job name is over 13 characters.
     """
