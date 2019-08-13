@@ -1,7 +1,7 @@
 __default__:
-  name: '{pipeman.jobsName}'
+  name: '{pipeman.jobName}'
   select: 1
   ncpus: 1
   mem: '1gb'
-  out: '{pipeman.jobsOutBase}_{rule}.out'
-  err: '{pipeman.jobsOutBase}_{rule}.err'
+  out: '{pipeman.jobExeBase}_{rule}.out'
+  err: '{pipeman.jobExeBase}_{rule}.err'
