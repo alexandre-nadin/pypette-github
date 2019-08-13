@@ -2,7 +2,7 @@
 
 SCRIPT_PATH=$(readlink -f "$0")
 SCRIPT_DIR=$(dirname "${SCRIPT_PATH}")
-EXEC_DIR="$(readlink -f $(pwd))"
+EXE_DIR="$(readlink -f $(pwd))"
 VARENVS_TAG="_CPIPE_"
 
 # ---------
@@ -175,7 +175,7 @@ function pypette::initParams() {
   SNAKE_OPTIONS=()
   VERBOSE=false
   CLUSTER_MNT_POINT=${CLUSTER_MNT_POINT:-""}
-  WORKDIR="" #${WORKDIR:-${EXEC_DIR}}
+  WORKDIR="" #${WORKDIR:-${EXE_DIR}}
   KEEP_FILES_REGEX=""
   CONDA_ENV=""
 }
@@ -294,7 +294,8 @@ function pypette::exportVarenvs() {
   export PATH="${SCRIPT_DIR}${PATH:+:${PATH}}"
   export PYTHONPATH=${PYTHONPATH:+${PYTHONPATH}":"}$(pypette::homeDir)
   pypette::exportVarenv "PYTHON_SYSPATH" "$(pypette::pythonSysPath) ${PYTHONPATH:+${PYTHONPATH[@]}} $(pypette::homeDir)"
-  pypette::exportVarenv "EXEC_DIR" "$EXEC_DIR"
+  pypette::exportVarenv "EXE_DIR" "$EXE_DIR"
+  pypette::exportVarenv "EXE_TIME" "$(date '+%y%m%d-%H%M%S')"
 }
 
 function pypette::pythonSysPath() {
