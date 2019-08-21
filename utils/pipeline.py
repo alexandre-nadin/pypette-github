@@ -222,7 +222,29 @@ class PipelineManager(Manager):
 
   def hasCustomDir(self):
     return self.workflow.workdir_init != self.exeDir
-  
+ 
+  # ------------------
+  # Snakemake Scripts
+  # ------------------ 
+  def rscript(self, name):
+    """
+    Sources an R script, dealing with snakemake parameters.
+    """
+    # Set R Variables
+    if "R_LIBS" not in os.environ:
+      os.environ["R_LIBS"] = ""
+    os.environ["R_LIBS"] = os.pathsep.join([
+      os.environ["R_LIBS"], 
+      self.modulesDir]
+    ).strip(os.pathsep)
+
+    # Set Pipeline Variables for R scripts
+    os.environ["_PYPETTE_SCRIPT"] = os.path.join(self.modulesDir, name)
+    os.environ["_PYPETTE_MODULES"] = self.modulesDir
+    
+    return os.path.join(self.modulesDir, "core/script.R")
+
+   
   # ------------ 
   # Snakefiles
   # ------------    
