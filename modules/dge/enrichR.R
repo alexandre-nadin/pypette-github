@@ -47,8 +47,6 @@ print(paste("> enrichr: ", enrichr.list))
 print(c("length(dgeResults): ", length(dgeResults)))
 for (i in 1:length(dgeResults)){
   for (j in c("up","down","both")){
-    print(paste("dir: ", smkout$dir))
-    #filename = paste(names(dgeResults)[[i]],j,"enrichR_results.xlsx",sep="_")
     filename = paste(
       file.path(smkout$dir, names(dgeResults)[[i]]),
       j,
