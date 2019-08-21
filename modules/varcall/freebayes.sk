@@ -39,3 +39,17 @@ rule varcall__index:
       tabix -f {input.vcf}
     """
     exshell(**vars())
+
+rule varcall__filter:
+  input:
+    vcf = f"{vcf__sampleTarget}.vcf.gz"
+  output:
+    vcf = f"{vcf__sampleTarget}.filter.vcf.gz"
+  run:
+    cmd = f"""
+      zcat {input.vcf}  \
+      | snpSift filter  "( QUAL > 0 ) & ( QUAL / AO > 1 ) & ( SAF > 0 & SAR > 0 ) & ( RPR > 1 & RPL > 1 ) & ( MQM > 10 | MQMR > 10 )" \
+      | bgzip -c > {output.vcf}
+      tabix -f {output.vcf}
+    """
+    exshell(**vars())
