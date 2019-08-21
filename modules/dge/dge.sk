@@ -3,18 +3,46 @@ include: "dge.py"
 dge__pipeTarget   = f"{bam__pipeTarget}dge"
 dge__sampleTarget = f"{dge__pipeTarget}/{{sample_name}}"
 
-rule dge__dseq2:
+dge__plotTarget           = f"{dge__pipeTarget}/plots"
+dge__plotSampleTarget     = f"{dge__plotTarget}/{{sample_name}}"
+
+dge__enrichTarget         = f"{dge__pipeTarget}/enrichR"
+dge__enrichedSampleTarget = f"{dge__enrichTarget}/{{sample_name}}"
+
+def rscript(name):
+  if "R_LIBS" not in os.environ:
+    os.environ["R_LIBS"] = ""
+  os.environ["R_LIBS"] = os.pathsep.join([os.environ["R_LIBS"], pipeman.modulesDir]).strip(os.pathsep)
+  os.environ["_PYPETTE_SCRIPT"] = os.path.join(pipeman.modulesDir, name)
+  os.environ["_PYPETTE_MODULES"] = pipeman.modulesDir
+  
+  #return name
+  return os.path.join(pipeman.modulesDir, "core/script.R")
+
+rule dge__plots:
   input: 
     metadata    = "samples/metadata.tsv",
     counts      = f"{bam__sampleTarget}.mergedCounts.gz"
   output:
-    distEstims  = f"{dge__sampleTarget}.distEstimsPlot.png",
-    maPlot      = f"{dge__sampleTarget}.maPlot.pdf",
-    volcanoPlot = f"{dge__sampleTarget}.volcanoPlot.pdf",
-    pheatMap    = f"{dge__sampleTarget}.pheatMap.png",
-    pca         = f"{dge__sampleTarget}.pca.pdf"
+    distEstims  = f"{dge__plotSampleTarget}.distEstimsPlot.png",
+    maPlot      = f"{dge__plotSampleTarget}.maPlot.pdf",
+    volcanoPlot = f"{dge__plotSampleTarget}.volcanoPlot.pdf",
+    pheatMap    = f"{dge__plotSampleTarget}.pheatMap.png",
+    pca         = f"{dge__plotSampleTarget}.pca.pdf"
   params:
     fCountsDataCols = counts__stdCols(),
     dge = lambda wildcards, input: dge__deseq2ParamsDft(input.metadata)
   script: 
-    "deseq2.R"
+    rscript("dge/plots.R")
+
+rule dge__enrichR:
+  input: 
+    metadata    = "samples/metadata.tsv",
+    counts      = f"{bam__sampleTarget}.mergedCounts.gz"
+  output:
+    dir = directory(f"{dge__enrichTarget}")
+  params:
+    fCountsDataCols = counts__stdCols(),
+    dge = lambda wildcards, input: dge__deseq2ParamsDft(input.metadata)
+  script: 
+    rscript("dge/enrichR.R")
