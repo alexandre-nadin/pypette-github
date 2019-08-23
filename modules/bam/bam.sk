@@ -29,6 +29,40 @@ pipeman.addTargets(
 bam__includeAlignerModule()
 
 # -----------------
+# Base Recalibration
+# -----------------
+bam__sampleRecalibPrefix = "{anyprefix}recalib/{sample_name}"
+rule bam__BaseRecalibrator:
+  input: 
+    bam     = "{anyprefix}{sample_name}.bam",
+    ref_genome_fa = lambda x: genome__fasta()
+  output: 
+    bam     = f"{bam__sampleRecalibPrefix}.bam",
+    bai     = f"{bam__sampleRecalibPrefix}.bai",
+  run:
+    genomeFasta     = genome__fasta()
+    cmd = """
+      gatk \
+       -T BaseRecalibrator \
+       -R {genome__fasta} \
+       -I {input.bam} \
+       -knownSites /lustre1/genomes/{ref_genome_fa}/GATK/resources-broad-{ref_genome_fa}-v0-1000G_phase1.snps.high_confidence.vcf.gz \
+       -knownSites /lustre1/genomes/{ref_genome_fa}/GATK/resources-broad-{ref_genome_fa}-v0-Mills_and_1000G_gold_standard.indels.vcf.gz \
+       -knownSites /lustre1/genomes/{ref_genome_fa}/GATK/00-All.vcf.gz \
+       -o {sample_name}_recalibration_report.grp
+    gatk \
+       -T PrintReads \
+       -R $fasta_genome \
+       -I {input.bam} \
+       -BQSR {sample_name}_recalibration_report.grp \
+       -o {output.bam}
+    """
+    exshell(**vars())
+
+ruleorder: bam__BaseRecalibrator > bam__makeIndex
+
+
+# -----------------
 # Mark Duplicates
 # -----------------
 bam__sampleMarkdupPrefix = "{anyprefix}markdup/{sample_name}"
