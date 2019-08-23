@@ -8,7 +8,7 @@ rule varcall__freebayes:
              derefKwargs = ['sample_name',]),
     ref_genome_fa = lambda x: genome__fasta()
   output:
-    vcf = f"{vcf__sampleTarget}.vcf.gz"
+    vcf = f"{vcf__sampleTarget}.fb.vcf.gz"
   run:
     cmd = f"""
       freebayes -f {input.ref_genome_fa}  \
@@ -42,9 +42,9 @@ rule varcall__index:
 
 rule varcall__filter:
   input:
-    vcf = f"{vcf__sampleTarget}.vcf.gz"
+    vcf = f"{vcf__sampleTarget}.fb.vcf.gz"
   output:
-    vcf = f"{vcf__sampleTarget}.filter.vcf.gz"
+    vcf = f"{vcf__sampleTarget}.fb.filter.vcf.gz"
   run:
     cmd = f"""
       zcat {input.vcf}  \
@@ -56,10 +56,10 @@ rule varcall__filter:
 
 rule varcall__annotate:
   input:
-    vcf = f"{vcf__sampleTarget}.filter.vcf.gz",
+    vcf = f"{vcf__sampleTarget}.fb.filter.vcf.gz",
     ref_genome_fa = lambda x: genome__fasta()
   output:
-    vcf = f"{vcf__sampleTarget}.filter.annotate.vcf.gz"
+    vcf = f"{vcf__sampleTarget}.fb.filter.annotate.vcf.gz"
   params:
     dbnsfp_ann = f"Uniprot_acc_Polyphen2,Interpro_domain,SIFT_pred,Polyphen2_HDIV_pred,Polyphen2_HVAR_pred,LRT_pred,MutationTaster_pred,GERP++_NR,GERP++_RS,phastCons100way_vertebrate,1000Gp3_AF,1000Gp3_AFR_AF,1000Gp3_EUR_AF,1000Gp3_AMR_AF,1000Gp3_ASN_AF,ESP6500_AA_AF,ESP6500_EA_AF,MutationTaster_pred,MutationAssessor_pred,FATHMM_pred,PROVEAN_pred,CADD_phred,MetaSVM_pred,1000Gp3_AC,1000Gp3_AF,1000Gp3_AFR_AC,1000Gp3_AFR_AF,1000Gp3_EUR_AC,1000Gp3_EUR_AF,1000Gp3_AMR_AC,1000Gp3_AMR_AF,1000Gp3_EAS_AC,1000Gp3_EAS_AF,1000Gp3_SAS_AC,1000Gp3_SAS_AF,ESP6500_AA_AC,ESP6500_AA_AF,ESP6500_EA_AC,ESP6500_EA_AF,ExAC_AC,ExAC_AF,ExAC_Adj_AC,ExAC_Adj_AF,ExAC_AFR_AC,ExAC_AFR_AF,ExAC_AMR_AC,ExAC_AMR_AF,ExAC_EAS_AC,ExAC_EAS_AF,ExAC_FIN_AC,ExAC_FIN_AF,ExAC_NFE_AC,ExAC_NFE_AF,ExAC_SAS_AC,ExAC_SAS_AF,gnomAD_exomes_AF,gnomAD_genomes_AF"
   run:
