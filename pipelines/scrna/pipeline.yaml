@@ -1,0 +1,70 @@
+pipeline:
+  name: 'rnaseq'
+  modules:
+    mapping:
+      aligner:
+        name: "STAR"
+        command: "STAR"
+        version: "STAR_2.5.3a"
+        cores: 6
+        ram: '64gb'
+        outFilterMismatchNmax: 10
+      counter:
+        name: "featureCounts"
+        version: "1.6.4"
+        cores: 4
+      sorter:
+        picard:
+          cores: 4
+          mem: '12gb'
+        samtools:
+          cores: 4
+          mem: '12gb'
+      markdup:
+        cores: 4
+        mem: '12gb'
+    fastq:
+      qc:
+        fastqc:
+          cores: 6
+      trimming:
+        trimmers:
+          trimmomatic:
+            cores: 8
+            mem: '10gb'
+            memJava: '10240M'
+            headcrop: 'HEADCROP:12'
+          cutadapt:
+          bbduk:
+            cores: 8
+            mem: '10gb'
+      adapters:
+        base: &baseAdapters "Adapters.fasta" 
+        cutadapt: *baseAdapters
+        trimmomatic: *baseAdapters
+        bbduk: "BBDUK/adapters.fa"
+    dge:
+      design:
+        string: ""
+        factors: []
+        refFactor: ""
+        refLevel: ""
+      minCounts: 10
+      minSamples: 3
+      alpha: 0.05
+    biotypes:
+      minSamples: 1
+      filterExp: 'T'
+      useRpkm: 'T'
+      plotPie: 'T'
+      sglSamplePlot: 'T'
+      writeTable: 'T'
+      perc2plot: 0.001
+      useGgplot: 'T' 
+  sequencing:
+    platform: 'Illumina'
+  center:
+    name: 'CTGB'
+  logCommands: True
+  outDir: 'projects'
+  tempFiles: 'kept-temp-files.txt'

@@ -1,0 +1,8 @@
+databases:
+  ebi:
+    gencodeUrl: 'ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_{genome.species.common_name}/release_{genome.gencode.version}'
+    gencodeBaseName: 'gencode.v{genome.gencode.version}.{genome.gencode.annotation_type}'
+  ucsc:
+    gencodeUrl: 'ftp://hgdownload.cse.ucsc.edu/goldenPath/{genome.name}/database'
+    gencodeBaseName: 'wgEncodeGencode{annotationType}V{genome.gencode.version}'
+   
