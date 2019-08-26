@@ -1,0 +1,50 @@
+__default__:
+  name: '{pipeman.jobName}'
+  select: 1
+  ncpus: 1
+  mem: '1gb'
+  out: '{pipeman.jobExeBase}_{rule}.out'
+  err: '{pipeman.jobExeBase}_{rule}.err'
+
+explain_rules:
+  do: True
+
+helpRule:
+  do: True
+
+rules__updatePbsRessources:
+  do: True
+
+samplenames:
+  do: True
+
+samples:
+  do: True
+
+samples__runs:
+  do: True
+
+samples__all:
+  do: True
+
+config__internalConf:
+  do: True
+
+config__all:
+  do: True
+
+project__config:
+  do: True
+
+samples__files:
+  do: True
+
+samples__map:
+  do: True
+
+helpRules:
+  do: True
+
+listRules:
+  do: True
+
