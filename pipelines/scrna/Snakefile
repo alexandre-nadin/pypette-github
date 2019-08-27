@@ -11,5 +11,6 @@ Pipeline Workflow.
 Modules are loaded only if required configuration files above are present.
 """
 pipeman.includeModules(
-  #"fastq/fastq.sk",
+  "fastq/fastq.sk",
+  "bam/bam.sk",
   withConfigFiles=True)
