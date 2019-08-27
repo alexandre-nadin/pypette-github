@@ -35,8 +35,8 @@ function pypetype::manual() {
 	  --target TARGET                                \ 
           [ --cluster-rules FILE ]                       \ 
           [ --force ]                                    \ 
-          [ --outdir ]                                   \
-          [ --keep-files-regex REGEX ]                   \
+          [ --outdir ]                                   \ 
+          [ --keep-files-regex REGEX ]                   \ 
           [ --debug ]                                    \ 
           [ --verbose ] 
 
@@ -205,6 +205,8 @@ function pypetype::cmdQsub() {
     -V 
     -N {cluster.name} 
     -l select={cluster.select}:ncpus={cluster.ncpus}:mem={cluster.mem}
+    -o {cluster.out}
+    -e {cluster.err}
 eol
 }
 

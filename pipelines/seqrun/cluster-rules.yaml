@@ -1,7 +1,7 @@
 __default__:
-  name: '{pipeman.config.pipeline.name}'
+  name: '{pipeman.jobName}'
   select: 1
   ncpus: 1
   mem: '1gb'
-  error: 'pbs/{output[0]}.err' 
-  output: 'pbs/{output[0]}.out'
+  out: '{pipeman.jobExeBase}_{rule}.out'
+  err: '{pipeman.jobExeBase}_{rule}.err'

@@ -37,7 +37,7 @@ rule samples__map:
     sampleLines = [ FastqFile.fieldNames() ]
     with open(input.file, 'r') as fqFiles:
       """ Mapped Samples Lines """
-      sampleLines.extend(list(map(fastq__mapFilename, fqFiles)))
+      sampleLines.extend([ f for f in map(fastq__mapFilename, fqFiles) if f ])
 
     """ Write Output """
     with open(output.file, 'a') as fmap:

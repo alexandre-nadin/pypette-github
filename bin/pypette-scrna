@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+set -euf -o pipefail
+source pypetype.sh
+pypetype::runFlow "$@"

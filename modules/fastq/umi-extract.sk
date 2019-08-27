@@ -1,0 +1,51 @@
+pipeman.updateWildcardConstraints(
+  procUmiExtract = "(umi-extracted/)?",
+)
+
+fastq_umi_extract__dir = f"{fastq__sampleRunDir}/{{procFastqMerge}}{{procTrimming}}umi-extracted"
+
+rule fastq_umi__whitelist:
+  input:
+    r1    = pipeman.input(fastq__read, sample_read="R1")
+  output:
+    wlist = f"{fastq_umi_extract__dir}/whitelist.txt",
+    plots = f"{fastq_umi_extract__dir}/plots"
+  run:
+    umi = pipeman.config.pipeline.modules.fastq.umi
+    if umi.cellNumberExpected:
+      cellNumberOption = '--expect-cells'
+    else:
+      cellNumberOption = '--set-cell-number'
+
+    cmd = f"""
+      umi_tools whitelist                   \
+        --stdin {input.r1}                  \
+        {cellNumberOption} {umi.cellNumber} \
+        --bc-pattern {umi.bcPattern}        \
+        --plot-prefix {output.plots}/       \
+        --log2stderr                        \
+        > {output.wlist}
+    """
+    exshell(**vars())
+
+rule fastq_umi__extract:
+  input:
+    r1    = pipeman.input(fastq__read, sample_read="R1"),
+    r2    = pipeman.input(fastq__read, sample_read="R2"),
+    wlist = pipeman.input(f"{fastq_umi_extract__dir}/whitelist.txt")
+  output: 
+    r1 = pipeman.temp(f"{fastq_umi_extract__dir}/{{sample_name}}_R1.fastq.gz"),
+    r2 = pipeman.temp(f"{fastq_umi_extract__dir}/{{sample_name}}_R2.fastq.gz")
+  run:
+    umi = pipeman.config.pipeline.modules.fastq.umi
+    cmd = f"""
+      umi_tools extract              \
+        --bc-pattern {umi.bcPattern} \
+        --stdin {input.r1}           \
+        --stdout {output.r1}         \
+        --read2-in {input.r2}        \
+        --read2-out {output.r2}      \
+        --filter-cell-barcode        \
+        --whitelist {input.wlist}
+    """
+    exshell(**vars()) 

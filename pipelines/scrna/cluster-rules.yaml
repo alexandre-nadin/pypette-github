@@ -45,6 +45,16 @@ samples__map:
 fastq_merging__mergeReads:
   do: True
 
+fastq_umi__whitelist:
+  select: 1
+  ncpus: 5
+  mem: '36gb'
+
+fastq_umi__extract:
+  select: 1
+  ncpus: 5
+  mem: '36gb'
+
 fastq_trimming__trimmomatic:
   do: True
   ncpus: "{pipeman.config.pipeline.modules.fastq.trimming.trimmers.trimmomatic.cores}"

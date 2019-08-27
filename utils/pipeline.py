@@ -5,14 +5,15 @@ from utils import environ
 from utils import regex_helper as rh
 from utils.files import extensionless
 from snakemake.io import temp
+import datetime
 
 class PipelineManager(Manager):
   """ """
   # Expected tag for application's environment variables
   VARENV_TAG = "_CPIPE_"
   VARENV_NAMES = ( 
-    'home', 'project', 'pipeName', 'pipeSnake', 
-    'execDir', 'workdir', 'clusterMntPoint', 'keepFilesRegex',
+    'home', 'project', 'pipeName', 'pipeSnake', 'exeTime',
+    'exeDir', 'workdir', 'clusterMntPoint', 'keepFilesRegex',
   )
 
   TEMP_FILES = 'kept-temp-files.txt'
@@ -42,12 +43,15 @@ class PipelineManager(Manager):
     """ Set default working dir """
     self.setDefaultWorkingDir()
 
+    """ Set default jobs dir """
+    self.checkJobsDir()
+
   def checkVarenvAttrs(self):
     for varenv in self.__class__.VARENV_NAMES:
       self.checkVarenvAttr(varenv)
 
   def checkVarenvAttr(self, attr):
-      assert hasattr(self, attr), f"Environment variable '{attr}' not found."
+    assert hasattr(self, attr), f"Environment variable '{attr}' not found."
 
   @property
   def workflow(self):
@@ -217,8 +221,30 @@ class PipelineManager(Manager):
     self.log.info(f"Working directory set to '{os.getcwd()}'")
 
   def hasCustomDir(self):
-    return self.workflow.workdir_init != self.execDir
-  
+    return self.workflow.workdir_init != self.exeDir
+ 
+  # ------------------
+  # Snakemake Scripts
+  # ------------------ 
+  def rscript(self, name):
+    """
+    Sources an R script, dealing with snakemake parameters.
+    """
+    # Set R Variables
+    if "R_LIBS" not in os.environ:
+      os.environ["R_LIBS"] = ""
+    os.environ["R_LIBS"] = os.pathsep.join([
+      os.environ["R_LIBS"], 
+      self.modulesDir]
+    ).strip(os.pathsep)
+
+    # Set Pipeline Variables for R scripts
+    os.environ["_PYPETTE_SCRIPT"] = os.path.join(self.modulesDir, name)
+    os.environ["_PYPETTE_MODULES"] = self.modulesDir
+    
+    return os.path.join(self.modulesDir, "core/script.R")
+
+   
   # ------------ 
   # Snakefiles
   # ------------    
@@ -315,6 +341,32 @@ class PipelineManager(Manager):
     if toraise:
       raise
 
+  # -----
+  # Jobs
+  # -----
+  @property
+  def jobExeBase(self):
+    return f"{self.jobsExeDir}{os.path.sep}{self.jobExeTime()}_{self.config.pipeline.name}"
+
+  @property
+  def jobsExeDir(self):
+    return f"jobs{os.path.sep}{self.exeTime}"
+
+  def jobExeTime(self):
+    return datetime.datetime.now().strftime('%H%M%S-%f')
+
+  def checkJobsDir(self):
+    os.makedirs(self.jobsExeDir, exist_ok=True)
+
+  @property
+  def jobName(self):
+    """ 
+    Returns the default job name. 
+    Truncates the name to 13 chars as the old PBS jobs submission fails when 
+    the requested job name is over 13 characters.
+    """
+    return f"{self.config.pipeline.name}-pypette"[:12]
+
   # ---------------
   # Cleaning files
   # ---------------
@@ -355,15 +407,3 @@ class Pipeline():
   def __init__(self, path):
     self.path = path
     self.snakefile = None
-
-# ------
-# Shell
-# ------
-def lshell(command, allow_empty_lines=False):
-  """
-  Returns the output of a given shell command in an array.
-  Each element is an output line.
-  Filters empty strings by default.
-  """
-  out = subprocess.check_output(command, shell=True).decode().split(os.linesep)
-  return out if allow_empty_lines else [ _elem for _elem in out if _elem ] 
