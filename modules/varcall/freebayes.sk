@@ -81,6 +81,6 @@ rule varcall__annotate:
       | vcfsort \
       | bgzip -c > {output.vcf}
       tabix -f {output.vcf}
-      echo {gencode}
     """
     exshell(**vars())
+
