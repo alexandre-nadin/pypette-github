@@ -8,18 +8,21 @@ pipeman.updateWildcardConstraints(
   extension    = "\.\w+",
 )
 
-fastq__sampleRunDir   = samples__dir + "/runs/{sample_run}/fastq"
+fastq__sampleRunDir = samples__dir + "/runs/{sample_run}/fastq"
 
-fastq__chunkPrefix    = fastq__sampleRunDir + "/{sample_chunkname}"
-fastq__chunk          = fastq__chunkPrefix + "{sample_extension}"
-fastq__readPrefix     = fastq__sampleRunDir + "/{procFastqMerge}{procTrimming}{sample_name}_{sample_read}"
-fastq__read           = fastq__readPrefix + "{sample_extension}"
+fastq__chunkPrefix = fastq__sampleRunDir + "/{sample_chunkname}"
+fastq__chunk       = fastq__chunkPrefix + "{sample_extension}"
+fastq__readPrefix  = fastq__sampleRunDir + "/{procFastqMerge}{procTrimming}{procUmiExtract}{sample_name}_{sample_read}"
+fastq__read        = fastq__readPrefix + "{sample_extension}"
 
 pipeman.include("merge.sk")
 pipeman.include("trimming.sk")
 pipeman.include("qc.sk")
 pipeman.include("adapter.sk")
-fastq__procs = "{procFastqMerge}{procTrimming}"
+pipeman.include("umi-extract.sk")
+# TODO: manage better those inclusions -> pipeline specific
+
+fastq__procs = "{procFastqMerge}{procTrimming}{procUmiExtract}"
 fastq__pipeTarget = f"{fastq__sampleRunDir}/{fastq__procs}"
 
 ruleorder: fastq_trimming__bbduk > fastq_trimming__trimmomatic > fastq_trimming__cutadapt > fastq_merging__mergeReads
