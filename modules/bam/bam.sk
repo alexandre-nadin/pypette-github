@@ -48,12 +48,12 @@ rule bam__BaseRecalibrator:
        -knownSites /lustre1/genomes/{input.ref_genome_fa}/GATK_pypette/resources-broad-{input.ref_genome_fa}-v0-1000G_phase1.snps.high_confidence.vcf.gz \
        -knownSites /lustre1/genomes/{input.ref_genome_fa}/GATK_pypette/resources-broad-{input.ref_genome_fa}-v0-Mills_and_1000G_gold_standard.indels.vcf.gz \
        -knownSites /lustre1/genomes/{input.ref_genome_fa}/GATK_pypette/dbsnp_current.{input.ref_genome_fa}.vcf.gz
-       -o {sample_name}_recalibration_report.grp
+       -o {wildcards.sample_name}_recalibration_report.grp
     gatk \
        -T PrintReads \
        -R $fasta_genome \
        -I {input.bam} \
-       -BQSR {sample_name}_recalibration_report.grp \
+       -BQSR {wildcards.sample_name}_recalibration_report.grp \
        -o {output.bam}
     """
     exshell(**vars())
