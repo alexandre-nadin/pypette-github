@@ -40,11 +40,10 @@ rule bam__BaseRecalibrator:
     bam     = f"{bam__sampleRecalibPrefix}.bam",
     bai     = f"{bam__sampleRecalibPrefix}.bai",
   run:
-    genomeFasta     = genome__fasta()
-    cmd = """
+    cmd = f"""
       gatk \
        -T BaseRecalibrator \
-       -R {genome__fasta} \
+       -R {ref_genome_fa} \
        -I {input.bam} \
        -knownSites /lustre1/genomes/{ref_genome_fa}/GATK_pypette/resources-broad-{ref_genome_fa}-v0-1000G_phase1.snps.high_confidence.vcf.gz \
        -knownSites /lustre1/genomes/{ref_genome_fa}/GATK_pypette/resources-broad-{ref_genome_fa}-v0-Mills_and_1000G_gold_standard.indels.vcf.gz \
