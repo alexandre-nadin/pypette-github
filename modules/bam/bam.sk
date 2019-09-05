@@ -51,7 +51,7 @@ rule bam__BaseRecalibrator:
        -o {wildcards.sample_name}_recalibration_report.grp
     gatk \
        -T PrintReads \
-       -R $fasta_genome \
+       -R {input.ref_genome_fa} \
        -I {input.bam} \
        -BQSR {wildcards.sample_name}_recalibration_report.grp \
        -o {output.bam}
