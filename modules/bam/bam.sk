@@ -36,6 +36,7 @@ bam__sampleRecalibPrefix = "{anyprefix}recalib/{sample_name}"
 rule bam__BaseRecalibrator:
   input: 
     bam     = "{anyprefix}{sample_name}.bam",
+    bai     = "{anyprefix}{sample_name}.bai",
     ref_genome_fa = lambda x: genome__fasta()
   output: 
     bam     = f"{bam__sampleRecalibPrefix}.bam",

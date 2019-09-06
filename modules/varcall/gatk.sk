@@ -8,7 +8,7 @@ rule varcall__gatk:
              derefKwargs = ['sample_name',]),
     ref_genome_fa = lambda x: genome__fasta()
   output:
-    vcf = f"{vcf__sampleTarget}.ga.vcf.gz"
+    vcf = f"{vcf__sampleTarget}.ga.g.vcf.gz"
   run:
     annotation_dir = genome__annotationDir() + "_pypette"
     cmd = f"""
