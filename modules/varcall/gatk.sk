@@ -12,12 +12,32 @@ rule varcall__gatk:
   run:
     annotation_dir = genome__annotationDir() + "_pypette"
     cmd = f"""
-      gatk Xmx64g \
+      gatk -Xmx64g \
         -T HaplotypeCaller \
         -R {input.ref_genome_fa} \
         -I {input.bam} \
         -o {output.vcf} \
         -ERC GVCF \
+        --dbsnp {annotation_dir}/dbSNP-151.vcf.gz
+    """
+    exshell(**vars())
+
+rule varcall_mergeGVCF:
+  input:
+    #all
+    vcf = f"{vcf__sampleTarget}.ga.vcf.gz"
+    ref_genome_fa = lambda x: genome__fasta()
+  output:
+    #merged
+    vcf = f"{vcf__sampleTarget}.ga.vcf.gz"
+  run:
+    annotation_dir = genome__annotationDir() + "_pypette"
+    cmd = f"""
+      gatk -Xmx64g \
+        -T GenotypeGVCFs \
+        -R {input.ref_genome_fa} \
+        -V input_gvcfs.list \
+        -o {output.vcf} \
         --dbsnp {annotation_dir}/dbSNP-151.vcf.gz
     """
     exshell(**vars())
