@@ -43,13 +43,15 @@ rule varcall__annotate:
 
 rule varcall__cnvkit:
   input:
-    bams = pipeman.input(
+    bam = pipeman.input(
              f"{bam__sampleTarget}.bam",
              derefKwargs = ['sample_name',]),
     vcf = f"{vcf__sampleTarget}.ga.g.vcf.gz",
     ref_genome_fa = lambda x: genome__fasta()
   output:
     cns = f"{vcf__sampleTarget}.calls.cns"
+  params:
+    output_dir = f"{vcf__pipeTarget}"
   run:
     baitIntervals   = exome__baitIntervals()
     cmd = f"""
