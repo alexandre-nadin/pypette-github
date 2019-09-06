@@ -40,3 +40,21 @@ rule varcall__annotate:
       tabix -f {output.vcf}
     """
     exshell(**vars())
+
+rule varcall__cnvkit:
+  input:
+    bams = pipeman.input(
+             f"{bam__sampleTarget}.bam",
+             derefKwargs = ['sample_name',]),
+    vcf = f"{vcf__sampleTarget}.ga.g.vcf.gz",
+    ref_genome_fa = lambda x: genome__fasta()
+  output:
+    cns = f"{vcf__sampleTarget}.calls.cns"
+  run:
+    baitIntervals   = exome__baitIntervals()
+    cmd = f"""
+      python cnvkit.py batch {input.bam} --n --targets {baitIntervals} --fasta {input.ref_genome_fa} --output-reference {wildcards.sample_name}.cnn --output-dir {params.output_dir}
+      python cnvkit.py segmetrics -s {wildcards.sample_name}.cn{{s,r}} --ci
+      python cnvkit.py call {wildcards.sample_name}.segmetrics.cns -v {input.vcf} --filter ci -o {output.cns}
+    """
+    exshell(**vars())
