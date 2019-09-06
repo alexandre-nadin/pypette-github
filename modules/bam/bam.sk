@@ -9,7 +9,8 @@ sortingTools = ('picard', 'samtools')
 pipeman.updateWildcardConstraints(
   procSorted    = "(sorted/({})/)?".format("|".join(sortingTools)),
   procMarkDup   = "(markdup/)?",
-  procBamMerged = "(merged/)?"
+  procBamMerged = "(merged/)?",
+  procBamRecalib = "(recalib/)?"
 )
 
 """ Sample Run Reads Output Targets """
