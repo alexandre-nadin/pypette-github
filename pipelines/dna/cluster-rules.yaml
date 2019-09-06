@@ -50,3 +50,6 @@ varcall__gatk:
 varcall__mergeGVCF:
   do: True
   mem: '64gb'
+
+bam__BaseRecalibrator:
+  do: True
