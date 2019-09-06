@@ -15,4 +15,5 @@ pipeman.includeModules(
   "bam/bam.sk",
   "qc/dna.sk",
   "varcall/freebayes.sk",
+  "varcall/gatk.sk",
   withConfigFiles=True)
