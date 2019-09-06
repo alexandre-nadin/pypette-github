@@ -12,7 +12,7 @@ rule varcall__gatk:
   run:
     annotation_dir = genome__annotationDir() + "_pypette"
     cmd = f"""
-      gat \
+      gatk \
         -T HaplotypeCaller \
         -R {input.ref_genome_fa} \
         -I {input.bam} \
