@@ -22,7 +22,7 @@ rule varcall__gatk:
     """
     exshell(**vars())
 
-rule varcall_mergeGVCF:
+rule varcall__mergeGVCF:
   input:
     #all
     vcf = f"{vcf__sampleTarget}.ga.vcf.gz"
