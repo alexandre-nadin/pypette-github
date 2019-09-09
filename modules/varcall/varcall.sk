@@ -51,12 +51,12 @@ rule varcall__cnvkit:
   output:
     cns = f"{vcf__sampleTarget}.calls.cns"
   params:
-    output_dir = f"{vcf__pipeTarget}"
+    var_dir = f"{vcf__pipeTarget}"
   run:
     baitIntervals   = exome__baitIntervals()
     cmd = f"""
-      cnvkit.py batch {input.bam} --n --targets {baitIntervals} --fasta {input.ref_genome_fa} --output-reference {wildcards.sample_name}.cnn --output-dir {params.output_dir}
-      cnvkit.py segmetrics {wildcards.sample_name}.cnr -s {wildcards.sample_name}.cns --ci
-      cnvkit.py call {wildcards.sample_name}.segmetrics.cns -v {input.vcf} --filter ci -o {output.cns}
+      cnvkit.py batch {input.bam} --n --targets {baitIntervals} --fasta {input.ref_genome_fa} --output-reference {params.var_dir}/{wildcards.sample_name}.cnn --output-dir {params.var_dir}
+      cnvkit.py segmetrics {params.var_dir}/{wildcards.sample_name}.cnr -s {params.var_dir}/{wildcards.sample_name}.cns --ci -o {params.var_dir}/{wildcards.sample_name}.segmetrics.cns
+      cnvkit.py call {params.var_dir}/{wildcards.sample_name}.segmetrics.cns -v {input.vcf} --filter ci -o {output.cns}
     """
     exshell(**vars())
