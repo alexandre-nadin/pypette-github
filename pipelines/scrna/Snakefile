@@ -13,4 +13,5 @@ Modules are loaded only if required configuration files above are present.
 pipeman.includeModules(
   "fastq/fastq.sk",
   "bam/bam.sk",
+  "bam/counts.sk",
   withConfigFiles=True)
