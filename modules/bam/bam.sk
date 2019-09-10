@@ -1,7 +1,8 @@
 include: 'bam.py'
-pipeman.includeModule("genomes/genome.sk")
-pipeman.includeModule("genomes/gencode.sk")
-pipeman.includeModule("genomes/exome.sk")
+pipeman.includeModules(
+  "genomes/genome.sk",
+  "genomes/gencode.sk",
+  "genomes/exome.sk")
 
 """ Allowed Sorting Processes """
 sortingTools = ('picard', 'samtools')
@@ -11,18 +12,20 @@ pipeman.updateWildcardConstraints(
   procBamMerged = "(merged/)?"
 )
 
-bam__mappingDir   = fastq__sampleRunDir + "/" + fastq__procs + "mapped" + bam__alignerDir(append=True)
-bam__samplePrefix = bam__mappingDir + "/{sample_name}"
-bam__sample       = bam__samplePrefix + ".bam"
-
 """ Sample Run Reads Output Targets """
-bam__alignerDir       = "mapped" + bam__alignerDir(append=True)
+bam__alignerDir    = f"mapped{bam__alignerDir(append=True)}"
+
+pipeman.addTargets(
+  bam__mappingDir   = "{fastq__sampleRunDir}/{fastq__procs}{bam__alignerDir}",
+  bam__samplePrefix = "{bam__mappingDir}/{{sample_name}}",
+  bam__sample       = "{bam__samplePrefix}.bam" )
+
 
 ##
 # General IO (on any bam file).
 
-bam__pipeTarget   = f"{fastq__pipeTarget}{bam__alignerDir}/{{procBamMerged}}{{procSorted}}{{procMarkDup}}"
-bam__sampleTarget = f"{bam__pipeTarget}{{sample_name}}"
+bam__pipeTarget   = "{fastq__pipeTarget}{bam__alignerDir}/{{procBamMerged}}{{procSorted}}{{procMarkDup}}"
+bam__sampleTarget = "{bam__pipeTarget}{{sample_name}}"
 
 # Note: Include the aligner found in pipeline configuration file after this
 #       file's variables, as aligner's rules should depend on the variables 
