@@ -14,18 +14,33 @@ vcf__sampleTarget = f"{vcf__pipeTarget}/{{sample_name}}"
 #    """
 #    exshell(**vars())
 
-#rule varcall__freebayes_merge:
-#  input:                                           
-#    bam = pipeman.input(                        
-#               f"{bam__sampleTarget}.bam"
-#               derefKwargs=['sample_name',])
-#  output:                                          
-#    vcf = f"{vcf__pipeTarget}/{sample_name}.fb.merged.vcf.gz"
-#  run:
-#    cmd = """
-#
-#    """
-#    exshell(**vars())
+rule varcall__freebayes_merge:
+  input:                                           
+    bams = pipeman.input(                        
+               f"{bam__sampleTarget}.bam",
+               derefKwargs=['sample_name',]),
+    ref_genome_fa = lambda x: genome__fasta()
+  output:                                          
+    vcf = f"{vcf__pipeTarget}/all.fb.merged.vcf.gz"
+  run:
+    cmd = f"""
+      freebayes -f {input.ref_genome_fa}  \
+        -F 0.2                            \
+        -C 2                              \
+        -q 20                             \
+        -m 1                              \
+        --genotype-qualities              \
+        --min-repeat-entropy 1            \
+        --report-genotype-likelihood-max  \
+        -b {input.bams}                   \
+       | vcfsort                          \
+       | vcfuniq                          \
+       | vcfsort                          \
+       | vcffixup -                       \
+       | bgzip -fc                        \
+       > {output.vcf}
+    """
+    exshell(**vars())
 
 rule varcall__freebayes:
   input:

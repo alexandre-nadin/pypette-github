@@ -22,22 +22,23 @@ rule varcall__gatk:
     """
     exshell(**vars())
 
-#rule varcall__mergeGVCF:
-#  input:
-#    #all
-#    vcf = f"{vcf__sampleTarget}.ga.vcf.gz"
-#    ref_genome_fa = lambda x: genome__fasta()
-#  output:
-#    #merged
-#    vcf = f"{vcf__sampleTarget}.ga.vcf.gz"
-#  run:
-#    annotation_dir = genome__annotationDir() + "_pypette"
-#    cmd = f"""
-#      gatk -Xmx64g \
-#        -T GenotypeGVCFs \
-#        -R {input.ref_genome_fa} \
-#        -V input_gvcfs.list \
-#        -o {output.vcf} \
-#        --dbsnp {annotation_dir}/dbSNP-151.vcf.gz
-#    """
-#    exshell(**vars())
+rule varcall__mergeGVCF:
+  input:
+    vcfs   = pipeman.input(
+                 f"{vcf__sampleTarget}.ga.g.vcf.gz",
+                 derefKwargs=['sample_name',]),
+    ref_genome_fa = lambda x: genome__fasta()
+  output:
+    vcf = f"{vcf__pipeTarget}/all.ga.g.merged.vcf.gz"
+  run:
+    myvcfs = ' -V '.join(map(str, input.vcfs))
+    annotation_dir = genome__annotationDir() + "_pypette"
+    cmd = f"""
+      gatk -Xmx64g \
+        -T GenotypeGVCFs \
+        -R {input.ref_genome_fa} \
+        -V {myvcfs} \
+        -o {output.vcf} \
+        --dbsnp {annotation_dir}/dbSNP-151.vcf.gz
+    """
+    exshell(**vars())
