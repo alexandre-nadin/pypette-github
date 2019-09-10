@@ -12,7 +12,7 @@ rule qc_rnaseq__multiqc:
       f"{bam__sampleTarget}.inferExperiment",
       derefKwargs=['sample_name',]),
     bamCounts = pipeman.input(
-      f"{bam__sampleTarget}.counts.summary",
+      f"{bam__pipeTarget}featureCounts/{{sample_name}}.counts.summary",
       derefKwargs=['sample_name',]),
     bamstat   = pipeman.input(
       f"{bam__sampleTarget}.bamstats",
