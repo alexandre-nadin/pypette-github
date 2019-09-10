@@ -12,19 +12,40 @@ counts__pipeTarget = f"{bam__pipeTarget}counts"
 # -t exon :  Explicitating default value. This way only reads on exons are counted, and then summarized at gene level (by default). If '-f' is used, summarization would be at feature level (=exon by exon).*
 # -C      :  do NOT count chimeric fragments in PE data, i.e. paired reads mapping on different chromosomes *
 # -R BAM  :  Annotates the original bam files. We don't need this bam for now *
+ #shell('featureCounts -a {input.GT} -o {output.GA} -R BAM {input.AL} -T {params.TH}')
+ #
+
+rule counts__umiCounts:
+  input:
+    bam    = "{someprefix}/featureCounts/sorted/samtools/{sample_name}.bam",
+    bai    = "{someprefix}/featureCounts/sorted/samtools/{sample_name}.bai"
+  output:
+    counts = f"{someprefix}/featureCounts/sorted/samtools/umi-counts/{sample_name}.counts.tsv.gz"
+  run:
+    cmd = """
+      umi_tools count            \
+        --per-gene               \
+        --gene-tag=XT            \
+        --assigned-status-tag=XS \
+        --per-cell               \
+        -I {input.bam}           \
+        -S {output.counts}
+    """
+    exshell(**vars())
+
 rule counts__featureCounts:
   input: 
     bam       = "{someprefix}/{sample_name}.bam",
     inferExp  = "{someprefix}/{sample_name}.inferExperiment",
     gtf       = lambda x: gencode__gtf()
   output:
-    counts    = pipeman.temp("{someprefix}/{sample_name}.counts"),
-    countsGz  =              "{someprefix}/{sample_name}.counts.gz",
-    sumcounts =              "{someprefix}/{sample_name}.counts.summary",
-    bam       = pipeman.temp("{someprefix}/{sample_name}.bam.featureCounts.bam"),
-    log       =              "{someprefix}/{sample_name}.counts.log"
+    counts    = pipeman.temp("{someprefix}/featureCounts/{sample_name}.counts"),
+    countsGz  =              "{someprefix}/featureCounts/{sample_name}.counts.gz",
+    sumcounts =              "{someprefix}/featureCounts/{sample_name}.counts.summary",
+    bam       = pipeman.temp("{someprefix}/featureCounts/{sample_name}.bam"),
+    log       =              "{someprefix}/featureCounts/{sample_name}.counts.log"
   run: 
-    inferExp  = rseqc__inferExperiment(input.inferExp)
+    inferExp  = rseqc__inferExperiment(input.inferExp, debug=pipeman.config.debug)
     cores     = pipeman.config.pipeline.modules.mapping.counter.cores
     paired    = '-p' if inferExp.isPairEnd else ''
     cmd = """
@@ -50,10 +71,10 @@ rule counts__featureCounts:
 rule counts__mergedCounts:
   input:
     counts = pipeman.input(
-               f"{bam__sampleTarget}.counts.gz",
+               f"{bam__pipeTarget}featureCounts/{{sample_name}}.counts.gz",
                derefKwargs=['sample_name',])
   output:
-    counts = f"{bam__sampleTarget}.mergedCounts.gz"
+    counts = f"{bam__pipeTarget}featureCounts/{{sample_name}}.mergedCounts.gz"
   run:
     cmd = ""
     exshell(**vars()) 
