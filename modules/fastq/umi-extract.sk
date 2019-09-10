@@ -49,3 +49,5 @@ rule fastq_umi__extract:
         --whitelist {input.wlist}
     """
     exshell(**vars()) 
+
+ruleorder: samples__runs > fastq_umi__whitelist > fastq_umi__extract
