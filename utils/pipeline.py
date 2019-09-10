@@ -6,6 +6,8 @@ from utils import regex_helper as rh
 from utils.files import extensionless
 from snakemake.io import temp
 import datetime
+from collections import OrderedDict
+from utils.strings import StringFormatter
 
 class PipelineManager(Manager):
   """ """
@@ -27,6 +29,7 @@ class PipelineManager(Manager):
     self.pipelinesDir  = os.path.join(self.home, "pipelines")
     self.params        = []
     self.cleanables    = []
+    self.targets       = OrderedDict({})
     self.sampleManager = utils.samples.SamplesManager(self.pipeName, self.namespace)
     self.configManager = PipelineConfigManager(
                               config_prefix = self.pipeName, 
@@ -297,6 +300,35 @@ class PipelineManager(Manager):
   # -----------------------
   def updateWildcardConstraints(self, **wildcards):
     self.workflow.global_wildcard_constraints(**wildcards);
+
+  # ------------------
+  # Fomatted Targets
+  # 
+  # This features allows to compose flexible formattable strings. 
+  # Each can contain keywords from previously defined strings. 
+  # All strings will can be later evaluated at once.
+  # String names are then defined in Snakemake namespace.
+  # ------------------
+  def addTargets(self, **kwargs):
+    """ Save the given strings and their associated values """
+    self.targets.update(kwargs)
+    self.formatTargets(**kwargs)
+
+  def formatTargets(self, **kwargs):
+    """ Format and declare the given target dict. """
+    for key, val in kwargs.items():
+      self.formatTarget(key, val)
+
+  def formatTarget(self, key, value):
+    kwVals = { key: self.namespace[key]  
+               for key in StringFormatter(value).keywords()
+             }
+    self.namespace[key] = value.format(**kwVals)
+
+  def formatAllTargets(self):
+    """ Formats all the saved targets """
+    self.formatTargets(self.targets)
+
 
   # ------------
   # Parameters
