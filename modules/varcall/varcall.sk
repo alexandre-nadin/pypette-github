@@ -60,7 +60,7 @@ rule varcall__annotate_gatk:
       genome_name = pipeman.config.project.genome.name
       gencode = gencode__baseName()
     cmd = f"""
-      vt normalize -r {input.ref_genome_fa} {input.vcf} \
+      vt normalize -n -r {input.ref_genome_fa} {input.vcf} \
       | snpSift annotate {annotation_dir}/dbSNP-151.vcf.gz \
       | snpSift annotate {annotation_dir}/COSMIC/CosmicCodingMuts.vcf.gz \
       | snpSift annotate {annotation_dir}/COSMIC/CosmicNonCodingVariants.vcf.gz \
