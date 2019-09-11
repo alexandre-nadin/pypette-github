@@ -71,3 +71,76 @@ rule varcall__filter:
       tabix -f {output.vcf}
     """
     exshell(**vars())
+
+rule varcall__filter_merged:
+  input:
+    vcf = f"{vcf__sampleTarget}.fb.merged.vcf.gz"
+  output:
+    vcf = f"{vcf__sampleTarget}.fb.merged.filter.vcf.gz"
+  run:
+    cmd = f"""
+      zcat {input.vcf}  \
+      | snpSift filter  "( QUAL > 0 ) & ( QUAL / AO > 1 ) & ( SAF > 0 & SAR > 0 ) & ( RPR > 1 & RPL > 1 ) & ( MQM > 10 | MQMR > 10 )" \
+      | bgzip -c > {output.vcf}
+      tabix -f {output.vcf}
+    """
+    exshell(**vars())
+
+rule varcall__annotate_fb:
+  input:
+    vcf = f"{vcf__sampleTarget}.fb.filter.vcf.gz",
+    ref_genome_fa = lambda x: genome__fasta()
+  output:
+    vcf = f"{vcf__sampleTarget}.fb.filter.annotate.vcf.gz",
+  params:
+    dbnsfp_ann = f"Uniprot_acc_Polyphen2,Interpro_domain,SIFT_pred,Polyphen2_HDIV_pred,Polyphen2_HVAR_pred,LRT_pred,MutationTaster_pred,GERP++_NR,GERP++_RS,phastCons100way_vertebrate,1000Gp3_AF,ESP6500_AA_AF,ESP6500_EA_AF,MutationTaster_pred,MutationAssessor_pred,FATHMM_pred,PROVEAN_pred,CADD_phred,MetaSVM_pred,1000Gp3_AC,1000Gp3_AF,1000Gp3_AFR_AC,1000Gp3_AFR_AF,1000Gp3_EUR_AC,1000Gp3_EUR_AF,1000Gp3_AMR_AC,1000Gp3_AMR_AF,1000Gp3_EAS_AC,1000Gp3_EAS_AF,1000Gp3_SAS_AC,1000Gp3_SAS_AF,ESP6500_AA_AC,ESP6500_AA_AF,ESP6500_EA_AC,ESP6500_EA_AF,ExAC_AC,ExAC_AF,ExAC_Adj_AC,ExAC_Adj_AF,ExAC_AFR_AC,ExAC_AFR_AF,ExAC_AMR_AC,ExAC_AMR_AF,ExAC_EAS_AC,ExAC_EAS_AF,ExAC_FIN_AC,ExAC_FIN_AF,ExAC_NFE_AC,ExAC_NFE_AF,ExAC_SAS_AC,ExAC_SAS_AF,gnomAD_exomes_AF,gnomAD_genomes_AF"
+  run:
+    annotation_dir = genome__annotationDir() + "_pypette"
+    if pipeman.config.project.genome.name == "hs37d5":
+      genome_name = "hg19"
+      gencode = "GRCh37.75"
+    else:
+      genome_name = pipeman.config.project.genome.name
+      gencode = gencode__baseName()
+    cmd = f"""
+      vt normalize -r {input.ref_genome_fa} {input.vcf} \
+      | snpSift annotate {annotation_dir}/dbSNP-151.vcf.gz \
+      | snpSift annotate {annotation_dir}/COSMIC/CosmicCodingMuts.vcf.gz \
+      | snpSift annotate {annotation_dir}/COSMIC/CosmicNonCodingVariants.vcf.gz \
+      | snpSift dbnsfp -db {annotation_dir}/dbNSFP3.5a.txt.gz -g {genome_name} -f {params.dbnsfp_ann} -collapse - \
+      | snpEff -noStats -v -lof {gencode} -dataDir /lustre1/ctgb-usr/local/src/snpEff/data/ \
+      | vcfsort \
+      | bgzip -c > {output.vcf}
+      tabix -f {output.vcf}
+    """
+    exshell(**vars())
+
+rule varcall__annotate_fb_merged:
+  input:
+    vcf = f"{vcf__sampleTarget}.fb.merged.filter.vcf.gz",
+    ref_genome_fa = lambda x: genome__fasta()
+  output:
+    vcf = f"{vcf__sampleTarget}.fb.merged.filter.annotate.vcf.gz",
+  params:
+    dbnsfp_ann = f"Uniprot_acc_Polyphen2,Interpro_domain,SIFT_pred,Polyphen2_HDIV_pred,Polyphen2_HVAR_pred,LRT_pred,MutationTaster_pred,GERP++_NR,GERP++_RS,phastCons100way_vertebrate,1000Gp3_AF,ESP6500_AA_AF,ESP6500_EA_AF,MutationTaster_pred,MutationAssessor_pred,FATHMM_pred,PROVEAN_pred,CADD_phred,MetaSVM_pred,1000Gp3_AC,1000Gp3_AF,1000Gp3_AFR_AC,1000Gp3_AFR_AF,1000Gp3_EUR_AC,1000Gp3_EUR_AF,1000Gp3_AMR_AC,1000Gp3_AMR_AF,1000Gp3_EAS_AC,1000Gp3_EAS_AF,1000Gp3_SAS_AC,1000Gp3_SAS_AF,ESP6500_AA_AC,ESP6500_AA_AF,ESP6500_EA_AC,ESP6500_EA_AF,ExAC_AC,ExAC_AF,ExAC_Adj_AC,ExAC_Adj_AF,ExAC_AFR_AC,ExAC_AFR_AF,ExAC_AMR_AC,ExAC_AMR_AF,ExAC_EAS_AC,ExAC_EAS_AF,ExAC_FIN_AC,ExAC_FIN_AF,ExAC_NFE_AC,ExAC_NFE_AF,ExAC_SAS_AC,ExAC_SAS_AF,gnomAD_exomes_AF,gnomAD_genomes_AF"
+  run:
+    annotation_dir = genome__annotationDir() + "_pypette"
+    if pipeman.config.project.genome.name == "hs37d5":
+      genome_name = "hg19"
+      gencode = "GRCh37.75"
+    else:
+      genome_name = pipeman.config.project.genome.name
+      gencode = gencode__baseName()
+    cmd = f"""
+      vt normalize -r {input.ref_genome_fa} {input.vcf} \
+      | snpSift annotate {annotation_dir}/dbSNP-151.vcf.gz \
+      | snpSift annotate {annotation_dir}/COSMIC/CosmicCodingMuts.vcf.gz \
+      | snpSift annotate {annotation_dir}/COSMIC/CosmicNonCodingVariants.vcf.gz \
+      | snpSift dbnsfp -db {annotation_dir}/dbNSFP3.5a.txt.gz -g {genome_name} -f {params.dbnsfp_ann} -collapse - \
+      | snpEff -noStats -v -lof {gencode} -dataDir /lustre1/ctgb-usr/local/src/snpEff/data/ \
+      | vcfsort \
+      | bgzip -c > {output.vcf}
+      tabix -f {output.vcf}
+    """
+    exshell(**vars())
+
