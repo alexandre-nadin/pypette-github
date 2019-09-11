@@ -22,8 +22,9 @@ pipeman.include("adapter.sk")
 pipeman.include("umi-extract.sk")
 # TODO: manage better those inclusions -> pipeline specific
 
-fastq__procs = "{procFastqMerge}{procTrimming}{procUmiExtract}"
-fastq__pipeTarget = f"{fastq__sampleRunDir}/{fastq__procs}"
+pipeman.addTargets(
+   fastq__procs = "{{procFastqMerge}}{{procTrimming}}{{procUmiExtract}}",
+   fastq__pipeTarget = "{fastq__sampleRunDir}/{fastq__procs}")
 
 ruleorder: fastq_trimming__bbduk > fastq_trimming__trimmomatic > fastq_trimming__cutadapt > fastq_merging__mergeReads
 
