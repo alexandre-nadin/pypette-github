@@ -1,19 +1,6 @@
 vcf__pipeTarget   = f"{bam__pipeTarget}varcall"
 vcf__sampleTarget = f"{vcf__pipeTarget}/{{sample_name}}"
 
-#rule varcall__gatk_merge:
-#  input:                                           
-#    vcf   = pipeman.input(                        
-#              f"{vcf__pipeTarget}/{sample_name}.ga.g.vcf.gz",
-#              derefKwargs=['sample_name',])       
-#  output:                                          
-#    vcf = f"{vcf__pipeTarget}/{sample_name}.ga.g.merged.vcf.gz"
-#  run:
-#    cmd = """
-#
-#    """
-#    exshell(**vars())
-
 rule varcall__freebayes_merge:
   input:                                           
     bams = pipeman.input(                        
@@ -39,6 +26,7 @@ rule varcall__freebayes_merge:
        | vcffixup -                       \
        | bgzip -fc                        \
        > {output.vcf}
+    tabix -f {output.vcf}
     """
     exshell(**vars())
 
