@@ -53,7 +53,7 @@ function pypette::pathPipelines() {
 }
 
 function pypette::pathPipelineSnakefile() {
-  printf "$(pypette::pathPipelines)/${1}/${pipe__PIPELINE_SNAKEFILE}"
+  printf "$(pypette::pathPipelines)/${1}/${pypette__PIPELINE_SNAKEFILE}"
 }
 
 function pypette::pathModules() {
@@ -63,7 +63,7 @@ function pypette::pathModules() {
 # --------------------
 # Pipelines & Modules
 # --------------------
-pipe__PIPELINE_SNAKEFILE="Snakefile"
+pypette__PIPELINE_SNAKEFILE="Snakefile"
 
 function pypette::existsPipeline() {
   [ -f $(pypette::pathPipelineSnakefile ${1}) ]
@@ -73,8 +73,8 @@ function pypette::listPipelines() (
   cd "$(pypette::pathPipelines)"
   set +f
   pypette::msgListPipelines
-  ls -1 */{,*/}${pipe__PIPELINE_SNAKEFILE}     \
-   | sed "s|/\?${pipe__PIPELINE_SNAKEFILE}$||" \
+  ls -1 */{,*/}${pypette__PIPELINE_SNAKEFILE}     \
+   | sed "s|/\?${pypette__PIPELINE_SNAKEFILE}$||" \
    | xargs                          \
    2>/dev/null
 )
@@ -102,13 +102,13 @@ eol
 # -------
 # Manual
 # -------
-pipe__manual='manual'
+pypette__manual='manual'
 function pypette::setManual() {
-  pipe__manual="$1"
+  pypette__manual="$1"
 }
 
 function pypette::manual() {
-  $pipe__manual
+  $pypette__manual
 }
 
 function pypette::msgManual() {
@@ -117,7 +117,7 @@ Please consult the help: '\$ $(pypette::cmdName) --help'
 eol
 }
 
-pipe__paramsMandatory=(PROJECT PIPELINE)
+pypette__paramsMandatory=(PROJECT PIPELINE)
 function manual() {
   cat << EOFMAN
   
@@ -153,7 +153,7 @@ function manual() {
 
       -c|--conda-env
           Specifies the conda environment in which the pipeline is to be executed.
-          Default is 'pipe-PIPELINE'.
+          Default is 'pypette-PIPELINE'.
 
       -v|--verbose
           Makes this command verbose.
@@ -239,7 +239,7 @@ function pypette::parseParams() {
 }
 
 function pypette::checkParams() {
-  pypette::requireParams ${pipe__paramsMandatory[@]}
+  pypette::requireParams ${pypette__paramsMandatory[@]}
   pypette::checkPipeline
 }
 
@@ -302,13 +302,13 @@ function pypette::pythonSysPath() {
   python -c 'import sys; print(" ".join(sys.path))'
 }
 
-pipe__varenvs=()
+pypette__varenvs=()
 function pypette::exportVarenv() {
   local var="$(pypette::varenvOf ${1})"
-  if [ ${#pipe__varenvs[@]} -gt 0 ]; then
-    pipe__varenvs=(${pipe__varenvs[@]} "$var") 
+  if [ ${#pypette__varenvs[@]} -gt 0 ]; then
+    pypette__varenvs=(${pypette__varenvs[@]} "$var") 
   else
-    pipe__varenvs=("$var")
+    pypette__varenvs=("$var")
   fi
   eval "export $(pypette::varenvOf ${1})=\"${2}\""
 }
