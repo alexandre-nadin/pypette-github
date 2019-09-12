@@ -18,7 +18,7 @@ rule counts__umiCounts:
     bam    = "{someprefix}/featureCounts/sorted/samtools/{sample_name}.bam",
     bai    = "{someprefix}/featureCounts/sorted/samtools/{sample_name}.bai"
   output:
-    counts = f"{someprefix}/featureCounts/sorted/samtools/umi-counts/{sample_name}.counts.tsv.gz"
+    counts = "{someprefix}/featureCounts/sorted/samtools/umi-counts/{sample_name}.counts.tsv.gz"
   run:
     cmd = """
       umi_tools count            \
