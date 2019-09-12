@@ -3,7 +3,7 @@
 SCRIPT_PATH=$(readlink -f "$0")
 SCRIPT_DIR=$(dirname "${SCRIPT_PATH}")
 EXE_DIR="$(readlink -f $(pwd))"
-VARENVS_TAG="_CPIPE_"
+VARENVS_TAG="_PYPETTE_"
 
 # ---------
 # Workflow
