@@ -22,25 +22,6 @@ def seqrun__projectQcPath(prj): # TODO: move to qc_seqrun?
 def seqrun__projectPipeline(prj):
   """ Deduces a project's pipeline """
   for pipeline in pipeman.pipelines:
-    if pipeline.lower() in seqrun__projectTitlesFmt(prj):
+    if pipeline.lower() in pipeman.config.run.projects[prj]:
       return pipeline
   return None
-
-def seqrun__projectTitlesFmt(prj):
-  """ Formats all of a project's possible titles. 
-  Todo: Remove when project information will be flawlessly set on our LIMS
-  """
-  return [ 
-    title.lower().replace('_', '').replace(' ', '')
-    for title in seqrun__projectTitles(prj)
-  ]
-
-def seqrun__projectTitles(prj):
-  """ Gets all of a project's possible titles.
-  TODO: Remove when project information will be flawlessly set on our LIMS
-  """
-  data = pipeman.config.run.projects[prj]
-  return list(set([
-      data.type, 
-      data.pipeline, 
-      *data.quotationTitles]))
