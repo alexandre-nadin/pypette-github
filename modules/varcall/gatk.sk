@@ -50,8 +50,8 @@ rule bam__BaseRecalibrator:
   output:
     recal     = pipeman.temp("{vcf__pipeTarget}/all.ga.merged.recal"),
     tranches  = pipeman.temp("{vcf__pipeTarget}/all.ga.merged.tranches"),
-    rscript   = "{vcf__pipeTarget}/all.ga.merged.plots.R,
-    vcf       = "{vcf__pipeTarget}/all.ga.merged.recal.vcf.gz
+    rscript   = "{vcf__pipeTarget}/all.ga.merged.plots.R",
+    vcf       = "{vcf__pipeTarget}/all.ga.merged.recal.vcf.gz"
   params:
     ref_genome_dir = genome__dir(),
     ref_genome_name = pipeman.config.project.genome.name
