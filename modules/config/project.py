@@ -32,7 +32,7 @@ def project__samplesMetaPath(prj):
     project__samplesTarget)
 
 def project__pipelineQcTarget(pipeline, formatted=False):
-  pipeman.includeModule(f"qc/qc_{pipeline}.py")
+  pipeman.includeModule(f"qc/{pipeline}.py")
   target = qc__multiqcStd
   if formatted:
     target = target.format(sample_run=pipeman.project)

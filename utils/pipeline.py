@@ -12,7 +12,7 @@ from utils.strings import StringFormatter
 class PipelineManager(Manager):
   """ """
   # Expected tag for application's environment variables
-  VARENV_TAG = "_CPIPE_"
+  VARENV_TAG = "_PYPETTE_"
   VARENV_NAMES = ( 
     'home', 'project', 'pipeName', 'pipeSnake', 'exeTime',
     'exeDir', 'workdir', 'clusterMntPoint', 'keepFilesRegex',
