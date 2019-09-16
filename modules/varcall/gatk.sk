@@ -48,8 +48,8 @@ rule bam__BaseRecalibrator:
     vcf     = "{vcf__pipeTarget}/all.ga.merged.vcf.gz",
     ref_genome_fa = lambda x: genome__fasta()
   output:
-    recal     = "{vcf__pipeTarget}/all.ga.merged.recal",
-    tranches  = "{vcf__pipeTarget}/all.ga.merged.tranches",
+    recal     = pipeman.temp("{vcf__pipeTarget}/all.ga.merged.recal"),
+    tranches  = pipeman.temp("{vcf__pipeTarget}/all.ga.merged.tranches"),
     rscript   = "{vcf__pipeTarget}/all.ga.merged.plots.R,
     vcf       = "{vcf__pipeTarget}/all.ga.merged.recal.vcf.gz
   params:
