@@ -62,7 +62,7 @@ rule vcf__BaseRecalibrator:
       gatk \
        -T VariantRecalibrator \
        -R {input.ref_genome_fa} \
-       -I {input.vcf} \
+       -input {input.vcf} \
        -resource:1000G,known=false,training=true,truth=false,prior=10.0, /lustre1/genomes/{params.ref_genome_name}/GATK_pypette/resources-broad-{params.ref_genome_name}-v0-1000G_phase1.snps.high_confidence.vcf.gz \
        -resource:dbsnp,known=true,training=false,truth=false,prior=2.0 /lustre1/genomes/{params.ref_genome_name}/GATK_pypette/dbsnp_current.{params.ref_genome_name}.vcf.gz \
        -an QD -an MQ -an MQRankSum -an ReadPosRankSum -an FS -an SOR -an InbreedingCoeff \
