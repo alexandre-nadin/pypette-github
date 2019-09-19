@@ -22,7 +22,7 @@ rule samples__files:
     cmd   = f"""
       find -L {runs} -name '*.fastq.gz' > {output.file}
     """
-    exshell(**vars())
+    exshell(force=True, **vars())
 
 rule samples__map:
   """   
@@ -45,4 +45,4 @@ rule samples__map:
         pipeman.samples.listsToSamplesheet(
           sampleLines, 
           pipeman.sampleExtensions[wildcards.extension]))
-    exshell(**vars())
+    exshell(force=True, **vars())
