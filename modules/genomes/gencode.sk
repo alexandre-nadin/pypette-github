@@ -22,7 +22,7 @@ rule gencode__gtfToBed:
   input:
     gtf = "{someprefix}.gtf.gz"
   output:
-    bed = temp("{someprefix}.bed")
+    bed = pipeman.temp("{someprefix}.bed")
   run:
     cmd = """
       gunzip -c {input.gtf}                     \

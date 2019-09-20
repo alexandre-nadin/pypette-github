@@ -127,7 +127,7 @@ class SamplesManager(utils.manager.Manager):
       for col in self.data.columns 
       if col in fs.keywords() 
     ]
-
+    
     """ Set Query Dict """
     query_dict = {
       key: val
@@ -145,6 +145,7 @@ class SamplesManager(utils.manager.Manager):
     
     """ Query DataFrame """
     samples = self.query(query, selectedCols=required_cols)
+
     ret = [
       fs.formatPartialMap(
         keepMissingKeys=False,
@@ -197,7 +198,8 @@ class SamplesConfigManager(utils.configs.ConfigManagerTemplate):
     import pandas as pd
     data = pd.read_csv(
       file, 
-      delimiter= self.extensionsDelimiters[extensionOf(file).strip()])
+      delimiter= self.extensionsDelimiters[extensionOf(file).strip()],
+      dtype=str)
     if indexlowcase_cols:
       data.columns = map(str.lower, data.columns)
 

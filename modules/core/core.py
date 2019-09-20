@@ -1,10 +1,9 @@
 def core__subCmd(pipeline, project, target):
-  """ Returns a cpipe sub-command string to be executed """
+  """ Returns a pypette sub-command string to be executed """
   return f"""
-    pipe-{pipeline}       \
+    pypette-{pipeline}    \
       --project {project} \
-      --target {target}    \
-      --typexec staging
+      --target {target}
   """
 
 def core__smkCmd(target):

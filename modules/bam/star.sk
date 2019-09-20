@@ -2,28 +2,28 @@ include: "star.py"
 
 rule bam_star__alignReads:
   input: 
-    reads_1 = pipeman.input(fastq__read, sample_read="R1"),
-    reads_2 = pipeman.input(fastq__read, sample_read="R2")
+    r1 = pipeman.input(fastq__read, sample_read="R1"),
+    r2 = pipeman.input(fastq__read, sample_read="R2")
   output:
-    bam     = temp(bam__sample),
-    tab      = temp(f"{bam__mappingDir}/SJ.out.tab"),
-    tabgz    =      f"{bam__mappingDir}/SJ.out.tab.gz",
-    rawFile  = temp(f"{bam__mappingDir}/Aligned.sortedByCoord.out.bam"),
+    bam      = pipeman.temp(bam__sample),
+    tab      = pipeman.temp(f"{bam__mappingDir}/SJ.out.tab"),
+    tabgz    =  f"{bam__mappingDir}/SJ.out.tab.gz",
+    rawFile  = pipeman.temp(f"{bam__mappingDir}/Aligned.sortedByCoord.out.bam"),
     outFiles = [ 
       f"{bam__mappingDir}{ext}"
       for ext in [ 
         "/Log.out", "/Log.progress.out", "/Log.final.out",
       ]],
-    log       = f"{bam__samplePrefix}.log"
+    log      = f"{bam__samplePrefix}.log"
   run:
     star   = pipeman.config.pipeline.modules.mapping.aligner
     prefix = bam__mappingDir.format(**wildcards) + os.path.sep
-    reads  = star__readsToString(input.reads_1, input.reads_2)
-    starGnmIdx = genome__index()
+    reads  = star__readsToString(input.r1, input.r2)
+    gnmIdx = genome__index()
     cmd = """
      {star.command}                                         \
        --runThreadN {star.cores}                            \
-       --genomeDir {starGnmIdx}                             \
+       --genomeDir {gnmIdx}                                 \
        --readFilesIn {reads}                                \
        --outSAMstrandField intronMotif                      \
        --outFileNamePrefix {prefix}                         \

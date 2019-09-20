@@ -1,22 +1,14 @@
 include: "samples.py"
 
-rule samplenames:
+rule listSamples:
   """
   List all sample names.
   """
   run:
-    data = pipeman.input("{sample_name}")
-    print(f"Sample names:\n{data}")
+    data = pipeman.samples.map("{sample_name}")
+    print(f"{data}")
 
-rule samples:
-  """
-  List all samples.
-  """
-  run:
-    data = pipeman.input("{sample_name}")
-    print(pipeman.samples.data)
-
-localrules: samples, samplenames
+localrules: listSamples
 
 # -----------
 # Wildcards

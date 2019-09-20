@@ -1,14 +1,12 @@
 cluster:
   illuminaDir: "/illumina"
   adapterDir: "/lustre1/genomes/Illumina_Adapters"
+  sampleSheetDir: "/lustre1/SampleSheets"
+  stdAnalysisDir: "/lustre2/standard-analysis"
   sequencingRuns:
-    dir: "/lustre2/raw_data"
-    structured: 'Y'
-    projectTag: 'Project_'
-    sampleTag: 'Sample_'
+    rawDir: "/lustre2/raw_data"
     outDir: "sequencing-runs"
   genomeDir: "/lustre1/genomes"
   tmpdir: "/lustre2/scratch/tmp"
-  condactivate: True
   projects:
-    outDir: "project-analysis"
+    outDir: "projects"

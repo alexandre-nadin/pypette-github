@@ -2,18 +2,25 @@ import os
 import utils.configs, utils.samples
 from utils.manager import Manager
 from utils import environ
+from utils import regex_helper as rh
 from utils.files import extensionless
+from snakemake.io import temp
+import datetime
+from collections import OrderedDict
+from utils.strings import StringFormatter
 
 class PipelineManager(Manager):
   """ """
   # Expected tag for application's environment variables
-  VARENV_TAG = "_CPIPE_"
+  VARENV_TAG = "_PYPETTE_"
   VARENV_NAMES = ( 
-    'home', 'project', 'pipeName', 'pipeSnake', 
-    'execDir', 'workflowDir', 'clusterMntPoint', 'shellEnv',
+    'home', 'project', 'pipeName', 'pipeSnake', 'exeTime',
+    'exeDir', 'workdir', 'clusterMntPoint', 'keepFilesRegex',
   )
 
-  def __init__(self, namespace, name="Default", sampleBased=True):
+  TEMP_FILES = 'kept-temp-files.txt'
+
+  def __init__(self, namespace, name="Default"):
     super(PipelineManager, self).__init__()
     environ.setTaggedVarEnvsAttrs(self, tag=self.__class__.VARENV_TAG)
     self.checkVarenvAttrs()
@@ -22,16 +29,13 @@ class PipelineManager(Manager):
     self.pipelinesDir  = os.path.join(self.home, "pipelines")
     self.params        = []
     self.cleanables    = []
+    self.targets       = OrderedDict({})
     self.sampleManager = utils.samples.SamplesManager(self.pipeName, self.namespace)
     self.configManager = PipelineConfigManager(
                               config_prefix = self.pipeName, 
                               namespace     = self.namespace)
-    self.sampleBased   = sampleBased
     self.moduleDir     = ""
     self.updateNamespace()
- 
-    self.sampleBased   = True
-    self.deepStructure = True
 
     """ Required Config Files """
     self.configFiles    = ()
@@ -42,12 +46,15 @@ class PipelineManager(Manager):
     """ Set default working dir """
     self.setDefaultWorkingDir()
 
+    """ Set default jobs dir """
+    self.checkJobsDir()
+
   def checkVarenvAttrs(self):
     for varenv in self.__class__.VARENV_NAMES:
       self.checkVarenvAttr(varenv)
 
   def checkVarenvAttr(self, attr):
-      assert hasattr(self, attr), f"Environment variable '{attr}' not found."
+    assert hasattr(self, attr), f"Environment variable '{attr}' not found."
 
   @property
   def workflow(self):
@@ -84,7 +91,43 @@ class PipelineManager(Manager):
     Allows more clarity to Snakemake input definitions 
     """
     return lambda wildcards: self.samples.map(*args, **wildcards, **kwargs)
+  
+  # ----------------
+  # Temporary files
+  # ---------------- 
+  def temp(self, name):
+    if self.isFileToKeep(name):
+      self.updateTempFiles(name)
+      return name
+    else:
+      return temp(name)
     
+
+  def isFileToKeep(self, name):
+    if self.keepFilesRegex                              \
+    and rh.isRegexInList(self.keepFilesRegex, [name,]):
+      return True
+    else:
+      return False
+
+  def updateTempFiles(self, name):
+    self.touchTempFilesFile()
+    with open(self.tempFilesFile(), 'r+') as tempFiles:
+      for tempFile in tempFiles:
+        if name in tempFile:
+          break
+      else:
+        tempFiles.write(f"{name}\n")
+
+  def touchTempFilesFile(self):
+    open(self.tempFilesFile(), 'a').close()
+      
+  def tempFilesFile(self):
+    f = self.config.pipeline.tempFiles
+    if not f:
+      f = self.TEMP_FILES
+    return f
+
   # -----------------
   # Pipeline Config
   # -----------------
@@ -168,41 +211,64 @@ class PipelineManager(Manager):
 
   def defaultWorkingDir(self):
     return os.path.join(
-      self.workflowDir, 
+      self.config.cluster.stdAnalysisDir,
       self.config.pipeline.outDir,
       self.project)
 
   def setDefaultWorkingDir(self):
     if not self.hasCustomDir():
-      outDir = self.defaultWorkingDir()
-      os.makedirs(outDir, exist_ok=True)
-      os.chdir(outDir)
-    self.log.info(f"Working dir set to '{os.getcwd()}'")
+      if not self.workdir:
+        self.workdir = self.defaultWorkingDir()
+      os.makedirs(self.workdir, exist_ok=True)
+      os.chdir(self.workdir)
+    self.log.info(f"Working directory set to '{os.getcwd()}'")
 
   def hasCustomDir(self):
-    return self.workflow.workdir_init != self.execDir
-  
+    return self.workflow.workdir_init != self.exeDir
+ 
+  # ------------------
+  # Snakemake Scripts
+  # ------------------ 
+  def rscript(self, name):
+    """
+    Sources an R script, dealing with snakemake parameters.
+    """
+    # Set R Variables
+    if "R_LIBS" not in os.environ:
+      os.environ["R_LIBS"] = ""
+    os.environ["R_LIBS"] = os.pathsep.join([
+      os.environ["R_LIBS"], 
+      self.modulesDir]
+    ).strip(os.pathsep)
+
+    # Set Pipeline Variables for R scripts
+    os.environ["_PYPETTE_SCRIPT"] = os.path.join(self.modulesDir, name)
+    os.environ["_PYPETTE_MODULES"] = self.modulesDir
+    
+    return os.path.join(self.modulesDir, "core/script.R")
+
+   
   # ------------ 
   # Snakefiles
   # ------------    
   def include(self, name, outDir=True, asWorkflow=""):
     """
     Includes the given file allowing to reflect the workflow of processes in the ouput dir.
-    By default, sets the pipeline manager workflowDir to the module's basename if :outDir:.
-    Concatenates the module's basename to workflowDir if :asWorkflow: is set (default).
+    By default, sets the pipeline manager workdir to the module's basename if :outDir:.
+    Concatenates the module's basename to workdir if :asWorkflow: is set (default).
     Example:
       :name: module3/module3.sk
-      workflowDir = "module1/module2"
-      Sets workflowDir to "module1/module2/module3" with :outDir: True and :asWorkflow: True
-      Sets workflowDir to "module3" with :outDir: True and :asWorkflow: False.
-      Doesn't touch workflowDir if :outDir: False
+      workdir = "module1/module2"
+      Sets workdir to "module1/module2/module3" with :outDir: True and :asWorkflow: True
+      Sets workdir to "module3" with :outDir: True and :asWorkflow: False.
+      Doesn't touch workdir if :outDir: False
     """
 
-    """ Set workflowDir"""
+    """ Set workdir"""
     if outDir:
       basename = extensionless(os.path.basename(name))
       if asWorkflow:
-        self.workflowDir = os.path.join(self.workflowDir, asWorkflow)
+        self.workdir = os.path.join(self.workdir, asWorkflow)
       self.moduleDir = basename
 
     """ Include File """ 
@@ -234,6 +300,35 @@ class PipelineManager(Manager):
   # -----------------------
   def updateWildcardConstraints(self, **wildcards):
     self.workflow.global_wildcard_constraints(**wildcards);
+
+  # ------------------
+  # Fomatted Targets
+  # 
+  # This features allows to compose flexible formattable strings. 
+  # Each can contain keywords from previously defined strings. 
+  # All strings will can be later evaluated at once.
+  # String names are then defined in Snakemake namespace.
+  # ------------------
+  def addTargets(self, **kwargs):
+    """ Save the given strings and their associated values """
+    self.targets.update(kwargs)
+    self.formatTargets(**kwargs)
+
+  def formatTargets(self, **kwargs):
+    """ Format and declare the given target dict. """
+    for key, val in kwargs.items():
+      self.formatTarget(key, val)
+
+  def formatTarget(self, key, value):
+    kwVals = { key: self.namespace[key]  
+               for key in StringFormatter(value).keywords()
+             }
+    self.namespace[key] = value.format(**kwVals)
+
+  def formatAllTargets(self):
+    """ Formats all the saved targets """
+    self.formatTargets(self.targets)
+
 
   # ------------
   # Parameters
@@ -278,6 +373,32 @@ class PipelineManager(Manager):
     if toraise:
       raise
 
+  # -----
+  # Jobs
+  # -----
+  @property
+  def jobExeBase(self):
+    return f"{self.jobsExeDir}{os.path.sep}{self.jobExeTime()}_{self.config.pipeline.name}"
+
+  @property
+  def jobsExeDir(self):
+    return f"jobs{os.path.sep}{self.exeTime}"
+
+  def jobExeTime(self):
+    return datetime.datetime.now().strftime('%H%M%S-%f')
+
+  def checkJobsDir(self):
+    os.makedirs(self.jobsExeDir, exist_ok=True)
+
+  @property
+  def jobName(self):
+    """ 
+    Returns the default job name. 
+    Truncates the name to 13 chars as the old PBS jobs submission fails when 
+    the requested job name is over 13 characters.
+    """
+    return f"{self.config.pipeline.name}-pypette"[:12]
+
   # ---------------
   # Cleaning files
   # ---------------
@@ -318,15 +439,3 @@ class Pipeline():
   def __init__(self, path):
     self.path = path
     self.snakefile = None
-
-# ------
-# Shell
-# ------
-def lshell(command, allow_empty_lines=False):
-  """
-  Returns the output of a given shell command in an array.
-  Each element is an output line.
-  Filters empty strings by default.
-  """
-  out = subprocess.check_output(command, shell=True).decode().split(os.linesep)
-  return out if allow_empty_lines else [ _elem for _elem in out if _elem ] 

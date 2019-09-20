@@ -1,10 +1,20 @@
 import addict
 
-def rseqc__inferExperiment(file):
+def rseqc__inferExperiment(file, debug=False):
   """
   Reads an infer_experiment output file. 
   Deduces pair endedness and strandedness
   """
+  if debug:
+    return addict.Dict({
+      'isPairEnd'    : None,
+      'isStranded'   : None,
+      'strandedness' : None,
+      'fcStrand'     : None,
+      'readsFailed'  : None,
+      'readsHalf1'   : None,
+      'readsHalf2'   : None
+    })
 
   with open(file, 'r') as f:                       
     data = [ line.strip() for line in f.readlines() if line.strip() ]
