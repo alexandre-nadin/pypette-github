@@ -1,5 +1,6 @@
-biotypes__pipeTarget   = f"{bam__pipeTarget}biotypes"
-biotypes__sampleTarget = f"{biotypes__pipeTarget}/{{sample_name}}"
+pipeman.addTargets(
+  biotypes__pipeTarget   = "{bam__pipeTarget}biotypes",
+  biotypes__sampleTarget = "{biotypes__pipeTarget}/{{sample_name}}" )
 
 """ Assesses and plots biotypes distributions """
 rule biotypes:

@@ -7,14 +7,14 @@ def runs__projectPaths(prj):
     for run in runs__paths()
   ]
 
-def runs__paths(check_runs=True):
+def runs__paths(check_runs=False):
   """
   Retrieves the runs' directory.
   Checks their existence is 'check_runs' (default).
   """
   runs_dirs = [ 
     runs__path(runid)
-    for runid in pipeman.config.project.run_ids
+    for runid in pipeman.config.project.runIds
   ] 
   if check_runs:
     runs__checkRuns(runs_dirs)
@@ -46,7 +46,7 @@ def runs__runFromFilepath(filepath):
   """ 
   Retrieves a Run id from a file containing paths. 
   """
-  for run in pipeman.config.project.run_ids:
+  for run in pipeman.config.project.runIds:
     run_path = runs__path(run)
     if filepath.startswith(run_path):
       return run

@@ -1,5 +1,6 @@
 pipeman.includeModule('config/project.py')
-seqrun__projectQcTarget = "{prj}/multiqc_report.html"
+seqrun__projectQcTarget          = "{prj}/multiqc_report.html"
+seqrun__projectSamplesMetaTarget = "{prj}/samples.csv"
 
 def seqrun__projectsQc():
   """ Returns the seqrun's projects QC targets """
@@ -12,7 +13,7 @@ def seqrun__projectQcPath(prj): # TODO: move to qc_seqrun?
   return os.path.join(
     project__dir(prj),
     project__pipelineQcTarget(
-      seqrun__projectPipeline(prj),
+      seqrun__projectPipelineDft(prj),
       formatted=True)
   )
 
@@ -20,27 +21,17 @@ def seqrun__projectQcPath(prj): # TODO: move to qc_seqrun?
 # Project pipeline information
 # ------------------------------
 def seqrun__projectPipeline(prj):
-  """ Deduces a project's pipeline """
-  for pipeline in pipeman.pipelines:
-    if pipeline.lower() in seqrun__projectTitlesFmt(prj):
-      return pipeline
-  return None
+  """ Returns a project's pipeline if it exists in pypette """
+  pipeline = pipeman.config.run.projects[prj].pipeline
+  if pipeline and pipeline.lower() in map(str.lower, pipeman.pipelines):
+    return pipeline
+  else:
+    return None
 
-def seqrun__projectTitlesFmt(prj):
-  """ Formats all of a project's possible titles. 
-  Todo: Remove when project information will be flawlessly set on our LIMS
-  """
-  return [ 
-    title.lower().replace('_', '').replace(' ', '')
-    for title in seqrun__projectTitles(prj)
-  ]
-
-def seqrun__projectTitles(prj):
-  """ Gets all of a project's possible titles.
-  TODO: Remove when project information will be flawlessly set on our LIMS
-  """
-  data = pipeman.config.run.projects[prj]
-  return list(set([
-      data.type, 
-      data.pipeline, 
-      *data.quotationTitles]))
+def seqrun__projectPipelineDft(prj):
+  """ Infers a default pipeline if none recognized from project configuration """
+  pipeline = seqrun__projectPipeline(prj)
+  if pipeline and pipeman.config.run.projects[prj].genome:
+    return pipeline
+  else:
+    return 'fastqc'

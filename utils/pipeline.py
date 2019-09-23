@@ -6,11 +6,13 @@ from utils import regex_helper as rh
 from utils.files import extensionless
 from snakemake.io import temp
 import datetime
+from collections import OrderedDict
+from utils.strings import StringFormatter
 
 class PipelineManager(Manager):
   """ """
   # Expected tag for application's environment variables
-  VARENV_TAG = "_CPIPE_"
+  VARENV_TAG = "_PYPETTE_"
   VARENV_NAMES = ( 
     'home', 'project', 'pipeName', 'pipeSnake', 'exeTime',
     'exeDir', 'workdir', 'clusterMntPoint', 'keepFilesRegex',
@@ -27,6 +29,7 @@ class PipelineManager(Manager):
     self.pipelinesDir  = os.path.join(self.home, "pipelines")
     self.params        = []
     self.cleanables    = []
+    self.targets       = OrderedDict({})
     self.sampleManager = utils.samples.SamplesManager(self.pipeName, self.namespace)
     self.configManager = PipelineConfigManager(
                               config_prefix = self.pipeName, 
@@ -222,7 +225,29 @@ class PipelineManager(Manager):
 
   def hasCustomDir(self):
     return self.workflow.workdir_init != self.exeDir
-  
+ 
+  # ------------------
+  # Snakemake Scripts
+  # ------------------ 
+  def rscript(self, name):
+    """
+    Sources an R script, dealing with snakemake parameters.
+    """
+    # Set R Variables
+    if "R_LIBS" not in os.environ:
+      os.environ["R_LIBS"] = ""
+    os.environ["R_LIBS"] = os.pathsep.join([
+      os.environ["R_LIBS"], 
+      self.modulesDir]
+    ).strip(os.pathsep)
+
+    # Set Pipeline Variables for R scripts
+    os.environ["_PYPETTE_SCRIPT"] = os.path.join(self.modulesDir, name)
+    os.environ["_PYPETTE_MODULES"] = self.modulesDir
+    
+    return os.path.join(self.modulesDir, "core/script.R")
+
+   
   # ------------ 
   # Snakefiles
   # ------------    
@@ -275,6 +300,35 @@ class PipelineManager(Manager):
   # -----------------------
   def updateWildcardConstraints(self, **wildcards):
     self.workflow.global_wildcard_constraints(**wildcards);
+
+  # ------------------
+  # Fomatted Targets
+  # 
+  # This features allows to compose flexible formattable strings. 
+  # Each can contain keywords from previously defined strings. 
+  # All strings will can be later evaluated at once.
+  # String names are then defined in Snakemake namespace.
+  # ------------------
+  def addTargets(self, **kwargs):
+    """ Save the given strings and their associated values """
+    self.targets.update(kwargs)
+    self.formatTargets(**kwargs)
+
+  def formatTargets(self, **kwargs):
+    """ Format and declare the given target dict. """
+    for key, val in kwargs.items():
+      self.formatTarget(key, val)
+
+  def formatTarget(self, key, value):
+    kwVals = { key: self.namespace[key]  
+               for key in StringFormatter(value).keywords()
+             }
+    self.namespace[key] = value.format(**kwVals)
+
+  def formatAllTargets(self):
+    """ Formats all the saved targets """
+    self.formatTargets(self.targets)
+
 
   # ------------
   # Parameters
@@ -385,15 +439,3 @@ class Pipeline():
   def __init__(self, path):
     self.path = path
     self.snakefile = None
-
-# ------
-# Shell
-# ------
-def lshell(command, allow_empty_lines=False):
-  """
-  Returns the output of a given shell command in an array.
-  Each element is an output line.
-  Filters empty strings by default.
-  """
-  out = subprocess.check_output(command, shell=True).decode().split(os.linesep)
-  return out if allow_empty_lines else [ _elem for _elem in out if _elem ] 

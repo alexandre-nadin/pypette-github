@@ -11,11 +11,11 @@ rule project__config:
   output: 
     file = project__config
   run:
-    cmd = """
+    cmd = f"""
       curl                                         \
         "{config_lims__URL_PRJ}/{pipeman.project}.json" \
        > {output.file}
     """
-    shell(cmd)
+    exshell(force=True, **vars())
 
 localrules: project__config

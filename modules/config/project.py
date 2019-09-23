@@ -17,11 +17,6 @@ def project__dirFmt():
     project__projectsDir(), 
     "{prj}")
 
-def project__qcPathFmt():
-  return os.path.join(
-    project__dirFmt(),
-    "{prefix}multiqc_report.html")
-
 def project__dir(prj):
   return project__dirFmt().format(prj=prj)
 
@@ -31,8 +26,9 @@ def project__samplesMetaPath(prj):
     project__dir(prj), 
     project__samplesTarget)
 
-def project__pipelineQcTarget(pipeline, formatted=False):
-  pipeman.includeModule(f"qc/qc_{pipeline}.py")
+def project__pipelineQcTarget(pipeline, formatted=False, **kwargs):
+  """ Includes the correct QC target for the given pipeline's module. """
+  pipeman.includeModule(f"qc/{pipeline}.py")
   target = qc__multiqcStd
   if formatted:
     target = target.format(sample_run=pipeman.project)

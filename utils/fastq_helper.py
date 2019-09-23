@@ -42,9 +42,14 @@ class FastqFile(object):
     ]) + f"({regex_fields['sample_extension']})"
 
   def __init__(self, filename, run_name=""):
+    self.filename = filename
     self.sample_path = os.path.abspath(filename).strip()
     self.sample_basename = os.path.basename(self.sample_path)
-   
+    self.sample_run = run_name 
+    self.isValid = True 
+    self.setFields()
+
+  def setFields(self):
     try:
       (
         self.sample_name, 
@@ -57,12 +62,12 @@ class FastqFile(object):
             self.fields_regex_str, 
             self.sample_basename
           ).groups()
+      self.sample_chunkname = self.sample_basename.rstrip(self.sample_extension)
+      self.isValid = True
     except AttributeError as ae:
-      sys.stderr.write(f"File {filename} doesn't seem to follow Illumina's fastq naming convention.\n")
-
-    self.sample_chunkname = self.sample_basename.rstrip(self.sample_extension)
-    self.sample_run = run_name 
-
+      sys.stderr.write(f"File {self.filename} doesn't seem to follow Illumina's fastq naming convention.\n")
+      self.isValid = False
+    
   @classmethod
   def fieldNames(cls):
     return list(cls.regex_fields.keys())
