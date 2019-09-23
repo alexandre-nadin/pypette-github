@@ -3,7 +3,7 @@ def core__subCmd(pipeline, project, target):
   return f"""
     pypette-{pipeline}    \
       --project {project} \
-      --target {target}
+      --target {target} 
   """
 
 def core__smkCmd(target):

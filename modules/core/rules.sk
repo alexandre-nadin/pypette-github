@@ -98,12 +98,12 @@ def config__logCommands():
 def config__isDebugMode():
   return config__valueOf('debug')
 
-def logCmdTemplate():
+def logCmdTemplate(logFile):
   return """
       cat << eol                        \
         | sed -s 's|^ [[:blank:]]*||g'  \
         | sed -s 's| [[:blank:]]*$| |g' \
-        > {output[0]}.info
+        > {logFile}
 
         INPUT:
         $(echo {input} | tr ' ' '\n')
@@ -121,7 +121,7 @@ eol
       :
   """
 
-def writeCmdLog(cmd=None, **kwargs):
+def writeCmdLog(cmd=None, logFile=None, **kwargs):
   if not kwargs['output']:
     kwargs['output'].append(kwargs['rule'])
 
@@ -133,7 +133,7 @@ def writeCmdLog(cmd=None, **kwargs):
 
   from utils.strings import StringFormatter
   logCmd = (
-    StringFormatter(logCmdTemplate())
+    StringFormatter(logCmdTemplate(logFile))
       .formatPartialMap(keepMissingKeys=True, **kwargs))
 
   """ Keep sample's column names keywords if not specified """
@@ -145,7 +145,7 @@ def writeCmdLog(cmd=None, **kwargs):
 
   shell(logCmd, **kwargs)
 
-def exshell(cmd='', isSubCmd=False, **kwargs):
+def exshell(cmd='', isSubCmd=False, force=False, **kwargs):
   """
   Formats the given command.
   Prepands the system's conda activation if specified in configuration.
@@ -153,13 +153,21 @@ def exshell(cmd='', isSubCmd=False, **kwargs):
   Executes the command if debug mode not set in configuration.
   """
 
+  cmd = f"""
+    condactivate pypette-{pipeman.pipeName};
+    {cmd}
+  """
+   
+  outputs = kwargs['output']
+  logFile = f"{outputs[0]}.info"
+
   """ Print target's log """
   if config__valueOf('logCommands'):
-    writeCmdLog(cmd, **kwargs)
+    writeCmdLog(cmd, logFile=logFile, **kwargs)
 
   """ Debug mode """
-  if config__valueOf('debug') and not isSubCmd:
-    touch(kwargs['output'])
+  if config__valueOf('debug') and not force:
+    touch(outputs)
   else:
     shell(cmd, **kwargs) 
 
