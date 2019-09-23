@@ -26,7 +26,8 @@ def project__samplesMetaPath(prj):
     project__dir(prj), 
     project__samplesTarget)
 
-def project__pipelineQcTarget(pipeline, formatted=False):
+def project__pipelineQcTarget(pipeline, formatted=False, **kwargs):
+  """ Includes the correct QC target for the given pipeline's module. """
   pipeman.includeModule(f"qc/{pipeline}.py")
   target = qc__multiqcStd
   if formatted:

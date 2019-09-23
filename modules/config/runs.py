@@ -7,7 +7,7 @@ def runs__projectPaths(prj):
     for run in runs__paths()
   ]
 
-def runs__paths(check_runs=True):
+def runs__paths(check_runs=False):
   """
   Retrieves the runs' directory.
   Checks their existence is 'check_runs' (default).
