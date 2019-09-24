@@ -12,7 +12,7 @@ dge__enrichedSampleTarget = f"{dge__enrichTarget}/{{sample_name}}"
 rule dge__plots:
   input: 
     metadata    = "samples/metadata.tsv",
-    counts      = f"{bam__sampleTarget}.mergedCounts.gz"
+    counts      = f"{bam__pipeTarget}featureCounts/{{sample_name}}.mergedCounts.gz"
   output:
     distEstims  = f"{dge__plotSampleTarget}.distEstimsPlot.png",
     maPlot      = f"{dge__plotSampleTarget}.maPlot.pdf",
@@ -28,7 +28,7 @@ rule dge__plots:
 rule dge__enrichR:
   input: 
     metadata    = "samples/metadata.tsv",
-    counts      = f"{bam__sampleTarget}.mergedCounts.gz"
+    counts      = f"{bam__pipeTarget}featureCounts/{{sample_name}}.mergedCounts.gz"
   output:
     dir = directory(f"{dge__enrichTarget}")
   params:
