@@ -1,4 +1,5 @@
 library("DESeq2")
+suppressMessages(library("edgeR"))
 
 # ---------------
 # FeatureCounts
@@ -18,7 +19,7 @@ dds <- DESeqDataSetFromMatrix(
 
 row.names(dds) <- rowData(dds)$fCountsData
 
-filter <- rowSums(counts(dds) >= smkp$dge$minCounts) >= smkp$dge$minSamples
+filter <- rowSums(cpm(counts(dds)) >= smkp$dge$minCounts) >= smkp$dge$minSamples
 ddsFiltered <- dds[filter,]
 
 ddsFiltered$condition <- relevel(
