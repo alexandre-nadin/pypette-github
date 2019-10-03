@@ -57,30 +57,36 @@ rule vcf__merge_BaseRecalibrator:
     ref_genome_name = pipeman.config.project.genome.name
   run:
     if pipeman.config.project.genome.name == "hs37d5":
-      params.ref_genome_name = "hg19"
+      params.ref_genome_name = "b37"
+      mygenome_name = "b37"
     cmd = f"""
+      echo -e {params.ref_genome_name}
+      echo -e {mygenome_name}
       gatk \
        -T VariantRecalibrator \
        -R {input.ref_genome_fa} \
        -input {input.vcf} \
-       -resource:hapmap,known=false,training=true,truth=true,prior=15.0 /lustre1/genomes/{params.ref_genome_name}/GATK_pypette/hapmap_3.3.{params.ref_genome_name}.sites.vcf.gz \
-       -resource:omni,known=false,training=true,truth=false,prior=12.0 /lustre1/genomes/{params.ref_genome_name}/GATK_pypette/1000G_omni2.5.{params.ref_genome_name}.sites.vcf.gz \
-       -resource:1000G,known=false,training=true,truth=false,prior=10.0 /lustre1/genomes/{params.ref_genome_name}/GATK_pypette/resources-broad-{params.ref_genome_name}-v0-1000G_phase1.snps.high_confidence.vcf.gz \
-       -resource:dbsnp,known=true,training=false,truth=false,prior=2.0 /lustre1/genomes/{params.ref_genome_name}/GATK_pypette/dbsnp_current.{params.ref_genome_name}.vcf.gz \
+       -resource:hapmap,known=false,training=true,truth=true,prior=15.0 /lustre1/genomes/{mygenome_name}/GATK_pypette/hapmap_3.3.{mygenome_name}.sites.vcf.gz \
+       -resource:omni,known=false,training=true,truth=true,prior=12.0 /lustre1/genomes/{mygenome_name}/GATK_pypette/1000G_omni2.5.{mygenome_name}.sites.vcf.gz \
+       -resource:1000G,known=false,training=true,truth=false,prior=10.0 /lustre1/genomes/{mygenome_name}/GATK_pypette/resources-broad-{mygenome_name}-v0-1000G_phase1.snps.high_confidence.vcf.gz \
+       -resource:dbsnp,known=true,training=false,truth=false,prior=2.0 /lustre1/genomes/{mygenome_name}/GATK_pypette/dbsnp_current.{mygenome_name}.vcf.gz \
+       -an DP -an QD -an FS -an SOR -an MQ -an MQRankSum -an ReadPosRankSum -an InbreedingCoeff \
        -mode SNP \
-       --maxGaussians 4 \
+       -tranche 100.0 -tranche 99.9 -tranche 99.0 -tranche 90.0 \
+       --maxGaussians 3 \
        -recalFile {output.recal} \
        -tranchesFile {output.tranches} \
        -rscriptFile {output.rscript}
-    gatk \
-       -T ApplyRecalibration \
-       -R {input.ref_genome_fa} \
-       -I {input.vcf} \
-       --ts_filter_level 99.0 \
-       -tranchesFile {output.tranches} \
-       -recalFile {output.recal} \
-       -mode SNP \
-       -o {output.vcf}
+#    gatk \
+#       -T ApplyRecalibration \
+#       -R {input.ref_genome_fa} \
+#       -I {input.vcf} \
+#       --ts_filter_level 99.0 \
+#       -tranchesFile {output.tranches} \
+#       -recalFile {output.recal} \
+#       -mode SNP \
+#       -o {output.vcf}
+    touch {output.vcf}
     """
     exshell(**vars())
 
@@ -154,7 +160,8 @@ rule varcall__annotate_gatk:
 #  run:
 #    annotation_dir = genome__annotationDir() + "_pypette"
 #    if pipeman.config.project.genome.name == "hs37d5":
-#      params.ref_genome_name = "hg19"
+#      params.ref_genome_name = "b37"
+#      mygenome_name = "b37"
 #    cmd = f"""
 #      gatk \
 #       -T VariantAnnotator \
@@ -183,7 +190,8 @@ rule vcf__sample_BaseRecalibrator:
     ref_genome_name = pipeman.config.project.genome.name
   run:
     if pipeman.config.project.genome.name == "hs37d5":
-      params.ref_genome_name = "hg19"
+      params.ref_genome_name = "b37"
+      mygenome_name = "b37"
     cmd = f"""
       gatk \
        -T VariantRecalibrator \
