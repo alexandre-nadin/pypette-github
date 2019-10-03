@@ -67,7 +67,7 @@ rule vcf__merge_BaseRecalibrator:
        -resource:omni,known=false,training=true,truth=true,prior=12.0 /lustre1/genomes/{params.ref_genome_name}/GATK_pypette/1000G_omni2.5.{mygenome_name}.sites.vcf.gz \
        -resource:1000G,known=false,training=true,truth=false,prior=10.0 /lustre1/genomes/{params.ref_genome_name}/GATK_pypette/resources-broad-{mygenome_name}-v0-1000G_phase1.snps.high_confidence.vcf.gz \
        -resource:dbsnp,known=true,training=false,truth=false,prior=2.0 /lustre1/genomes/{params.ref_genome_name}/GATK_pypette/dbsnp_current.{mygenome_name}.vcf.gz \
-       -an DP -an QD -an FS -an SOR -an MQ -an MQRankSum -an ReadPosRankSum -an InbreedingCoeff \
+       -an DP -an QD -an FS -an SOR -an MQ -an MQRankSum -an ReadPosRankSum \
        -mode SNP \
        -tranche 100.0 -tranche 99.9 -tranche 99.0 -tranche 90.0 \
        --maxGaussians 3 \
