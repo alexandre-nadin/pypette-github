@@ -11,7 +11,9 @@ dir.create(smkout$contrasts, showWarnings=TRUE, recursive=TRUE)
 lapply(
   names(dgeResults),
   function(x) write.table(
-    dgeResults[[x]],
+    data.table(
+      data.frame(dgeResults[[x]]),
+      keep.rownames=geneidColname),
     file.path(smkout$contrasts, paste(x, ".csv", sep="")), 
     append=F,
     row.names=F,
