@@ -77,7 +77,7 @@ rule vcf__merge_BaseRecalibrator:
     gatk \
        -T ApplyRecalibration \
        -R {input.ref_genome_fa} \
-       -I {input.vcf} \
+       -input {input.vcf} \
        --ts_filter_level 99.0 \
        -tranchesFile {output.tranches} \
        -recalFile {output.recal} \
@@ -204,7 +204,7 @@ rule vcf__sample_BaseRecalibrator:
     gatk \
        -T ApplyRecalibration \
        -R {input.ref_genome_fa} \
-       -I {input.vcf} \
+       -input {input.vcf} \
        --ts_filter_level 99.0 \
        -tranchesFile {output.tranches} \
        -recalFile {output.recal} \
