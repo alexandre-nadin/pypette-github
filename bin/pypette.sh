@@ -1,8 +1,12 @@
 # bash
 
-SCRIPT_PATH=$(readlink -f "$0")
+function pypette::fullPath() {
+  readlink -f "$1"
+}
+
+SCRIPT_PATH=$(pypette::fullPath "$0")
 SCRIPT_DIR=$(dirname "${SCRIPT_PATH}")
-EXE_DIR="$(readlink -f $(pwd))"
+EXE_DIR="$(pypette::fullPath $(pwd))"
 VARENVS_TAG="_PYPETTE_"
 
 # ---------
@@ -34,7 +38,7 @@ function pypette::cmdName() {
 }
 
 function pypette::cmdPath() {
-  readlink -f $(pypette::lastSource)
+  pypette::fullPath $(pypette::lastSource)
 }
 
 function pypette::cmdDir() {
@@ -45,7 +49,7 @@ function pypette::cmdDir() {
 # Paths
 # -------
 function pypette::homeDir() {
-  readlink -f "$(pypette::cmdDir)/.."
+  pypette::fullPath "$(pypette::cmdDir)/.."
 }
 
 function pypette::pathPipelines() {
@@ -214,7 +218,7 @@ function pypette::parseParams() {
           ;;
 
         -o|--outdir)
-          WORKDIR=$(readlink -f "$2") && shift
+          WORKDIR=$(pypette::fullPath "$2") && shift
           ;;
              
         -k|--keep-files-regex)
