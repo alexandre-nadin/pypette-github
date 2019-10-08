@@ -179,7 +179,7 @@ function pypette::initParams() {
   SNAKE_OPTIONS=()
   VERBOSE=false
   CLUSTER_MNT_POINT=${CLUSTER_MNT_POINT:-""}
-  WORKDIR="" #${WORKDIR:-${EXE_DIR}}
+  WORKDIR="$(pwd)"
   KEEP_FILES_REGEX=""
   CONDA_ENV=""
 }

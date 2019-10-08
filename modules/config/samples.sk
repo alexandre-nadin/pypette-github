@@ -13,13 +13,13 @@ rule samples__files:
   configuration.
   """
   input:
-    confs = config__files,
-    prj   = project__config
+    confs   = config__files,
+    project = project__config
   output: 
-    file  = samples__files
+    file    = samples__files
   run:
-    runs  = " ".join(runs__projectPaths(pipeman.project))
-    cmd   = f"""
+    runs    = " ".join(runs__projectPaths(pipeman.project))
+    cmd     = f"""
       find -L {runs} -name '*.fastq.gz' > {output.file}
     """
     exshell(force=True, **vars())
