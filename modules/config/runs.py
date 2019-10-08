@@ -1,9 +1,9 @@
-def runs__projectPaths(prj):
+def runs__projectPaths(project):
   """
   Gets each project run path.
   """
   return [ 
-    os.path.join(run, f"{prj}" )
+    os.path.join(run, f"{project}" )
     for run in runs__paths()
   ]
 

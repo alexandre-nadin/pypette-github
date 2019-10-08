@@ -1,5 +1,5 @@
 pipeman.updateWildcardConstraints(
-  prj = "\w+"
+  project = "\w+"
 )
 
 rule seqrun__qc:
@@ -24,13 +24,14 @@ rule seqrun__projectQC:
   output:
     qc = seqrun__projectQcTarget,
   run:
-    pipeline = seqrun__projectPipelineDft(wildcards.prj)
+    pipeline = seqrun__projectPipelineDft(wildcards.project)
     target = project__pipelineQcTarget(pipeline, formatted=True, **wildcards)
-    targetPath = seqrun__projectQcPath(wildcards.prj)
+    targetPath = seqrun__projectQcPath(wildcards.project)
     cmd = core__subCmd(
       pipeline=pipeline,
-      project=wildcards.prj,
-      target=target)
+      project=wildcards.project,
+      target=target,
+      outDir=project__dir(wildcards.project))
     ## Note: Here I don't have another rule for linking the file, 
     #  else the subpipeline info output will overrid the linking
     #  rule's.
@@ -44,12 +45,14 @@ rule seqrun__projectSamplesMeta:
     prjSamplesMetaTarget = seqrun__projectSamplesMetaTarget,
     prjSamplesMetaPath = project__samplesTargetPath() 
   run:
-    pipeline = seqrun__projectPipelineDft(wildcards.prj)
+    pipeline = seqrun__projectPipelineDft(wildcards.project)
     target   = project__samplesTarget
     cmd = core__subCmd(
       pipeline=pipeline,
-      project=wildcards.prj,
-      target=target)
+
+      project=wildcards.project,
+      target=target,
+      outDir=project__dir(wildcards.project))
     ## Note: Here I don't have another rule for linking the file, 
     #  else the subpipeline info output will overrid the linking
     #  rule's.
