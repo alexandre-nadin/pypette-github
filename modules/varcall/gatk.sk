@@ -178,7 +178,7 @@ rule vcf__sample_BaseRecalibrator:
   output:
     recal     = pipeman.temp(f"{vcf__sampleTarget}.ga.recal"),
     tranches  = pipeman.temp(f"{vcf__sampleTarget}.ga.tranches"),
-    rscript   = f"{vcf__sampleTarget}.ga.plots.R",
+    rscript   = pipeman.temp(f"{vcf__sampleTarget}.ga.plots.R"),
     vcf       = f"{vcf__sampleTarget}.ga.recal.g.vcf.gz"
   params:
     ref_genome_dir = genome__dir(),
@@ -213,3 +213,43 @@ rule vcf__sample_BaseRecalibrator:
     """
     exshell(**vars())
 
+rule vcf__sample_IndelRecalibrator:
+  input:
+    vcf = f"{vcf__sampleTarget}.ga.recal.g.vcf.gz",
+    ref_genome_fa = lambda x: genome__fasta()
+  output:
+    recal     = pipeman.temp(f"{vcf__sampleTarget}.ga.indel.recal"),
+    tranches  = pipeman.temp(f"{vcf__sampleTarget}.ga.indel.tranches"),
+    rscript   = pipeman.temp(f"{vcf__sampleTarget}.ga.indel.plots.R"),
+    vcf       = f"{vcf__sampleTarget}.ga.recal.indel.g.vcf.gz"
+  params:
+    ref_genome_dir = genome__dir(),
+    ref_genome_name = pipeman.config.project.genome.name
+  run:
+    if pipeman.config.project.genome.name == "hs37d5":
+      mygenome_name = "b37"
+    cmd = f"""
+      gatk \
+       -T VariantRecalibrator \
+       -R {input.ref_genome_fa} \
+       -input {input.vcf} \
+       -maxGaussians 4 \
+       -resource:mills,known=false,training=true,truth=true,prior=12.0 /lustre1/genomes/{params.ref_genome_name}/GATK_pypette/Mills_and_1000G_gold_standard.indels.{mygenome_name}.vcf.gz \
+       -resource:dbsnp,known=true,training=false,truth=false,prior=2.0 /lustre1/genomes/{params.ref_genome_name}/GATK_pypette/dbsnp_current.{mygenome_name}.vcf.gz \
+       -an DP -an QD -an FS -an SOR -an MQRankSum -an ReadPosRankSum \
+       -mode INDEL \
+       -tranche 100.0 -tranche 99.9 -tranche 99.0 -tranche 90.0 \
+       -recalFile {output.recal} \
+       -tranchesFile {output.tranches} \
+       -rscriptFile {output.rscript}
+    gatk \
+       -T ApplyRecalibration \
+       -R {input.ref_genome_fa} \
+       -input {input.vcf} \
+       --ts_filter_level 99.0 \
+       -tranchesFile {output.tranches} \
+       -recalFile {output.recal} \
+       -mode INDEL \
+       -o {output.vcf}
+    """
+    exshell(**vars())
