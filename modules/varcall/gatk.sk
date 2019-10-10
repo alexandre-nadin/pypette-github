@@ -129,7 +129,7 @@ rule vcf__merge_IndelRecalibrator:
 
 rule varcall__annotate_gatk_merge:
   input:
-    vcf = f"{vcf__sampleTarget}.ga.merged.recal.vcf.gz",
+    vcf = f"{vcf__sampleTarget}.ga.merged.indel.recal.vcf.gz",
     ref_genome_fa = lambda x: genome__fasta()
   output:
     vcf = f"{vcf__sampleTarget}.ga.merged.recal.annotate.vcf.gz"
