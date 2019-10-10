@@ -106,7 +106,7 @@ rule vcf__merge_IndelRecalibrator:
        -T VariantRecalibrator \
        -R {input.ref_genome_fa} \
        -input {input.vcf} \
-       -maxGaussians 4 \
+       --maxGaussians 4 \
        -resource:mills,known=false,training=true,truth=true,prior=12.0 /lustre1/genomes/{params.ref_genome_name}/GATK_pypette/Mills_and_1000G_gold_standard.indels.{mygenome_name}.vcf.gz \
        -resource:dbsnp,known=true,training=false,truth=false,prior=2.0 /lustre1/genomes/{params.ref_genome_name}/GATK_pypette/dbsnp_current.{mygenome_name}.vcf.gz \
        -an DP -an QD -an FS -an SOR -an MQRankSum -an ReadPosRankSum \
