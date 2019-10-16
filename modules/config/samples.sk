@@ -20,7 +20,7 @@ rule samples__files:
   run:
     runs    = " ".join(runs__projectPaths(pipeman.project))
     cmd     = f"""
-      find -L {runs} -name '*.fastq.gz' > {output.file}
+      find -L {runs} -maxdepth 2 -name '*.fastq.gz' > {output.file}
     """
     exshell(force=True, **vars())
 
