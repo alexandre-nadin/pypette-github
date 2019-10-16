@@ -14,8 +14,7 @@ rule fastq_merging__mergeReads:
   Merges sample reads filtered by the given wildcards.
   """
   input:
-    reads = 
-      pipeman.input(fastq__chunk)
+    reads = pipeman.input(fastq__chunk)
   output:
     read  = pipeman.temp(fastq_merge__read)
   run:
