@@ -31,6 +31,9 @@ def genome__annotationDir():
 
 def genome__formatSpecies(func):
   def wrapper(*args, **kwargs):
-    return func(*args, **kwargs).format(
-      species = pipeman.config.species[pipeman.config.project.species])
+    try:
+      return func(*args, **kwargs).format(
+        species = pipeman.config.species[pipeman.config.project.species])
+    except:
+      pipeman.log.error("Missing species in configuration.")
   return wrapper
