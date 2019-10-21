@@ -5,19 +5,18 @@ rule bam_star__alignReads:
     r1 = pipeman.input(fastq__read, sample_read="R1"),
     r2 = pipeman.input(fastq__read, sample_read="R2")
   output:
-    bam      = pipeman.temp(bam__sample),
-    tab      = pipeman.temp(f"{bam__mappingDir}/SJ.out.tab"),
-    tabgz    =  f"{bam__mappingDir}/SJ.out.tab.gz",
-    rawFile  = pipeman.temp(f"{bam__mappingDir}/Aligned.sortedByCoord.out.bam"),
+    bam      = pipeman.temp(f"{bam__sample}"),
+    tab      = pipeman.temp(f"{bam_mapper__pipeTarget}/SJ.out.tab"),
+    tabgz    = f"{bam_mapper__pipeTarget}/SJ.out.tab.gz",
+    bamRaw   = pipeman.temp(f"{bam_mapper__pipeTarget}/Aligned.sortedByCoord.out.bam"),
     outFiles = [ 
-      f"{bam__mappingDir}{ext}"
-      for ext in [ 
-        "/Log.out", "/Log.progress.out", "/Log.final.out",
-      ]],
-    log      = f"{bam__samplePrefix}.log"
+               f"{bam_mapper__pipeTarget}/Log.out",
+               f"{bam_mapper__pipeTarget}/Log.progress.out",
+               f"{bam_mapper__pipeTarget}/Log.final.out" ],
+    log      = f"{bam_mapper__sampleTarget}.log"
   run:
     star   = pipeman.config.pipeline.modules.mapping.aligner
-    prefix = bam__mappingDir.format(**wildcards) + os.path.sep
+    prefix = bam_mapper__pipeTarget.format(**wildcards)
     reads  = star__readsToString(input.r1, input.r2)
     gnmIdx = genome__index()
     cmd = """
@@ -33,7 +32,7 @@ rule bam_star__alignReads:
        --readFilesCommand zcat                              \
       > {output.log}
   
-     ln {output.rawFile} {output.bam}
+     ln {output.bamRaw} {output.bam}
      gzip -c {output.tab} > {output.tabgz}
     """
     exshell(**vars())
