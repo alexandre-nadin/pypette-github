@@ -16,12 +16,13 @@ lockedFiles=( ${_dir}/{,.gitignore} )
 
 ## Unlock directory
 chmod -R 755 ${lockedFiles[@]}
+git checkout -- ${lockedFiles[@]}
 
 ## Update Repo
 git fetch --all
-printf "Current branch: '${branch}'\n" >&2
+printf "Current branch: '${branchCurrent}'\n" >&2
 printf "Hard reset from: '${branchOrigin}'\n" >&2
-git reset --hard origin/${branch}
+git reset --hard ${branchOrigin}
 
 ## Lock directory
 chmod -R 555 ${lockedFiles[@]}
