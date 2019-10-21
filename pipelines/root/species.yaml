@@ -1,0 +1,25 @@
+species:
+  mouse:
+    name: "mouse"
+    ensemblName: "mmusculus"
+    genome:
+      assembly:
+        name: "GRCm38" 
+        build: "38"
+        patch: ""
+        release: "M22"
+        ucscRef: "mm10"
+      annotation:
+        type: "basic"
+  human:
+    name: "human"
+    ensemblName: "hsapiens"
+    genome:
+      assembly:
+        name: "GRCh38" 
+        build: "38"
+        patch: ""
+        release: "31"
+        ucscRef: "hg38"
+      annotation:
+        type: "basic"
