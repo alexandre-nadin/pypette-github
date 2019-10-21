@@ -9,10 +9,10 @@ set -euo pipefail
 #
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 script=$(readlink -f "${BASH_SOURCE[0]}")
-_dir=$(readlink -f $(dirname "${BASH_SOURCE[0]}")) 
+_dir=$(readlink -f $(dirname "${BASH_SOURCE[0]}/..")) 
 branchCurrent=$(git rev-parse --abbrev-ref HEAD)
 branchOrigin="origin/${branchCurrent}"
-lockedFiles=( ${_dir}/../{,.gitignore} )
+lockedFiles=( ${_dir}/{,.gitignore} )
 
 ## Unlock directory
 chmod -R 755 ${lockedFiles[@]}
