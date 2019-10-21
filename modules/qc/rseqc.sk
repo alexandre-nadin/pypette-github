@@ -4,7 +4,7 @@ rule rseqc__inferExperiment:
   input:
     bam = "{someprefix}/{sample_name}.bam",
     bai = "{someprefix}/{sample_name}.bai",
-    bed = lambda x: gencode__bed()
+    bed = lambda x: annot__ebiBed()
   output: 
     inf = "{someprefix}/{sample_name}.inferExperiment"
   run:
@@ -21,7 +21,7 @@ rule rseqc__readDistribution:
   input:
     bam  = "{someprefix}/{sample_name}.bam",
     bai  = "{someprefix}/{sample_name}.bai",
-    bed  = lambda x: f"{gencode__ucscAnnotBaseName()}.bed"
+    bed  = lambda x: f"{annot__ucscBed()}"
   output:
     dist = "{someprefix}/{sample_name}.read_distribution"
   run:

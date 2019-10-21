@@ -10,6 +10,7 @@ config__files = tuple(
     "pipeline.yaml", 
     "cluster-rules.yaml",
     "databases.yaml",
+    "species.yaml",
    ))
 
 pipeman.addConfigFiles(*config__files)

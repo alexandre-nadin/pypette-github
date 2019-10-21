@@ -1,9 +1,3 @@
-def formatGenome(func):
-  def wrapper(*args, **kwargs):
-    return func(*args, **kwargs).format(
-        genome = pipeman.config.project.genome)
-  return wrapper
-
 @cluster__prefixMountPoint
 def genome__dir():
   return os.path.join(
@@ -35,3 +29,8 @@ def genome__annotationDir():
     genome__dir(),
     "annotation")
 
+def genome__formatSpecies(func):
+  def wrapper(*args, **kwargs):
+    return func(*args, **kwargs).format(
+      species = pipeman.config.species[pipeman.config.project.species])
+  return wrapper

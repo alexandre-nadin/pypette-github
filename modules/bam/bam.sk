@@ -1,7 +1,7 @@
 include: 'bam.py'
 pipeman.includeModules(
   "genomes/genome.sk",
-  "genomes/gencode.sk",
+  "genomes/annotation.sk",
   "genomes/exome.sk")
 
 """ Allowed Sorting Processes """
