@@ -8,7 +8,7 @@ set -euo pipefail
 # Make sure you have all your modifications stashed BEFORE execution!
 #
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
+script=$(readlink -f "${BASH_SOURCE[0]}")
 _dir=$(readlink -f $(dirname "${BASH_SOURCE[0]}")) 
 branchCurrent=$(git rev-parse --abbrev-ref HEAD)
 branchOrigin="origin/${branchCurrent}"
@@ -26,3 +26,6 @@ git reset --hard ${branchOrigin}
 
 ## Lock directory
 chmod -R 555 ${lockedFiles[@]}
+
+## Restrict Deployment Execution
+chmod -R g-x,o-x "$script" 
