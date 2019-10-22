@@ -15,11 +15,12 @@ fastq__chunk       = fastq__chunkPrefix + "{sample_extension}"
 fastq__readPrefix  = fastq__sampleRunDir + "/{procFastqMerge}{procTrimming}{procUmiExtract}{sample_name}_{sample_read}"
 fastq__read        = fastq__readPrefix + "{sample_extension}"
 
-pipeman.include("merge.sk")
-pipeman.include("trimming.sk")
-pipeman.include("qc.sk")
-pipeman.include("adapter.sk")
-pipeman.include("umi-extract.sk")
+pipeman.includeModules(
+  "fastq/merge.sk",
+  "fastq/trimming.sk",
+  "fastq/qc.sk",
+  "fastq/adapter.sk",
+  "fastq/umi-extract.sk")
 # TODO: manage better those inclusions -> pipeline specific
 
 pipeman.addTargets(
