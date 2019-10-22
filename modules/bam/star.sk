@@ -16,7 +16,7 @@ rule bam_star__alignReads:
     log      = f"{bam_mapper__sampleTarget}.log"
   run:
     star   = pipeman.config.pipeline.modules.mapping.aligner
-    prefix = bam_mapper__pipeTarget.format(**wildcards)
+    prefix = bam_mapper__pipeTarget.format(**wildcards) + os.path.sep
     reads  = star__readsToString(input.r1, input.r2)
     gnmIdx = genome__index()
     cmd = """
