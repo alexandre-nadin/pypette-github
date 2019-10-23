@@ -16,6 +16,6 @@ rule project__config:
         "{config_lims__URL_PRJ}/{pipeman.project}.json" \
        > {output.file}
     """
-    exshell(**vars())
+    exshell(force=True, **vars())
 
 localrules: project__config

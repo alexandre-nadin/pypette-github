@@ -1,9 +1,14 @@
-def core__subCmd(pipeline, project, target):
+def core__subCmd(pipeline, project, target, outDir=None):
   """ Returns a pypette sub-command string to be executed """
+  if outDir:
+    outDirOpt = f"--outdir {outDir}"
+  else:
+    outDirOpt = ""
   return f"""
     pypette-{pipeline}    \
       --project {project} \
-      --target {target}
+      --target {target}   \
+      {outDirOpt}
   """
 
 def core__smkCmd(target):

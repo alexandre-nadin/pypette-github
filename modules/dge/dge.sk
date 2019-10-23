@@ -3,6 +3,9 @@ include: "dge.py"
 dge__pipeTarget   = f"{bam__pipeTarget}dge"
 dge__sampleTarget = f"{dge__pipeTarget}/{{sample_name}}"
 
+dge__contrastTarget       = f"{dge__pipeTarget}/contrasts"
+dge__contrastSampleTarget = f"{dge__contrastTarget}/{{sample_name}}"
+
 dge__plotTarget           = f"{dge__pipeTarget}/plots"
 dge__plotSampleTarget     = f"{dge__plotTarget}/{{sample_name}}"
 
@@ -12,8 +15,9 @@ dge__enrichedSampleTarget = f"{dge__enrichTarget}/{{sample_name}}"
 rule dge__plots:
   input: 
     metadata    = "samples/metadata.tsv",
-    counts      = f"{bam__sampleTarget}.mergedCounts.gz"
+    counts      = f"{bam__pipeTarget}featureCounts/{{sample_name}}.mergedCounts.gz"
   output:
+    contrasts   = directory(f"{dge__contrastTarget}"),
     distEstims  = f"{dge__plotSampleTarget}.distEstimsPlot.png",
     maPlot      = f"{dge__plotSampleTarget}.maPlot.pdf",
     volcanoPlot = f"{dge__plotSampleTarget}.volcanoPlot.pdf",
@@ -28,7 +32,7 @@ rule dge__plots:
 rule dge__enrichR:
   input: 
     metadata    = "samples/metadata.tsv",
-    counts      = f"{bam__sampleTarget}.mergedCounts.gz"
+    counts      = f"{bam__pipeTarget}featureCounts/{{sample_name}}.mergedCounts.gz"
   output:
     dir = directory(f"{dge__enrichTarget}")
   params:
