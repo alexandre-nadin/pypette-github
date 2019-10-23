@@ -2,8 +2,7 @@
 def genome__dir():
   return os.path.join(
     pipeman.config.cluster.genomeDir,
-    pipeman.config.project.genome.name
-  )
+    project__speciesGenome(pipeman.config.project).genome.assembly.ucscRef)
 
 def genome__fasta():
   """
@@ -12,8 +11,7 @@ def genome__fasta():
   return os.path.join(
     genome__dir(),
     "fa",
-    pipeman.config.project.genome.name + ".fa"
-  )
+    project__speciesGenome(pipeman.config.project).genome.assembly.ucscRef + ".fa")
 
 def genome__index():
   """
@@ -31,6 +29,9 @@ def genome__annotationDir():
 
 def genome__formatSpecies(func):
   def wrapper(*args, **kwargs):
-    return func(*args, **kwargs).format(
-      species = pipeman.config.species[pipeman.config.project.species])
+    try:
+      species = project__speciesGenome(pipeman.config.project)
+    except:
+      pipeman.log.error("Missing species in project configuration.")
+    return func(*args, **kwargs).format(species=species)
   return wrapper

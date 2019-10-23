@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#                             WARNING 
+#  
+# Hard Reset on the current branch is done here. 
+# Make sure you have all your modifications stashed BEFORE execution!
+#
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+script=$(readlink -f "${BASH_SOURCE[0]}")
+execDir=$(readlink -f $(dirname "${script}"))
+rootDir=$(readlink -f $(dirname "${execDir}" ))
+branchCurrent=$(git rev-parse --abbrev-ref HEAD)
+branchOrigin="origin/${branchCurrent}"
+lockedFiles=( ${rootDir}/{,.gitignore} )
+
+## Unlock directory
+chmod -R 755 ${lockedFiles[@]}
+git checkout -- ${lockedFiles[@]}
+
+## Update Repo
+git fetch --all
+printf "Current branch: '${branchCurrent}'\n" >&2
+printf "Hard reset from: '${branchOrigin}'\n" >&2
+git reset --hard ${branchOrigin}
+
+## Lock directory
+chmod -R 555 ${lockedFiles[@]}
+
+## Restrict Deployment Execution
+chmod -R g-x,o-x "$script" 

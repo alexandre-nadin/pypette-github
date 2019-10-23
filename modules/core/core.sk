@@ -10,4 +10,3 @@ onsuccess:
       "Success! Now removing cleanable files {}..."
        .format(pipeman.cleanables))
     shell("rm -f {}".format(" ".join(pipeman.cleanables)))
-
