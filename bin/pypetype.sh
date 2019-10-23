@@ -94,7 +94,7 @@ function pypetype::parseParams() {
           ;;
 
         -o|--outdir)
-          WORKDIR=$(readlink -f "$2") && shift
+          WORKDIR=$(pypette::fullPath "$2") && shift
           ;;
  
         -k|--keep-files-regex)
@@ -219,7 +219,7 @@ function pypetype::clusterRules() {
 }
 
 function pypetype::clusterRulesDft() {
-  readlink -f "$(pypetype::clusterRulesDftTemplate)"
+  pypette::fullPath "$(pypetype::clusterRulesDftTemplate)"
 }
 
 function pypetype::clusterRulesDftTemplate() {

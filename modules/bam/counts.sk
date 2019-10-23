@@ -1,6 +1,8 @@
 include: "counts.py"
 pipeman.includeModule('qc/rseqc.sk')
-counts__pipeTarget = f"{bam__pipeTarget}counts"
+
+counts__sampleTarget = "{someprefix}/featureCounts/{sample_name}"
+counts__dir = "featureCounts"
 
 # -------
 # Counts
@@ -35,11 +37,12 @@ rule counts__featureCounts:
   input: 
     bam       = "{someprefix}/{sample_name}.bam",
     inferExp  = "{someprefix}/{sample_name}.inferExperiment",
-    gtf       = lambda x: gencode__gtf()
+    gtf       = lambda x: annot__ebiGtf()
   output:
     counts    = pipeman.temp("{someprefix}/featureCounts/{sample_name}.counts"),
     countsGz  =              "{someprefix}/featureCounts/{sample_name}.counts.gz",
     sumcounts =              "{someprefix}/featureCounts/{sample_name}.counts.summary",
+    bamFc     = pipeman.temp("{someprefix}/featureCounts/{sample_name}.bam.featureCounts.bam"),
     bam       = pipeman.temp("{someprefix}/featureCounts/{sample_name}.bam"),
     log       =              "{someprefix}/featureCounts/{sample_name}.counts.log"
   run: 
@@ -63,6 +66,8 @@ rule counts__featureCounts:
        2> {output.log}
 
       gzip -c {output.counts} > {output.countsGz}
+  
+      ln {output.bamFc} {output.bam} 
     """
     exshell(**vars())
 

@@ -1,7 +1,7 @@
 include: 'bam.py'
 pipeman.includeModules(
   "genomes/genome.sk",
-  "genomes/gencode.sk",
+  "genomes/annotation.sk",
   "genomes/exome.sk")
 
 """ Allowed Sorting Processes """
@@ -23,9 +23,9 @@ pipeman.addTargets(
 
 ##
 # General IO (on any bam file).
-
-bam__pipeTarget   = "{fastq__pipeTarget}{bam__alignerDir}/{{procBamMerged}}{{procSorted}}{{procMarkDup}}"
-bam__sampleTarget = "{bam__pipeTarget}{{sample_name}}"
+pipeman.addTargets(
+  bam__pipeTarget   = "{fastq__pipeTarget}{bam__alignerDir}/{{procBamMerged}}{{procSorted}}{{procMarkDup}}",
+  bam__sampleTarget = "{bam__pipeTarget}{{sample_name}}" )
 
 # Note: Include the aligner found in pipeline configuration file after this
 #       file's variables, as aligner's rules should depend on the variables 

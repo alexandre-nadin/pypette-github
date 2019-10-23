@@ -1,11 +1,12 @@
-biotypes__pipeTarget   = f"{bam__pipeTarget}biotypes"
-biotypes__sampleTarget = f"{biotypes__pipeTarget}/{{sample_name}}"
+pipeman.addTargets(
+  biotypes__pipeTarget   = "{bam__pipeTarget}biotypes",
+  biotypes__sampleTarget = "{biotypes__pipeTarget}/{{sample_name}}" )
 
 """ Assesses and plots biotypes distributions """
 rule biotypes:
   input: 
     counts   = pipeman.input(f"{bam__sampleTarget}.mergedCounts.gz"),
-    biotypes = gencode__biotypes()
+    biotypes = annot__ebiBiotypes()
   output:
     dir      = directory(f"{biotypes__sampleTarget}")
   params: 

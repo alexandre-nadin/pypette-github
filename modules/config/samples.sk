@@ -13,16 +13,16 @@ rule samples__files:
   configuration.
   """
   input:
-    confs = config__files,
-    prj   = project__config
+    confs   = config__files,
+    project = project__config
   output: 
-    file  = samples__files
+    file    = samples__files
   run:
-    runs  = " ".join(runs__projectPaths(pipeman.project))
-    cmd   = f"""
-      find -L {runs} -name '*.fastq.gz' > {output.file}
+    runs    = " ".join(runs__projectPaths(pipeman.project))
+    cmd     = f"""
+      find -L {runs} -maxdepth 2 -name '*.fastq.gz' > {output.file}
     """
-    exshell(**vars())
+    exshell(force=True, **vars())
 
 rule samples__map:
   """   
@@ -45,4 +45,4 @@ rule samples__map:
         pipeman.samples.listsToSamplesheet(
           sampleLines, 
           pipeman.sampleExtensions[wildcards.extension]))
-    exshell(**vars())
+    exshell(force=True, **vars())

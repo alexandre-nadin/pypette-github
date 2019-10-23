@@ -4,6 +4,23 @@ library("RColorBrewer")
 library("pheatmap")
 library("ggplot2")
 
+# ------------------
+# Dge Results Table
+# ------------------
+dir.create(smkout$contrasts, showWarnings=TRUE, recursive=TRUE)
+lapply(
+  names(dgeResults),
+  function(x) write.table(
+    data.table(
+      data.frame(dgeResults[[x]]),
+      keep.rownames=geneidColname),
+    file.path(smkout$contrasts, paste(x, ".csv", sep="")), 
+    append=F,
+    row.names=F,
+    col.names=T,
+    quote=F,
+    sep=","))
+
 # ------------
 # Dist Estims
 # ------------

@@ -1,14 +1,14 @@
 pipeman.includeModule("genomes/genome.sk")
-include: "gencode.py"
+include: "annotation.py"
 
 rule gencode__gtf:
   """
   Downloads the required GTF file.
   """
   output:
-    gtf = gencode__gtf()
+    gtf = annot__ebiGtf()
   run:
-    gtfUrl = gencode__gtfUrl()
+    gtfUrl = annot__ebiGtfUrl()
     cmd = """
       curl "{gtfUrl}" \
         -o {output.gtf}
@@ -65,27 +65,26 @@ rule gencode__gtfToBiotypes:
 # ------
 # UCSC
 # ------
-rule gencode__ucscAnnot:
+rule gencode__ucscAnnotTxt:
   """ 
   Gets the raw txt annotation file.
   """
   output:
-    annot = gencode__ucscAnnot()
+    annot = annot__ucscTxt()
   run:
     cmd = f"""
-      curl "{gencode__ucscAnnotUrl()}" \
-       > {output.annot}
+      curl "{annot__ebiTxtUrl()}" > {output.annot}
     """
     exshell(**vars())
 
-rule gencode__ucscGenePred:
+rule gencode__ucscAnnotGenePred:
   """
   Gets the required genePred file.
   """
   input:
-    annot    = lambda x: gencode__ucscAnnot()
+    annot    = lambda x: annot__ucscTxt()
   output: 
-    genePred    = gencode__ucscGenePred()
+    genePred = annot__ucscGenePred()
   run:
     cmd = f"""
       gunzip -c {input.annot} \
@@ -95,14 +94,14 @@ rule gencode__ucscGenePred:
     """
     exshell(**vars())
   
-rule gencode__ucscBedgz:
+rule gencode__ucscAnnotBedgz:
   """
   Gets the required bed file.
   """
   input:
-    pred = lambda x: gencode__ucscGenePred()
+    pred = lambda x: annot__ucscGenePred()
   output:
-    bed  = gencode__ucscBedgz()
+    bed  = annot__ucscBedgz()
   run:
     cmd = """
       genePredToBed {input.pred} stdout \
@@ -113,9 +112,9 @@ rule gencode__ucscBedgz:
 
 rule gencode__ucscBed:
   input:
-    bed = lambda x: gencode__ucscBedgz()
+    bed = lambda x: annot__ucscBedgz()
   output:
-    bed = gencode__ucscBed()
+    bed = annot__ucscBed()
   run:
     cmd = """
       gunzip -c {input.bed} > {output.bed}
