@@ -34,3 +34,5 @@ def project__pipelineQcTarget(pipeline, formatted=False, **kwargs):
     target = target.format(sample_run=pipeman.project)
   return target
 
+def project__speciesGenome(project):
+  return pipeman.config.species[project.species]
