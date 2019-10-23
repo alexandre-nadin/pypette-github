@@ -1,5 +1,5 @@
 include: "fastq.py"
-
+  
 pipeman.updateWildcardConstraints(
   **FastqFile.regex_fields,
   preprocesses = "(/\w+/)*?",
