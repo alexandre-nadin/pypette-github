@@ -1,6 +1,6 @@
 def exome__targetDir():
   return os.path.join(
-    genome__annotationDir(),
+    annot__dir(),
     "exomes_targets")
 
 def exome__intervalListFmt():

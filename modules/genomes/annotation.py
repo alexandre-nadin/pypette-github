@@ -1,3 +1,22 @@
+def annot__dir():
+  return os.path.join(
+    genome__dir(),
+    "annotation")
+
+@genome__formatSpecies
+def annot__releaseDir():
+  return os.path.join(
+    annot__dir(),
+    "{species.genome.assembly.release}")
+
+def annot__indexDir():
+  """
+  Retrieves the genome index using cluster and project metadata parameters.
+  """
+  return os.path.join(
+    annot__releaseDir(),
+    pipeman.config.pipeline.modules.mapping.aligner.name)
+
 # ----------------------
 # EBI Annotation Files
 # ----------------------
@@ -13,7 +32,7 @@ def annot__ebiGtfUrl():
 
 def annot__ebiBase():
   return os.path.join(
-    genome__annotationDir(),
+    annot__releaseDir(),
     annot__ebiBaseName())
 
 def annot__ebiGtf():
@@ -40,7 +59,7 @@ def annot__ebiTxtUrl():
 
 def annot__ucscBase():
   return os.path.join(
-    genome__annotationDir(),
+    annot__releaseDir(),
     annot__ucscBaseName())
 
 def annot__ucscTxt():
