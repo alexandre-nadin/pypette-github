@@ -1,4 +1,9 @@
 # bash
+trap pypette::cleanup INT TERM EXIT SIGINT SIGKILL
+
+function pypette::cleanup() {
+  pypette::cleanJobsDir
+}
 
 function pypette::fullPath() {
   readlink -f "$1"
@@ -19,6 +24,7 @@ function pypette::runFlow() {
   pypette::envActivate
   pypette::exportVarenvs
   pypette::execSnakemake
+  pypette::cleanJobsDir
 }
 
 # -------------------------
@@ -335,6 +341,28 @@ function pypette::cmdSnakemake() {
    --snakefile $(pypette::pathPipelineSnakefile root) \
    ${SNAKE_OPTIONS[@]}  
 eol
+}
+
+# ----------
+# Cleaning
+# ----------
+function pypette::jobsDir() {
+  printf "${WORKDIR}/jobs"
+}
+
+function pypette::jobsDirs() {
+  find $(pypette::jobsDir) -maxdepth 1 -type d \
+   | xargs -I {} readlink -f {}
+}
+
+function pypette::cleanJobsDir() {
+  for jobDir in $(pypette::jobsDirs); do
+    if [ $(ls "$jobDir" | wc -l) -gt 0 ]; then
+      :
+    else
+      rm -r "$jobDir"
+    fi
+  done
 }
 
 # ---------------
