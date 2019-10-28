@@ -37,7 +37,7 @@ rule counts__featureCounts:
   input: 
     bam       = "{someprefix}/{sample_name}.bam",
     inferExp  = "{someprefix}/{sample_name}.inferExperiment",
-    gtf       = lambda x: annot__ebiGtf()
+    gtf       = lambda x: annot__ebiGtfGz()
   output:
     counts    = pipeman.temp("{someprefix}/featureCounts/{sample_name}.counts"),
     countsGz  =              "{someprefix}/featureCounts/{sample_name}.counts.gz",

@@ -79,6 +79,11 @@ bam_star__alignReads:
   ncpus: '{pipeman.config.pipeline.modules.mapping.aligner.cores}'
   mem: '{pipeman.config.pipeline.modules.mapping.aligner.ram}'
 
+bam_star__index:
+  do: True
+  ncpus: '{pipeman.config.pipeline.modules.mapping.aligner.cores}'
+  mem: '{pipeman.config.pipeline.modules.mapping.aligner.ram}'
+
 bam__markDuplicates:
   do: True
   ncpus: "{pipeman.config.pipeline.modules.mapping.markdup.cores}"
