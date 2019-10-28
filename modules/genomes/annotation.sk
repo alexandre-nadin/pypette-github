@@ -1,7 +1,7 @@
 pipeman.includeModule("genomes/genome.sk")
 include: "annotation.py"
 
-rule gencode__ebiGtf:
+rule annot__ebiGtf:
   """
   Downloads the required GTF file.
   """
@@ -14,7 +14,7 @@ rule gencode__ebiGtf:
     """
     exshell(**vars())
 
-rule gencode__gtfToBed:
+rule annot__gtfToBed:
   """
   Converts the required GTF into a bed file.
   """
@@ -36,7 +36,7 @@ rule gencode__gtfToBed:
     """
     exshell(**vars())
 
-rule gencode__gtfToBiotypes:
+rule annot__gtfToBiotypes:
   """
   Creates a gene-biotype dictionary from a GTF
   """
@@ -64,7 +64,7 @@ rule gencode__gtfToBiotypes:
 # ------
 # UCSC
 # ------
-rule gencode__ucscAnnotTxt:
+rule annot__ucscAnnotTxt:
   """
   Gets the raw txt annotation file.
   """
@@ -76,7 +76,7 @@ rule gencode__ucscAnnotTxt:
     """
     exshell(**vars())
 
-rule gencode__ucscAnnotGenePred:
+rule annot__ucscAnnotGenePred:
   """
   Gets the required genePred file.
   """
@@ -93,7 +93,7 @@ rule gencode__ucscAnnotGenePred:
     """
     exshell(**vars())
 
-rule gencode__gtf:
+rule annot__gtf:
   input:
     gz  = "{someprefix}.gtf.gz"
   output:
@@ -104,7 +104,7 @@ rule gencode__gtf:
     """
     exshell(**vars())
 
-rule gencode__ucscAnnotGtfGz:
+rule annot__ucscAnnotGtfGz:
   """ Gets the required GTF file. """
   input:
     pred = lambda x: annot__ucscGenePred()
@@ -118,7 +118,7 @@ rule gencode__ucscAnnotGtfGz:
     """
     exshell(**vars())
 
-rule gencode__ucscAnnotBedgz:
+rule annot__ucscAnnotBedgz:
   """
   Gets the required bed file.
   """
@@ -134,7 +134,7 @@ rule gencode__ucscAnnotBedgz:
     """
     exshell(**vars())
 
-rule gencode__ucscBed:
+rule annot__ucscBed:
   input:
     bed = lambda x: annot__ucscBedgz()
   output:
