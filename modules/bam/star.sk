@@ -4,7 +4,7 @@ rule bam_star__alignReads:
   input:
     r1     = pipeman.input(fastq__read, sample_read="R1"),
     r2     = pipeman.input(fastq__read, sample_read="R2"),
-    idxDir = annot__indexDir()
+    idxDir = star__indexDir()
   output:
     bam      = pipeman.temp(f"{bam__sample}"),
     tab      = pipeman.temp(f"{bam_mapper__pipeTarget}/SJ.out.tab"),
@@ -42,7 +42,7 @@ rule bam_star__index:
     fa     = genome__fasta(),
     gtf    = annot__ucscGtf()
   output:
-    idxDir = directory(annot__indexDir()),
+    idxDir = directory(star__indexDir()),
   run:
     cmd = """
       mkdir -p {output.idxDir}
