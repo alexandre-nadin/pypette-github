@@ -6,52 +6,10 @@ __default__:
   out: '{pipeman.jobExeBase}_{rule}.out'
   err: '{pipeman.jobExeBase}_{rule}.err'
 
-explain_rules:
-  do: True
-
-helpRule:
-  do: True
-
-rules__updatePbsRessources:
-  do: True
-
-samplenames:
-  do: True
-
-samples:
-  do: True
-
-samples__runs:
-  do: True
-
-samples__all:
-  do: True
-
-config__internalConf:
-  do: True
-
-config__all:
-  do: True
-
-project__config:
-  do: True
-
-samples__files:
-  do: True
-
-samples__map:
-  do: True
-
-fastq_merging__mergeReads:
-  do: True
-
 fastq_trimming__trimmomatic:
   do: True
   ncpus: "{pipeman.config.pipeline.modules.fastq.trimming.trimmers.trimmomatic.cores}"
   mem: "{pipeman.config.pipeline.modules.fastq.trimming.trimmers.trimmomatic.mem}"
-
-fastq_trimming__cutadapt:
-  do: True
 
 fastq_trimming__bbduk:
   do: True
@@ -61,18 +19,6 @@ fastq_trimming__bbduk:
 fastq_qc__reads:
   do: True
   ncpus: "{pipeman.config.pipeline.modules.fastq.qc.fastqc.cores}"
-
-fastq_adapter__fasta_adapters:
-  do: True
-
-fastq__linkRead:
-  do: True
-
-gencode__gtf:
-  do: True
-
-gencode__bed:
-  do: True
 
 bam_star__alignReads:
   do: True
@@ -99,31 +45,6 @@ bam__sortSampleSamtools:
   ncpus: "{pipeman.config.pipeline.modules.mapping.sorter.samtools.cores}"
   mem: "{pipeman.config.pipeline.modules.mapping.sorter.samtools.mem}"
 
-bam__sampleStats:
-  do: True
-
-bam__mergeSample:
-  do: True
-
-bam__makeIndex:
-  do: True
-
-bam__hsMetrics:
-  do: True
-
 counts__sample:
   do: True
   ncpus: "{pipeman.config.pipeline.modules.mapping.counter.cores}"
-
-counts__merged:
-  do: True
-
-qc_rnaseq__multiqc:
-  do: True
-
-helpRules:
-  do: True
-
-listRules:
-  do: True
-
