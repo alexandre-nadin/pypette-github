@@ -9,14 +9,6 @@ def annot__releaseDir():
     annot__dir(),
     "{species.genome.assembly.release}")
 
-def annot__indexDir():
-  """
-  Retrieves the genome index using cluster and project metadata parameters.
-  """
-  return os.path.join(
-    annot__releaseDir(),
-    bam__configAligner().name)
-
 # ----------------------
 # EBI Annotation Files
 # ----------------------
