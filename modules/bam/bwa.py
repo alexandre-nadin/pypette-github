@@ -6,5 +6,5 @@ def bam_bwa__readsToString(R1=[], R2=[]):
 
 def bam_bwa__genomeIndex():
   return os.path.join(
-    genome__index(),
+    annot__indexDir(),
     pipeman.config.project.genome.name)

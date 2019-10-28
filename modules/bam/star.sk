@@ -1,28 +1,28 @@
 include: "star.py"
 
 rule bam_star__alignReads:
-  input: 
-    r1 = pipeman.input(fastq__read, sample_read="R1"),
-    r2 = pipeman.input(fastq__read, sample_read="R2")
+  input:
+    r1     = pipeman.input(fastq__read, sample_read="R1"),
+    r2     = pipeman.input(fastq__read, sample_read="R2"),
+    idxDir = annot__indexDir()
   output:
     bam      = pipeman.temp(f"{bam__sample}"),
     tab      = pipeman.temp(f"{bam_mapper__pipeTarget}/SJ.out.tab"),
     tabgz    = f"{bam_mapper__pipeTarget}/SJ.out.tab.gz",
     bamRaw   = pipeman.temp(f"{bam_mapper__pipeTarget}/Aligned.sortedByCoord.out.bam"),
-    outFiles = [ 
+    outFiles = [
                f"{bam_mapper__pipeTarget}/Log.out",
                f"{bam_mapper__pipeTarget}/Log.progress.out",
                f"{bam_mapper__pipeTarget}/Log.final.out" ],
     log      = f"{bam_mapper__sampleTarget}.log"
   run:
-    star   = pipeman.config.pipeline.modules.mapping.aligner
+    star   = bam__configAligner()
     prefix = bam_mapper__pipeTarget.format(**wildcards) + os.path.sep
     reads  = star__readsToString(input.r1, input.r2)
-    gnmIdx = genome__index()
     cmd = """
      {star.command}                                         \
        --runThreadN {star.cores}                            \
-       --genomeDir {gnmIdx}                                 \
+       --genomeDir {input.idxDir}                           \
        --readFilesIn {reads}                                \
        --outSAMstrandField intronMotif                      \
        --outFileNamePrefix {prefix}                         \
@@ -31,10 +31,54 @@ rule bam_star__alignReads:
        --outFilterMismatchNmax {star.outFilterMismatchNmax} \
        --readFilesCommand zcat                              \
       > {output.log}
-  
+
      ln {output.bamRaw} {output.bam}
      gzip -c {output.tab} > {output.tabgz}
     """
     exshell(**vars())
 
-ruleorder: samples__runs > bam_star__alignReads 
+rule bam_star__index:
+  input:
+    fa     = genome__fasta(),
+    gtf    = annot__ucscGtf()
+  output:
+    idxDir = directory(annot__indexDir()),
+  run:
+    cmd = """
+      mkdir -p {output.idxDir}
+      STAR                                   \
+        --runThreadN 10                      \
+        --runMode genomeGenerate             \
+        --genomeDir {output.idxDir}          \
+        --genomeFastaFiles {input.fa}        \
+        --outFileNamePrefix {output.idxDir}/ \
+        --sjdbGTFfile {input.gtf}            \
+        --sjdbOverhang 100                   \
+        --genomeSAindexNbases 14
+    """
+    exshell(**vars())
+
+ruleorder: samples__runs > bam_star__alignReads
+
+rule genome__fa:
+  input:
+    bit = genome__2bit()
+  output:
+    fa  = genome__fasta()
+  run:
+    cmd = """
+      twoBitToFa {input.bit} {output.fa}
+    """
+    exshell(**vars())
+
+rule genome__2bit:
+  output:
+    bit = genome__2bit()
+  run:
+    url = genome__ucsc2bitUrl()
+    cmd = """
+      curl                     \
+        {url} \
+        -o {output.bit}
+    """
+    exshell(**vars())
