@@ -4,7 +4,13 @@ def bam_bwa__readsToString(R1=[], R2=[]):
     R2 = "<(zcat {})".format(" ".join(R2)) if R2 else ""
   )
 
-def bam_bwa__genomeIndex():
+def bam_bwa__indexDir():
   return os.path.join(
-    annot__indexDir(),
-    pipeman.config.project.genome.name)
+    annot__dir(),
+    "bwa")
+  
+@genome__formatSpeciesCfg
+def bam_bwa__indexPrefix():
+  return os.path.join(
+    bam_bwa__indexDir(),
+    "{species.genome.assembly.ucscRef}")
