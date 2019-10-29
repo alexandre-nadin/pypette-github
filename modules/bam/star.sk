@@ -6,15 +6,15 @@ rule bam_star__alignReads:
     r2     = pipeman.input(fastq__read, sample_read="R2"),
     idxDir = star__indexDir()
   output:
-    bam      = pipeman.temp(f"{bam__sample}"),
-    tab      = pipeman.temp(f"{bam_mapper__pipeTarget}/SJ.out.tab"),
-    tabgz    = f"{bam_mapper__pipeTarget}/SJ.out.tab.gz",
-    bamRaw   = pipeman.temp(f"{bam_mapper__pipeTarget}/Aligned.sortedByCoord.out.bam"),
-    outFiles = [
-               f"{bam_mapper__pipeTarget}/Log.out",
-               f"{bam_mapper__pipeTarget}/Log.progress.out",
-               f"{bam_mapper__pipeTarget}/Log.final.out" ],
-    log      = f"{bam_mapper__sampleTarget}.log"
+    bam       = pipeman.temp(f"{bam_mapper__sampleTarget}.bam"),
+    tab       = pipeman.temp(f"{bam_mapper__pipeTarget}/SJ.out.tab"),
+    tabgz     = f"{bam_mapper__pipeTarget}/SJ.out.tab.gz",
+    bamRaw    = pipeman.temp(f"{bam_mapper__pipeTarget}/Aligned.sortedByCoord.out.bam"),
+    logOut    = f"{bam_mapper__pipeTarget}/Log.out",
+    logPrOut  = f"{bam_mapper__pipeTarget}/Log.progress.out",
+    logFinOut = f"{bam_mapper__pipeTarget}/Log.final.out",
+    logFin    = f"{bam_mapper__sampleTarget}.Log.final.out",
+    log       = f"{bam_mapper__sampleTarget}.log"
   run:
     star   = bam__configAligner()
     prefix = bam_mapper__pipeTarget.format(**wildcards) + os.path.sep
@@ -32,7 +32,10 @@ rule bam_star__alignReads:
        --readFilesCommand zcat                              \
       > {output.log}
 
+     ## Need sample names in output file for the workflow
      ln {output.bamRaw} {output.bam}
+     ln {output.logFinOut} {output.logFin}
+
      gzip -c {output.tab} > {output.tabgz}
     """
     exshell(**vars())
