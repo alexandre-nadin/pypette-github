@@ -1,5 +1,6 @@
-vcf__pipeTarget   = f"{bam__pipeTarget}varcall"
-vcf__sampleTarget = f"{vcf__pipeTarget}/{{sample_name}}"
+pipeman.addTargets(
+  vcf__pipeTarget   = "{bam__pipeTarget}varcall",
+  vcf__sampleTarget = "{vcf__pipeTarget}/{{sample_name}}")
 
 rule varcall__gatk:
   input:
