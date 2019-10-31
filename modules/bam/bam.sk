@@ -19,7 +19,7 @@ pipeman.addTargets(
   bam_mapper__pipeTarget   = "{fastq__pipeTarget}{bam_mapper__dir}",
   bam_mapper__sampleTarget = "{bam_mapper__pipeTarget}/{{sample_name}}",
 
-  bam__procs        = "{{procBamMerged}}{{procSorted}}{{procMarkDup}}",
+  bam__procs        = "{{procBamMerged}}{{procSorted}}{{procMarkDup}}{{procBamRecalib}}",
   bam__pipeTarget   = "{bam_mapper__pipeTarget}/{bam__procs}",
   bam__sampleTarget = "{bam__pipeTarget}{{sample_name}}",
   bam__sample       = "{bam_mapper__sampleTarget}.bam" )
@@ -29,43 +29,52 @@ pipeman.addTargets(
 #       declared above.
 bam__includeAlignerModule()
 
-# -----------------
+# -------------------
 # Base Recalibration
-# -----------------
-bam__sampleRecalibPrefix = "{anyprefix}recalib/{sample_name}"
-rule bam__BaseRecalibrator:
+# -------------------
+rule bam__baseRecalibrator:
   input: 
     bam     = "{anyprefix}{sample_name}.bam",
     bai     = "{anyprefix}{sample_name}.bai",
-    ref_genome_fa = lambda x: genome__fasta()
+    fa      = lambda x: genome__fasta()
   output: 
-    bam     = f"{bam__sampleRecalibPrefix}.bam",
-    bai     = f"{bam__sampleRecalibPrefix}.bai"
-  params:
-    ref_genome_dir = genome__dir(),
-    ref_genome_name = pipeman.config.project.genome.name
+    recalib = "{anyprefix}{sample_name}_recalibration_report.grp"
   run:
-    if pipeman.config.project.genome.name == "hs37d5":
-      params.ref_genome_name = "hg19"
+    gnmName = project__speciesGenomeName()
+    if gnmName == "hs37d5":
+      gnmName = "hg19"
+    knownSitesOpt = " -knownSites ".join(genome__baseRecalibSites(gnmName))
     cmd = f"""
-      gatk \
+      gatk                 \
        -T BaseRecalibrator \
-       -R {input.ref_genome_fa} \
-       -I {input.bam} \
-       -knownSites /lustre1/genomes/{params.ref_genome_name}/GATK_pypette/resources-broad-{params.ref_genome_name}-v0-1000G_phase1.snps.high_confidence.vcf.gz \
-       -knownSites /lustre1/genomes/{params.ref_genome_name}/GATK_pypette/resources-broad-{params.ref_genome_name}-v0-Mills_and_1000G_gold_standard.indels.vcf.gz \
-       -knownSites /lustre1/genomes/{params.ref_genome_name}/GATK_pypette/dbsnp_current.{params.ref_genome_name}.vcf.gz \
-       -o {wildcards.sample_name}_recalibration_report.grp
-    gatk \
-       -T PrintReads \
-       -R {input.ref_genome_fa} \
-       -I {input.bam} \
-       -BQSR {wildcards.sample_name}_recalibration_report.grp \
-       -o {output.bam}
+       -R {input.fa}       \
+       -I {input.bam}      \
+       {knownSitesOpt}     \
+       -o {output.recalib}
     """
     exshell(**vars())
 
-ruleorder: bam__BaseRecalibrator > bam__makeIndex
+bam__sampleRecalibPrefix = "{anyprefix}recalib/{sample_name}"
+rule bam__baseRecalibrate:
+  input:
+    recalib = "{anyprefix}{sample_name}_recalibration_report.grp",
+    bam     = "{anyprefix}{sample_name}.bam",
+    bai     = "{anyprefix}{sample_name}.bai",
+    fa      = lambda x: genome__fasta()
+  output:
+    bam     = f"{bam__sampleRecalibPrefix}.bam"
+  run:
+    cmd = """
+      gatk                    \
+        -T PrintReads         \
+        -R {input.fa}         \
+        -I {input.bam}        \
+        -BQSR {input.recalib} \
+        -o {output.bam}
+    """
+    exshell(**vars())
+
+ruleorder: bam__baseRecalibrate > bam__makeIndex
 
 
 # -----------------
