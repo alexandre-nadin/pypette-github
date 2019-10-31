@@ -1,7 +1,7 @@
 def genome__formatSpeciesCfg(func):
   def wrapper(*args, **kwargs):
     try:
-      species = project__speciesGenome(pipeman.config.project)
+      species = project__speciesGenome()
     except:
       pipeman.log.error("Missing species in project configuration.")
     return func(*args, **kwargs).format(species=species)
