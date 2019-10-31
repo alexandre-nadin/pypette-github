@@ -73,9 +73,15 @@ rule bam__sortSampleSamtools:
   input:  "{anyprefix}{sample_name}.bam"
   output: pipeman.temp("{anyprefix}sorted/samtools/{sample_name}.bam")
   run:
+    bwa = pipeman.config.pipeline.modules.mapping.aligner
     cmd = """
-      samtools view -Su {input}    \
-       | samtools sort -o {output}  
+      samtools view          \
+        -Su {input}          \
+    | samtools sort          \
+        -T {output.bam}.tmp  \
+        -@ {bwa.cores}       \
+        -o {output.bam}      \
+        -
     """
     exshell(**vars())
 
@@ -145,20 +151,21 @@ rule bam__makeIndex:
 
 rule bam__hsMetrics:
   input:  
-    "{someprefix}.bam"
+    bam = "{someprefix}.bam",
+    fa  = genome__fasta(),
+    fai = genome__fastaIdx(),
   output: 
     "{someprefix}_hsMetrics.txt"
   run:
-    genomeFasta     = genome__fasta()
     baitIntervals   = exome__baitIntervals()
     targetIntervals = exome__targetIntervals()
     cmd = """
       picard CollectHsMetrics          \
         BI={baitIntervals}             \
         TI={targetIntervals}           \
-        I={input}                      \
+        I={input.bam}                  \
         O={output}                     \
-        R={genomeFasta}                \
+        R={input.fa}                   \
         VALIDATION_STRINGENCY=SILENT
     """
     exshell(**vars())
