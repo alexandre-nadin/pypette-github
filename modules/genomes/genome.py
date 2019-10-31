@@ -28,6 +28,10 @@ def genome__fasta():
   """ Produces the species' genome fasta. """
   return f"{genome__fastaBase()}.fa"
 
+def genome__fastaIdx():
+  """ Produces the species' genome fasta. """
+  return f"{genome__fasta()}.fai"
+
 # -----------
 # 2bit Files
 # -----------
