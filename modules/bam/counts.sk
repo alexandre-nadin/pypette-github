@@ -1,8 +1,10 @@
 include: "counts.py"
 pipeman.includeModule('qc/rseqc.sk')
 
-counts__sampleTarget = "{someprefix}/featureCounts/{sample_name}"
-counts__dir = "featureCounts"
+pipeman.addTargets(
+  counts__dir          = "featureCounts",
+  counts__pipeTarget   = "{bam__pipeTarget}{counts__dir}",
+  counts__sampleTarget = "{counts__pipeTarget}/{{sample_name}}",)
 
 # -------
 # Counts
