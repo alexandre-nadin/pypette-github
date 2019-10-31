@@ -6,7 +6,7 @@ pipeline:
         name: "bwa"
         command: "bwa"
         version: "0.7.17-r1188"
-        cores: 6
+        cores: 8
         ram: '64gb'
       counter:
         name: "featureCounts"

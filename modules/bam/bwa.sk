@@ -13,11 +13,13 @@ rule bam_bwa__alignReads:
     reads     = bam_bwa__readsToString(input.reads_1, input.reads_2)
     idxPref   = bam_bwa__indexPrefix()
     cmd = """
-      bwa mem               \
-        -R "{readGroup}"    \
-        -t {bwa.cores}      \
-        {idxPref}           \
-        {reads}             \
+      bwa mem                \
+        -R "{readGroup}"     \
+        -t {bwa.cores}       \
+        {idxPref}            \
+        {reads}              \
+    | samtools view          \
+        -Su                  \
         > {output.bam}
     """
     exshell(**vars())

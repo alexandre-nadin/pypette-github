@@ -73,9 +73,15 @@ rule bam__sortSampleSamtools:
   input:  "{anyprefix}{sample_name}.bam"
   output: pipeman.temp("{anyprefix}sorted/samtools/{sample_name}.bam")
   run:
+    bwa = pipeman.config.pipeline.modules.mapping.aligner
     cmd = """
-      samtools view -Su {input}    \
-       | samtools sort -o {output}  
+      samtools view          \
+        -Su {input}          \
+    | samtools sort          \
+        -T {output.bam}.tmp  \
+        -@ {bwa.cores}       \
+        -o {output.bam}      \
+        -
     """
     exshell(**vars())
 
