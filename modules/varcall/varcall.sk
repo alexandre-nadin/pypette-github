@@ -1,0 +1,42 @@
+pipeman.addTargets(
+  vcf__pipeTarget   = "{bam__pipeTarget}varcall",
+  vcf__sampleTarget = "{vcf__pipeTarget}/{{sample_name}}")
+
+rule varcall__index:
+  input:
+    vcf = "{someprefix}"
+  output:
+    idx = "{someprefix}.tbi"
+  run:
+    cmd = f"""
+      tabix -f {input.vcf}
+    """
+    exshell(**vars())
+
+rule varcall__cnvkit:
+  input:
+    bam = pipeman.input(
+             f"{bam__sampleTarget}.bam",
+             derefKwargs = ['sample_name',]),
+    vcf = f"{vcf__sampleTarget}.ga.g.vcf.gz",
+    ref_genome_fa = lambda x: genome__fasta()
+  output:
+    cns = f"{vcf__sampleTarget}.calls.cns"
+  params:
+    var_dir = f"{vcf__pipeTarget}"
+  run:
+    baitIntervals = exome__baitIntervals()
+    cmd = f"""
+      cnvkit.py batch {input.bam} \
+        --n \
+        --targets {baitIntervals} \
+        --fasta {input.ref_genome_fa} \
+        --output-reference \
+        {params.var_dir}/{wildcards.sample_name}.cnn \
+        --output-dir {params.var_dir}
+
+      ## TODO Separate rule
+      cnvkit.py segmetrics {params.var_dir}/{wildcards.sample_name}.cnr -s {params.var_dir}/{wildcards.sample_name}.cns --ci -o {params.var_dir}/{wildcards.sample_name}.segmetrics.cns
+      cnvkit.py call {params.var_dir}/{wildcards.sample_name}.segmetrics.cns -v {input.vcf} --filter ci -o {output.cns}
+    """
+    exshell(**vars())

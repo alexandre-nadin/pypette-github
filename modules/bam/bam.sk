@@ -9,7 +9,8 @@ sortingTools = ('picard', 'samtools')
 pipeman.updateWildcardConstraints(
   procSorted    = "(sorted/({})/)?".format("|".join(sortingTools)),
   procMarkDup   = "(markdup/)?",
-  procBamMerged = "(merged/)?"
+  procBamMerged = "(merged/)?",
+  procBamRecalib = "(recalib/)?"
 )
 
 """ Sample Run Reads Output Targets """
@@ -18,7 +19,7 @@ pipeman.addTargets(
   bam_mapper__pipeTarget   = "{fastq__pipeTarget}{bam_mapper__dir}",
   bam_mapper__sampleTarget = "{bam_mapper__pipeTarget}/{{sample_name}}",
 
-  bam__procs        = "{{procBamMerged}}{{procSorted}}{{procMarkDup}}",
+  bam__procs        = "{{procBamMerged}}{{procSorted}}{{procMarkDup}}{{procBamRecalib}}",
   bam__pipeTarget   = "{bam_mapper__pipeTarget}/{bam__procs}",
   bam__sampleTarget = "{bam__pipeTarget}{{sample_name}}",
   bam__sample       = "{bam_mapper__sampleTarget}.bam" )
@@ -27,6 +28,7 @@ pipeman.addTargets(
 #       file's variables, as aligner's rules should depend on the variables 
 #       declared above.
 bam__includeAlignerModule()
+
 
 # -----------------
 # Mark Duplicates
@@ -180,3 +182,50 @@ rule bam__flagstat:
       samtools flagstat {input} > {output}
     """
     exshell(**vars())
+
+# -------------------
+# Base Recalibration
+# -------------------
+rule bam__baseRecalibrator:
+  input: 
+    bam     = "{anyprefix}{sample_name}.bam",
+    bai     = "{anyprefix}{sample_name}.bai",
+    fa      = lambda x: genome__fasta()
+  output: 
+    recalib = "{anyprefix}{sample_name}_recalibration_report.grp"
+  run:
+    gnmName = project__speciesGenomeName()
+    if gnmName == "hs37d5":
+      gnmName = "hg19"
+    knownSitesOpt = " -knownSites ".join(genome__baseRecalibSites(gnmName))
+    cmd = f"""
+      gatk                 \
+       -T BaseRecalibrator \
+       -R {input.fa}       \
+       -I {input.bam}      \
+       {knownSitesOpt}     \
+       -o {output.recalib}
+    """
+    exshell(**vars())
+
+bam__sampleRecalibPrefix = "{anyprefix}recalib/{sample_name}"
+rule bam__baseRecalibrate:
+  input:
+    recalib = "{anyprefix}{sample_name}_recalibration_report.grp",
+    bam     = "{anyprefix}{sample_name}.bam",
+    bai     = "{anyprefix}{sample_name}.bai",
+    fa      = lambda x: genome__fasta()
+  output:
+    bam     = f"{bam__sampleRecalibPrefix}.bam"
+  run:
+    cmd = """
+      gatk                    \
+        -T PrintReads         \
+        -R {input.fa}         \
+        -I {input.bam}        \
+        -BQSR {input.recalib} \
+        -o {output.bam}
+    """
+    exshell(**vars())
+
+ruleorder: bam__baseRecalibrate > bam__makeIndex

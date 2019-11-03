@@ -34,5 +34,8 @@ def project__pipelineQcTarget(pipeline, formatted=False, **kwargs):
     target = target.format(sample_run=pipeman.project)
   return target
 
-def project__speciesGenome(project):
-  return pipeman.config.species[project.species]
+def project__speciesGenome():
+  return pipeman.config.species[pipeman.config.project.species]
+
+def project__speciesGenomeName():
+  return project__speciesGenome().genome.assembly.ucscRef
