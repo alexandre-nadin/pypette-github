@@ -14,4 +14,5 @@ pipeman.includeModules(
   "fastq/fastq.sk",
   "bam/bam.sk",
   "bam/counts.sk",
+  "bam/counts-umi.sk",
   withConfigFiles=True)

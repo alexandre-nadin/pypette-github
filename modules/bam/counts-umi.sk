@@ -1,0 +1,25 @@
+pipeman.addTargets(
+  counts_umi__dir        = "umi-counts",
+  counts_umi__pipeDir    = "{counts__pipeTarget}/sorted/samtools",
+  counts_umi__pipeTarget = "{counts_umi__pipeDir}/{counts_umi__dir}",
+  counts_umi__pipeSample = "{counts_umi__pipeTarget}/{{sample_name}}")
+
+print(f"counts_umi__pipeTarget: '{counts_umi__pipeTarget}'")
+rule counts__umi:
+  input:
+    bam    = f"{counts_umi__pipeDir}/{{sample_name}}.bam",
+    bai    = f"{counts_umi__pipeDir}/{{sample_name}}.bai"
+  output:
+    counts = f"{counts_umi__pipeSample}.counts.tsv.gz"
+  run:
+    cmd = """
+      umi_tools count            \
+        --per-gene               \
+        --gene-tag=XT            \
+        --assigned-status-tag=XS \
+        --per-cell               \
+        -I {input.bam}           \
+        -S {output.counts}
+    """
+    exshell(**vars())
+
