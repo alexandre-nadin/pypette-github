@@ -144,3 +144,17 @@ rule varcall__annotate_fb_merged:
     """
     exshell(**vars())
 
+rule genmod:
+  input:
+    vcf = f"{vcf__sampleTarget}.fb.merged.filter.annotate.vcf.gz",
+    ped = f"{config__dir}/all.ped"
+  output:
+    vcf = f"{vcf__sampleTarget}.fb.merged.filter.annotate.genmod.vcf.gz"
+  run:
+    cmd = f"""
+      zcat {input.vcf} \
+      | genmod annotate - --annotate_regions \
+      | genmod models - --family_file {input.ped} -w \
+      | bgzip -c > {output.vcf}
+    """
+    exshell(**vars())
