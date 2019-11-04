@@ -294,7 +294,7 @@ smkout <- snakemake@output
 biotypes_function(
   countsFile    = smkin$counts,
   biotypesFile  = smkin$biotypes,
-  pngFolder     = smkout$pngs,
+  pngFolder     = smkout$dir,
   minSamples    = smkp$biotypes$minSamples,
   filterExp     = smkp$biotypes$filterExp,
   useRpkm       = smkp$biotypes$useRpkm,
