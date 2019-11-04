@@ -47,6 +47,39 @@ pipeline:
         bcPattern: 'CCCCCCCCCCCCCCCCNNNNNNNNNNNN'
         cellNumber: 1000
         cellNumberExpected: True
+    anndata:
+      scanpy:
+        verbosity: 3
+        firstFilter:
+          minGenes: 50
+          minSamples: 5 
+        secondFilter:
+          nGenes: 6000
+          percentMito: 0.2
+        normalization:
+          countPerCellAfter: 10000
+          highVarGen_minMean: 0.125
+          highVarGen_maxMean: 4
+          highVarGen_minDisp: 0.5
+          keepOnlyHVG: True
+          scale_maxVal: 10
+        cellCycleScore:
+          useOnlyHighlyVariable: True
+          regressOnCellCycle: True
+        louvain:
+          nNeighbors: 10
+          resolution: 0.4
+        tsne:
+          nPC: 20
+          random_state: 2
+        clusterMarkers:
+          method: 't-test' #'logreg', 't-test', 'wilcoxon', 't-test_overestim_var'
+          plot_nGenes: 20
+          useRaw: True 
+          logValue: True
+          minInGroupFraction: 0.25
+          minFoldChange: 1.19
+          maxOutGroupFraction: 0.5
   sequencing:
     platform: 'Illumina'
   center:
