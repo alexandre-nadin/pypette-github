@@ -1,15 +1,20 @@
+fastq_umi__dir = "umi-extracted"
+
 pipeman.updateWildcardConstraints(
-  procUmiExtract = "(umi-extracted/)?",
+  procUmiExtract = f"({fastq_umi__dir}/)?",
 )
 
-fastq_umi_extract__dir = f"{fastq__sampleRunDir}/{{procFastqMerge}}{{procTrimming}}umi-extracted"
+pipeman.addTargets(
+  fastq_umi__pipeTarget = "{fastq__pipeTarget}{fastq_umi__dir}",
+  fastq__pipeTarget = "{fastq__pipeTarget}{{procUmiExtract}}",
+  )
 
 rule fastq_umi__whitelist:
   input:
     r1    = pipeman.input(fastq__read, sample_read="R1")
   output:
-    wlist = f"{fastq_umi_extract__dir}/whitelist.txt",
-    plots = f"{fastq_umi_extract__dir}/plots"
+    wlist = f"{fastq_umi__pipeTarget}/whitelist.txt",
+    plots = f"{fastq_umi__pipeTarget}/plots"
   run:
     umi = pipeman.config.pipeline.modules.fastq.umi
     if umi.cellNumberExpected:
@@ -32,10 +37,10 @@ rule fastq_umi__extract:
   input:
     r1    = pipeman.input(fastq__read, sample_read="R1"),
     r2    = pipeman.input(fastq__read, sample_read="R2"),
-    wlist = pipeman.input(f"{fastq_umi_extract__dir}/whitelist.txt")
+    wlist = pipeman.input(f"{fastq_umi__pipeTarget}/whitelist.txt")
   output: 
-    r1 = pipeman.temp(f"{fastq_umi_extract__dir}/{{sample_name}}_R1.fastq.gz"),
-    r2 = pipeman.temp(f"{fastq_umi_extract__dir}/{{sample_name}}_R2.fastq.gz")
+    r1 = pipeman.temp(f"{fastq_umi__pipeTarget}/{{sample_name}}_R1.fastq.gz"),
+    r2 = pipeman.temp(f"{fastq_umi__pipeTarget}/{{sample_name}}_R2.fastq.gz")
   run:
     umi = pipeman.config.pipeline.modules.fastq.umi
     cmd = f"""
