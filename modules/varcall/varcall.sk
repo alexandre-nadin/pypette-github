@@ -18,7 +18,7 @@ rule varcall__cnvkit:
     bam = pipeman.input(
              f"{bam__sampleTarget}.bam",
              derefKwargs = ['sample_name',]),
-    vcf = f"{vcf__sampleTarget}.ga.g.vcf.gz",
+    vcf = f"{vcf__sampleTarget}.fb.merged.filter.vcf.gz",
     ref_genome_fa = lambda x: genome__fasta()
   output:
     cns = f"{vcf__sampleTarget}.calls.cns"
