@@ -42,3 +42,11 @@ bam__sortSampleSamtools:
 bam__flagstat:
   do: True
   mem: "{pipeman.config.pipeline.modules.mapping.flagstat.mem}"
+
+varcall__gatk:
+  do: True
+  mem: '64gb'
+
+varcall__mergeGVCF:
+  do: True
+  mem: '64gb'
