@@ -45,8 +45,8 @@ pipeline:
         bbduk: "BBDUK/adapters.fa"
       umi:
         bcPattern: 'CCCCCCCCCCCCCCCCNNNNNNNNNNNN'
+        setCellNumber: False
         cellNumber: 1000
-        cellNumberExpected: True
     anndata:
       scanpy:
         verbosity: 3
