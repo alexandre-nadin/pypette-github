@@ -67,7 +67,7 @@ rule bam__sortSamplePicard:
   run:
     cmd = """
       picard SortSam          \
-        I={input.bam          \
+        I={input.bam}         \
         SORT_ORDER=coordinate \
         O={output.bam}
     """
