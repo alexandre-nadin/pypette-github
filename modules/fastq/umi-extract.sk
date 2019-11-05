@@ -14,21 +14,23 @@ rule fastq_umi__whitelist:
     r1    = pipeman.input(fastq__read, sample_read="R1")
   output:
     wlist = f"{fastq_umi__pipeTarget}/whitelist.txt",
-    plots = f"{fastq_umi__pipeTarget}/plots"
   run:
     umi = config.pipeline.modules.fastq.umi
     if umi.setCellNumber:
-      cellNumberOption = f"--set-cell-number {umi.cellNumber}"
+      cellNbOpt = f"--set-cell-number {umi.cellNumber}"
+      plotPref  = f"{fastq_umi__pipeTarget}/estimated"
     else:
-      cellNumberOption = ""
+      cellNbOpt = ""
+      plotPref  = f"{fastq_umi__pipeTarget}/set"
+    plotPref = plotPref.format(**wildcards)
 
     cmd = f"""
-      umi_tools whitelist                   \
-        --stdin {input.r1}                  \
-        {cellNumberOption}                  \
-        --bc-pattern {umi.bcPattern}        \
-        --plot-prefix {output.plots}/       \
-        --log2stderr                        \
+      umi_tools whitelist            \
+        --stdin {input.r1}           \
+        {cellNbOpt}                  \
+        --bc-pattern {umi.bcPattern} \
+        --plot-prefix {plotPref}     \
+        --log2stderr                 \
         > {output.wlist}
     """
     exshell(**vars())
