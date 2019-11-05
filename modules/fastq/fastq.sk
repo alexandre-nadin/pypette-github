@@ -19,12 +19,11 @@ pipeman.includeModules(
   "fastq/merge.sk",
   "fastq/trimming.sk",
   "fastq/qc.sk",
-  "fastq/adapter.sk",
-  "fastq/umi-extract.sk")
+  "fastq/adapter.sk")
 # TODO: manage better those inclusions -> pipeline specific
 
 pipeman.addTargets(
-   fastq__procs      = "{{procFastqMerge}}{{procTrimming}}{{procUmiExtract}}",
+   fastq__procs      = "{{procFastqMerge}}{{procTrimming}}",
    fastq__pipeTarget = "{fastq__sampleRunDir}/{fastq__procs}")
 
 ruleorder: fastq_trimming__bbduk > fastq_trimming__trimmomatic > fastq_trimming__cutadapt > fastq_merging__mergeReads

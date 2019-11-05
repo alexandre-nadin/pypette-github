@@ -17,24 +17,6 @@ pipeman.addTargets(
 # -C      :  do NOT count chimeric fragments in PE data, i.e. paired reads mapping on different chromosomes *
 # -R BAM  :  Annotates the original bam files. We don't need this bam for now *
 
-rule counts__umiCounts:
-  input:
-    bam    = "{someprefix}/featureCounts/sorted/samtools/{sample_name}.bam",
-    bai    = "{someprefix}/featureCounts/sorted/samtools/{sample_name}.bai"
-  output:
-    counts = "{someprefix}/featureCounts/sorted/samtools/umi-counts/{sample_name}.counts.tsv.gz"
-  run:
-    cmd = """
-      umi_tools count            \
-        --per-gene               \
-        --gene-tag=XT            \
-        --assigned-status-tag=XS \
-        --per-cell               \
-        -I {input.bam}           \
-        -S {output.counts}
-    """
-    exshell(**vars())
-
 rule counts__featureCounts:
   input: 
     bam       = "{someprefix}/{sample_name}.bam",

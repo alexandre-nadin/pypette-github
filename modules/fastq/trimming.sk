@@ -57,7 +57,7 @@ rule fastq_trimming__trimmomatic:
         TRAILING:3                            \\
         SLIDINGWINDOW:4:15                    \\
         MINLEN:15                             \\
-        {trimmomatic.headcrop}                
+        HEADCROP:{trimmomatic.headcrop}                
       touch {output}
     """
     exshell(**vars())

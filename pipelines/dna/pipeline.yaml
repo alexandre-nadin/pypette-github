@@ -34,7 +34,7 @@ pipeline:
             cores: 8
             mem: '10gb'
             memJava: '10240M'
-            headcrop: ""
+            headcrop: 0
           cutadapt:
           bbduk:
             cores: 8
