@@ -16,16 +16,16 @@ rule fastq_umi__whitelist:
     wlist = f"{fastq_umi__pipeTarget}/whitelist.txt",
     plots = f"{fastq_umi__pipeTarget}/plots"
   run:
-    umi = pipeman.config.pipeline.modules.fastq.umi
-    if umi.cellNumberExpected:
-      cellNumberOption = '--expect-cells'
+    umi = config.pipeline.modules.fastq.umi
+    if umi.setCellNumber:
+      cellNumberOption = f"--set-cell-number {umi.cellNumber}"
     else:
-      cellNumberOption = '--set-cell-number'
+      cellNumberOption = ""
 
     cmd = f"""
       umi_tools whitelist                   \
         --stdin {input.r1}                  \
-        {cellNumberOption} {umi.cellNumber} \
+        {cellNumberOption}                  \
         --bc-pattern {umi.bcPattern}        \
         --plot-prefix {output.plots}/       \
         --log2stderr                        \
