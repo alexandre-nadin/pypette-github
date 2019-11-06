@@ -1,21 +1,20 @@
 pipeman.includeModule("genomes/genome.sk")
 include: "annotation.py"
 
-rule gencode__gtf:
+rule annot__ebiGtf:
   """
   Downloads the required GTF file.
   """
   output:
-    gtf = annot__ebiGtf()
+    gtf = annot__ebiGtfGz()
   run:
-    gtfUrl = annot__ebiGtfUrl()
-    cmd = """
-      curl "{gtfUrl}" \
+    cmd = f"""
+      curl "{annot__ebiGtfUrl()}" \
         -o {output.gtf}
     """
     exshell(**vars())
 
-rule gencode__gtfToBed:
+rule annot__gtfToBed:
   """
   Converts the required GTF into a bed file.
   """
@@ -26,18 +25,18 @@ rule gencode__gtfToBed:
   run:
     cmd = """
       gunzip -c {input.gtf}                     \
-       | awk '{{ 
-           if ($0 ~ "transcript_id") 
-             print $0; 
-           else 
-             print $0" transcript_id \\"\\";"; 
+       | awk '{{
+           if ($0 ~ "transcript_id")
+             print $0;
+           else
+             print $0" transcript_id \\"\\";";
          }}'                                    \
        | gtf2bed                                \
       > {output.bed}
     """
     exshell(**vars())
 
-rule gencode__gtfToBiotypes:
+rule annot__gtfToBiotypes:
   """
   Creates a gene-biotype dictionary from a GTF
   """
@@ -57,7 +56,7 @@ rule gencode__gtfToBiotypes:
        | tr -d "\\""                              \
        | awk '{{OFS="\t"; print $3, $2}}'         \
        | gzip                                     \
-       > {output.biotypes} 
+       > {output.biotypes}
     """
     exshell(**vars())
 
@@ -65,8 +64,8 @@ rule gencode__gtfToBiotypes:
 # ------
 # UCSC
 # ------
-rule gencode__ucscAnnotTxt:
-  """ 
+rule annot__ucscAnnotTxt:
+  """
   Gets the raw txt annotation file.
   """
   output:
@@ -77,13 +76,13 @@ rule gencode__ucscAnnotTxt:
     """
     exshell(**vars())
 
-rule gencode__ucscAnnotGenePred:
+rule annot__ucscAnnotGenePred:
   """
   Gets the required genePred file.
   """
   input:
     annot    = lambda x: annot__ucscTxt()
-  output: 
+  output:
     genePred = annot__ucscGenePred()
   run:
     cmd = f"""
@@ -93,8 +92,33 @@ rule gencode__ucscAnnotGenePred:
        > {output.genePred}
     """
     exshell(**vars())
-  
-rule gencode__ucscAnnotBedgz:
+
+rule annot__gtf:
+  input:
+    gz  = "{someprefix}.gtf.gz"
+  output:
+    gtf = pipeman.temp("{someprefix}.gtf")
+  run:
+    cmd = """
+      gunzip -c {input.gz} > {output.gtf}
+    """
+    exshell(**vars())
+
+rule annot__ucscAnnotGtfGz:
+  """ Gets the required GTF file. """
+  input:
+    pred = lambda x: annot__ucscGenePred()
+  output:
+    gtf  = annot__ucscGtfGz()
+  run:
+    cmd = """
+      genePredToGtf file {input.pred} stdout \
+       | gzip                                \
+       > {output.gtf}
+    """
+    exshell(**vars())
+
+rule annot__ucscAnnotBedgz:
   """
   Gets the required bed file.
   """
@@ -110,7 +134,7 @@ rule gencode__ucscAnnotBedgz:
     """
     exshell(**vars())
 
-rule gencode__ucscBed:
+rule annot__ucscBed:
   input:
     bed = lambda x: annot__ucscBedgz()
   output:

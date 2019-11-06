@@ -20,8 +20,8 @@ pipeman.addConfigFiles(*config__files)
 # -----------------------
 rule config__internalConf:
   """
-  This should be taken form the lims.
-  Not implemented yet in lims API.
+  This should be taken from the LIMS.
+  Not implemented yet in LIMS API.
   """
   output:
     file = config__dir + "/{conf}.yaml"
@@ -32,7 +32,7 @@ rule config__internalConf:
 
 rule config__all:
   """
-  Generated all required configuration files.
+  Generates all required configuration files.
   """
   input:
     lambda x: pipeman.configFiles

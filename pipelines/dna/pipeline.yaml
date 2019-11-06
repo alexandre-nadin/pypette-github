@@ -6,7 +6,7 @@ pipeline:
         name: "bwa"
         command: "bwa"
         version: "0.7.17-r1188"
-        cores: 6
+        cores: 8
         ram: '64gb'
       counter:
         name: "featureCounts"
@@ -34,7 +34,7 @@ pipeline:
             cores: 8
             mem: '10gb'
             memJava: '10240M'
-            headcrop: ""
+            headcrop: 0
           cutadapt:
           bbduk:
             cores: 8

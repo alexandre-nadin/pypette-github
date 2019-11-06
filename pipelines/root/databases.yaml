@@ -5,4 +5,4 @@ databases:
   ucsc:
     gencodeUrl: 'ftp://hgdownload.cse.ucsc.edu/goldenPath/{species.genome.assembly.ucscRef}/database'
     gencodeBaseName: 'wgEncodeGencodeBasicV{species.genome.assembly.release}'
-   
+    tbitUrl: 'ftp://hgdownload.cse.ucsc.edu/goldenPath/{species.genome.assembly.ucscRef}/bigZips/{species.genome.assembly.ucscRef}.2bit'   
