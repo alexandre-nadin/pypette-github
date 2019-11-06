@@ -355,7 +355,16 @@ function pypette::jobsDirs() {
    | xargs -I {} readlink -f {}
 }
 
+function pypette::jobsLogs() {
+  find $(pypette::jobsDir) -maxdepth 2 -type f
+}
+
 function pypette::cleanJobsDir() {
+  pypette::rmEmptyJobsDir
+  pypette::rmLogBashErrors
+}
+
+function pypette::rmEmptyJobsDir() {
   for jobDir in $(pypette::jobsDirs); do
     if [ $(ls "$jobDir" | wc -l) -gt 0 ]; then
       :
@@ -363,6 +372,11 @@ function pypette::cleanJobsDir() {
       rm -r "$jobDir"
     fi
   done
+}
+
+function pypette::rmLogBashErrors() {
+  pypette::jobsLogs            \
+   | xargs sed -i '/^-bash:/d'
 }
 
 # ---------------
