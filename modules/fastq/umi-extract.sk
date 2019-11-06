@@ -18,10 +18,10 @@ rule fastq_umi__whitelist:
     umi = config.pipeline.modules.fastq.umi
     if umi.setCellNumber:
       cellNbOpt = f"--set-cell-number {umi.cellNumber}"
-      plotPref  = f"{fastq_umi__pipeTarget}/estimated"
+      plotPref  = f"{fastq_umi__pipeTarget}/set"
     else:
       cellNbOpt = ""
-      plotPref  = f"{fastq_umi__pipeTarget}/set"
+      plotPref  = f"{fastq_umi__pipeTarget}/estimated"
     plotPref = plotPref.format(**wildcards)
 
     cmd = f"""
