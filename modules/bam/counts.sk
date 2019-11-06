@@ -1,8 +1,10 @@
 include: "counts.py"
 pipeman.includeModule('qc/rseqc.sk')
 
-counts__sampleTarget = "{someprefix}/featureCounts/{sample_name}"
-counts__dir = "featureCounts"
+pipeman.addTargets(
+  counts__dir          = "featureCounts",
+  counts__pipeTarget   = "{bam__pipeTarget}{counts__dir}",
+  counts__sampleTarget = "{counts__pipeTarget}/{{sample_name}}",)
 
 # -------
 # Counts
@@ -15,29 +17,11 @@ counts__dir = "featureCounts"
 # -C      :  do NOT count chimeric fragments in PE data, i.e. paired reads mapping on different chromosomes *
 # -R BAM  :  Annotates the original bam files. We don't need this bam for now *
 
-rule counts__umiCounts:
-  input:
-    bam    = "{someprefix}/featureCounts/sorted/samtools/{sample_name}.bam",
-    bai    = "{someprefix}/featureCounts/sorted/samtools/{sample_name}.bai"
-  output:
-    counts = "{someprefix}/featureCounts/sorted/samtools/umi-counts/{sample_name}.counts.tsv.gz"
-  run:
-    cmd = """
-      umi_tools count            \
-        --per-gene               \
-        --gene-tag=XT            \
-        --assigned-status-tag=XS \
-        --per-cell               \
-        -I {input.bam}           \
-        -S {output.counts}
-    """
-    exshell(**vars())
-
 rule counts__featureCounts:
   input: 
     bam       = "{someprefix}/{sample_name}.bam",
     inferExp  = "{someprefix}/{sample_name}.inferExperiment",
-    gtf       = lambda x: annot__ebiGtf()
+    gtf       = lambda x: annot__ebiGtfGz()
   output:
     counts    = pipeman.temp("{someprefix}/featureCounts/{sample_name}.counts"),
     countsGz  =              "{someprefix}/featureCounts/{sample_name}.counts.gz",

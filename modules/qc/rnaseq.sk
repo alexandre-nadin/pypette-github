@@ -18,7 +18,7 @@ rule qc_rnaseq__multiqc:
       f"{bam__sampleTarget}.bamstats",
       derefKwargs=['sample_name',]),
     starLogs  = pipeman.input(
-      f"{bam_mapper__pipeTarget}/Log.final.out",
+      f"{bam_mapper__pipeTarget}/{{sample_name}}.Log.final.out",
       derefKwargs=['sample_name',]),
   output:
     report   =           f"{bam__pipeTarget}multiqc_report.html",

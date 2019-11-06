@@ -11,7 +11,7 @@ pipeline:
             cores: 8
             mem: '10gb'
             memJava: '10240M'
-            headcrop: 'HEADCROP:12'
+            headcrop: 0
           cutadapt:
           bbduk:
             cores: 8

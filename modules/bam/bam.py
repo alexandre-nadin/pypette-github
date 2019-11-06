@@ -6,12 +6,12 @@ def bam__alignerDft():
 
 def bam__configAligner():
   try:
-    return pipeman.config.pipeline.modules.mapping.aligner.name
+    return pipeman.config.pipeline.modules.mapping.aligner
   except:
     pipeman.log.error("No aligner found in pipeline configuration.")
 
 def bam__alignerDir(append=False):
-  aligner = bam__configAligner()
+  aligner = bam__configAligner().name
   if aligner:
     res = aligner
   else:
@@ -20,17 +20,15 @@ def bam__alignerDir(append=False):
     res = os.path.sep + res
   return res
     
-def bam__alignerModule():
-  aligner = bam__configAligner()
-  module = ""
-  if aligner:
-    module = '{}.sk'.format(aligner)
-  return module.lower()
+def bam__alignerModule(aligner):
+  return f"{aligner.name}.sk".lower()
 
 def bam__includeAlignerModule():
   aligner = bam__configAligner()
-  if aligner:
-    include: bam__alignerModule()
+  if aligner.name:
+    include: bam__alignerModule(aligner)
+  else:
+    pipeman.log.error("No aligner found in the pipeline configuration.")
 
 # -----------
 # Alignment
