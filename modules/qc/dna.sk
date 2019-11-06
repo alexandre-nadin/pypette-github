@@ -4,7 +4,7 @@ rule qc_dna__multiqc:
   input:
     fastqcs    = pipeman.input(
                    fastq_qc__readZip, 
-                   derefKwargs=['sample_name',]),
+                   derefKwargs=['sample_name', 'sample_run']),
     mdMetrics  = pipeman.input(
                    f"{bam__sampleTarget}.metrics",
                    derefKwargs=['sample_name',]),
