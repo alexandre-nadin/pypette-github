@@ -9,8 +9,8 @@ def exome__intervalListFmt():
     "agilent_v7_sureselect_{}.interval_list")
 
 def exome__targetIntervals():
-  return exome__intervalListFmt().format("MergedProbes")
+  return exome__intervalListFmt().format("Regions")
 
 def exome__baitIntervals():
-  return exome__intervalListFmt().format("Regions")
+  return exome__intervalListFmt().format("MergedProbes")
 
