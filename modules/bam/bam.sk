@@ -201,7 +201,9 @@ rule bam__baseRecalibrator:
     gnmName = project__speciesGenomeName()
     if gnmName == "hs37d5":
       gnmName = "hg19"
-    knownSitesOpt = " -knownSites ".join(genome__baseRecalibSites(gnmName))
+    knownSitesOpt = ''.join([ f" -knownSites {site}" 
+                              for site in genome__baseRecalibSites(gnmName)
+                            ])
     cmd = f"""
       gatk                 \
        -T BaseRecalibrator \
