@@ -23,8 +23,8 @@ rule counts__featureCounts:
     inferExp  = "{someprefix}/{sample_name}.inferExperiment",
     gtf       = lambda x: annot__ebiGtfGz()
   output:
-    counts    = pipeman.temp("{someprefix}/featureCounts/{sample_name}.counts"),
     countsGz  =              "{someprefix}/featureCounts/{sample_name}.counts.gz",
+    counts    = pipeman.temp("{someprefix}/featureCounts/{sample_name}.counts"),
     sumcounts =              "{someprefix}/featureCounts/{sample_name}.counts.summary",
     bamFc     = pipeman.temp("{someprefix}/featureCounts/{sample_name}.bam.featureCounts.bam"),
     bam       = pipeman.temp("{someprefix}/featureCounts/{sample_name}.bam"),
