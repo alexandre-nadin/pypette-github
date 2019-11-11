@@ -47,10 +47,10 @@ rule vcf__merge_BaseRecalibrator:
     vcf     = "{vcf__pipeTarget}/all.ga.merged.vcf.gz",
     ref_genome_fa = lambda x: genome__fasta()
   output:
-    recal     = "{vcf__pipeTarget}/all.ga.merged.recal",
-    tranches  = "{vcf__pipeTarget}/all.ga.merged.tranches",
-    rscript   = "{vcf__pipeTarget}/all.ga.merged.plots.R",
-    vcf       = "{vcf__pipeTarget}/all.ga.merged.recal.vcf.gz"
+    recal     = f"{vcf__pipeTarget}/all.ga.merged.recal",
+    tranches  = f"{vcf__pipeTarget}/all.ga.merged.tranches",
+    rscript   = f"{vcf__pipeTarget}/all.ga.merged.plots.R",
+    vcf       = f"{vcf__pipeTarget}/all.ga.merged.recal.vcf.gz"
   params:
     ref_genome_dir = genome__dir(),
     ref_genome_name = pipeman.config.project.genome.name
@@ -90,10 +90,10 @@ rule vcf__merge_IndelRecalibrator:
     vcf     = "{vcf__pipeTarget}/all.ga.merged.recal.vcf.gz",
     ref_genome_fa = lambda x: genome__fasta()
   output:
-    recal     = "{vcf__pipeTarget}/all.ga.merged.indel.recal",
-    tranches  = "{vcf__pipeTarget}/all.ga.merged.indel.tranches",
-    rscript   = "{vcf__pipeTarget}/all.ga.merged.indel.plots.R",
-    vcf       = "{vcf__pipeTarget}/all.ga.merged.indel.recal.vcf.gz"
+    recal     = f"{vcf__pipeTarget}/all.ga.merged.indel.recal",
+    tranches  = f"{vcf__pipeTarget}/all.ga.merged.indel.tranches",
+    rscript   = f"{vcf__pipeTarget}/all.ga.merged.indel.plots.R",
+    vcf       = f"{vcf__pipeTarget}/all.ga.merged.indel.recal.vcf.gz"
   params:
     ref_genome_dir = genome__dir(),
     ref_genome_name = pipeman.config.project.genome.name
