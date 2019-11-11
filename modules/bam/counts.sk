@@ -23,8 +23,8 @@ rule counts__featureCounts:
     inferExp  = "{someprefix}/{sample_name}.inferExperiment",
     gtf       = lambda x: annot__ebiGtfGz()
   output:
-    counts    = pipeman.temp("{someprefix}/featureCounts/{sample_name}.counts"),
     countsGz  =              "{someprefix}/featureCounts/{sample_name}.counts.gz",
+    counts    = pipeman.temp("{someprefix}/featureCounts/{sample_name}.counts"),
     sumcounts =              "{someprefix}/featureCounts/{sample_name}.counts.summary",
     bamFc     = pipeman.temp("{someprefix}/featureCounts/{sample_name}.bam.featureCounts.bam"),
     bam       = pipeman.temp("{someprefix}/featureCounts/{sample_name}.bam"),
@@ -59,7 +59,7 @@ rule counts__mergedCounts:
   input:
     counts = pipeman.input(
                f"{bam__pipeTarget}featureCounts/{{sample_name}}.counts.gz",
-               derefKwargs=['sample_name',])
+               derefKwargs=['sample_run',])
   output:
     counts = f"{bam__pipeTarget}featureCounts/{{sample_name}}.mergedCounts.gz"
   run:
