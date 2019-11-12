@@ -128,6 +128,7 @@ eol
 }
 
 pypette__paramsMandatory=(PROJECT PIPELINE)
+
 function manual() {
   cat << EOFMAN
   
@@ -360,8 +361,9 @@ function pypette::jobsLogs() {
 }
 
 function pypette::cleanJobsDir() {
+  [ -d $(pypette::jobsDir) ] || return
   pypette::rmEmptyJobsDir
-  pypette::rmLogBashErrors
+  pypette::cleanLogBashErrors
 }
 
 function pypette::rmEmptyJobsDir() {
@@ -374,7 +376,7 @@ function pypette::rmEmptyJobsDir() {
   done
 }
 
-function pypette::rmLogBashErrors() {
+function pypette::cleanLogBashErrors() {
   pypette::jobsLogs            \
    | xargs sed -i '/^-bash:/d'
 }
