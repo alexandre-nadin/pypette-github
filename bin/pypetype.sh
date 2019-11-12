@@ -2,12 +2,11 @@
 source pypette.sh
 pypette::setManual pypetype::manual
 
-pypetype__paramsMandatory=(PROJECT TARGET)
-
 # ----------
 # Workflow
 # ----------
 function pypetype::runFlow() {
+  pypetype::initParams
   pypetype::parseParams "$@"
   pypetype::checkParams
   pypetype::exportVarenvs
@@ -23,6 +22,8 @@ function pypetype::exportVarenvs() {
 # --------------
 # CLI & Parsing
 # --------------
+pypetype__paramsMandatory=(PROJECT TARGET)
+
 function pypetype::manual() {
   cat << eol
 
@@ -71,6 +72,15 @@ function pypetype::manual() {
 
 
 eol
+}
+
+# -----------
+# Parameters
+# -----------
+function pypetype::initParams() {
+  PROJECT=""
+  TARGET=""
+  WORKDIR="$(pwd)"
 }
 
 function pypetype::parseParams() {
