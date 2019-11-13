@@ -1,4 +1,4 @@
-library("DESeq2")
+suppressMessages(library("DESeq2"))
 suppressMessages(library("edgeR"))
 suppressMessages(library(data.table))
 

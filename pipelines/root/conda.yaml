@@ -68,7 +68,7 @@ libprotobuf=3.6.0=hd28b015_0
 libstdcxx-ng=7.3.0=hdf63c60_0
 libtiff=4.0.9=he6b73bb_2
 libtool=2.4.6=h470a237_2
-libuuid=2.32.1=h470a237_2
+libuuid=2.32.1
 libxcb=1.13=h470a237_2
 libxml2=2.9.8=h422b904_5
 libxslt=1.1.32=h88dbc4e_2
