@@ -5,7 +5,7 @@ pipeman.addTargets(
 """ Assesses and plots biotypes distributions """
 rule biotypes:
   input: 
-    counts   = pipeman.input(f"{counts__sampleTarget}.mergedCounts.gz"),
+    counts   = pipeman.input(f"{counts_merged__sampleTarget}.counts.gz"),
     biotypes = annot__ebiBiotypes()
   output:
     dir      = directory(f"{biotypes__sampleTarget}")

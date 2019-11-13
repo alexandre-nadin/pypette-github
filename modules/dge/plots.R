@@ -1,8 +1,8 @@
 smkSource("dge/deseq2.R")
 
-library("RColorBrewer")
-library("pheatmap")
-library("ggplot2")
+suppressMessages(library("RColorBrewer"))
+suppressMessages(library("pheatmap"))
+suppressMessages(library("ggplot2"))
 
 # ------------------
 # Dge Results Table
