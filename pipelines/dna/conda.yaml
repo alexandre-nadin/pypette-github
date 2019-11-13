@@ -61,7 +61,7 @@ dependencies:
   - fribidi=1.0.5=h516909a_1002
   - ftputil=3.2=py36_0
   - future=0.17.1=py36_1000
-  - gatk=3.8=7
+  - gatk=3.7=py36_1
   - gcc_impl_linux-64=7.3.0=habb00fd_1
   - gcc_linux-64=7.3.0=h553295d_8
   - gettext=0.19.8.1=hc5be6a0_1002
