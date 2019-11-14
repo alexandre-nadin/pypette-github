@@ -17,9 +17,13 @@ geneidColname <- 'Geneid'
 geneidIdx <- which(tolower(smkp$fCountsDataCols) %in% tolower(geneidColname))
 rownames(fCountsData) <- fCounts[[geneidIdx]]
 
+# Reordering counts matrix to have samples ordered as in metadata
+metadata = read.delim(smkin$metadata, header=TRUE) 
+fCountsData <- fCountsData[,match(metadata[,1], colnames(fCountsData))] # assuming that the first column in metadata is sample name
+
 dds <- DESeqDataSetFromMatrix(
   countData= fCountsData, 
-  colData  = read.delim(smkin$metadata, header=TRUE), 
+  colData  = metadata, 
   design   = as.formula(smkp$dge$design$string))
 
 filter <- rowSums(cpm(counts(dds)) >= smkp$dge$minCounts) >= smkp$dge$minSamples
