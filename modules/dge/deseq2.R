@@ -47,4 +47,6 @@ for (contrast in contrasts) {
     independentFiltering = TRUE, 
     alpha                = smkp$dge$alpha,
     pAdjustMethod        = "BH")
+  # sorting gene list according to significance
+  dgeResults[[contrast]] <- dgeResults[[contrast]][order(dgeResults[[contrast]]$pvalue, decreasing = F),]
 }
