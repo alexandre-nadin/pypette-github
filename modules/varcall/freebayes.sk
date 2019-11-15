@@ -1,4 +1,6 @@
-pipeman.includeModules("varcall/varcall.sk")
+pipeman.includeModules(
+  "varcall/varcall.sk",
+  "core/lang.py")
 
 rule varcall__freebayes_merge:
   input:                                           
@@ -152,6 +154,7 @@ rule genmod:
     vcf = f"{vcf__sampleTarget}.fb.merged.filter.annotate.genmod.vcf.gz"
   run:
     cmd = f"""
+      export {core_lang__dft}
       zcat {input.vcf} \
       | genmod annotate - --annotate_regions \
       | genmod models - --family_file {input.ped} -w \
