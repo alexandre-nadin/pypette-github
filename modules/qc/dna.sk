@@ -1,4 +1,4 @@
-LANG = "LC_ALL=en_US.utf8 LANG=en_US.utf8"
+pipeman.includeModules("core/lang.py")
 
 rule qc_dna__multiqc:
   input:
@@ -20,7 +20,8 @@ rule qc_dna__multiqc:
   run:
     outDir = bam__pipeTarget.format(**wildcards)
     cmd  = f"""
-      {LANG} multiqc       \
+      export {core_lang__dft} 
+      multiqc              \
         -f                 \
         -o {outDir}        \
         {input} 
