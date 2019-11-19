@@ -42,7 +42,7 @@ rule varcall__mergeGVCF:
     """
     exshell(**vars())
 
-rule vcf__merge_BaseRecalibrator:
+rule varcall__merge_BaseRecalibrator:
   input:
     vcf       = f"{vcf__pipeTarget}/all.ga.merged.vcf.gz",
     ref_genome_fa = lambda x: genome__fasta()
@@ -85,7 +85,7 @@ rule vcf__merge_BaseRecalibrator:
     """
     exshell(**vars())
 
-rule vcf__merge_IndelRecalibrator:
+rule varcall__merge_IndelRecalibrator:
   input:
     vcf       = f"{vcf__pipeTarget}/all.ga.merged.recal.vcf.gz",
     ref_genome_fa = lambda x: genome__fasta()

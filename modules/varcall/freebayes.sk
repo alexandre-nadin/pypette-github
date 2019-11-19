@@ -146,7 +146,7 @@ rule varcall__annotate_fb_merged:
     """
     exshell(**vars())
 
-rule genmod:
+rule varcall__genmod:
   input:
     vcf = f"{vcf__sampleTarget}.fb.merged.filter.annotate.vcf.gz",
     ped = f"{config__dir}/all.ped"
