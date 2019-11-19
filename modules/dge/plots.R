@@ -14,12 +14,12 @@ lapply(
     data.table(
       data.frame(dgeResults[[x]]),
       keep.rownames=geneidColname),
-    file.path(smkout$contrasts, paste(x, ".csv", sep="")), 
+    file.path(smkout$contrasts, paste(x, ".tsv", sep="")), 
     append=F,
     row.names=F,
     col.names=T,
     quote=F,
-    sep=","))
+    sep="\t"))
 
 # ------------
 # Dist Estims
