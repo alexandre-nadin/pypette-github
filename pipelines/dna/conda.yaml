@@ -271,6 +271,7 @@ dependencies:
   - trimmomatic=0.39=1
   - typing_extensions=3.7.4=py36_0
   - urllib3=1.12=py36_0
+  - vt=2015.11.10=1
   - wheel=0.33.6=py36_0
   - wrapt=1.11.2=py36h516909a_0
   - xmlrunner=1.7.7=py_0
