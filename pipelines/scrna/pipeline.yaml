@@ -52,7 +52,7 @@ pipeline:
         verbosity: 3
         firstFilter:
           minGenes: 50
-          minSamples: 5 
+          minCells: 5 
         secondFilter:
           nGenes: 6000
           percentMito: 0.2
