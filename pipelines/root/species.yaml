@@ -1,21 +1,23 @@
 species:
   mouse:
     name: "mouse"
-    ensemblName: "mmusculus"
+    taxo: "mmusculus"
     genome:
       assembly:
-        name: "GRCm38" 
-        release: "M22"
+        build: "GRCm38"
+        gencode: "M11"
+        ensembl: "86"
         ucscRef: "mm10"
       annotation:
         type: "basic"
   human:
     name: "human"
-    ensemblName: "hsapiens"
+    taxo: "hsapiens"
     genome:
       assembly:
-        name: "GRCh38" 
-        release: "31"
+        build: "GRCh38"
+        gencode: "25"
+        ensembl: "86"
         ucscRef: "hg38"
       annotation:
         type: "basic"
