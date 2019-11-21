@@ -7,7 +7,7 @@ def annot__dir():
 def annot__gencodeDir():
   return os.path.join(
     annot__dir(),
-    "{species.genome.assembly.gencode}")
+    "{species.genome.assembly.gencodeRelease}")
 
 # ----------------------
 # EBI Annotation Files

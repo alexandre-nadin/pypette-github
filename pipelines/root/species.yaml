@@ -4,9 +4,9 @@ species:
     taxo: "mmusculus"
     genome:
       assembly:
-        build: "GRCm38"
-        gencode: "M11"
-        ensembl: "86"
+        buildName: "GRCm38"
+        gencodeRelease: "M11"
+        ensemblRelease: "86"
         ucscRef: "mm10"
       annotation:
         type: "basic"
@@ -15,9 +15,9 @@ species:
     taxo: "hsapiens"
     genome:
       assembly:
-        build: "GRCh38"
-        gencode: "25"
-        ensembl: "86"
+        buildName: "GRCh38"
+        gencodeRelease: "25"
+        ensemblRelease: "86"
         ucscRef: "hg38"
       annotation:
         type: "basic"
