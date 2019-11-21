@@ -146,7 +146,7 @@ rule varcall__annotate_gatk_merge:
     else:
       genome_name = pipeman.config.project.genome.name
       #gencode = gencode__baseName()
-      gencode = pipeman.config.project.genome.gencode.genome_version + pipeman.config.project.genome.gencode.version
+      gencode = pipeman.config.project.genome.gencode.genome_version + "." + pipeman.config.project.genome.gencode.version
     cmd = f"""
       vt normalize -n -r {input.ref_genome_fa} {input.vcf} \
       | snpSift annotate {annotation_dir}/dbSNP-151.vcf.gz \
@@ -176,7 +176,7 @@ rule varcall__annotate_gatk:
     else:
       genome_name = pipeman.config.project.genome.name
       #gencode = gencode__baseName()
-      gencode = pipeman.config.project.genome.gencode.genome_version + pipeman.config.project.genome.gencode.version
+      gencode = pipeman.config.project.genome.gencode.genome_version + "." + pipeman.config.project.genome.gencode.version
     cmd = f"""
       vt normalize -n -r {input.ref_genome_fa} {input.vcf} \
       | snpSift annotate {annotation_dir}/dbSNP-151.vcf.gz \
