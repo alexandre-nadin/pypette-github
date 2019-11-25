@@ -1,54 +1,20 @@
-suppressMessages(library("edgeR"))
-suppressMessages(library(data.table)) 
+smkSource("clustering/rpkm.R")
+
 suppressMessages(library("RColorBrewer"))
 suppressMessages(library("ggplot2"))
 
-
-# -----------------------
-# Import data from Feature Counts
-# ------------------------
-fCounts <- read.delim(file=smkin$counts, header=TRUE)
-fCountsData <- fCounts[
-  , 
-  -which(
-    tolower(names(fCounts))
-    %in% 
-    tolower(smkp$fCountsDataCols) )]
-
-fCountsAnnotation <- fCounts[
-  , 
-  which(
-    tolower(names(fCounts))
-    %in% 
-      tolower(smkp$fCountsDataCols))]
-         
-geneidColname <- 'Geneid'
-geneidIdx <- which(tolower(smkp$fCountsDataCols) %in% tolower(geneidColname))
-rownames(fCountsData) <- fCounts[[geneidIdx]]
-
-# import metadata
-metadata = read.delim(smkin$metadata, header=TRUE)
-# Reordering counts matrix to have samples ordered as in metadata
-fCountsData <- fCountsData[,match(metadata[,1], colnames(fCountsData))] # assuming that the first column in metadata is sample name
-
-# Calculate RPKM
-y = DGEList(counts=fCountsData, genes = fCountsAnnotation)
-# filter on expression
-keep <- rowSums(cpm(y)> 1) >= smkp$dge$minSamples
-fCountsRPKM = rpkm(y, log=T, gene.length =y$genes$Length)
-# evaluate pca only for the N most variable genes 
-N = 500
-vary <- apply(fCountsRPKM[keep,],1,var)
-NMostVariable <- names(sort(vary, decreasing = T)[1:N])
-fCountsRPKM_MV <- fCountsRPKM[NMostVariable,]
-
+# ------------------
 # PCA parameters
+# ------------------
 pcx = 1
 pcy = 2
 centering = TRUE
 scaling = TRUE
 
+# ------------------
 # Performing PCA
+# ------------------
+# fCountsRPKM_MV contains the N most variable feature as evaluated in rpkm.R
 pca = prcomp(t(fCountsRPKM_MV), center=centering, scale=scaling)
 var = round(matrix(((pca$sdev^2)/(sum(pca$sdev^2))), ncol=1)*100,1)
 score = as.data.frame(pca$x)
