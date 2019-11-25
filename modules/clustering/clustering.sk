@@ -1,0 +1,29 @@
+pipeman.addTargets(
+  clustering__pipeTarget   = "{counts_merged__pipeTarget}/clustering",
+  clustering__sampleTarget = "{clustering__pipeTarget}/{{sample_name}}",
+
+  clustering__pcaTarget       = "{clustering__pipeTarget}/pca",
+  clustering__pcaSampleTarget = "{clustering__pcaTarget}/{{sample_name}}"
+)
+
+rule clustering__pca:
+  """ performing pca of your samples - NB: it makes sense only for all samples """
+  input:
+    metadata    = "samples/metadata.tsv",
+    counts      = f"{counts_merged__sampleTarget}.counts.gz"
+  output:
+    pca         = f"{clustering__pcaSampleTarget}.pca.pdf"
+  params:
+    fCountsDataCols = counts__stdCols(),
+    dge = lambda wildcards, input: dge__deseq2ParamsDft(input.metadata)
+  script:
+    pipeman.rscript("clustering/pca.R") 
+
+print(f"rules: {rules}")
+print(rules.clustering__pca)
+print(rules.clustering__pca.params)
+
+
+
+
+   
