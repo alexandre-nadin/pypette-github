@@ -14,6 +14,12 @@ def genome__dir():
     pipeman.config.cluster.genomeDir,
     "{species.genome.assembly.ucscRef}")
 
+def ensembl__buildVersion():
+  species = project__speciesGenome()
+  ensemblRelease = pipeman.config.species[species].genome.assembly.ensemblRelease
+  buildName = pipeman.config.species[species].genome.assembly.buildName
+  return f"{buildName}.{ensemblRelease}"
+
 def genome__gatkDir():
   return os.path.join(
     genome__dir(),
