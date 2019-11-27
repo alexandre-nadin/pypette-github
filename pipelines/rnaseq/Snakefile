@@ -16,5 +16,6 @@ pipeman.includeModules(
   "bam/counts.sk",
   "qc/rnaseq.sk",
   "dge/dge.sk",
+  "clustering/clustering.sk",
   "biotypes/biotypes.sk",
   withConfigFiles=True)
