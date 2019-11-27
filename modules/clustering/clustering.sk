@@ -22,10 +22,6 @@ rule clustering__pca:
   script:
     pipeman.rscript("clustering/pca.R") 
 
-print(f"rules: {rules}")
-print(rules.clustering__pca)
-print(rules.clustering__pca.params)
-
 
 rule clustering__heatmap:
   """ performing heatmap on 500 most variant genes from expressed RPKM"""
