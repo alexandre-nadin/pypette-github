@@ -4,10 +4,10 @@ def annot__dir():
     "annotation")
 
 @genome__formatSpeciesCfg
-def annot__releaseDir():
+def annot__gencodeDir():
   return os.path.join(
     annot__dir(),
-    "{species.genome.assembly.release}")
+    "{species.genome.assembly.gencodeRelease}")
 
 # ----------------------
 # EBI Annotation Files
@@ -24,7 +24,7 @@ def annot__ebiGtfUrl():
 
 def annot__ebiBase():
   return os.path.join(
-    annot__releaseDir(),
+    annot__gencodeDir(),
     "ebi",
     annot__ebiBaseUrl())
 
@@ -55,7 +55,7 @@ def annot__ebiTxtUrl():
 
 def annot__ucscBase():
   return os.path.join(
-    annot__releaseDir(),
+    annot__gencodeDir(),
     "ucsc",
     annot__ucscBaseUrl())
 
