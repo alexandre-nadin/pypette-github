@@ -1,12 +1,14 @@
-def annot__dir():
+from utils.files import withFile
+
+def annot__dir(**kwargs):
   return os.path.join(
-    genome__dir(),
+    genome__dir(**kwargs),
     "annotation")
 
 @genome__formatSpeciesCfg
-def annot__gencodeDir():
+def annot__gencodeDir(**kwargs):
   return os.path.join(
-    annot__dir(),
+    annot__dir(**kwargs),
     "{species.genome.assembly.gencodeRelease}")
 
 # ----------------------
@@ -22,17 +24,18 @@ def annot__ebiGtfUrl():
     pipeman.config.databases.ebi.gencodeUrl,
     annot__ebiBaseUrl() + ".gtf.gz")
 
-def annot__ebiBase():
+def annot__ebiBase(**kwargs):
   return os.path.join(
-    annot__gencodeDir(),
+    annot__gencodeDir(**kwargs),
     "ebi",
     annot__ebiBaseUrl())
 
-def annot__ebiGtf():
-  return annot__ebiBase() + ".gtf"
+def annot__ebiGtf(**kwargs):
+  return annot__ebiBase(**kwargs) + ".gtf"
 
-def annot__ebiGtfGz():
-  return annot__ebiGtf() + ".gz"
+@withFile
+def annot__ebiGtfGz(**kwargs):
+  return annot__ebiGtf(**kwargs) + ".gz"
 
 def annot__ebiBiotypes():
   return annot__ebiBase() + ".biotypes.tsv.gz"
@@ -53,14 +56,15 @@ def annot__ebiTxtUrl():
     pipeman.config.databases.ucsc.gencodeUrl,
     annot__ucscBaseUrl() + ".txt.gz")
 
-def annot__ucscBase():
+def annot__ucscBase(**kwargs):
   return os.path.join(
-    annot__gencodeDir(),
+    annot__gencodeDir(**kwargs),
     "ucsc",
     annot__ucscBaseUrl())
 
-def annot__ucscTxt():
-  return annot__ucscBase() + ".txt.gz"
+@withFile
+def annot__ucscTxt(**kwargs):
+  return annot__ucscBase(**kwargs) + ".txt.gz"
 
 def annot__ucscGenePred():
   return annot__ucscBase() + ".genePred.gz"

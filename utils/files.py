@@ -18,3 +18,19 @@ def touch(filenames=[]):
   for filename in filenames:
     with open(str(filename), 'a'):
       pass
+
+def withFile(func):
+  """
+  Returns None if the file returned by the function :func: does not exist and
+  the :withFile: attribute is given.
+  """
+  def wrapper(*args, **kwargs):
+    _attr = 'withFile' 
+    res = func(*args, **kwargs)
+    if _attr in kwargs.keys() \
+    and kwargs[_attr]         \
+    and not os.path.exists(res):
+      res = None
+    return res
+  return wrapper
+
