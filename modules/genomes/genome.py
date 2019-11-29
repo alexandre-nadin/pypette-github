@@ -1,6 +1,10 @@
 from utils.files import withFile
 
 def genome__formatSpeciesCfg(func):
+  """
+  Gets the string given by the :func: function and formats it with the
+  configuration species.
+  """
   def wrapper(*args, **kwargs):
     try:
       species = project__speciesGenome()
