@@ -84,7 +84,7 @@ rule annot__ucscAnnotTxt:
       """
     else:
       cmd = f"""
-        curl "{annot__ebiTxtUrl()}" > {output.annot}
+        curl "{annot__ucscTxtUrl()}" > {output.annot}
       """
     exshell(**vars())
 

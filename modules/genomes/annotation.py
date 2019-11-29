@@ -51,7 +51,7 @@ def annot__ucscBaseUrl():
   return pipeman.config.databases.ucsc.gencodeBaseName
 
 @genome__formatSpeciesCfg
-def annot__ebiTxtUrl():
+def annot__ucscTxtUrl():
   return os.path.join(
     pipeman.config.databases.ucsc.gencodeUrl,
     annot__ucscBaseUrl() + ".txt.gz")
