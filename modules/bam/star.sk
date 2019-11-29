@@ -78,10 +78,16 @@ rule genome__2bit:
   output:
     bit = genome__2bit()
   run:
-    url = genome__ucsc2bitUrl()
-    cmd = """
-      curl                     \
-        {url} \
-        -o {output.bit}
-    """
+    shared = genome__2bit(sharedDir=True, withFile=True)
+    if shared:
+      cmd = f"""
+        ln -s {shared} {output.bit}
+      """
+    else:
+      url = genome__ucsc2bitUrl()
+      cmd = """
+        curl              \
+          {url}           \
+          -o {output.bit}
+      """
     exshell(**vars())

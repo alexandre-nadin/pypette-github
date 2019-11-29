@@ -122,8 +122,12 @@ eol
   """
 
 def writeCmdLog(cmd=None, logFile=None, **kwargs):
-  if not kwargs['output']:
-    kwargs['output'].append(kwargs['rule'])
+  logExt = ".info"
+  if not logFile:
+    if not kwargs['output']:
+      logFile = f"{kwargs['rule']}{logExt}"
+    else:
+      logFile = f"{kwargs['output'][0]}{logExt}"
 
   # TODO: Auto attribute missing fields in output. 
   if 'sample_name' not in kwargs.keys():
@@ -145,6 +149,22 @@ def writeCmdLog(cmd=None, logFile=None, **kwargs):
 
   shell(logCmd, **kwargs)
 
+def touchOutputs(output, rule, **kargs):
+  """
+  Touches the given rule's outputs. Deals with regular files and directories.
+  """
+  ruleWfOutputs = list(filter(lambda x: x.name==rule, workflow.rules))[0].output
+
+  outdirsWf  = list(filter(lambda x: x.is_directory, ruleWfOutputs))
+  outdirs  = []
+  outfiles = []
+  for outdirWf in outdirsWf:
+    outdirs += list(filter(lambda x: outdirWf.match(x), output))
+  outfiles = list(filter(lambda x: x not in outdirs, output))
+
+  list(map(lambda x: os.makedirs(x, exist_ok=True), outdirs))
+  touch(outfiles)
+
 def exshell(cmd='', isSubCmd=False, force=False, **kwargs):
   """
   Formats the given command.
@@ -157,17 +177,15 @@ def exshell(cmd='', isSubCmd=False, force=False, **kwargs):
     condactivate pypette-{pipeman.pipeName};
     {cmd}
   """
-   
-  outputs = kwargs['output']
-  logFile = f"{outputs[0]}.info"
 
   """ Print target's log """
   if config__valueOf('logCommands'):
-    writeCmdLog(cmd, logFile=logFile, **kwargs)
+    writeCmdLog(cmd, **kwargs)
 
+    
   """ Debug mode """
   if config__valueOf('debug') and not force:
-    touch(outputs)
+    touchOutputs(**kwargs)
   else:
     shell(cmd, **kwargs) 
 
