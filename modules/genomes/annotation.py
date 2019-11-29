@@ -1,5 +1,3 @@
-from utils.files import withFile
-
 def annot__dir(**kwargs):
   return os.path.join(
     genome__dir(**kwargs),
