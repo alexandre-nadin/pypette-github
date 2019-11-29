@@ -47,10 +47,10 @@ dependencies:
   - bwidget=1.9.11=1
   - bx-python=0.8.2=py36hebb334c_2
   - bzip2=1.0.6=h14c3975_1002
-  - ca-certificates=2019.9.11=hecc5488_0
+  - ca-certificates=2019.11.28=hecc5488_0
   - cachetools=2.1.0=py_0
   - cairo=1.16.0=ha4e643d_1000
-  - certifi=2019.9.11=py36_0
+  - certifi=2019.11.28=py36_0
   - cffi=1.12.3=py36h8022711_0
   - chardet=3.0.4=py36_1003
   - click=7.0=py_0
@@ -162,7 +162,7 @@ dependencies:
   - openblas=0.3.4=h9ac9557_1000
   - openblas-devel=0.2.20=7
   - openjdk=11.0.1=h516909a_1016
-  - openssl=1.1.1c=h516909a_0
+  - openssl=1.1.1d=h516909a_0
   - pandas=0.24.2=py36hf484d3e_0
   - pango=1.40.14=h4ea9474_1004
   - paramiko=2.1.2=py36_0
@@ -264,6 +264,7 @@ dependencies:
   - r-nlme=3.1_140=r351h9bbef5b_0
   - r-nnet=7.3_12=r351h96ca727_1002
   - r-openssl=1.4.1=r35h9c8475f_0
+  - r-openxlsx=4.1.3=r35h0357c0b_0
   - r-pheatmap=1.0.12=r351h6115d3f_0
   - r-pillar=1.4.2=r35h6115d3f_2
   - r-pkgconfig=2.0.2=r351h6115d3f_1001
@@ -306,6 +307,7 @@ dependencies:
   - r-xtable=1.8_4=r351h6115d3f_0
   - r-yaml=2.2.0=r351h96ca727_1001
   - r-zeallot=0.1.0=r351h6115d3f_1000
+  - r-zip=2.0.4=r35hcdcec82_0
   - ratelimiter=1.2.0=py36_1000
   - readline=7.0=hf8c457e_1001
   - requests=2.13.0=py36_0

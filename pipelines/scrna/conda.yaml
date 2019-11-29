@@ -30,10 +30,10 @@ dependencies:
   - bx-python=0.8.5=py36h9449cc1_0
   - bz2file=0.98=py_0
   - bzip2=1.0.8=h516909a_1
-  - ca-certificates=2019.9.11=hecc5488_0
+  - ca-certificates=2019.11.28=hecc5488_0
   - cachetools=2.1.0=py_0
   - cairo=1.16.0=hfb77d84_1002
-  - certifi=2019.9.11=py36_0
+  - certifi=2019.11.28=py36_0
   - cffi=1.12.3=py36h8022711_0
   - chardet=3.0.4=py36_1003
   - colorama=0.4.1=py_0
@@ -86,7 +86,7 @@ dependencies:
   - gstreamer=1.14.5=h36ae1b5_0
   - gxx_impl_linux-64=7.3.0=hdf63c60_2
   - gxx_linux-64=7.3.0=h553295d_12
-  - h5py=2.10.0=nompi_py36h513d04c_100
+  - h5py=2.9.0=nompi_py36h513d04c_1104
   - harfbuzz=2.4.0=h9f30f68_3
   - hdf5=1.10.5=nompi_h3c11f04_1104
   - htslib=1.9=ha228f0b_7
