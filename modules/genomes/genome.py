@@ -14,13 +14,13 @@ def genome__formatSpeciesCfg(func):
   return wrapper
 
 @genome__formatSpeciesCfg
-def genome__dirPath(sharedDir=False, **kwargs):
+def genome__baseDir(sharedDir=False, **kwargs):
   return pipeman.config.cluster.genomeDir if sharedDir else "genomes"
 
 @genome__formatSpeciesCfg
 def genome__dir(**kwargs):
   return os.path.join(
-    genome__dirPath(**kwargs),
+    genome__baseDir(**kwargs),
     "{species.genome.assembly.ucscRef}")
 
 def ensembl__buildVersion():
