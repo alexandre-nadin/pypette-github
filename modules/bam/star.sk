@@ -59,6 +59,10 @@ rule bam_star__index:
         --sjdbOverhang 100                   \
         --genomeSAindexNbases 14
     """
+    cmd, force = cmdOrLink(
+      cmd,
+      star__indexDir(sharedDir=True),
+      output.idxDir)
     exshell(**vars())
 
 ruleorder: samples__runs > bam_star__alignReads

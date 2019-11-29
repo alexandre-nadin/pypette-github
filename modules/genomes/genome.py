@@ -1,5 +1,3 @@
-from utils.files import withFile
-
 def genome__formatSpeciesCfg(func):
   """
   Gets the string given by the :func: function and formats it with the
@@ -73,7 +71,6 @@ def genome__2bitBase(**kwargs):
     "2bit", 
     "{species.genome.assembly.ucscRef}")
 
-@withFile
 def genome__2bit(**kwargs):
   """ Produces the species' genome 2bit. """
   return f"{genome__2bitBase(**kwargs)}.2bit"
