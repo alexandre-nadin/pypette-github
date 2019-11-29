@@ -20,10 +20,8 @@ def genome__dir(**kwargs):
     "{species.genome.assembly.ucscRef}")
 
 def ensembl__buildVersion():
-  species = project__speciesGenome()
-  ensemblRelease = pipeman.config.species[species].genome.assembly.ensemblRelease
-  buildName = pipeman.config.species[species].genome.assembly.buildName
-  return f"{buildName}.{ensemblRelease}"
+  assembly = pipeman.config.species[project__speciesGenome()].genome.assembly
+  return f"{assembly.buildName}.{assembly.ensemblRelease}"
 
 def genome__gatkDir(**kwargs):
   return os.path.join(
