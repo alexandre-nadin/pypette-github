@@ -33,7 +33,6 @@ def annot__ebiBase(**kwargs):
 def annot__ebiGtf(**kwargs):
   return annot__ebiBase(**kwargs) + ".gtf"
 
-@withFile
 def annot__ebiGtfGz(**kwargs):
   return annot__ebiGtf(**kwargs) + ".gz"
 
@@ -62,7 +61,6 @@ def annot__ucscBase(**kwargs):
     "ucsc",
     annot__ucscBaseUrl())
 
-@withFile
 def annot__ucscTxt(**kwargs):
   return annot__ucscBase(**kwargs) + ".txt.gz"
 
