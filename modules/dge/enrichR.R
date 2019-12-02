@@ -1,8 +1,9 @@
 smkSource("dge/deseq2.R")
 dir.create(smkout$dir, showWarnings=FALSE)
 
-library(enrichR)
-#library(xlsx)
+suppressMessages(library("enrichR"))
+suppressMessages(library("openxlsx"))
+
 databases <- listEnrichrDbs()
 
 # Parameter of the pipeline that defines the databases to make the enrichment of
