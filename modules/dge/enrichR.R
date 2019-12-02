@@ -48,12 +48,9 @@ for (i in 1:length(dgeResults)){
     filename = paste(
       file.path(smkout$dir, names(dgeResults)[[i]]),
       j,
-      ".csv",
+      ".xlsx",
       sep="_")
-    print(paste("filename: ", filename))
-    #write.xlsx(x=enrichr.list[[names(dgeResults)[i]]][[j]],file=filename)
-    #write.csv(x=enrichr.list[[names(dgeResults)[i]]][[j]], file=filename, row.names=FALSE)
-    write.csv(x=enrichr.list[[names(dgeResults)[i]]][[j]], file=filename, row.names=FALSE)
+    write.xlsx(x = enrichr.list[[i]][[j]], file = filename)
   }
 }
 
