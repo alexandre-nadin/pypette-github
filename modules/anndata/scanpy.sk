@@ -125,8 +125,6 @@ rule scanpy__normalize:
       min_mean= ruleConf.highVarGen_minMean, 
       max_mean= ruleConf.highVarGen_maxMean, 
       min_disp= ruleConf.highVarGen_minDisp)
-    #if ruleConf.keepOnlyHVG:
-     # adata = adata[:, adata.var['highly_variable']]
     sc.pp.filter_genes(adata, min_counts=1)
     sc.pp.regress_out(adata, ['n_counts', 'percent_mito'] )
     sc.pp.scale(adata, max_value=ruleConf.scale_maxVal )
@@ -136,7 +134,6 @@ rule scanpy__normalize:
 rule scanpy__cellCycleScorePca:
   input:
     annot   = f"{scanpy__pipeSample}_n.h5ad",
-    #ccGenes = hsapiensCcGenesFile
     ccGenes='/lustre2/scratch/rpini/AlfanoM_904_infertilita_epigenetics/hsapiens_cell_cycle_genes.txt'
   output:
     annot   = temp(f"{scanpy__pipeSample}_cc.h5ad")
