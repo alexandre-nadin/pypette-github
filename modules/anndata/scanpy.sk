@@ -134,7 +134,7 @@ rule scanpy__normalize:
 rule scanpy__cellCycleScorePca:
   input:
     annot   = f"{scanpy__pipeSample}_n.h5ad",
-    ccGenes='/lustre2/scratch/rpini/AlfanoM_904_infertilita_epigenetics/hsapiens_cell_cycle_genes.txt'
+    ccGenes = hsapiensCcGenesFile
   output:
     annot   = temp(f"{scanpy__pipeSample}_cc.h5ad")
   run:
