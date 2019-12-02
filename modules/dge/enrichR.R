@@ -33,7 +33,8 @@ for (i in 1:length(dgeResults)){
   both.genes <- row.names(.res[which(.res$padj < padj.cutoff),])
   enrichr.list[[i]] <- lapply(list(up.genes,down.genes,both.genes),function(x) {
     enrichR::enrichr(genes = x, databases = enrich.databases)
-      })  
+      })
+  names(enrichr.list[[i]]) <-  c("up","down","both")  
   print(paste("> Enriched: ", enrichr.list[[i]]))
 }
 names(enrichr.list) <- names(dgeResults)
