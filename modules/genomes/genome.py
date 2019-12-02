@@ -21,6 +21,11 @@ def genome__dir(**kwargs):
     genome__baseDir(**kwargs),
     "{species.genome.assembly.ucscRef}")
 
+def genome__speciesDir(**kwargs):
+  return os.path.join(
+    genome__baseDir(**kwargs),
+    "{species.taxo}")
+
 def ensembl__buildVersion():
   assembly = pipeman.config.species[project__speciesGenome()].genome.assembly
   return f"{assembly.buildName}.{assembly.ensemblRelease}"
@@ -78,3 +83,12 @@ def genome__2bit(**kwargs):
 @genome__formatSpeciesCfg
 def genome__ucsc2bitUrl():
   return pipeman.config.databases.ucsc.tbitUrl
+
+# -------------
+# Cell cycles
+# -------------
+@genome__formatSpeciesCfg                    
+def genome__speciesCellCycleFile(**kwargs):
+  return os.path.join(
+    genome__speciesDir(**kwargs),
+    "{species.taxo}_cell_cycle_genes.txt")
