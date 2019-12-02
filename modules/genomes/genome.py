@@ -1,6 +1,8 @@
-from utils.files import withFile
-
 def genome__formatSpeciesCfg(func):
+  """
+  Gets the string given by the :func: function and formats it with the
+  configuration species.
+  """
   def wrapper(*args, **kwargs):
     try:
       species = project__speciesGenome()
@@ -10,20 +12,23 @@ def genome__formatSpeciesCfg(func):
   return wrapper
 
 @genome__formatSpeciesCfg
-def genome__dirPath(sharedDir=False, **kwargs):
+def genome__baseDir(sharedDir=False, **kwargs):
   return pipeman.config.cluster.genomeDir if sharedDir else "genomes"
 
 @genome__formatSpeciesCfg
 def genome__dir(**kwargs):
   return os.path.join(
-    genome__dirPath(**kwargs),
+    genome__baseDir(**kwargs),
     "{species.genome.assembly.ucscRef}")
 
+def genome__speciesDir(**kwargs):
+  return os.path.join(
+    genome__baseDir(**kwargs),
+    "{species.taxo}")
+
 def ensembl__buildVersion():
-  species = project__speciesGenome()
-  ensemblRelease = pipeman.config.species[species].genome.assembly.ensemblRelease
-  buildName = pipeman.config.species[species].genome.assembly.buildName
-  return f"{buildName}.{ensemblRelease}"
+  assembly = pipeman.config.species[project__speciesGenome()].genome.assembly
+  return f"{assembly.buildName}.{assembly.ensemblRelease}"
 
 def genome__gatkDir(**kwargs):
   return os.path.join(
@@ -71,7 +76,6 @@ def genome__2bitBase(**kwargs):
     "2bit", 
     "{species.genome.assembly.ucscRef}")
 
-@withFile
 def genome__2bit(**kwargs):
   """ Produces the species' genome 2bit. """
   return f"{genome__2bitBase(**kwargs)}.2bit"
@@ -79,3 +83,12 @@ def genome__2bit(**kwargs):
 @genome__formatSpeciesCfg
 def genome__ucsc2bitUrl():
   return pipeman.config.databases.ucsc.tbitUrl
+
+# -------------
+# Cell cycles
+# -------------
+@genome__formatSpeciesCfg                    
+def genome__speciesCellCycleFile(**kwargs):
+  return os.path.join(
+    genome__speciesDir(**kwargs),
+    "{species.taxo}_cell_cycle_genes.txt")

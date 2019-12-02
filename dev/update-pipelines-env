@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#                             WARNING 
+#  
+# Hard Reset on the current branch is done here. 
+# Make sure you have all your modifications stashed BEFORE execution!
+#
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+function absPath() {  readlink -f "$1"; }
+
+script=$(absPath "${BASH_SOURCE[0]}")
+execDir=$(absPath $(dirname "${script}"))
+rootDir=$(absPath $(dirname "${execDir}" ))
+branchCurrent=$(git rev-parse --abbrev-ref HEAD)
+branchOrigin="origin/${branchCurrent}"
+lockedFiles=( ${rootDir}/{,.gitignore} )
+
+function pipelinesNames() {
+  ls ${rootDir}/bin/pypette-* | grep -o 'pypette-.*$'
+}
+
+function pipelines() {
+  pipelinesNames | sed 's/.*pypette-//'
+}
+
+function exportCondaEnv() {
+  conda env export -n $1
+}
+
+function pipelineRequFile() {
+  printf "${rootDir}/pipelines/${1}/conda.yaml"
+}
+
+function exportPipelineEnv() {
+  local envName="pypette-${1}"
+  printf "> Exporting pipeline env '$envName'..." >&2
+  exportCondaEnv "$envName" \
+    && printf " OK\n" >&2   \
+    || printf " KO\n" >&2
+}
+
+for pipeline in $(pipelines); do
+  envName="pypette-${pipeline}"
+  exportPipelineEnv "$pipeline"     \
+   > $(pipelineRequFile $pipeline)
+done

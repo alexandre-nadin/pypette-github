@@ -7,11 +7,10 @@ def star__readsToString(R1=[], R2=[]):
     R1=','.join(R1) if config.pipeline.name != 'scrna' else '', 
     R2=','.join(R2))
 
-def star__indexDir():
+def star__indexDir(**kwargs):
   """
   Retrieves the genome index using cluster and project metadata parameters.
   """
   return os.path.join(
-    annot__gencodeDir(),
+    annot__gencodeDir(**kwargs),
     bam__configAligner().name)
-
