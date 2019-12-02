@@ -52,26 +52,27 @@ pipeline:
         verbosity: 3
         firstFilter:
           minGenes: 50
-          minSamples: 5 
+          minCells: 5 
         secondFilter:
-          nGenes: 6000
-          percentMito: 0.2
+          nGenes: 8000
+          percentMito: 0.25
         normalization:
           countPerCellAfter: 10000
-          highVarGen_minMean: 0.125
-          highVarGen_maxMean: 4
+          highVarGen_minMean: 0.0125
+          highVarGen_maxMean: 3
           highVarGen_minDisp: 0.5
-          keepOnlyHVG: True
           scale_maxVal: 10
         cellCycleScore:
           useOnlyHighlyVariable: True
           regressOnCellCycle: True
+        plot:
+          keepOnlyHVG: True
         louvain:
           nNeighbors: 10
           resolution: 0.4
         tsne:
           nPC: 20
-          random_state: 2
+          randomState: 2
         clusterMarkers:
           method: 't-test' #'logreg', 't-test', 'wilcoxon', 't-test_overestim_var'
           plot_nGenes: 20
