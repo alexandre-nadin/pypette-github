@@ -17,6 +17,8 @@ enrich.databases <- c("GO_Biological_Process_2018",
                       "KEGG_2016",
                       "WikiPathways_2016",
                       "BioCarta_2016")
+# alpha used in DGE
+padj.cutoff = smkp$dge$alpha 
 
 # -------------------------
 # Perform Enrichment 
