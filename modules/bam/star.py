@@ -12,6 +12,6 @@ def star__indexDir():
   Retrieves the genome index using cluster and project metadata parameters.
   """
   return os.path.join(
-    annot__releaseDir(),
+    annot__gencodeDir(),
     bam__configAligner().name)
 

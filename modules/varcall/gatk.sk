@@ -42,7 +42,7 @@ rule varcall__mergeGVCF:
     """
     exshell(**vars())
 
-rule vcf__merge_BaseRecalibrator:
+rule varcall__merge_BaseRecalibrator:
   input:
     vcf       = f"{vcf__pipeTarget}/all.ga.merged.vcf.gz",
     ref_genome_fa = lambda x: genome__fasta()
@@ -56,16 +56,18 @@ rule vcf__merge_BaseRecalibrator:
     ref_genome_name = pipeman.config.project.genome.name
   run:
     if pipeman.config.project.genome.name == "hs37d5":
-      mygenome_name = "b37"
+      genome_name = "b37"
+    else:
+      genome_name = pipeman.config.project.genome.name
     cmd = f"""
       gatk \
        -T VariantRecalibrator \
        -R {input.ref_genome_fa} \
        -input {input.vcf} \
-       -resource:hapmap,known=false,training=true,truth=true,prior=15.0 /lustre1/genomes/{params.ref_genome_name}/GATK_pypette/hapmap_3.3.{mygenome_name}.sites.vcf.gz \
-       -resource:omni,known=false,training=true,truth=true,prior=12.0 /lustre1/genomes/{params.ref_genome_name}/GATK_pypette/1000G_omni2.5.{mygenome_name}.sites.vcf.gz \
-       -resource:1000G,known=false,training=true,truth=false,prior=10.0 /lustre1/genomes/{params.ref_genome_name}/GATK_pypette/resources-broad-{mygenome_name}-v0-1000G_phase1.snps.high_confidence.vcf.gz \
-       -resource:dbsnp,known=true,training=false,truth=false,prior=2.0 /lustre1/genomes/{params.ref_genome_name}/GATK_pypette/dbsnp_current.{mygenome_name}.vcf.gz \
+       -resource:hapmap,known=false,training=true,truth=true,prior=15.0 /lustre1/genomes/{params.ref_genome_name}/GATK_pypette/hapmap_3.3.{genome_name}.sites.vcf.gz \
+       -resource:omni,known=false,training=true,truth=true,prior=12.0 /lustre1/genomes/{params.ref_genome_name}/GATK_pypette/1000G_omni2.5.{genome_name}.sites.vcf.gz \
+       -resource:1000G,known=false,training=true,truth=false,prior=10.0 /lustre1/genomes/{params.ref_genome_name}/GATK_pypette/resources-broad-{genome_name}-v0-1000G_phase1.snps.high_confidence.vcf.gz \
+       -resource:dbsnp,known=true,training=false,truth=false,prior=2.0 /lustre1/genomes/{params.ref_genome_name}/GATK_pypette/dbsnp_current.{genome_name}.vcf.gz \
        -an DP -an QD -an FS -an SOR -an MQRankSum -an ReadPosRankSum \
        -mode SNP \
        -tranche 100.0 -tranche 99.9 -tranche 99.0 -tranche 90.0 \
@@ -85,7 +87,7 @@ rule vcf__merge_BaseRecalibrator:
     """
     exshell(**vars())
 
-rule vcf__merge_IndelRecalibrator:
+rule varcall__merge_IndelRecalibrator:
   input:
     vcf       = f"{vcf__pipeTarget}/all.ga.merged.recal.vcf.gz",
     ref_genome_fa = lambda x: genome__fasta()
@@ -99,15 +101,17 @@ rule vcf__merge_IndelRecalibrator:
     ref_genome_name = pipeman.config.project.genome.name
   run:
     if pipeman.config.project.genome.name == "hs37d5":
-      mygenome_name = "b37"
+      genome_name = "b37"
+    else:
+      genome_name = pipeman.config.project.genome.name
     cmd = f"""
       gatk \
        -T VariantRecalibrator \
        -R {input.ref_genome_fa} \
        -input {input.vcf} \
        --maxGaussians 4 \
-       -resource:mills,known=false,training=true,truth=true,prior=12.0 /lustre1/genomes/{params.ref_genome_name}/GATK_pypette/Mills_and_1000G_gold_standard.indels.{mygenome_name}.vcf.gz \
-       -resource:dbsnp,known=true,training=false,truth=false,prior=2.0 /lustre1/genomes/{params.ref_genome_name}/GATK_pypette/dbsnp_current.{mygenome_name}.vcf.gz \
+       -resource:mills,known=false,training=true,truth=true,prior=12.0 /lustre1/genomes/{params.ref_genome_name}/GATK_pypette/Mills_and_1000G_gold_standard.indels.{genome_name}.vcf.gz \
+       -resource:dbsnp,known=true,training=false,truth=false,prior=2.0 /lustre1/genomes/{params.ref_genome_name}/GATK_pypette/dbsnp_current.{genome_name}.vcf.gz \
        -an DP -an QD -an FS -an SOR -an MQRankSum -an ReadPosRankSum \
        -mode INDEL \
        -tranche 100.0 -tranche 99.9 -tranche 99.0 -tranche 90.0 \
@@ -138,17 +142,17 @@ rule varcall__annotate_gatk_merge:
     annotation_dir = annot__dir() + "_pypette"
     if pipeman.config.project.genome.name == "hs37d5":
       genome_name = "hg19"
-      gencode = "GRCh37.75"
+      ensembl = "GRCh37.75"
     else:
       genome_name = pipeman.config.project.genome.name
-      gencode = gencode__baseName()
+      ensembl = ensembl__buildVersion()
     cmd = f"""
       vt normalize -n -r {input.ref_genome_fa} {input.vcf} \
       | snpSift annotate {annotation_dir}/dbSNP-151.vcf.gz \
       | snpSift annotate {annotation_dir}/COSMIC/CosmicCodingMuts.vcf.gz \
       | snpSift annotate {annotation_dir}/COSMIC/CosmicNonCodingVariants.vcf.gz \
       | snpSift dbnsfp -db {annotation_dir}/dbNSFP3.5a.txt.gz -g {genome_name} -f {params.dbnsfp_ann} -collapse - \
-      | snpEff -noStats -v -lof {gencode} -dataDir /lustre1/ctgb-usr/local/src/snpEff/data/ \
+      | snpEff -noStats -v -lof {ensembl} -dataDir /lustre1/ctgb-usr/local/src/snpEff/data/ \
       | vcfsort \
       | bgzip -c > {output.vcf}
       tabix -f {output.vcf}
@@ -167,17 +171,17 @@ rule varcall__annotate_gatk:
     annotation_dir = annot__dir() + "_pypette"
     if pipeman.config.project.genome.name == "hs37d5":
       genome_name = "hg19"
-      gencode = "GRCh37.75"
+      ensembl = "GRCh37.75"
     else:
       genome_name = pipeman.config.project.genome.name
-      gencode = gencode__baseName()
+      ensembl = ensembl__buildVersion()
     cmd = f"""
       vt normalize -n -r {input.ref_genome_fa} {input.vcf} \
       | snpSift annotate {annotation_dir}/dbSNP-151.vcf.gz \
       | snpSift annotate {annotation_dir}/COSMIC/CosmicCodingMuts.vcf.gz \
       | snpSift annotate {annotation_dir}/COSMIC/CosmicNonCodingVariants.vcf.gz \
       | snpSift dbnsfp -db {annotation_dir}/dbNSFP3.5a.txt.gz -g {genome_name} -f {params.dbnsfp_ann} -collapse - \
-      | snpEff -noStats -v -lof {gencode} -dataDir /lustre1/ctgb-usr/local/src/snpEff/data/ \
+      | snpEff -noStats -v -lof {ensembl} -dataDir /lustre1/ctgb-usr/local/src/snpEff/data/ \
       | vcfsort \
       | bgzip -c > {output.vcf}
       tabix -f {output.vcf}

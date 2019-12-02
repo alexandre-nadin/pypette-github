@@ -100,17 +100,17 @@ rule varcall__annotate_fb:
     genome_name = project__speciesGenomeName()
     if genome_name == "hs37d5":
       genome_name = "hg19"
-      gencode = "GRCh37.75"
+      ensembl = "GRCh37.75"
     else:
       genome_name = pipeman.config.project.genome.name
-      gencode = gencode__baseName()
+      ensembl = ensembl__buildVersion()
     cmd = f"""
       vt normalize -r {input.ref_genome_fa} {input.vcf} \
       | snpSift annotate {annotation_dir}/dbSNP-151.vcf.gz \
       | snpSift annotate {annotation_dir}/COSMIC/CosmicCodingMuts.vcf.gz \
       | snpSift annotate {annotation_dir}/COSMIC/CosmicNonCodingVariants.vcf.gz \
       | snpSift dbnsfp -db {annotation_dir}/dbNSFP3.5a.txt.gz -g {genome_name} -f {params.dbnsfp_ann} -collapse - \
-      | snpEff -noStats -v -lof {gencode} -dataDir /lustre1/ctgb-usr/local/src/snpEff/data/ \
+      | snpEff -noStats -v -lof {ensembl} -dataDir /lustre1/ctgb-usr/local/src/snpEff/data/ \
       | vcfsort \
       | bgzip -c > {output.vcf}
       tabix -f {output.vcf}
@@ -129,24 +129,24 @@ rule varcall__annotate_fb_merged:
     annotation_dir = annot__dir() + "_pypette"
     if pipeman.config.project.genome.name == "hs37d5":
       genome_name = "hg19"
-      gencode = "GRCh37.75"
+      ensembl = "GRCh37.75"
     else:
       genome_name = pipeman.config.project.genome.name
-      gencode = gencode__baseName()
+      ensembl = ensembl__buildVersion()
     cmd = f"""
       vt normalize -r {input.ref_genome_fa} {input.vcf} \
       | snpSift annotate {annotation_dir}/dbSNP-151.vcf.gz \
       | snpSift annotate {annotation_dir}/COSMIC/CosmicCodingMuts.vcf.gz \
       | snpSift annotate {annotation_dir}/COSMIC/CosmicNonCodingVariants.vcf.gz \
       | snpSift dbnsfp -db {annotation_dir}/dbNSFP3.5a.txt.gz -g {genome_name} -f {params.dbnsfp_ann} -collapse - \
-      | snpEff -noStats -v -lof {gencode} -dataDir /lustre1/ctgb-usr/local/src/snpEff/data/ \
+      | snpEff -noStats -v -lof {ensembl} -dataDir /lustre1/ctgb-usr/local/src/snpEff/data/ \
       | vcfsort \
       | bgzip -c > {output.vcf}
       tabix -f {output.vcf}
     """
     exshell(**vars())
 
-rule genmod:
+rule varcall__genmod:
   input:
     vcf = f"{vcf__sampleTarget}.fb.merged.filter.annotate.vcf.gz",
     ped = f"{config__dir}/all.ped"

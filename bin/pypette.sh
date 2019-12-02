@@ -1,5 +1,5 @@
 # bash
-trap pypette::cleanup INT TERM EXIT SIGINT SIGKILL
+trap pypette::cleanup EXIT SIGKILL
 
 function pypette::cleanup() {
   pypette::cleanJobsDir
@@ -344,41 +344,58 @@ function pypette::cmdSnakemake() {
 eol
 }
 
-# ----------
-# Cleaning
-# ----------
+# -----------------
+# Jobs Directories
+# -----------------
 function pypette::jobsDir() {
   printf "${WORKDIR}/jobs"
 }
 
-function pypette::jobsDirs() {
-  find $(pypette::jobsDir) -maxdepth 1 -type d \
-   | xargs -I {} readlink -f {}
+function pypette::hasJobsDir() {
+  [ -d "$(pypette::jobsDir)" ]
+}
+
+function pypette::jobsLogsDirs() {
+  find $(pypette::jobsDir) -mindepth 1 -maxdepth 1 -type d \
+   | xargs -I {} readlink -f {} ;
+}
+
+function pypette::hasJobsLogsDirs() {
+  pypette::jobsLogsDirs && [ $(pypette::jobsLogsDirs | wc -l) -gt 0 ]
 }
 
 function pypette::jobsLogs() {
-  find $(pypette::jobsDir) -maxdepth 2 -type f
+  find $(pypette::jobsDir) -mindepth 1 -maxdepth 2 -type f
 }
 
+function pypette::hasJobsLogs() {
+  pypette::hasJobsDir && [ $(pypette::jobsLogs | wc -l) -gt 0 ]
+}
+
+
+# ----------
+# Cleaning
+# ----------
 function pypette::cleanJobsDir() {
-  [ -d $(pypette::jobsDir) ] || return
-  pypette::rmEmptyJobsDir
   pypette::cleanLogBashErrors
+  pypette::rmEmptyJobsDirs
 }
 
-function pypette::rmEmptyJobsDir() {
-  for jobDir in $(pypette::jobsDirs); do
+function pypette::cleanLogBashErrors() {
+  pypette::hasJobsLogs || return 0
+  pypette::jobsLogs            \
+   | xargs sed -i '/^-bash:/d'
+}
+
+function pypette::rmEmptyJobsDirs() {
+  pypette::hasJobsLogsDirs || return 0
+  for jobDir in $(pypette::jobsLogsDirs); do
     if [ $(ls "$jobDir" | wc -l) -gt 0 ]; then
       :
     else
       rm -r "$jobDir"
     fi
   done
-}
-
-function pypette::cleanLogBashErrors() {
-  pypette::jobsLogs            \
-   | xargs sed -i '/^-bash:/d'
 }
 
 # ---------------
