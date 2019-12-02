@@ -75,9 +75,9 @@ rule scanpy__firstPlot:
     adata = sc.read(input.annot)
     mito_genes= [name for name in adata.var_names if name.startswith('MT-') ]
     adata.obs['percent_mito'] = (
-                                 np.sum(adata[:, mito_genes].X, axis=1).A1
-                               / np.sum(adata.X, axis=1).A1 )
-    adata.obs['n_counts'] = adata.X.sum(axis=1).A1
+                                 np.sum(adata[:, mito_genes].X, axis=1)
+                               / np.sum(adata.X, axis=1) )
+    adata.obs['n_counts'] = adata.X.sum(axis=1)
     sc.pl.violin(
       adata, 
       ['n_genes', 'n_counts', 'percent_mito'],
@@ -125,19 +125,19 @@ rule scanpy__normalize:
       min_mean= ruleConf.highVarGen_minMean, 
       max_mean= ruleConf.highVarGen_maxMean, 
       min_disp= ruleConf.highVarGen_minDisp)
-    if ruleConf.keepOnlyHVG:
-      adata = adata[:, adata.var['highly_variable']]
-
+    #if ruleConf.keepOnlyHVG:
+     # adata = adata[:, adata.var['highly_variable']]
+    sc.pp.filter_genes(adata, min_counts=1)
     sc.pp.regress_out(adata, ['n_counts', 'percent_mito'] )
     sc.pp.scale(adata, max_value=ruleConf.scale_maxVal )
 
     adata.write(output.annot)
 
-hsapiensCcGenesFile = "hsapiens_cell_cycle_genes.txt"
 rule scanpy__cellCycleScorePca:
   input:
     annot   = f"{scanpy__pipeSample}_n.h5ad",
-    ccGenes = hsapiensCcGenesFile
+    #ccGenes = hsapiensCcGenesFile
+    ccGenes='/lustre2/scratch/rpini/AlfanoM_904_infertilita_epigenetics/hsapiens_cell_cycle_genes.txt'
   output:
     annot   = temp(f"{scanpy__pipeSample}_cc.h5ad")
   run:
@@ -151,7 +151,7 @@ rule scanpy__cellCycleScorePca:
     sc.settings.autosave=True
 
     adata = sc.read(input.annot)
-    cc_genes = [ gene.strip() for gene in open(input.cc_genes) ]
+    cc_genes = [ gene.strip() for gene in open(input.ccGenes) ]
     s_genes   = [g for g in cc_genes[:43] if g in adata.var_names]
     g2m_genes = [g for g in cc_genes[43:] if g in adata.var_names]
 
@@ -193,9 +193,14 @@ rule scanpy__pcaElbowPlot:
     import scanpy as sc
     import matplotlib
     matplotlib.use('Agg')
+    ruleConf = config.pipeline.modules.anndata.scanpy.plot
     sc.settings.autosave = True
 
     adata = sc.read(input.annot)
+
+    if ruleConf.keepOnlyHVG:
+      adata = adata[:, adata.var['highly_variable']]
+
     sc.pl.pca_variance_ratio(adata, log=True, save='.pdf')
     adata.write(output.annot)
 
