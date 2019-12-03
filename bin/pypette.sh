@@ -240,7 +240,7 @@ function pypette::parseParams() {
           ;;
  
         *)
-          echo "Taking snakemake command: '$1'"
+          echo "Taking snakemake command: '$1'" >&2
           ;;
   
       esac
