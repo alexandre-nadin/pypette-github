@@ -24,7 +24,6 @@ function pypette::runFlow() {
   pypette::envActivate
   pypette::exportVarenvs
   pypette::execSnakemake
-  pypette::cleanJobsDir
 }
 
 # -------------------------
@@ -356,20 +355,27 @@ function pypette::hasJobsDir() {
 }
 
 function pypette::jobsLogsDirs() {
+  pypette::hasJobsDir || return 0
   find $(pypette::jobsDir) -mindepth 1 -maxdepth 1 -type d \
    | xargs -I {} readlink -f {} ;
 }
 
 function pypette::hasJobsLogsDirs() {
-  pypette::jobsLogsDirs && [ $(pypette::jobsLogsDirs | wc -l) -gt 0 ]
+  [ $(pypette::jobsLogsDirs | wc -l) -gt 0 ]
 }
 
 function pypette::jobsLogs() {
-  find $(pypette::jobsDir) -mindepth 1 -maxdepth 2 -type f
+  pypette::hasJobsDir || return 1
+  find $(pypette::jobsDir)    \
+    -mindepth 1               \
+    -maxdepth 2               \
+    -type f                   \
+    -regextype sed            \
+    -regex '.*\.err\|.*\.out'
 }
 
 function pypette::hasJobsLogs() {
-  pypette::hasJobsDir && [ $(pypette::jobsLogs | wc -l) -gt 0 ]
+  [ $(pypette::jobsLogs | wc -l) -gt 0 ]
 }
 
 
