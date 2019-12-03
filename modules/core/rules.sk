@@ -1,19 +1,5 @@
 from utils.files import touch
-
-def helpRuleAttr(rule, attr, name=None, inline=True):
-  """
-  Retrieves the rule's given attribute and formats it for the help output.
-  """
-  val = getattr(rule, attr)
-  return "  {}{}{}".format(
-    name.upper() if name else attr.upper(), 
-    "\n    " if inline else " ",
-    #os.linesep.join([ s for s in str(val).splitlines() ])
-    str(val).strip()
-      .replace(" ", "  ")
-      if val else val,
-  )
-
+  
 def helpRuleAttr(rule, attr, name=None, inline=True):
   """
   Retrieves the rule's given attribute and formats it for the help output.
