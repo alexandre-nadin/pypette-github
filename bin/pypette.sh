@@ -1,7 +1,7 @@
 # bash
-trap pypette::cleanup EXIT SIGKILL
+trap pypette::onexit EXIT SIGKILL
 
-function pypette::cleanup() {
+function pypette::onexit() {
   pypette::cleanJobsDir
 }
 
