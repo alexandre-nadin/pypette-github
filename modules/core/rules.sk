@@ -54,11 +54,19 @@ def helpRuleMsg(rule):
     helpRuleAttr(rule, "output")
   )
 
+def helpRuleMsg(rule):
+  return f"""
+{helpRuleAttr(rule, "name", "rule", inline=False).strip()}
+{helpRuleAttr(rule, "docstring", "doc")}
+{helpRuleAttr(rule, "input")}
+{helpRuleAttr(rule, "output")}
+  """
+
 rule helpRule:
   """
   Lists given rule with essential attributes. 
   """
-  output: "help__{name}.done"
+  output: "{name}.help"
   run:
     name_rules = [ r for r in workflow.rules if r.name==wildcards.name ]
     pipeman.log.info(helpRuleMsg(name_rules[0] if name_rules else None))
@@ -206,7 +214,14 @@ def exshell(cmd='', isSubCmd=False, force=False, **kwargs):
   else:
     shell(cmd, **kwargs) 
 
-pipeman.toClean("help_*.done")
+def runScript(script, **kwargs):
+  exshell(**kwargs)
+  rscript = pipeman.rscript(script)
+  script(rscript,
+         pipeman.modulesDir, input, output, params, wildcards, threads, resources, log, config, rule, conda_env, singularity_img, singularity_args, bench_record, jobid, bench_iteration, shadow_dir)
+  
+
+pipeman.toClean("*.help")
 
 # ----------------
 # PBS Ressources
