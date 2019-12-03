@@ -90,12 +90,15 @@ rule helpRules:
 
 rule listRules:
   """ Lists all available rules """
+  output:
+    "rules.list"
   run:
     pipeman.log.info(os.linesep + os.linesep.join(
       [ f"  {rule}"
         for rule in workflow.rules
       ]
     ))
+    touch(output)
 
 def config__hasKey(key, config=None):
   """ 
@@ -227,7 +230,7 @@ def runScript(script, **kwargs):
          pipeman.modulesDir, input, output, params, wildcards, threads, resources, log, config, rule, conda_env, singularity_img, singularity_args, bench_record, jobid, bench_iteration, shadow_dir)
   
 
-pipeman.toClean("*.help")
+pipeman.toClean("rules.*")
 
 # ----------------
 # PBS Ressources
