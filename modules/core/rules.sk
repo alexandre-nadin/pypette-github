@@ -29,6 +29,23 @@ def helpRuleAttr(rule, attr, name=None, inline=True):
       if val else val,
   )
 
+def helpRuleAttr(rule, attr, name=None, inline=True):
+  """
+  Retrieves the rule's given attribute and formats it for the help output.
+  """
+  indent = " " * 4
+  ruleAttr = getattr(rule, attr)
+  if isinstance(ruleAttr, list):
+    vals = ruleAttr
+  else:
+    vals = [ruleAttr]
+
+  vals = ["", *vals] if inline else vals
+  sName = name.upper() if name else attr.upper()
+  sName = f"{indent}{sName}" if inline else sName
+  sVal = os.linesep.join(
+           map(lambda x: f"{indent*2}{x}" if inline else f" {x}", vals))
+  return f"""{sName}{sVal}"""
 def helpRuleMsg(rule):
   return "\n\n{}\n{}\n{}\n{}\n".format(
     helpRuleAttr(rule, "name", "rule", inline=False).strip(),
