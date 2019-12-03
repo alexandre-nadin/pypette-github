@@ -380,9 +380,9 @@ function pypette::hasJobsLogs() {
 }
 
 
-# ----------
-# Cleaning
-# ----------
+# -----------
+# Jobs Logs
+# -----------
 function pypette::setJobsDirPermissions() {
   chmod -R u+rwX,g+rX $(pypette::jobsDir)
 }
