@@ -66,7 +66,10 @@ rule helpRule:
   """
   Lists given rule with essential attributes. 
   """
-  output: "{name}.help"
+  output: 
+    "rules.{name}.help"
+  wildcard_constraints: 
+    name = ".+"
   run:
     name_rules = [ r for r in workflow.rules if r.name==wildcards.name ]
     pipeman.log.info(helpRuleMsg(name_rules[0] if name_rules else None))
@@ -76,11 +79,14 @@ rule helpRules:
   """
   Lists of all available rules with essential attributes.
   """
+  output: 
+    "rules.help"
   run:
     msg = ""
     for rule in workflow.rules:
       msg += helpRuleMsg(rule)
     pipeman.log.info(msg)
+    touch(output)
 
 rule listRules:
   """ Lists all available rules """
