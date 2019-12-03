@@ -15,13 +15,13 @@ pipeline:
       sorter:
         picard:
           cores: 4
-          mem: '12gb'
+          mem: '32gb'
         samtools:
           cores: 4
-          mem: '12gb'
+          mem: '32gb'
       markdup:
         cores: 4
-        mem: '12gb'
+        mem: '32gb'
       flagstat:
         mem: '2gb'
     fastq:

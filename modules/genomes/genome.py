@@ -1,4 +1,8 @@
 def genome__formatSpeciesCfg(func):
+  """
+  Gets the string given by the :func: function and formats it with the
+  configuration species.
+  """
   def wrapper(*args, **kwargs):
     try:
       species = project__speciesGenome()
@@ -8,15 +12,27 @@ def genome__formatSpeciesCfg(func):
   return wrapper
 
 @genome__formatSpeciesCfg
-@cluster__prefixMountPoint
-def genome__dir():
+def genome__baseDir(sharedDir=False, **kwargs):
+  return pipeman.config.cluster.genomeDir if sharedDir else "genomes"
+
+@genome__formatSpeciesCfg
+def genome__dir(**kwargs):
   return os.path.join(
-    pipeman.config.cluster.genomeDir,
+    genome__baseDir(**kwargs),
     "{species.genome.assembly.ucscRef}")
 
-def genome__gatkDir():
+def genome__speciesDir(**kwargs):
   return os.path.join(
-    genome__dir(),
+    genome__baseDir(**kwargs),
+    "{species.taxo}")
+
+def ensembl__buildVersion():
+  assembly = pipeman.config.species[project__speciesGenome()].genome.assembly
+  return f"{assembly.buildName}.{assembly.ensemblRelease}"
+
+def genome__gatkDir(**kwargs):
+  return os.path.join(
+    genome__dir(**kwargs),
     "GATK_pypette")
 
 def genome__baseRecalibSitesBasenames(gnmName):
@@ -36,34 +52,43 @@ def genome__baseRecalibSites(gnmName):
 # Fasta Files
 # -------------
 @genome__formatSpeciesCfg   
-def genome__fastaBase():
+def genome__fastaBase(**kwargs):
   return os.path.join(
-    genome__dir(),
+    genome__dir(**kwargs),
     "fa",
     "{species.genome.assembly.ucscRef}")
 
-def genome__fasta():
+def genome__fasta(**kwargs):
   """ Produces the species' genome fasta. """
-  return f"{genome__fastaBase()}.fa"
+  return f"{genome__fastaBase(**kwargs)}.fa"
 
-def genome__fastaIdx():
+def genome__fastaIdx(**kwargs):
   """ Produces the species' genome fasta. """
-  return f"{genome__fasta()}.fai"
+  return f"{genome__fasta(**kwargs)}.fai"
 
 # -----------
 # 2bit Files
 # -----------
 @genome__formatSpeciesCfg   
-def genome__2bitBase():
+def genome__2bitBase(**kwargs):
   return os.path.join(
-    genome__dir(), 
+    genome__dir(**kwargs), 
     "2bit", 
     "{species.genome.assembly.ucscRef}")
 
-def genome__2bit():
+def genome__2bit(**kwargs):
   """ Produces the species' genome 2bit. """
-  return f"{genome__2bitBase()}.2bit"
+  return f"{genome__2bitBase(**kwargs)}.2bit"
 
 @genome__formatSpeciesCfg
 def genome__ucsc2bitUrl():
   return pipeman.config.databases.ucsc.tbitUrl
+
+# -------------
+# Cell cycles
+# -------------
+@genome__formatSpeciesCfg                    
+def genome__speciesCellCycleFile(**kwargs):
+  return os.path.join(
+    genome__speciesDir(**kwargs),
+    "{species.taxo}_cell_cycle_genes.txt")

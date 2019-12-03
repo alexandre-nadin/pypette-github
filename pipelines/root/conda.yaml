@@ -13,10 +13,10 @@ blas=1.0=mkl
 boto3=1.7.84=py_0
 botocore=1.10.84=py_0
 bzip2=1.0.6=h470a237_2
-ca-certificates=2018.11.29=ha4d7672_0
+ca-certificates=2019.3.9=hecc5488_0
 cachetools=2.1.0=py_0
 cairo=1.14.12=h276e583_5
-certifi=2018.11.29=py36_1000
+certifi=2019.3.9=py36_0
 cffi=1.11.5=py36h5e8e0c9_1
 chardet=3.0.4=py36_3
 colorama=0.4.1=py_0
@@ -68,7 +68,7 @@ libprotobuf=3.6.0=hd28b015_0
 libstdcxx-ng=7.3.0=hdf63c60_0
 libtiff=4.0.9=he6b73bb_2
 libtool=2.4.6=h470a237_2
-libuuid=2.32.1=h470a237_2
+libuuid=2.32.1
 libxcb=1.13=h470a237_2
 libxml2=2.9.8=h422b904_5
 libxslt=1.1.32=h88dbc4e_2
@@ -83,8 +83,8 @@ networkx=2.2=py_1
 numpy=1.15.4=py36h1d66e8a_0
 numpy-base=1.15.4=py36h81de0dd_0
 openblas=0.3.3=ha44fe06_1
-openssl=1.1.1a=h14c3975_1000
-pandas=0.23.4=py36hf8a1672_0
+openssl=1.1.1b=h14c3975_1
+pandas=0.24.2=py36hf484d3e_0
 pango=1.40.14=he752989_2
 paramiko=2.4.1=py36_0
 pcre=8.41=hfc679d8_3

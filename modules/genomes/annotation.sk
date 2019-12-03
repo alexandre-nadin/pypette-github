@@ -12,6 +12,10 @@ rule annot__ebiGtf:
       curl "{annot__ebiGtfUrl()}" \
         -o {output.gtf}
     """
+    cmd, force = cmdOrLink(
+                   cmd, 
+                   annot__ebiGtfGz(sharedDir=True),
+                   output.gtf)
     exshell(**vars())
 
 rule annot__gtfToBed:
@@ -72,8 +76,12 @@ rule annot__ucscAnnotTxt:
     annot = annot__ucscTxt()
   run:
     cmd = f"""
-      curl "{annot__ebiTxtUrl()}" > {output.annot}
+      curl "{annot__ucscTxtUrl()}" > {output.annot}
     """
+    cmd, force = cmdOrLink(
+                   cmd, 
+                   annot__ucscTxt(sharedDir=True),
+                   output.annot)
     exshell(**vars())
 
 rule annot__ucscAnnotGenePred:

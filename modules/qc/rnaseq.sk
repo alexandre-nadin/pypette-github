@@ -1,32 +1,33 @@
-LANG = "LC_ALL=en_US.utf8 LANG=en_US.utf8"
+pipeman.includeModules("core/lang.py")
 
 rule qc_rnaseq__multiqc:
   input:
     fastqcs   = pipeman.input(
-      fastq_qc__readZip, 
-      derefKwargs=['sample_name',]),
+                  fastq_qc__readZip, 
+                  derefKwargs=['sample_name', 'sample_run']),
     readDists = pipeman.input(
-      f"{bam__sampleTarget}.read_distribution",
-      derefKwargs=['sample_name',]),
+                  f"{bam__sampleTarget}.read_distribution",
+                  derefKwargs=['sample_name',]),
     inferExp  = pipeman.input(
-      f"{bam__sampleTarget}.inferExperiment",
-      derefKwargs=['sample_name',]),
+                  f"{bam__sampleTarget}.inferExperiment",
+                  derefKwargs=['sample_name',]),
     bamCounts = pipeman.input(
-      f"{bam__pipeTarget}featureCounts/{{sample_name}}.counts.summary",
-      derefKwargs=['sample_name',]),
+                  f"{counts__sampleTarget}.counts.summary",
+                  derefKwargs=['sample_name',]),
     bamstat   = pipeman.input(
-      f"{bam__sampleTarget}.bamstats",
-      derefKwargs=['sample_name',]),
+                  f"{bam__sampleTarget}.bamstats",
+                  derefKwargs=['sample_name',]),
     starLogs  = pipeman.input(
-      f"{bam_mapper__pipeTarget}/{{sample_name}}.Log.final.out",
-      derefKwargs=['sample_name',]),
+                  f"{bam_mapper__pipeTarget}/{{sample_name}}.Log.final.out",
+                  derefKwargs=['sample_name', 'sample_run']),
   output:
     report   =           f"{bam__pipeTarget}multiqc_report.html",
     data     = directory(f"{bam__pipeTarget}multiqc_data")
   run:
     outDir = bam__pipeTarget.format(**wildcards)
     cmd  = f"""
-      {LANG} multiqc       \
+      export {core_lang__dft}
+      multiqc              \
         -f                 \
         -o {outDir}        \
         {input} 
