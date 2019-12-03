@@ -8,16 +8,14 @@ rule annot__ebiGtf:
   output:
     gtf = annot__ebiGtfGz()
   run:
-    shared = annot__ebiGtfGz(sharedDir=True, withFile=True)
-    if shared:
-      cmd = f"""
-        ln -s {shared} {output.gtf}
-      """
-    else:
-      cmd = f"""
-        curl "{annot__ebiGtfUrl()}" \
-          -o {output.gtf}
-      """
+    cmd = f"""
+      curl "{annot__ebiGtfUrl()}" \
+        -o {output.gtf}
+    """
+    cmd, force = cmdOrLink(
+                   cmd, 
+                   annot__ebiGtfGz(sharedDir=True),
+                   output.gtf)
     exshell(**vars())
 
 rule annot__gtfToBed:
@@ -77,15 +75,13 @@ rule annot__ucscAnnotTxt:
   output:
     annot = annot__ucscTxt()
   run:
-    shared = annot__ucscTxt(sharedDir=True, withFile=True)
-    if shared:
-      cmd = f"""
-        ln -s {shared} {output.annot}
-      """
-    else:
-      cmd = f"""
-        curl "{annot__ebiTxtUrl()}" > {output.annot}
-      """
+    cmd = f"""
+      curl "{annot__ucscTxtUrl()}" > {output.annot}
+    """
+    cmd, force = cmdOrLink(
+                   cmd, 
+                   annot__ucscTxt(sharedDir=True),
+                   output.annot)
     exshell(**vars())
 
 rule annot__ucscAnnotGenePred:

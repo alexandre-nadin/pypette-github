@@ -1,5 +1,3 @@
-from utils.files import withFile
-
 def annot__dir(**kwargs):
   return os.path.join(
     genome__dir(**kwargs),
@@ -33,7 +31,6 @@ def annot__ebiBase(**kwargs):
 def annot__ebiGtf(**kwargs):
   return annot__ebiBase(**kwargs) + ".gtf"
 
-@withFile
 def annot__ebiGtfGz(**kwargs):
   return annot__ebiGtf(**kwargs) + ".gz"
 
@@ -51,7 +48,7 @@ def annot__ucscBaseUrl():
   return pipeman.config.databases.ucsc.gencodeBaseName
 
 @genome__formatSpeciesCfg
-def annot__ebiTxtUrl():
+def annot__ucscTxtUrl():
   return os.path.join(
     pipeman.config.databases.ucsc.gencodeUrl,
     annot__ucscBaseUrl() + ".txt.gz")
@@ -62,7 +59,6 @@ def annot__ucscBase(**kwargs):
     "ucsc",
     annot__ucscBaseUrl())
 
-@withFile
 def annot__ucscTxt(**kwargs):
   return annot__ucscBase(**kwargs) + ".txt.gz"
 

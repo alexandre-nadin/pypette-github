@@ -1,1 +1,25 @@
 include: "genome.py"
+
+rule genome__fa:
+  input:
+    bit = genome__2bit()
+  output:
+    fa  = genome__fasta()
+  run:
+    cmd = """
+      twoBitToFa {input.bit} {output.fa}
+    """
+    exshell(**vars())
+
+rule genome__2bit:
+  output:
+    bit = genome__2bit()
+  run:
+    cmd = f"""
+      curl {genome__ucsc2bitUrl()} -o {output.bit}
+    """
+    cmd, force = cmdOrLink(
+                   cmd, 
+                   genome__2bit(sharedDir=True), 
+                   output.bit)
+    exshell(**vars())
