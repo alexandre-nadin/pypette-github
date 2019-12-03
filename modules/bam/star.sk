@@ -59,29 +59,10 @@ rule bam_star__index:
         --sjdbOverhang 100                   \
         --genomeSAindexNbases 14
     """
+    cmd, force = cmdOrLink(
+      cmd,
+      star__indexDir(sharedDir=True),
+      output.idxDir)
     exshell(**vars())
 
 ruleorder: samples__runs > bam_star__alignReads
-
-rule genome__fa:
-  input:
-    bit = genome__2bit()
-  output:
-    fa  = genome__fasta()
-  run:
-    cmd = """
-      twoBitToFa {input.bit} {output.fa}
-    """
-    exshell(**vars())
-
-rule genome__2bit:
-  output:
-    bit = genome__2bit()
-  run:
-    url = genome__ucsc2bitUrl()
-    cmd = """
-      curl                     \
-        {url} \
-        -o {output.bit}
-    """
-    exshell(**vars())

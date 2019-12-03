@@ -6,7 +6,7 @@ rule bam_bwa__alignReads:
     reads_2 = pipeman.input(fastq__read, sample_read="R2"),
     idxDir  = bam_bwa__indexDir(),
   output:
-    bam     = pipeman.temp(bam__sample)
+    bam     = pipeman.temp(f"{bam_mapper__sampleTarget}.bam")
   run:
     readGroup = bam__sampleReadGroup(wildcards)
     bwa       = pipeman.config.pipeline.modules.mapping.aligner
@@ -38,5 +38,10 @@ rule bam_bwa__index:
         -p {idxPref} \
         {input.fa}
     """
+    cmd, force = cmdOrLink(
+      cmd,
+      bam_bwa__indexDir(sharedDir=True),
+      output.idxDir)
     exshell(**vars())
+
 ruleorder: samples__runs > bam_bwa__alignReads 

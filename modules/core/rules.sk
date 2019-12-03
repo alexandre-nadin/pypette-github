@@ -1,34 +1,22 @@
 from utils.files import touch
-
-core__rulesFields = ['name', 'wildcard_names', '_wildcard_constraints', 'snakefile']
-rule explain_rules:
-  """
-  Lists all available rules (snakemake -l) but also gives more
-  information such as the file in which the rule is found.
-  """
-  run:
-    print('\t|\t'.join([_rule_field.upper() 
-                       for _rule_field in core__rulesFields
-                    ]))
-    for _rule in rules.__dict__.keys():
-      print('\t|\t'.join([str(rules.__dict__[_rule].__dict__[_rule_field]) 
-                              for _rule_field in core__rulesFields
-                        ]))
-
+  
 def helpRuleAttr(rule, attr, name=None, inline=True):
   """
   Retrieves the rule's given attribute and formats it for the help output.
   """
-  val = getattr(rule, attr)
-  return "  {}{}{}".format(
-    name.upper() if name else attr.upper(), 
-    "\n    " if inline else " ",
-    #os.linesep.join([ s for s in str(val).splitlines() ])
-    str(val).strip()
-      .replace(" ", "  ")
-      if val else val,
-  )
+  indent = " " * 4
+  ruleAttr = getattr(rule, attr)
+  if isinstance(ruleAttr, list):
+    vals = ruleAttr
+  else:
+    vals = [ruleAttr]
 
+  vals = ["", *vals] if inline else vals
+  sName = name.upper() if name else attr.upper()
+  sName = f"{indent}{sName}" if inline else sName
+  sVal = os.linesep.join(
+           map(lambda x: f"{indent*2}{x}" if inline else f" {x}", vals))
+  return f"""{sName}{sVal}"""
 def helpRuleMsg(rule):
   return "\n\n{}\n{}\n{}\n{}\n".format(
     helpRuleAttr(rule, "name", "rule", inline=False).strip(),
@@ -37,11 +25,22 @@ def helpRuleMsg(rule):
     helpRuleAttr(rule, "output")
   )
 
+def helpRuleMsg(rule):
+  return f"""
+{helpRuleAttr(rule, "name", "rule", inline=False).strip()}
+{helpRuleAttr(rule, "docstring", "doc")}
+{helpRuleAttr(rule, "input")}
+{helpRuleAttr(rule, "output")}
+  """
+
 rule helpRule:
   """
   Lists given rule with essential attributes. 
   """
-  output: "help__{name}.done"
+  output: 
+    "rules.{name}.help"
+  wildcard_constraints: 
+    name = ".+"
   run:
     name_rules = [ r for r in workflow.rules if r.name==wildcards.name ]
     pipeman.log.info(helpRuleMsg(name_rules[0] if name_rules else None))
@@ -51,20 +50,26 @@ rule helpRules:
   """
   Lists of all available rules with essential attributes.
   """
+  output: 
+    "rules.help"
   run:
     msg = ""
     for rule in workflow.rules:
       msg += helpRuleMsg(rule)
     pipeman.log.info(msg)
+    touch(output)
 
 rule listRules:
   """ Lists all available rules """
+  output:
+    "rules.list"
   run:
     pipeman.log.info(os.linesep + os.linesep.join(
       [ f"  {rule}"
         for rule in workflow.rules
       ]
     ))
+    touch(output)
 
 def config__hasKey(key, config=None):
   """ 
@@ -122,8 +127,12 @@ eol
   """
 
 def writeCmdLog(cmd=None, logFile=None, **kwargs):
-  if not kwargs['output']:
-    kwargs['output'].append(kwargs['rule'])
+  logExt = ".info"
+  if not logFile:
+    if not kwargs['output']:
+      logFile = f"{kwargs['rule']}{logExt}"
+    else:
+      logFile = f"{kwargs['output'][0]}{logExt}"
 
   # TODO: Auto attribute missing fields in output. 
   if 'sample_name' not in kwargs.keys():
@@ -145,6 +154,22 @@ def writeCmdLog(cmd=None, logFile=None, **kwargs):
 
   shell(logCmd, **kwargs)
 
+def touchOutputs(output, rule, **kargs):
+  """
+  Touches the given rule's outputs. Deals with regular files and directories.
+  """
+  ruleWfOutputs = list(filter(lambda x: x.name==rule, workflow.rules))[0].output
+
+  outdirsWf  = list(filter(lambda x: x.is_directory, ruleWfOutputs))
+  outdirs  = []
+  outfiles = []
+  for outdirWf in outdirsWf:
+    outdirs += list(filter(lambda x: outdirWf.match(x), output))
+  outfiles = list(filter(lambda x: x not in outdirs, output))
+
+  list(map(lambda x: os.makedirs(x, exist_ok=True), outdirs))
+  touch(outfiles)
+
 def exshell(cmd='', isSubCmd=False, force=False, **kwargs):
   """
   Formats the given command.
@@ -157,21 +182,26 @@ def exshell(cmd='', isSubCmd=False, force=False, **kwargs):
     condactivate pypette-{pipeman.pipeName};
     {cmd}
   """
-   
-  outputs = kwargs['output']
-  logFile = f"{outputs[0]}.info"
 
   """ Print target's log """
   if config__valueOf('logCommands'):
-    writeCmdLog(cmd, logFile=logFile, **kwargs)
+    writeCmdLog(cmd, **kwargs)
 
+    
   """ Debug mode """
   if config__valueOf('debug') and not force:
-    touch(outputs)
+    touchOutputs(**kwargs)
   else:
     shell(cmd, **kwargs) 
 
-pipeman.toClean("help_*.done")
+def runScript(script, **kwargs):
+  exshell(**kwargs)
+  rscript = pipeman.rscript(script)
+  script(rscript,
+         pipeman.modulesDir, input, output, params, wildcards, threads, resources, log, config, rule, conda_env, singularity_img, singularity_args, bench_record, jobid, bench_iteration, shadow_dir)
+  
+
+pipeman.toClean("rules.*")
 
 # ----------------
 # PBS Ressources
@@ -215,4 +245,4 @@ HERE
           pbsout = "{{output[0]}}")
     shell(cmd)
 
-localrules: explain_rules, helpRule, helpRules, listRules, rules__updatePbsRessources, 
+localrules: helpRule, helpRules, listRules, rules__updatePbsRessources, 

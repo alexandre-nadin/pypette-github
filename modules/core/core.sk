@@ -2,6 +2,7 @@ import utils.pipeline
 include: "core.py"
 include: "rules.sk"
 include: "samples.sk"
+include: "shell.py"
 
 onsuccess:
   if 'pipeline_manager' in globals().keys() \

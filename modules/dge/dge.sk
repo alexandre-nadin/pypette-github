@@ -1,28 +1,30 @@
 include: "dge.py"
 
-dge__pipeTarget   = f"{bam__pipeTarget}dge"
-dge__sampleTarget = f"{dge__pipeTarget}/{{sample_name}}"
+pipeman.addTargets(
+  dge__pipeTarget   = "{counts_merged__pipeTarget}/dge",
+  dge__sampleTarget = "{dge__pipeTarget}/{{sample_name}}",
 
-dge__contrastTarget       = f"{dge__pipeTarget}/contrasts"
-dge__contrastSampleTarget = f"{dge__contrastTarget}/{{sample_name}}"
+  dge__contrastTarget       = "{dge__pipeTarget}/contrasts",
+  dge__contrastSampleTarget = "{dge__contrastTarget}/{{sample_name}}",
 
-dge__plotTarget           = f"{dge__pipeTarget}/plots"
-dge__plotSampleTarget     = f"{dge__plotTarget}/{{sample_name}}"
+  dge__plotTarget           = "{dge__pipeTarget}/plots",
+  dge__plotSampleTarget     = "{dge__plotTarget}/{{sample_name}}",
 
-dge__enrichTarget         = f"{dge__pipeTarget}/enrichR"
-dge__enrichedSampleTarget = f"{dge__enrichTarget}/{{sample_name}}"
+  dge__enrichTarget         = "{dge__pipeTarget}/enrichR",
+  dge__enrichedSampleTarget = "{dge__enrichTarget}/{{sample_name}}"
+)
 
 rule dge__plots:
   input: 
     metadata    = "samples/metadata.tsv",
-    counts      = f"{bam__pipeTarget}featureCounts/{{sample_name}}.mergedCounts.gz"
+    counts      = f"{counts_merged__sampleTarget}.counts.gz"
   output:
-    contrasts   = directory(f"{dge__contrastTarget}"),
+    pca         = f"{dge__plotSampleTarget}.pca.pdf",
     distEstims  = f"{dge__plotSampleTarget}.distEstimsPlot.png",
     maPlot      = f"{dge__plotSampleTarget}.maPlot.pdf",
     volcanoPlot = f"{dge__plotSampleTarget}.volcanoPlot.pdf",
     pheatMap    = f"{dge__plotSampleTarget}.pheatMap.png",
-    pca         = f"{dge__plotSampleTarget}.pca.pdf"
+    contrasts   = directory(f"{dge__contrastTarget}")
   params:
     fCountsDataCols = counts__stdCols(),
     dge = lambda wildcards, input: dge__deseq2ParamsDft(input.metadata)
@@ -32,7 +34,7 @@ rule dge__plots:
 rule dge__enrichR:
   input: 
     metadata    = "samples/metadata.tsv",
-    counts      = f"{bam__pipeTarget}featureCounts/{{sample_name}}.mergedCounts.gz"
+    counts      = f"{counts_merged__sampleTarget}.counts.gz"
   output:
     dir = directory(f"{dge__enrichTarget}")
   params:

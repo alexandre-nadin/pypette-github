@@ -1,10 +1,10 @@
-LANG = "LC_ALL=en_US.utf8 LANG=en_US.utf8"
+pipeman.includeModules("core/lang.py")
 
 rule qc_dna__multiqc:
   input:
     fastqcs    = pipeman.input(
                    fastq_qc__readZip, 
-                   derefKwargs=['sample_name',]),
+                   derefKwargs=['sample_name', 'sample_run']),
     mdMetrics  = pipeman.input(
                    f"{bam__sampleTarget}.metrics",
                    derefKwargs=['sample_name',]),
@@ -20,7 +20,8 @@ rule qc_dna__multiqc:
   run:
     outDir = bam__pipeTarget.format(**wildcards)
     cmd  = f"""
-      {LANG} multiqc       \
+      export {core_lang__dft} 
+      multiqc              \
         -f                 \
         -o {outDir}        \
         {input} 
