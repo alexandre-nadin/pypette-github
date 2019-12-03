@@ -1,34 +1,5 @@
 from utils.files import touch
-
-core__rulesFields = ['name', 'wildcard_names', '_wildcard_constraints', 'snakefile']
-rule explain_rules:
-  """
-  Lists all available rules (snakemake -l) but also gives more
-  information such as the file in which the rule is found.
-  """
-  run:
-    print('\t|\t'.join([_rule_field.upper() 
-                       for _rule_field in core__rulesFields
-                    ]))
-    for _rule in rules.__dict__.keys():
-      print('\t|\t'.join([str(rules.__dict__[_rule].__dict__[_rule_field]) 
-                              for _rule_field in core__rulesFields
-                        ]))
-
-def helpRuleAttr(rule, attr, name=None, inline=True):
-  """
-  Retrieves the rule's given attribute and formats it for the help output.
-  """
-  val = getattr(rule, attr)
-  return "  {}{}{}".format(
-    name.upper() if name else attr.upper(), 
-    "\n    " if inline else " ",
-    #os.linesep.join([ s for s in str(val).splitlines() ])
-    str(val).strip()
-      .replace(" ", "  ")
-      if val else val,
-  )
-
+  
 def helpRuleAttr(rule, attr, name=None, inline=True):
   """
   Retrieves the rule's given attribute and formats it for the help output.
@@ -274,4 +245,4 @@ HERE
           pbsout = "{{output[0]}}")
     shell(cmd)
 
-localrules: explain_rules, helpRule, helpRules, listRules, rules__updatePbsRessources, 
+localrules: helpRule, helpRules, listRules, rules__updatePbsRessources, 
