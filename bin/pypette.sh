@@ -1,7 +1,8 @@
 # bash
-trap pypette::cleanup EXIT SIGKILL
+trap pypette::onexit EXIT SIGKILL
 
-function pypette::cleanup() {
+function pypette::onexit() {
+  pypette::setJobsDirPermissions
   pypette::cleanJobsDir
 }
 
@@ -24,7 +25,6 @@ function pypette::runFlow() {
   pypette::envActivate
   pypette::exportVarenvs
   pypette::execSnakemake
-  pypette::cleanJobsDir
 }
 
 # -------------------------
@@ -241,7 +241,7 @@ function pypette::parseParams() {
           ;;
  
         *)
-          echo "Taking snakemake command: '$1'"
+          echo "Taking snakemake command: '$1'" >&2
           ;;
   
       esac
@@ -356,26 +356,37 @@ function pypette::hasJobsDir() {
 }
 
 function pypette::jobsLogsDirs() {
+  pypette::hasJobsDir || return 0
   find $(pypette::jobsDir) -mindepth 1 -maxdepth 1 -type d \
    | xargs -I {} readlink -f {} ;
 }
 
 function pypette::hasJobsLogsDirs() {
-  pypette::jobsLogsDirs && [ $(pypette::jobsLogsDirs | wc -l) -gt 0 ]
+  [ $(pypette::jobsLogsDirs | wc -l) -gt 0 ]
 }
 
 function pypette::jobsLogs() {
-  find $(pypette::jobsDir) -mindepth 1 -maxdepth 2 -type f
+  pypette::hasJobsDir || return 1
+  find $(pypette::jobsDir)    \
+    -mindepth 1               \
+    -maxdepth 2               \
+    -type f                   \
+    -regextype sed            \
+    -regex '.*\.err\|.*\.out'
 }
 
 function pypette::hasJobsLogs() {
-  pypette::hasJobsDir && [ $(pypette::jobsLogs | wc -l) -gt 0 ]
+  [ $(pypette::jobsLogs | wc -l) -gt 0 ]
 }
 
 
-# ----------
-# Cleaning
-# ----------
+# -----------
+# Jobs Logs
+# -----------
+function pypette::setJobsDirPermissions() {
+  chmod -R u+rwX,g+rX $(pypette::jobsDir)
+}
+
 function pypette::cleanJobsDir() {
   pypette::cleanLogBashErrors
   pypette::rmEmptyJobsDirs
