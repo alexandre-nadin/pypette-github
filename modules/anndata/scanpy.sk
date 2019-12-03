@@ -1,3 +1,5 @@
+pipeman.includeModule("genomes/genome.py")
+
 pipeman.addTargets(
   scanpy__dir = "anndata/scanpy", 
   scanpy__pipeTarget = "{counts_umi__pipeTarget}/{scanpy__dir}",
@@ -134,7 +136,7 @@ rule scanpy__normalize:
 rule scanpy__cellCycleScorePca:
   input:
     annot   = f"{scanpy__pipeSample}_n.h5ad",
-    ccGenes = hsapiensCcGenesFile
+    ccGenes = genome__speciesCellCycleFile(sharedDir=True)
   output:
     annot   = temp(f"{scanpy__pipeSample}_cc.h5ad")
   run:
