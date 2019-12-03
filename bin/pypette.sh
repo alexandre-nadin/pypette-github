@@ -2,6 +2,7 @@
 trap pypette::onexit EXIT SIGKILL
 
 function pypette::onexit() {
+  pypette::setJobsDirPermissions
   pypette::cleanJobsDir
 }
 
@@ -382,6 +383,10 @@ function pypette::hasJobsLogs() {
 # ----------
 # Cleaning
 # ----------
+function pypette::setJobsDirPermissions() {
+  chmod -R u+rwX,g+rX $(pypette::jobsDir)
+}
+
 function pypette::cleanJobsDir() {
   pypette::cleanLogBashErrors
   pypette::rmEmptyJobsDirs
