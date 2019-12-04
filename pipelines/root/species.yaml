@@ -16,7 +16,7 @@ species:
     genome:
       assembly:
         buildName: "GRCh38"
-        gencodeRelease: "25"
+        gencodeRelease: "31"
         ensemblRelease: "86"
         ucscRef: "hg38"
       annotation:
