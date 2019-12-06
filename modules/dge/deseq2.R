@@ -29,7 +29,7 @@ dds <- DESeqDataSetFromMatrix(
 filter <- rowSums(cpm(counts(dds)) >= smkp$dge$minCounts) >= smkp$dge$minSamples
 ddsFiltered <- dds[filter,]
 
-ddsFiltered$condition <- relevel(
+ddsFiltered[[smkp$dge$design$refFactor]] <- relevel(
   ddsFiltered[[smkp$dge$design$refFactor]], 
   ref = smkp$dge$design$refLevel)
 
