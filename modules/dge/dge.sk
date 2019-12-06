@@ -19,11 +19,9 @@ rule dge__plots:
     metadata    = "samples/metadata.tsv",
     counts      = f"{counts_merged__sampleTarget}.counts.gz"
   output:
-    pca         = f"{dge__plotSampleTarget}.pca.pdf",
     distEstims  = f"{dge__plotSampleTarget}.distEstimsPlot.png",
     maPlot      = f"{dge__plotSampleTarget}.maPlot.pdf",
     volcanoPlot = f"{dge__plotSampleTarget}.volcanoPlot.pdf",
-    pheatMap    = f"{dge__plotSampleTarget}.pheatMap.png",
     contrasts   = directory(f"{dge__contrastTarget}")
   params:
     fCountsDataCols = counts__stdCols(),
