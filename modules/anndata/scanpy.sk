@@ -81,11 +81,11 @@ rule scanpy__firstPlot:
                                / np.sum(adata.X, axis=1) )
     adata.obs['n_counts'] = adata.X.sum(axis=1)
     sc.pl.violin(
-      adata, 
+      adata,
       ['n_genes', 'n_counts', 'percent_mito'],
       jitter=0.4,
       multi_panel=True,
-      save='_filter.pdf')
+      save='_filter_' + wildcards.sample_name + '.pdf')
     adata.write(output.annot)
 
 rule scanpy__secondFilter:
@@ -157,7 +157,7 @@ rule scanpy__cellCycleScorePca:
     sc.tl.score_genes_cell_cycle(adata, s_genes=s_genes, g2m_genes=g2m_genes, random_state=1)
 
     sc.tl.pca(adata, svd_solver='arpack', use_highly_variable=ruleConf.useOnlyHighlyVariable)
-    sc.pl.pca_scatter(adata, color='phase', save='_beforeCC.pdf')
+    sc.pl.pca_scatter(adata, color='phase', save='_beforeCC_' + wildcards.sample_name + '.pdf')
     adata.write(output.annot)
 
 rule scanpy__cellCycleScoreReg:
@@ -179,7 +179,7 @@ rule scanpy__cellCycleScoreReg:
       sc.pp.regress_out(adata, ['S_score', 'G2M_score'])
       sc.pp.scale(adata)
       sc.tl.pca(adata, svd_solver='arpack', use_highly_variable=ruleConf.useOnlyHighlyVariable)
-      sc.pl.pca_scatter(adata, color='phase', save='_afterCC.pdf')
+      sc.pl.pca_scatter(adata, color='phase', save='_afterCC_' + wildcards.sample_name + '.pdf')
     adata.write(output.annot)
 
 rule scanpy__pcaElbowPlot:
@@ -200,7 +200,7 @@ rule scanpy__pcaElbowPlot:
     if ruleConf.keepOnlyHVG:
       adata = adata[:, adata.var['highly_variable']]
 
-    sc.pl.pca_variance_ratio(adata, log=True, save='.pdf')
+    sc.pl.pca_variance_ratio(adata, log=True, save='_' + wildcards.sample_name +'.pdf')
     adata.write(output.annot)
 
 rule scanpy__louvain:
@@ -237,7 +237,7 @@ rule scanpy__tsne:
 
     adata = sc.read(input.annot)
     sc.tl.tsne(adata, random_state=ruleConf.randomState, n_pcs=ruleConf.nPC)
-    sc.pl.tsne(adata, color='louvain', save='.pdf')
+    sc.pl.tsne(adata, color='louvain', save='_' + wildcards.sample_name + '.pdf')
     adata.write(output.annot)
 
 rule scanpy__umap:
@@ -256,7 +256,7 @@ rule scanpy__umap:
 
     adata = sc.read(input.annot)
     sc.tl.umap(adata)
-    sc.pl.umap(adata, color='louvain', save='.pdf')
+    sc.pl.umap(adata, color='louvain', save='_' + wildcards.sample_name + '.pdf')
     adata.write(output.annot)
 
 rule scanpy__clusterMarkers:
@@ -277,18 +277,18 @@ rule scanpy__clusterMarkers:
 
     adata = sc.read(input.annot)
     sc.tl.rank_genes_groups(
-      adata, 
-      'louvain', 
-      method=ruleConf.method, 
+      adata,
+      'louvain',
+      method=ruleConf.method,
       use_raw=ruleConf.useRaw)
     sc.tl.filter_rank_genes_groups(
-      adata, 
+      adata,
       use_raw=ruleConf.useRaw,
-      log=ruleConf.logValue, 
+      log=ruleConf.logValue,
       min_in_group_fraction=ruleConf.minInGroupFraction,
       min_fold_change=ruleConf.minFoldChange,
       max_out_group_fraction=ruleConf.maxOutGroupFraction)
-    sc.pl.rank_genes_groups(adata, n_genes=ruleConf.plot_nGenes, save='.pdf')
+    sc.pl.rank_genes_groups(adata, n_genes=ruleConf.plot_nGenes, save='_' + wildcards.sample_name + '.pdf')
     adata.write(output.annot)
 
     myDf_n = pd.DataFrame(adata.uns['rank_genes_groups']['names'])
@@ -349,4 +349,4 @@ rule scanpy__interestingGenes:
     intGenes = list(markGenes.loc[markGenes['d']==100].index)
     pd.DataFrame(intGenes).to_csv(output.genes, index=False, header=False)
 
-    sc.pl.violin(adata, intGenes, groupby='louvain', save='_group_comparison.pdf')
+    sc.pl.violin(adata, intGenes, groupby='louvain', save='_group_comparison_' + wildcards.sample_name + '.pdf')
