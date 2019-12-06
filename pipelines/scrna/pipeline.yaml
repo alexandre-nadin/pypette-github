@@ -47,7 +47,7 @@ pipeline:
         bcPattern: 'CCCCCCCCCCCCCCCCNNNNNNNNNNNN'
         setCellNumber: False
         cellNumber: 1000
-    anndata:
+    markerGenes:
       scanpy:
         verbosity: 3
         firstFilter:
