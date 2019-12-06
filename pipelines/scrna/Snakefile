@@ -16,5 +16,5 @@ pipeman.includeModules(
   "bam/bam.sk",
   "bam/counts.sk",
   "bam/counts-umi.sk",
-  "anndata/scanpy.sk",
+  "makerGenes/scanpy.sk",
   withConfigFiles=True)
