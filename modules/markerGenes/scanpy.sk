@@ -1,7 +1,7 @@
 pipeman.includeModule("genomes/genome.py")
 
 pipeman.addTargets(
-  scanpy__dir = "anndata/scanpy", 
+  scanpy__dir = "markerGenes/scanpy", 
   scanpy__pipeTarget = "{counts_umi__pipeTarget}/{scanpy__dir}",
   scanpy__pipeSample = "{scanpy__pipeTarget}/{{sample_name}}", )
 
@@ -20,7 +20,7 @@ rule scanpy__readData10X:
 
     import scanpy as sc
     import pandas as pd
-    sconf = config.pipeline.modules.anndata.scanpy
+    sconf = config.pipeline.modules.markerGenes.scanpy
     sc.settings.verbosity = sconf.verbosity
 
     adata = sc.read(input.matrix, cache=True).T
@@ -39,7 +39,7 @@ rule scanpy__readDataUMI:
 
     import scanpy as sc
     import pandas as pd
-    sconf = config.pipeline.modules.anndata.scanpy
+    sconf = config.pipeline.modules.markerGenes.scanpy
     sc.settings.verbosity = sconf.verbosity
 
     adata = sc.read_umi_tools(input.counts, dtype='float32')
@@ -54,7 +54,7 @@ rule scanpy__firstFilter:
   run:
     exshell(cmd="", **vars())
     import scanpy as sc
-    sconf = config.pipeline.modules.anndata.scanpy
+    sconf = config.pipeline.modules.markerGenes.scanpy
 
     adata = sc.read(input.annot)
     sc.pp.filter_cells(adata, min_genes=sconf.firstFilter.minGenes)
@@ -97,7 +97,7 @@ rule scanpy__secondFilter:
     exshell(cmd="", **vars())
 
     import scanpy as sc
-    sconf = config.pipeline.modules.anndata.scanpy
+    sconf = config.pipeline.modules.markerGenes.scanpy
 
     adata = sc.read(input.annot)
     adata = adata[adata.obs['n_genes'] < sconf.secondFilter.nGenes, :]
@@ -114,7 +114,7 @@ rule scanpy__normalize:
     exshell(cmd="", **vars())
 
     import scanpy as sc
-    ruleConf = config.pipeline.modules.anndata.scanpy.normalization
+    ruleConf = config.pipeline.modules.markerGenes.scanpy.normalization
 
     adata = sc.read(input.annot)
     sc.pp.normalize_per_cell(adata, counts_per_cell_after=ruleConf.countPerCellAfter)
@@ -146,7 +146,7 @@ rule scanpy__cellCycleScorePca:
     import matplotlib
     matplotlib.use('Agg')
 
-    ruleConf = config.pipeline.modules.anndata.scanpy.cellCycleScore
+    ruleConf = config.pipeline.modules.markerGenes.scanpy.cellCycleScore
     sc.settings.autosave=True
 
     adata = sc.read(input.annot)
@@ -171,7 +171,7 @@ rule scanpy__cellCycleScoreReg:
     import scanpy as sc
     import matplotlib
     matplotlib.use('Agg')
-    ruleConf = config.pipeline.modules.anndata.scanpy.cellCycleScore
+    ruleConf = config.pipeline.modules.markerGenes.scanpy.cellCycleScore
     sc.settings.autosave=True
 
     adata = sc.read(input.annot)
@@ -192,7 +192,7 @@ rule scanpy__pcaElbowPlot:
     import scanpy as sc
     import matplotlib
     matplotlib.use('Agg')
-    ruleConf = config.pipeline.modules.anndata.scanpy.plot
+    ruleConf = config.pipeline.modules.markerGenes.scanpy.plot
     sc.settings.autosave = True
 
     adata = sc.read(input.annot)
@@ -210,7 +210,7 @@ rule scanpy__louvain:
     annot = temp(f"{scanpy__pipeSample}_lv.h5ad")
   run:
     exshell(cmd="", **vars())
-    ruleConf = config.pipeline.modules.anndata.scanpy.louvain
+    ruleConf = config.pipeline.modules.markerGenes.scanpy.louvain
 
     import scanpy as sc
     import louvain
@@ -227,7 +227,7 @@ rule scanpy__tsne:
     annot = temp(f"{scanpy__pipeSample}_ts.h5ad")
   run:
     exshell(cmd="", **vars())
-    ruleConf = config.pipeline.modules.anndata.scanpy.tsne
+    ruleConf = config.pipeline.modules.markerGenes.scanpy.tsne
 
     import scanpy as sc
     import igraph as ig
@@ -267,7 +267,7 @@ rule scanpy__clusterMarkers:
     csv   = f"{scanpy__pipeSample}_cm.csv"
   run:
     exshell(cmd="", **vars())
-    ruleConf = config.pipeline.modules.anndata.scanpy.clusterMarkers
+    ruleConf = config.pipeline.modules.markerGenes.scanpy.clusterMarkers
 
     import scanpy as sc
     import pandas as pd
