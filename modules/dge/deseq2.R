@@ -5,7 +5,10 @@ suppressMessages(library(data.table))
 # ---------------
 # FeatureCounts
 # ---------------
-fCounts <- read.delim(file=smkin$counts, header=TRUE)
+fCounts <- read.delim(file=smkin$counts, 
+                      header=TRUE,
+                      check.names = FALSE)
+
 fCountsData <- fCounts[
   , 
   -which(
