@@ -5,7 +5,7 @@ rule varcall__gatk:
     bam = pipeman.input(
             f"{bam__sampleTarget}.bam",
             derefKwargs = ['sample_name',]),
-    ref_genome_fa = lambda x: genome__fasta()
+    ref_genome_fa = lambda x: genome__ebiFasta()
   output:
     vcf = f"{vcf__sampleTarget}.ga.g.vcf.gz"
   run:
@@ -26,7 +26,7 @@ rule varcall__mergeGVCF:
     vcfs   = pipeman.input(
                  f"{vcf__sampleTarget}.ga.g.vcf.gz",
                  derefKwargs=['sample_name',]),
-    ref_genome_fa = lambda x: genome__fasta()
+    ref_genome_fa = lambda x: genome__ebiFasta()
   output:
     vcf = f"{vcf__pipeTarget}/all.ga.merged.vcf.gz"
   run:
@@ -45,7 +45,7 @@ rule varcall__mergeGVCF:
 rule varcall__merge_BaseRecalibrator:
   input:
     vcf       = f"{vcf__pipeTarget}/all.ga.merged.vcf.gz",
-    ref_genome_fa = lambda x: genome__fasta()
+    ref_genome_fa = lambda x: genome__ebiFasta()
   output:
     recal     = f"{vcf__pipeTarget}/all.ga.merged.recal",
     tranches  = f"{vcf__pipeTarget}/all.ga.merged.tranches",
@@ -90,7 +90,7 @@ rule varcall__merge_BaseRecalibrator:
 rule varcall__merge_IndelRecalibrator:
   input:
     vcf       = f"{vcf__pipeTarget}/all.ga.merged.recal.vcf.gz",
-    ref_genome_fa = lambda x: genome__fasta()
+    ref_genome_fa = lambda x: genome__ebiFasta()
   output:
     recal     = f"{vcf__pipeTarget}/all.ga.merged.indel.recal",
     tranches  = f"{vcf__pipeTarget}/all.ga.merged.indel.tranches",
@@ -133,7 +133,7 @@ rule varcall__merge_IndelRecalibrator:
 rule varcall__annotate_gatk_merge:
   input:
     vcf = f"{vcf__sampleTarget}.ga.merged.indel.recal.vcf.gz",
-    ref_genome_fa = lambda x: genome__fasta()
+    ref_genome_fa = lambda x: genome__ebiFasta()
   output:
     vcf = f"{vcf__sampleTarget}.ga.merged.recal.annotate.vcf.gz"
   params:
@@ -162,7 +162,7 @@ rule varcall__annotate_gatk_merge:
 rule varcall__annotate_gatk:
   input:
     vcf = f"{vcf__sampleTarget}.ga.g.vcf.gz",
-    ref_genome_fa = lambda x: genome__fasta()
+    ref_genome_fa = lambda x: genome__ebiFasta()
   output:
     vcf = f"{vcf__sampleTarget}.ga.g.annotate.vcf.gz",
   params:

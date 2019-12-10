@@ -19,7 +19,7 @@ rule varcall__cnvkit:
              f"{bam__sampleTarget}.bam",
              derefKwargs = ['sample_name',]),
     vcf = f"{vcf__sampleTarget}.ga.g.vcf.gz",
-    ref_genome_fa = lambda x: genome__fasta()
+    ref_genome_fa = lambda x: genome__ebiFasta()
   output:
     cns = f"{vcf__sampleTarget}.calls.cns"
   params:

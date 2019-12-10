@@ -19,7 +19,7 @@ def annot__ebiBaseUrl():
 @genome__formatSpeciesCfg
 def annot__ebiGtfUrl():
   return os.path.join(
-    pipeman.config.databases.ebi.gencodeUrl,
+    genome__ebiReleaseUrl(),
     annot__ebiBaseUrl() + ".gtf.gz")
 
 def annot__ebiBase(**kwargs):
@@ -62,17 +62,17 @@ def annot__ucscBase(**kwargs):
 def annot__ucscTxt(**kwargs):
   return annot__ucscBase(**kwargs) + ".txt.gz"
 
-def annot__ucscGenePred():
-  return annot__ucscBase() + ".genePred.gz"
+def annot__ucscGenePred(**kwargs):
+  return annot__ucscBase(**kwargs) + ".genePred.gz"
 
-def annot__ucscGtf():
-  return annot__ucscBase() + ".gtf"
+def annot__ucscGtf(**kwargs):
+  return annot__ucscBase(**kwargs) + ".gtf"
 
-def annot__ucscGtfGz():
-  return annot__ucscGtf() + ".gz"
+def annot__ucscGtfGz(**kwargs):
+  return annot__ucscGtf(**kwargs) + ".gz"
 
-def annot__ucscBedgz():
-  return annot__ucscBase() + ".bed.gz"
+def annot__ucscBedgz(**kwargs):
+  return annot__ucscBase(**kwargs) + ".bed.gz"
 
 def annot__ucscBed():
   return annot__ucscBase() + ".bed"
