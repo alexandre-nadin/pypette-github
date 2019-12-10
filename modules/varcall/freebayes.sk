@@ -7,7 +7,7 @@ rule varcall__freebayes_merge:
     bams = pipeman.input(                        
                f"{bam__sampleTarget}.bam",
                derefKwargs=['sample_name',]),
-    ref_genome_fa = lambda x: genome__fasta()
+    ref_genome_fa = lambda x: genome__ebiFasta()
   output:                                          
     vcf = f"{vcf__pipeTarget}/all.fb.merged.vcf.gz"
   run:
@@ -36,7 +36,7 @@ rule varcall__freebayes:
     bams = pipeman.input(
              f"{bam__sampleTarget}.bam",
              derefKwargs = ['sample_name',]),
-    ref_genome_fa = lambda x: genome__fasta()
+    ref_genome_fa = lambda x: genome__ebiFasta()
   output:
     vcf = f"{vcf__sampleTarget}.fb.vcf.gz"
   run:
@@ -90,7 +90,7 @@ rule varcall__filter_merged:
 rule varcall__annotate_fb:
   input:
     vcf = f"{vcf__sampleTarget}.fb.filter.vcf.gz",
-    ref_genome_fa = lambda x: genome__fasta()
+    ref_genome_fa = lambda x: genome__ebiFasta()
   output:
     vcf = f"{vcf__sampleTarget}.fb.filter.annotate.vcf.gz",
   params:
@@ -120,7 +120,7 @@ rule varcall__annotate_fb:
 rule varcall__annotate_fb_merged:
   input:
     vcf = f"{vcf__sampleTarget}.fb.merged.filter.vcf.gz",
-    ref_genome_fa = lambda x: genome__fasta()
+    ref_genome_fa = lambda x: genome__ebiFasta()
   output:
     vcf = f"{vcf__sampleTarget}.fb.merged.filter.annotate.vcf.gz",
   params:

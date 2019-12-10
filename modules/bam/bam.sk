@@ -158,8 +158,8 @@ rule bam__makeIndex:
 rule bam__hsMetrics:
   input:  
     bam = "{someprefix}.bam",
-    fa  = genome__fasta(),
-    fai = genome__fastaIdx(),
+    fa  = genome__ebiFasta(),
+    fai = genome__ebiFastaIdx(),
   output: 
     "{someprefix}_hsMetrics.txt"
   run:
