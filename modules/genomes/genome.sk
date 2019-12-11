@@ -2,24 +2,48 @@ include: "genome.py"
 
 rule genome__fa:
   input:
-    bit = genome__2bit()
+    fa  = "{someprefix}.fa.gz"
   output:
-    fa  = genome__fasta()
+    fa  = pipeman.temp("{someprefix}.fa")
+  run:
+    cmd = """
+      gunzip -c {input.fa} > {output.fa}
+    """
+    exshell(**vars())
+
+rule genome__ebiFaGz:
+  output:
+    fa  = genome__ebiFastaGz()
+  run:
+    cmd = f"""
+      curl "{genome__ebiFastaUrl()}" -o {output.fa}
+    """
+    cmd, force = cmdOrLink(
+                   cmd,
+                   genome__ebiFastaGz(sharedDir=True),
+                   output.fa)
+    exshell(**vars())
+
+rule genome__ucscFa:
+  input:
+    bit = genome__ucsc2bit()
+  output:
+    fa  = genome__ucscFasta()
   run:
     cmd = """
       twoBitToFa {input.bit} {output.fa}
     """
     exshell(**vars())
 
-rule genome__2bit:
+rule genome__ucsc2bit:
   output:
-    bit = genome__2bit()
+    bit = genome__ucsc2bit()
   run:
     cmd = f"""
-      curl {genome__ucsc2bitUrl()} -o {output.bit}
+      curl "{genome__ucsc2bitUrl()}" -o {output.bit}
     """
     cmd, force = cmdOrLink(
                    cmd, 
-                   genome__2bit(sharedDir=True), 
+                   genome__ucsc2bit(sharedDir=True), 
                    output.bit)
     exshell(**vars())

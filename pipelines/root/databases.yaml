@@ -1,7 +1,10 @@
 databases:
   ebi:
-    gencodeUrl: 'ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_{species.name}/release_{species.genome.assembly.gencodeRelease}'
+    gencodeUrl: 'ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_{species.name}'
     gencodeBaseName: 'gencode.v{species.genome.assembly.gencodeRelease}.{species.genome.annotation.type}.annotation'
+    gencodeFaBaseName: '{species.genome.assembly.buildName}.primary_assembly.genome'
+    gencodeFa: '{species.genome.assembly.buildName}.primary_assembly.genome.fa.gz'
+   
   ucsc:
     gencodeUrl: 'ftp://hgdownload.cse.ucsc.edu/goldenPath/{species.genome.assembly.ucscRef}/database'
     gencodeBaseName: 'wgEncodeGencodeBasicV{species.genome.assembly.gencodeRelease}'

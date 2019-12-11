@@ -146,7 +146,7 @@ rule annot__ucscBed:
   input:
     bed = lambda x: annot__ucscBedgz()
   output:
-    bed = annot__ucscBed()
+    bed = pipeman.temp(annot__ucscBed())
   run:
     cmd = """
       gunzip -c {input.bed} > {output.bed}

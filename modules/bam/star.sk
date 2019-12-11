@@ -42,8 +42,8 @@ rule bam_star__alignReads:
 
 rule bam_star__index:
   input:
-    fa     = genome__fasta(),
-    gtf    = annot__ucscGtf()
+    fa     = genome__ebiFasta(),
+    gtf    = annot__ebiGtf()
   output:
     idxDir = directory(star__indexDir()),
   run:
