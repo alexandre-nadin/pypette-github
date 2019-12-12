@@ -49,7 +49,7 @@ pipeline:
         factors: []
         refFactor: ""
         refLevel: ""
-      minCounts: 10
+      minCounts: 1
       minSamples: 3
       alpha: 0.05
     biotypes:
