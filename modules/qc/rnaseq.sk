@@ -20,9 +20,6 @@ rule qc_rnaseq__multiqc:
     starLogs  = pipeman.input(
                   f"{bam_mapper__pipeTarget}/{{sample_name}}.Log.final.out",
                   derefKwargs=['sample_name', 'sample_run']),
-    trimmomatic = pipeman.input(
-                  f"{fastq_trimming__dir}/trimmomatic/{{sample_name}}_trimmomatic.log",
-                  derefKwargs=['sample_name']),
   output:
     report   =           f"{bam__pipeTarget}multiqc_report.html",
     data     = directory(f"{bam__pipeTarget}multiqc_data")
