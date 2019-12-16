@@ -194,7 +194,7 @@ rule bam__baseRecalibrator:
   input: 
     bam     = "{anyprefix}{sample_name}.bam",
     bai     = "{anyprefix}{sample_name}.bai",
-    fa      = lambda x: genome__fasta()
+    fa      = lambda x: genome__ucscFasta()
   output: 
     recalib = "{anyprefix}{sample_name}_recalibration_report.grp"
   run:
@@ -220,7 +220,7 @@ rule bam__baseRecalibrate:
     recalib = "{anyprefix}{sample_name}_recalibration_report.grp",
     bam     = "{anyprefix}{sample_name}.bam",
     bai     = "{anyprefix}{sample_name}.bai",
-    fa      = lambda x: genome__fasta()
+    fa      = lambda x: genome__ucscFasta()
   output:
     bam     = f"{bam__sampleRecalibPrefix}.bam"
   run:
