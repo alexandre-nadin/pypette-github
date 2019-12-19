@@ -22,7 +22,7 @@ rule fastq_trimming__trimmomatic:
   input: 
     r1       = pipeman.input(fastq__read, sample_read="R1"),
     r2       = pipeman.input(fastq__read, sample_read="R2"),
-    adapters = "adapters/trimmomatic/adapters.fa"
+    adapters = "adapters/trimmomatic/adapters-pe.fa"
   output: 
     r1       = pipeman.temp(f"{fastq_trimming__dir}/trimmomatic/{{sample_name}}_R1.fastq.gz"),
     r1u      = pipeman.temp(f"{fastq_trimming__dir}/trimmomatic/{{sample_name}}_R1_UNPAIRED.fastq.gz"),
@@ -92,7 +92,7 @@ rule fastq_trimming__bbduk:
   input: 
     r1       = pipeman.input(fastq_merge__read, sample_read="R1"),
     r2       = pipeman.input(fastq_merge__read, sample_read="R2"),
-    adapters = "adapters/bbduk/adapters.fa"
+    adapters = "adapters/bbduk/adapters-pe.fa"
   output: 
     r1       = pipeman.temp(fastq_trimming__dir + "/bbduk/{sample_name}_R1.fastq.gz"),
     r2       = pipeman.temp(fastq_trimming__dir + "/bbduk/{sample_name}_R2.fastq.gz"),
