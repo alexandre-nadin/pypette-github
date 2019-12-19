@@ -28,7 +28,7 @@ rule fastq_trimming__trimmomatic:
     r1u      = pipeman.temp(f"{fastq_trimming__dir}/trimmomatic/{{sample_name}}_R1_UNPAIRED.fastq.gz"),
     r2       = pipeman.temp(f"{fastq_trimming__dir}/trimmomatic/{{sample_name}}_R2.fastq.gz"),
     r2u      = pipeman.temp(f"{fastq_trimming__dir}/trimmomatic/{{sample_name}}_R2_UNPAIRED.fastq.gz"),
-    log      = f"{fastq_trimming__dir}/trimmomatic/{{sample_name}}_trimmomatic.log",
+    log      = f"{fastq_trimming__dir}/trimmomatic/{{sample_name}}_trimout.log",
   run:
     inputReads = [ x for x in [ 
                      input.r1[0], 
@@ -96,6 +96,7 @@ rule fastq_trimming__bbduk:
   output: 
     r1       = pipeman.temp(fastq_trimming__dir + "/bbduk/{sample_name}_R1.fastq.gz"),
     r2       = pipeman.temp(fastq_trimming__dir + "/bbduk/{sample_name}_R2.fastq.gz"),
+    log      =              fastq_trimming__dir + "/bbduk/{sample_name}_trimout.log"
   run:
     inputReads  = " \\\n".join(
       [ x for x in [ 
@@ -124,7 +125,8 @@ rule fastq_trimming__bbduk:
         trimq=5              \\
         forcetrimleft=0      \\
         forcetrimright2=0    \\
-        overwrite=true
+        overwrite=true       \\
+       > "{output.log}"
       touch {output}
     """
     exshell(**vars())
