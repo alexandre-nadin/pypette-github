@@ -67,19 +67,19 @@ rule fastq_trimming__trimmomatic:
 # ---------
 rule fastq_trimming__cutadapt:
   input: 
-    r1       = pipeman.input(fastq__read, sample_read="R1"),
-    r2       = pipeman.input(fastq__read, sample_read="R2"),
-    adaptersFwd = "adapters/cutadapt/adapters-fwd.fa",
-    adaptersRev = "adapters/cutadapt/adapters-rev.fa"
+    r1      = pipeman.input(fastq__read, sample_read="R1"),
+    r2      = pipeman.input(fastq__read, sample_read="R2"),
+    adptFwd = "adapters/cutadapt/adapters-fwd.fa",
+    adptRev = "adapters/cutadapt/adapters-rev.fa"
   output: 
-    r1       = pipeman.temp(f"{fastq_trimming__dir}/cutadapt/{{sample_name}}_R1.fastq.gz"),
-    r2       = pipeman.temp(f"{fastq_trimming__dir}/cutadapt/{{sample_name}}_R2.fastq.gz"),
-    log      = f"{fastq_trimming__dir}/cutadapt/{{sample_name}}_trimout.log",
+    r1      = pipeman.temp(f"{fastq_trimming__dir}/cutadapt/{{sample_name}}_R1.fastq.gz"),
+    r2      = pipeman.temp(f"{fastq_trimming__dir}/cutadapt/{{sample_name}}_R2.fastq.gz"),
+    log     = f"{fastq_trimming__dir}/cutadapt/{{sample_name}}_trimout.log",
   run:
-    r1Str          = f"-o {output.r1}" if output.r1 else ""
-    r2Str          = f"-p {output.r2}" if output.r2 else ""
-    adaptersFwdStr = f"-a {input.adaptersFwd}" if input.adaptersFwd else ""
-    adaptersRevStr = f"-A {input.adaptersRev}" if input.adaptersRev else ""
+    r1Opt      = f"-o {output.r1}" if input.r1 else ""
+    r2Opt      = f"-p {output.r2}" if input.r2 else ""
+    adptFwdOpt = f"-a file:{input.adptFwd}" if input.r1 else ""
+    adptRevOpt = f"-A file:{input.adptRev}" if input.r2 else ""
       
     cmd = f"""
       cutadapt           \
@@ -87,12 +87,12 @@ rule fastq_trimming__cutadapt:
         -q 30,30         \
         -u 13            \
         -m 15            \
-        {adaptersFwdStr} \
-        {adaptersRevStr} \
+        {adptFwdOpt} \
+        {adptRevOpt} \
         {input.r1}       \
         {input.r2}       \
-        {r1Str}          \
-        {r2Str}          \      
+        {r1Opt}          \
+        {r2Opt}          \
        > "{output.log}"
       touch {output}
 
