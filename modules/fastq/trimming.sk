@@ -87,8 +87,9 @@ rule fastq_trimming__cutadapt:
         -q 30,30         \
         -u 13            \
         -m 15            \
-        {adptFwdOpt} \
-        {adptRevOpt} \
+        -j 0             \
+        {adptFwdOpt}     \
+        {adptRevOpt}     \
         {input.r1}       \
         {input.r2}       \
         {r1Opt}          \
