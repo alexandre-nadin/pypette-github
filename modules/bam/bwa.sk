@@ -2,14 +2,14 @@ include: "bwa.py"
 
 rule bam_bwa__alignReads:
   input: 
-    reads_1 = pipeman.input(fastq__read, sample_read="R1"),
-    reads_2 = pipeman.input(fastq__read, sample_read="R2"),
+    reads_1 = pypette.input(fastq__read, sample_read="R1"),
+    reads_2 = pypette.input(fastq__read, sample_read="R2"),
     idxDir  = bam_bwa__indexDir(),
   output:
-    bam     = pipeman.temp(f"{bam_mapper__sampleTarget}.bam")
+    bam     = pypette.temp(f"{bam_mapper__sampleTarget}.bam")
   run:
     readGroup = bam__sampleReadGroup(wildcards)
-    bwa       = pipeman.config.pipeline.modules.mapping.aligner
+    bwa       = pypette.config.pipeline.modules.mapping.aligner
     reads     = bam_bwa__readsToString(input.reads_1, input.reads_2)
     idxPref   = bam_bwa__indexPrefix()
     cmd = """

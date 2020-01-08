@@ -1,4 +1,4 @@
-pipeman.updateWildcardConstraints(
+pypette.updateWildcardConstraints(
   project = "\w+"
 )
 

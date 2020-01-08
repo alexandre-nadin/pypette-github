@@ -1,4 +1,4 @@
-pipeman.addTargets(
+pypette.addTargets(
   clustering__pipeTarget   = "{counts_merged__pipeTarget}/clustering",
   clustering__sampleTarget = "{clustering__pipeTarget}/{{sample_name}}",
 
@@ -20,7 +20,7 @@ rule clustering__pca:
     fCountsDataCols = counts__stdCols(),
     dge = lambda wildcards, input: dge__deseq2ParamsDft(input.metadata)
   script:
-    pipeman.rscript("clustering/pca.R") 
+    pypette.rscript("clustering/pca.R") 
 
 
 rule clustering__heatmap:
@@ -34,6 +34,6 @@ rule clustering__heatmap:
     fCountsDataCols = counts__stdCols(),
     dge = lambda wildcards, input: dge__deseq2ParamsDft(input.metadata)
   script:
-    pipeman.rscript("clustering/heatmap.R")
+    pypette.rscript("clustering/heatmap.R")
 
    

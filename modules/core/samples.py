@@ -41,4 +41,4 @@ def samples__mapWildcardString(**kwargs):
   """
   wcOutput   = samples__formatWildcardOutput(**kwargs)
   wcFilters  = samples__wildcardFilters(wcOutput)
-  return pipeman.samples.map(wcOutput, **wcFilters)
+  return pypette.samples.map(wcOutput, **wcFilters)

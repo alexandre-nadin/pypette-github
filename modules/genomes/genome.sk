@@ -4,7 +4,7 @@ rule genome__fa:
   input:
     fa  = "{someprefix}.fa.gz"
   output:
-    fa  = pipeman.temp("{someprefix}.fa")
+    fa  = pypette.temp("{someprefix}.fa")
   run:
     cmd = """
       gunzip -c {input.fa} > {output.fa}

@@ -6,9 +6,9 @@ def bam__alignerDft():
 
 def bam__configAligner():
   try:
-    return pipeman.config.pipeline.modules.mapping.aligner
+    return pypette.config.pipeline.modules.mapping.aligner
   except:
-    pipeman.log.error("No aligner found in pipeline configuration.")
+    pypette.log.error("No aligner found in pipeline configuration.")
 
 def bam__alignerDir(append=False):
   aligner = bam__configAligner().name
@@ -28,7 +28,7 @@ def bam__includeAlignerModule():
   if aligner.name:
     include: bam__alignerModule(aligner)
   else:
-    pipeman.log.error("No aligner found in the pipeline configuration.")
+    pypette.log.error("No aligner found in the pipeline configuration.")
 
 # -----------
 # Alignment
@@ -36,8 +36,8 @@ def bam__includeAlignerModule():
 def bam__sampleReadGroup(sample):
   fcid           = bam__runFlowCellID(sample.sample_run)
   experimentName = fcid + "_" + sample.sample_name
-  platform       = pipeman.config.pipeline.sequencing.platform
-  center         = pipeman.config.pipeline.center.name 
+  platform       = pypette.config.pipeline.sequencing.platform
+  center         = pypette.config.pipeline.center.name 
   return "\\t".join([
     "@RG",
     "ID:" + experimentName,
@@ -62,7 +62,7 @@ def picardMergeInputString(inputs=[]):
 # ---------------
 def bam__sorter():
   try:
-    res = pipeman.config.pipeline.modules.mapping.sorter.name
+    res = pypette.config.pipeline.modules.mapping.sorter.name
   except:
     res = None
   return res

@@ -1,12 +1,12 @@
 include: 'bam.py'
-pipeman.includeModules(
+pypette.includeModules(
   "genomes/genome.sk",
   "genomes/annotation.sk",
   "genomes/exome.sk")
 
 """ Allowed Sorting Processes """
 sortingTools = ('picard', 'samtools')
-pipeman.updateWildcardConstraints(
+pypette.updateWildcardConstraints(
   procSorted    = "(sorted/({})/)?".format("|".join(sortingTools)),
   procMarkDup   = "(markdup/)?",
   procBamMerged = "(merged/)?",
@@ -14,7 +14,7 @@ pipeman.updateWildcardConstraints(
 )
 
 """ Sample Run Reads Output Targets """
-pipeman.addTargets(
+pypette.addTargets(
   bam_mapper__dir          = f"mapped/{bam__alignerDir()}",
   bam_mapper__pipeTarget   = "{fastq__pipeTarget}{bam_mapper__dir}",
   bam_mapper__sampleTarget = "{bam_mapper__pipeTarget}/{{sample_name}}",
@@ -38,8 +38,8 @@ rule bam__markDuplicates:
   input: 
     bam     = "{anyprefix}{sample_name}.bam"
   output: 
-    bam     = pipeman.temp(f"{bam__sampleMarkdupPrefix}.bam"    ),
-    bai     = pipeman.temp(f"{bam__sampleMarkdupPrefix}.bai"    ),
+    bam     = pypette.temp(f"{bam__sampleMarkdupPrefix}.bam"    ),
+    bai     = pypette.temp(f"{bam__sampleMarkdupPrefix}.bai"    ),
     metrics =      f"{bam__sampleMarkdupPrefix}.metrics"
   run:
     cmd = """
@@ -63,7 +63,7 @@ rule bam__sortSamplePicard:
   input: 
     bam = "{anyprefix}{sample_name}.bam"
   output: 
-    bam = pipeman.temp("{anyprefix}sorted/picard/{sample_name}.bam"),
+    bam = pypette.temp("{anyprefix}sorted/picard/{sample_name}.bam"),
   run:
     cmd = """
       picard SortSam          \
@@ -77,9 +77,9 @@ rule bam__sortSampleSamtools:
   input: 
     bam = "{anyprefix}{sample_name}.bam"
   output: 
-    bam = pipeman.temp("{anyprefix}sorted/samtools/{sample_name}.bam")
+    bam = pypette.temp("{anyprefix}sorted/samtools/{sample_name}.bam")
   run:
-    bwa = pipeman.config.pipeline.modules.mapping.aligner
+    bwa = pypette.config.pipeline.modules.mapping.aligner
     cmd = """
       samtools view          \
         -Su {input}          \
@@ -117,12 +117,12 @@ ruleorder: samples__all > bam__sampleStats
 ruleorder: bam__markDuplicates > bam__sortSamplePicard > bam__sortSampleSamtools > bam__mergeSample
 rule bam__mergeSample:
   input:
-    bam = pipeman.input(
+    bam = pypette.input(
             bam__sample, 
             derefKwargs = ['sample_run',],
             withResult=True)
   output:
-    bam = pipeman.temp(f"{bam_mapper__pipeTarget}/merged/{{sample_name}}.bam")
+    bam = pypette.temp(f"{bam_mapper__pipeTarget}/merged/{{sample_name}}.bam")
   run:
     if len(input.bam) > 1:
       mergePrefixes = picardMergeInputString(input.bam)
@@ -148,7 +148,7 @@ rule bam__makeIndex:
   input:       
          "{someprefix}.bam"
   output: 
-    pipeman.temp("{someprefix}.bai")
+    pypette.temp("{someprefix}.bai")
   run:
     cmd = """
       picard BuildBamIndex I={input} O={output}

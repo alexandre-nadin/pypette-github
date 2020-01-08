@@ -1,8 +1,8 @@
-pipeman.includeModules("varcall/varcall.sk")
+pypette.includeModules("varcall/varcall.sk")
 
 rule varcall__gatk:
   input:
-    bam = pipeman.input(
+    bam = pypette.input(
             f"{bam__sampleTarget}.bam",
             derefKwargs = ['sample_name',]),
     ref_genome_fa = lambda x: genome__ebiFasta()
@@ -23,7 +23,7 @@ rule varcall__gatk:
 
 rule varcall__mergeGVCF:
   input:
-    vcfs   = pipeman.input(
+    vcfs   = pypette.input(
                  f"{vcf__sampleTarget}.ga.g.vcf.gz",
                  derefKwargs=['sample_name',]),
     ref_genome_fa = lambda x: genome__ebiFasta()
@@ -53,12 +53,12 @@ rule varcall__merge_BaseRecalibrator:
     vcf       = f"{vcf__pipeTarget}/all.ga.merged.recal.vcf.gz"
   params:
     ref_genome_dir = genome__dir(),
-    ref_genome_name = pipeman.config.project.genome.name
+    ref_genome_name = pypette.config.project.genome.name
   run:
-    if pipeman.config.project.genome.name == "hs37d5":
+    if pypette.config.project.genome.name == "hs37d5":
       genome_name = "b37"
     else:
-      genome_name = pipeman.config.project.genome.name
+      genome_name = pypette.config.project.genome.name
     cmd = f"""
       gatk \
        -T VariantRecalibrator \
@@ -98,12 +98,12 @@ rule varcall__merge_IndelRecalibrator:
     vcf       = f"{vcf__pipeTarget}/all.ga.merged.indel.recal.vcf.gz"
   params:
     ref_genome_dir = genome__dir(),
-    ref_genome_name = pipeman.config.project.genome.name
+    ref_genome_name = pypette.config.project.genome.name
   run:
-    if pipeman.config.project.genome.name == "hs37d5":
+    if pypette.config.project.genome.name == "hs37d5":
       genome_name = "b37"
     else:
-      genome_name = pipeman.config.project.genome.name
+      genome_name = pypette.config.project.genome.name
     cmd = f"""
       gatk \
        -T VariantRecalibrator \
@@ -140,11 +140,11 @@ rule varcall__annotate_gatk_merge:
     dbnsfp_ann = f"Uniprot_acc_Polyphen2,Interpro_domain,SIFT_pred,Polyphen2_HDIV_pred,Polyphen2_HVAR_pred,LRT_pred,MutationTaster_pred,GERP++_NR,GERP++_RS,phastCons100way_vertebrate,1000Gp3_AF,ESP6500_AA_AF,ESP6500_EA_AF,MutationTaster_pred,MutationAssessor_pred,FATHMM_pred,PROVEAN_pred,CADD_phred,MetaSVM_pred,1000Gp3_AC,1000Gp3_AF,1000Gp3_AFR_AC,1000Gp3_AFR_AF,1000Gp3_EUR_AC,1000Gp3_EUR_AF,1000Gp3_AMR_AC,1000Gp3_AMR_AF,1000Gp3_EAS_AC,1000Gp3_EAS_AF,1000Gp3_SAS_AC,1000Gp3_SAS_AF,ESP6500_AA_AC,ESP6500_AA_AF,ESP6500_EA_AC,ESP6500_EA_AF,ExAC_AC,ExAC_AF,ExAC_Adj_AC,ExAC_Adj_AF,ExAC_AFR_AC,ExAC_AFR_AF,ExAC_AMR_AC,ExAC_AMR_AF,ExAC_EAS_AC,ExAC_EAS_AF,ExAC_FIN_AC,ExAC_FIN_AF,ExAC_NFE_AC,ExAC_NFE_AF,ExAC_SAS_AC,ExAC_SAS_AF,gnomAD_exomes_AF,gnomAD_genomes_AF"
   run:
     annotation_dir = annot__dir() + "_pypette"
-    if pipeman.config.project.genome.name == "hs37d5":
+    if pypette.config.project.genome.name == "hs37d5":
       genome_name = "hg19"
       ensembl = "GRCh37.75"
     else:
-      genome_name = pipeman.config.project.genome.name
+      genome_name = pypette.config.project.genome.name
       ensembl = ensembl__buildVersion()
     cmd = f"""
       vt normalize -n -r {input.ref_genome_fa} {input.vcf} \
@@ -169,11 +169,11 @@ rule varcall__annotate_gatk:
     dbnsfp_ann = f"Uniprot_acc_Polyphen2,Interpro_domain,SIFT_pred,Polyphen2_HDIV_pred,Polyphen2_HVAR_pred,LRT_pred,MutationTaster_pred,GERP++_NR,GERP++_RS,phastCons100way_vertebrate,1000Gp3_AF,ESP6500_AA_AF,ESP6500_EA_AF,MutationTaster_pred,MutationAssessor_pred,FATHMM_pred,PROVEAN_pred,CADD_phred,MetaSVM_pred,1000Gp3_AC,1000Gp3_AF,1000Gp3_AFR_AC,1000Gp3_AFR_AF,1000Gp3_EUR_AC,1000Gp3_EUR_AF,1000Gp3_AMR_AC,1000Gp3_AMR_AF,1000Gp3_EAS_AC,1000Gp3_EAS_AF,1000Gp3_SAS_AC,1000Gp3_SAS_AF,ESP6500_AA_AC,ESP6500_AA_AF,ESP6500_EA_AC,ESP6500_EA_AF,ExAC_AC,ExAC_AF,ExAC_Adj_AC,ExAC_Adj_AF,ExAC_AFR_AC,ExAC_AFR_AF,ExAC_AMR_AC,ExAC_AMR_AF,ExAC_EAS_AC,ExAC_EAS_AF,ExAC_FIN_AC,ExAC_FIN_AF,ExAC_NFE_AC,ExAC_NFE_AF,ExAC_SAS_AC,ExAC_SAS_AF,gnomAD_exomes_AF,gnomAD_genomes_AF"
   run:
     annotation_dir = annot__dir() + "_pypette"
-    if pipeman.config.project.genome.name == "hs37d5":
+    if pypette.config.project.genome.name == "hs37d5":
       genome_name = "hg19"
       ensembl = "GRCh37.75"
     else:
-      genome_name = pipeman.config.project.genome.name
+      genome_name = pypette.config.project.genome.name
       ensembl = ensembl__buildVersion()
     cmd = f"""
       vt normalize -n -r {input.ref_genome_fa} {input.vcf} \

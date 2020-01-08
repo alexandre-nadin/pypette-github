@@ -14,7 +14,7 @@ def runs__paths(check_runs=False):
   """
   runs_dirs = [ 
     runs__path(runid)
-    for runid in pipeman.config.project.runIds
+    for runid in pypette.config.project.runIds
   ] 
   if check_runs:
     runs__checkRuns(runs_dirs)
@@ -26,7 +26,7 @@ def runs__path(runid):
   Builds the path of the given runid.
   """
   return os.path.join(
-    pipeman.config.cluster.sequencingRuns.rawDir, 
+    pypette.config.cluster.sequencingRuns.rawDir, 
     runid)
    
 def runs__checkRuns(runs=[]):
@@ -37,7 +37,7 @@ def runs__checkRuns(runs=[]):
   error = False
   for run in runs:
     if not os.path.isdir(run):
-      pipeman.log.error(f"Run {run} doesn't exist.")
+      pypette.log.error(f"Run {run} doesn't exist.")
       error = True
   if error: 
     raise
@@ -46,7 +46,7 @@ def runs__runFromFilepath(filepath):
   """ 
   Retrieves a Run id from a file containing paths. 
   """
-  for run in pipeman.config.project.runIds:
+  for run in pypette.config.project.runIds:
     run_path = runs__path(run)
     if filepath.startswith(run_path):
       return run

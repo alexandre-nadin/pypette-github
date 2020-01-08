@@ -4,10 +4,10 @@ sys.path = os.environ['_PYPETTE_PYTHON_SYSPATH'].split()
 from utils import environ, pipeline
 
 """ Define the pipeline manager """
-pipeman = pipeline.PipelineManager(namespace=globals())
+pypette = pipeline.PipelineManager(namespace=globals())
 
 """ Include core modules """
-pipeman.includeModule('core/core.sk')
+pypette.includeModule('core/core.sk')
 
 """ Include requested pipeline """
-include: pipeman.pipeSnake
+include: pypette.pipeSnake

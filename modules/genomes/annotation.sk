@@ -1,4 +1,4 @@
-pipeman.includeModule("genomes/genome.sk")
+pypette.includeModule("genomes/genome.sk")
 include: "annotation.py"
 
 rule annot__ebiGtf:
@@ -25,7 +25,7 @@ rule annot__gtfToBed:
   input:
     gtf = "{someprefix}.gtf.gz"
   output:
-    bed = pipeman.temp("{someprefix}.bed")
+    bed = pypette.temp("{someprefix}.bed")
   run:
     cmd = """
       gunzip -c {input.gtf}                     \
@@ -105,7 +105,7 @@ rule annot__gtf:
   input:
     gz  = "{someprefix}.gtf.gz"
   output:
-    gtf = pipeman.temp("{someprefix}.gtf")
+    gtf = pypette.temp("{someprefix}.gtf")
   run:
     cmd = """
       gunzip -c {input.gz} > {output.gtf}
@@ -146,7 +146,7 @@ rule annot__ucscBed:
   input:
     bed = lambda x: annot__ucscBedgz()
   output:
-    bed = pipeman.temp(annot__ucscBed())
+    bed = pypette.temp(annot__ucscBed())
   run:
     cmd = """
       gunzip -c {input.bed} > {output.bed}

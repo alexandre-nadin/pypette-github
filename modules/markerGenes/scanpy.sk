@@ -1,6 +1,6 @@
-pipeman.includeModule("genomes/genome.py")
+pypette.includeModule("genomes/genome.py")
 
-pipeman.addTargets(
+pypette.addTargets(
   scanpy__dir = "markerGenes/scanpy", 
   scanpy__pipeTarget = "{counts_umi__pipeTarget}/{scanpy__dir}",
   scanpy__pipeSample = "{scanpy__pipeTarget}/{{sample_name}}", )

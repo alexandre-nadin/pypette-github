@@ -1,4 +1,4 @@
-pipeman.addTargets(
+pypette.addTargets(
   counts_umi__dir        = "umi-counts",
   counts_umi__pipeDir    = "{counts__pipeTarget}/sorted/samtools",
   counts_umi__pipeTarget = "{counts_umi__pipeDir}/{counts_umi__dir}",

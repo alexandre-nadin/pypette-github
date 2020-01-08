@@ -14,7 +14,7 @@ def annot__gencodeDir(**kwargs):
 # ----------------------
 @genome__formatSpeciesCfg
 def annot__ebiBaseUrl():
-  return pipeman.config.databases.ebi.gencodeBaseName
+  return pypette.config.databases.ebi.gencodeBaseName
 
 @genome__formatSpeciesCfg
 def annot__ebiGtfUrl():
@@ -45,12 +45,12 @@ def annot__ebiBed():
 # -----------------------
 @genome__formatSpeciesCfg
 def annot__ucscBaseUrl():
-  return pipeman.config.databases.ucsc.gencodeBaseName
+  return pypette.config.databases.ucsc.gencodeBaseName
 
 @genome__formatSpeciesCfg
 def annot__ucscTxtUrl():
   return os.path.join(
-    pipeman.config.databases.ucsc.gencodeUrl,
+    pypette.config.databases.ucsc.gencodeUrl,
     annot__ucscBaseUrl() + ".txt.gz")
 
 def annot__ucscBase(**kwargs):
