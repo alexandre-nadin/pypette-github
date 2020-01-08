@@ -5,11 +5,11 @@ include: "samples.sk"
 # ---------------------------------------------------
 # Give either module's absolute path or path relative to the current one here.
 include: "starters.py"
-pipeman.include("starters.py")
+pypette.include("starters.py")
 
 # Give either module's absolute path, relative to here, or relative to 
 # the modules directory.
-pipeman.includeModule("tests/samples/starters.py")
+pypette.includeModule("tests/samples/starters.py")
 
 rule starters:
   """
@@ -28,4 +28,4 @@ rule choseStarter:
   run:
     print("Which one will you chose?")
 
-pipeman.toClean("*.starters")
+pypette.toClean("*.starters")

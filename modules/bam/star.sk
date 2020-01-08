@@ -2,14 +2,14 @@ include: "star.py"
 
 rule bam_star__alignReads:
   input:
-    r1     = pipeman.input(fastq__read, sample_read="R1"),
-    r2     = pipeman.input(fastq__read, sample_read="R2"),
+    r1     = pypette.input(fastq__read, sample_read="R1"),
+    r2     = pypette.input(fastq__read, sample_read="R2"),
     idxDir = star__indexDir()
   output:
-    bam       = pipeman.temp(f"{bam_mapper__sampleTarget}.bam"),
-    tab       = pipeman.temp(f"{bam_mapper__pipeTarget}/SJ.out.tab"),
+    bam       = pypette.temp(f"{bam_mapper__sampleTarget}.bam"),
+    tab       = pypette.temp(f"{bam_mapper__pipeTarget}/SJ.out.tab"),
     tabgz     = f"{bam_mapper__pipeTarget}/SJ.out.tab.gz",
-    bamRaw    = pipeman.temp(f"{bam_mapper__pipeTarget}/Aligned.sortedByCoord.out.bam"),
+    bamRaw    = pypette.temp(f"{bam_mapper__pipeTarget}/Aligned.sortedByCoord.out.bam"),
     logOut    = f"{bam_mapper__pipeTarget}/Log.out",
     logPrOut  = f"{bam_mapper__pipeTarget}/Log.progress.out",
     logFinOut = f"{bam_mapper__pipeTarget}/Log.final.out",

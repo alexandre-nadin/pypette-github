@@ -1,4 +1,4 @@
-pipeman.includeModule("cluster/cluster.py")
+pypette.includeModule("cluster/cluster.py")
 
 @cluster__prefixMountPoint
 def fastq_adapter__toolAdapters(trimmingTool):
@@ -6,8 +6,8 @@ def fastq_adapter__toolAdapters(trimmingTool):
   Retrieves the cluster's path to the given :trimmingTool: 's adapters.
   """
   return os.path.join(
-    pipeman.config.cluster.adapterDir,
-    pipeman.config.pipeline.modules.fastq.adapters[trimmingTool]
+    pypette.config.cluster.adapterDir,
+    pypette.config.pipeline.modules.fastq.adapters[trimmingTool]
   )
 
 fastq_adapter__complBaseDic = {

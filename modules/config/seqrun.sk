@@ -2,7 +2,7 @@ include: 'lims.sk'
 include: 'seqrun.py'
 
 seqrun__config = 'config/run.json'
-pipeman.addConfigFiles(seqrun__config)
+pypette.addConfigFiles(seqrun__config)
 
 # -----------------
 # Project Metadata
@@ -13,10 +13,10 @@ rule seqrun__config:
   run:
     cmd = f"""
       curl                                         \
-	"{config_lims__URL_SEQRUN}/{pipeman.project}.json" \
+	"{config_lims__URL_SEQRUN}/{pypette.project}.json" \
        > {output.file}
     """
     exshell(**vars())
-    pipeman.configManager.load(output.file)
+    pypette.configManager.load(output.file)
 
 localrules: seqrun__config

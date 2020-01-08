@@ -1,1 +1,1 @@
-pipeman.includeModule("tests/samples/starters.sk")
+pypette.includeModule("tests/samples/starters.sk")
