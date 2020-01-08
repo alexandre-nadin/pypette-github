@@ -32,7 +32,8 @@ rule fastq_adapter__fasta_adapters_reversed:
     with open(output.fasta, 'w') as fh:
       fh.writelines([ 
         line + os.linesep
-        for line in fastq_adapter__reverseComplementFasta(input.fasta)])
+        for line in fastq_adapter__reverseComplementFasta(input.fasta)
+      ])
 
 rule fastq_adapter__fasta_adapters_pairend:
   """ 
