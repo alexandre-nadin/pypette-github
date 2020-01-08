@@ -7,13 +7,13 @@ def genome__formatSpeciesCfg(func):
     try:
       species = project__speciesGenome()
     except:
-      pipeman.log.error("Missing species in project configuration.")
+      pypette.log.error("Missing species in project configuration.")
     return func(*args, **kwargs).format(species=species)
   return wrapper
 
 @genome__formatSpeciesCfg
 def genome__baseDir(sharedDir=False, **kwargs):
-  return pipeman.config.cluster.genomeDir if sharedDir else "genomes"
+  return pypette.config.cluster.genomeDir if sharedDir else "genomes"
 
 @genome__formatSpeciesCfg
 def genome__dir(**kwargs):
@@ -27,7 +27,7 @@ def genome__speciesDir(**kwargs):
     "{species.taxo}")
 
 def ensembl__buildVersion():
-  assembly = pipeman.config.species[project__speciesGenome()].genome.assembly
+  assembly = pypette.config.species[project__speciesGenome()].genome.assembly
   return f"{assembly.buildName}.{assembly.ensemblRelease}"
 
 def genome__gatkDir(**kwargs):
@@ -66,7 +66,7 @@ def genome__ebiReleaseDir(**kwargs):
 
 def genome__ebiReleaseUrl():
   return os.path.join(
-    pipeman.config.databases.ebi.gencodeUrl,
+    pypette.config.databases.ebi.gencodeUrl,
     f"release_{genome__release()}")
 
 # -------------
@@ -83,7 +83,7 @@ def genome__ebiFastaDir(**kwargs):
 def genome__ebiFastaBase(**kwargs):
   return os.path.join(
     genome__ebiFastaDir(**kwargs),
-    pipeman.config.databases.ebi.gencodeFaBaseName)
+    pypette.config.databases.ebi.gencodeFaBaseName)
 
 def genome__ebiFasta(**kwargs):
   """ Produces the species' genome fasta. """
@@ -101,7 +101,7 @@ def genome__ebiFastaIdx(**kwargs):
 def genome__ebiFastaUrl():
   return os.path.join(
     genome__ebiReleaseUrl(),
-    pipeman.config.databases.ebi.gencodeFa)
+    pypette.config.databases.ebi.gencodeFa)
 
 ## UCSC 
 def genome__ucscFastaDir(**kwargs):
@@ -138,7 +138,7 @@ def genome__ucsc2bit(**kwargs):
 
 @genome__formatSpeciesCfg
 def genome__ucsc2bitUrl():
-  return pipeman.config.databases.ucsc.tbitUrl
+  return pypette.config.databases.ucsc.tbitUrl
 
 # -------------
 # Cell cycles

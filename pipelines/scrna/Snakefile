@@ -1,16 +1,16 @@
 """ Pipeline Configuration """
-pipeman.includeModules(
+pypette.includeModules(
   "config/config.sk",
   "config/project.sk",
   "config/samples.sk"
 )
-pipeman.loadConfigFiles()
+pypette.loadConfigFiles()
 
 """ 
 Pipeline Workflow.
 Modules are loaded only if required configuration files above are present.
 """
-pipeman.includeModules(
+pypette.includeModules(
   "fastq/fastq.sk",
   "fastq/umi-extract.sk",
   "bam/bam.sk",

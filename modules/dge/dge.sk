@@ -1,6 +1,6 @@
 include: "dge.py"
 
-pipeman.addTargets(
+pypette.addTargets(
   dge__pipeTarget   = "{counts_merged__pipeTarget}/dge",
   dge__sampleTarget = "{dge__pipeTarget}/{{sample_name}}",
 
@@ -27,7 +27,7 @@ rule dge__plots:
     fCountsDataCols = counts__stdCols(),
     dge = lambda wildcards, input: dge__deseq2ParamsDft(input.metadata)
   script: 
-    pipeman.rscript("dge/plots.R")
+    pypette.rscript("dge/plots.R")
 
 rule dge__enrichR:
   input: 
@@ -39,4 +39,4 @@ rule dge__enrichR:
     fCountsDataCols = counts__stdCols(),
     dge = lambda wildcards, input: dge__deseq2ParamsDft(input.metadata)
   script: 
-    pipeman.rscript("dge/enrichR.R")
+    pypette.rscript("dge/enrichR.R")

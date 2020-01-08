@@ -6,8 +6,8 @@ include: "shell.py"
 
 onsuccess:
   if 'pipeline_manager' in globals().keys() \
-  and pipeman.cleanables:
-    pipeman.log.info(
+  and pypette.cleanables:
+    pypette.log.info(
       "Success! Now removing cleanable files {}..."
-       .format(pipeman.cleanables))
-    shell("rm -f {}".format(" ".join(pipeman.cleanables)))
+       .format(pypette.cleanables))
+    shell("rm -f {}".format(" ".join(pypette.cleanables)))

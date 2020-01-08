@@ -21,7 +21,7 @@ rule fastq_qc__reads:
     html  = "{path}" + fastq_qc__htmlExt,
     zip   = "{path}" + fastq_qc__zipExt
   run:
-    fastqc = pipeman.config.pipeline.modules.fastq.qc.fastqc
+    fastqc = pypette.config.pipeline.modules.fastq.qc.fastqc
     cmd = """
       fastqc -t {fastqc.cores} {input}
     """

@@ -1,26 +1,26 @@
-pipeman.includeModules("core/lang.py")
+pypette.includeModules("core/lang.py")
 
 rule qc_rnaseq__multiqc:
   input:
-    fastqcs   = pipeman.input(
+    fastqcs   = pypette.input(
                   fastq_qc__readZip, 
                   derefKwargs=['sample_name', 'sample_run']),
-    readDists = pipeman.input(
+    readDists = pypette.input(
                   f"{bam__sampleTarget}.read_distribution",
                   derefKwargs=['sample_name',]),
-    inferExp  = pipeman.input(
+    inferExp  = pypette.input(
                   f"{bam__sampleTarget}.inferExperiment",
                   derefKwargs=['sample_name',]),
-    bamCounts = pipeman.input(
+    bamCounts = pypette.input(
                   f"{counts__sampleTarget}.counts.summary",
                   derefKwargs=['sample_name',]),
-    bamstat   = pipeman.input(
+    bamstat   = pypette.input(
                   f"{bam__sampleTarget}.bamstats",
                   derefKwargs=['sample_name',]),
-    starLogs  = pipeman.input(
+    starLogs  = pypette.input(
                   f"{bam_mapper__pipeTarget}/{{sample_name}}.Log.final.out",
                   derefKwargs=['sample_name', 'sample_run']),
-    trimout    = pipeman.input(
+    trimout    = pypette.input(
                   f"{fastq__pipeTarget}{{sample_name}}_trimout.log",
                   requiredKeys=['procTrimming'],
                   derefKwargs=['sample_name', 'sample_run'])

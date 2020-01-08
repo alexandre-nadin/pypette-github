@@ -2,7 +2,7 @@ import os
 from utils.fastq_helper import FastqFile
 from utils.files import touch
 
-pipeman.includeModule("cluster/cluster.py")
+pypette.includeModule("cluster/cluster.py")
 
 def fastq__mapFilename(filename):
   """
@@ -20,5 +20,5 @@ def fastq__mapFilename(filename):
     return None
 
 def fastq__loadSamples(**kwargs):
-  if pipeman.samples.data is None:
-    pipeman.samples.load(**kwargs)
+  if pypette.samples.data is None:
+    pypette.samples.load(**kwargs)

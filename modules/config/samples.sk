@@ -1,9 +1,9 @@
 samples__dir       = "samples/{sample_name}"
 samples__files     = "samples/samples.txt"
-samples__csvMap    = pipeman.samples.configManager.configfileBase + "{extension}"
-samples__csvMapDft = pipeman.samples.configManager.configFileDefault
+samples__csvMap    = pypette.samples.configManager.configfileBase + "{extension}"
+samples__csvMapDft = pypette.samples.configManager.configFileDefault
 
-pipeman.includeModules(
+pypette.includeModules(
   "fastq/fastq.py",
   "config/runs.py")
 
@@ -18,7 +18,7 @@ rule samples__files:
   output: 
     file    = samples__files
   run:
-    runs    = " ".join(runs__projectPaths(pipeman.project))
+    runs    = " ".join(runs__projectPaths(pypette.project))
     cmd     = f"""
       find -L {runs} -maxdepth 2 -name '*.fastq.gz' > {output.file}
     """
@@ -42,7 +42,7 @@ rule samples__map:
     """ Write Output """
     with open(output.file, 'a') as fmap:
       fmap.write(
-        pipeman.samples.listsToSamplesheet(
+        pypette.samples.listsToSamplesheet(
           sampleLines, 
-          pipeman.sampleExtensions[wildcards.extension]))
+          pypette.sampleExtensions[wildcards.extension]))
     exshell(force=True, **vars())

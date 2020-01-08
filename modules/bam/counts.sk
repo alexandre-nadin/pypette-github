@@ -1,7 +1,7 @@
 include: "counts.py"
-pipeman.includeModule('qc/rseqc.sk')
+pypette.includeModule('qc/rseqc.sk')
 
-pipeman.addTargets(
+pypette.addTargets(
   counts__dir          = "featureCounts",
   counts__pipeTarget   = "{bam__pipeTarget}{counts__dir}",
   counts__sampleTarget = "{counts__pipeTarget}/{{sample_name}}",)
@@ -24,14 +24,14 @@ rule counts__featureCounts:
     gtf       = lambda x: annot__ebiGtfGz()
   output:
     countsGz  =              "{someprefix}/featureCounts/{sample_name}.counts.gz",
-    counts    = pipeman.temp("{someprefix}/featureCounts/{sample_name}.counts"),
+    counts    = pypette.temp("{someprefix}/featureCounts/{sample_name}.counts"),
     sumcounts =              "{someprefix}/featureCounts/{sample_name}.counts.summary",
-    bamFc     = pipeman.temp("{someprefix}/featureCounts/{sample_name}.bam.featureCounts.bam"),
-    bam       = pipeman.temp("{someprefix}/featureCounts/{sample_name}.bam"),
+    bamFc     = pypette.temp("{someprefix}/featureCounts/{sample_name}.bam.featureCounts.bam"),
+    bam       = pypette.temp("{someprefix}/featureCounts/{sample_name}.bam"),
     log       =              "{someprefix}/featureCounts/{sample_name}.counts.log"
   run: 
-    inferExp  = rseqc__inferExperiment(input.inferExp, debug=pipeman.config.debug)
-    cores     = pipeman.config.pipeline.modules.mapping.counter.cores
+    inferExp  = rseqc__inferExperiment(input.inferExp, debug=pypette.config.debug)
+    cores     = pypette.config.pipeline.modules.mapping.counter.cores
     paired    = '-p' if inferExp.isPairEnd else ''
     cmd = """
       featureCounts               \
@@ -58,14 +58,14 @@ rule counts__featureCounts:
 # --------
 # Merged Counts
 # ---------
-pipeman.addTargets(
+pypette.addTargets(
   counts_merged__dir          = "merged",
   counts_merged__pipeTarget   = "{counts__pipeTarget}/{counts_merged__dir}",
   counts_merged__sampleTarget = "{counts_merged__pipeTarget}/{{sample_name}}", )
 
 rule counts__mergeCounts:
   input:
-    counts = pipeman.input(
+    counts = pypette.input(
                f"{counts__sampleTarget}.counts.gz",
                derefKwargs=['sample_name',])
   output:
@@ -76,6 +76,6 @@ rule counts__mergeCounts:
       mergedDf = counts__mergedGenesDataFrameFromCounts(input.counts)
       mergedDf.to_csv(output.counts, sep="\t", index=False, compression='gzip')
     except pd.errors.EmptyDataError as ede:
-      pipeman.log.warning(f"Empty Data: {ede}")
+      pypette.log.warning(f"Empty Data: {ede}")
 
 ruleorder: counts__mergeCounts > counts__featureCounts

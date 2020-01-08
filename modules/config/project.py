@@ -9,8 +9,8 @@ def project__samplesTargetPath():
 
 def project__projectsDir():
   return os.path.join(
-    pipeman.config.cluster.stdAnalysisDir,
-    pipeman.config.cluster.projects.outDir)
+    pypette.config.cluster.stdAnalysisDir,
+    pypette.config.cluster.projects.outDir)
 
 def project__dirFmt():
   return os.path.join(
@@ -28,14 +28,14 @@ def project__samplesMetaPath(project):
 
 def project__pipelineQcTarget(pipeline, formatted=False, **kwargs):
   """ Includes the correct QC target for the given pipeline's module. """
-  pipeman.includeModule(f"qc/{pipeline}.py")
+  pypette.includeModule(f"qc/{pipeline}.py")
   target = qc__multiqcStd
   if formatted:
-    target = target.format(sample_run=pipeman.project)
+    target = target.format(sample_run=pypette.project)
   return target
 
 def project__speciesGenome():
-  return pipeman.config.species[pipeman.config.project.species]
+  return pypette.config.species[pypette.config.project.species]
 
 def project__speciesGenomeName():
   return project__speciesGenome().genome.assembly.ucscRef
