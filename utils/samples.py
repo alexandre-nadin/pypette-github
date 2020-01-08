@@ -101,7 +101,7 @@ class SamplesManager(utils.manager.Manager):
     else:
       return res
 
-  def buildStringFromKeywords(self, s, unique=True, derefKwargs=[], **kwargs):
+  def buildStringFromKeywords(self, s, unique=True, derefKwargs=[], requiredKeys=[], **kwargs):
     """
     Returns list of string by formatting the given string :s: with selected columns from filtered samples.
     This is done by:
@@ -111,6 +111,10 @@ class SamplesManager(utils.manager.Manager):
     """
     from utils.strings import StringFormatter
     queryFilter = dict(kwargs.items())
+
+    for key in requiredKeys:
+      if key not in queryFilter.keys() or not queryFilter[key]:
+        return []
 
     """ Check all """
     for col in self.data.columns:

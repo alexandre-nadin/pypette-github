@@ -30,10 +30,10 @@ dependencies:
   - bwidget=1.9.11=0
   - bx-python=0.8.4=py36hebb334c_0
   - bzip2=1.0.8=h516909a_1
-  - ca-certificates=2019.9.11=hecc5488_0
+  - ca-certificates=2019.11.28=hecc5488_0
   - cachetools=2.1.0=py_0
   - cairo=1.16.0=h18b612c_1001
-  - certifi=2019.9.11=py36_0
+  - certifi=2019.11.28=py36_0
   - cffi=1.12.3=py36h8022711_0
   - chardet=3.0.4=py36_1003
   - cnvkit=0.9.6=py36_1
@@ -44,11 +44,13 @@ dependencies:
   - cryptography=2.7=py36h72c5cf5_0
   - cryptography-vectors=2.7=py_0
   - curl=7.65.3=hf8cf82a_0
+  - cutadapt=2.7=py36h516909a_0
   - cycler=0.10.0=py_1
   - dataclasses=0.6=py36_1
   - datrie=0.8=py36h516909a_0
   - dbus=1.13.6=he372182_0
   - decorator=4.4.0=py_0
+  - dnaio=0.4.1=py36h516909a_0
   - docutils=0.15.2=py36_0
   - dropbox=7.3.1=py36_0
   - easydev=0.9.38=py_0
@@ -155,6 +157,7 @@ dependencies:
   - perl=5.26.2=h516909a_1006
   - pexpect=4.7.0=py36_0
   - picard=2.20.8=0
+  - pigz=2.3.4=0
   - pillow=6.2.1=py36h6b7be26_0
   - pip=19.2.3=py36_0
   - pixman=0.38.0=h516909a_1003
@@ -275,6 +278,7 @@ dependencies:
   - wheel=0.33.6=py36_0
   - wrapt=1.11.2=py36h516909a_0
   - xmlrunner=1.7.7=py_0
+  - xopen=0.8.4=py36_0
   - xorg-fixesproto=5.0=h14c3975_1002
   - xorg-inputproto=2.3.2=h14c3975_1002
   - xorg-kbproto=1.0.7=h14c3975_1002

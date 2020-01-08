@@ -11,13 +11,14 @@ fastq_trimming__trimmomatic:
   ncpus: "{pipeman.config.pipeline.modules.fastq.trimming.trimmers.trimmomatic.cores}"
   mem: "{pipeman.config.pipeline.modules.fastq.trimming.trimmers.trimmomatic.mem}"
 
-fastq_trimming__cutadapt:
-  do: True
-
 fastq_trimming__bbduk:
   do: True
   ncpus: "{pipeman.config.pipeline.modules.fastq.trimming.trimmers.bbduk.cores}"
   mem: "{pipeman.config.pipeline.modules.fastq.trimming.trimmers.bbduk.mem}"
+
+fastq_trimming__cutadapt:
+  do: True
+  ncpus: "{pipeman.config.pipeline.modules.fastq.trimming.trimmers.cutadapt.cores}"
 
 bam_bwa__alignReads:
   do: True
