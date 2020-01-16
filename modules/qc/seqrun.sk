@@ -31,7 +31,7 @@ rule seqrun__projectQC:
       pipeline=pipeline,
       project=wildcards.project,
       target=target,
-      outDir=project__dir(wildcards.project))
+      outDir=wildcards.project)
     ## Note: Here I don't have another rule for linking the file, 
     #  else the subpipeline info output will overrid the linking
     #  rule's.

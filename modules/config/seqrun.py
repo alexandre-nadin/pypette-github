@@ -1,6 +1,6 @@
 pypette.includeModule('config/project.py')
 seqrun__projectQcTarget          = "{project}/multiqc_report.html"
-seqrun__projectSamplesMetaTarget = "{project}/samples.csv"
+seqrun__projectSamplesMetaTarget = f"{{project}}/{project__samplesTarget}"
 
 def seqrun__projectsQc():
   """ Returns the seqrun's projects QC targets """
@@ -11,7 +11,7 @@ def seqrun__projectsQc():
 
 def seqrun__projectQcPath(project): # TODO: move to qc_seqrun?
   return os.path.join(
-    project__dir(project),
+    project,
     project__pipelineQcTarget(
       seqrun__projectPipelineDft(project),
       formatted=True)
