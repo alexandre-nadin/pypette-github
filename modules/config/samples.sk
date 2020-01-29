@@ -46,3 +46,85 @@ rule samples__map:
           sampleLines, 
           pypette.sampleExtensions[wildcards.extension]))
     exshell(force=True, **vars())
+
+# --------------
+# Samplesheets
+# --------------
+samples__sampleTargetDir    = "samples/all/runs/{sample_run}"
+samples__ssheetTarget       = f"{samples__sampleTargetDir}/samplesheet.csv"
+samples__seqrunFilesTarget  = f"{samples__sampleTargetDir}/samples.txt"
+samples__seqrunsFilesTarget = f"{samples__sampleTargetDir}/samples.txt".format(sample_run="all")
+samples__seqrunCsvMapTarget = f"{samples__sampleTargetDir}/samples.csv"
+
+rule seqrun__samplesheet:
+  input:
+    confs   = config__files,
+    project = project__config,
+    ssheet  = runs__samplesheet("{sample_run}")
+  output:
+    ssheet = samples__ssheetTarget
+  run:
+    cmd = f"""
+      source illumina.samplesheet.lib
+      cat {input.ssheet}                             \
+       | ssheet__projectFiltered "{pypette.project}" \
+       | ssheet__data                                \
+       > {output.ssheet}
+    """
+    exshell(**vars())
+
+rule samples__seqrunFiles:
+  input:
+    ssheet = samples__ssheetTarget
+  output: 
+    file   = samples__seqrunFilesTarget
+  run:
+    sampleNames = pypette.samples.dataSampleSheet(input.ssheet).sample_name
+    cmdRegex = (
+        ".*\("
+      + "\|".join(sampleNames)
+      + "\).*\.fastq\.gz")
+    runPath = runs__prjPath(wildcards.sample_run)
+  
+    cmd     = f"""
+      find -L {runPath} -maxdepth 2 -regex '{cmdRegex}' > {output.file}
+    """
+    exshell(**vars())
+
+rule samples__seqrunsFiles:
+  input:
+    files = lambda x: expand(samples__seqrunFilesTarget, sample_run=pypette.config.project.runIds)
+  output:
+    file  = samples__seqrunsFilesTarget
+  run:
+    runs = " ".join(runs__projectPaths(pypette.project))
+    cmd = f"""
+      cat {input.files} > {output.file}   
+    """
+    exshell(**vars())
+
+rule samples__seqrunMap:
+  input:
+    file = samples__seqrunFilesTarget
+  output:
+    map   = samples__seqrunCsvMapTarget
+  run:
+    """ File Output Header """
+    sampleLines = [ FastqFile.fieldNames() ]
+    with open(input.file, 'r') as fqFiles:
+      """ Mapped Samples Lines """
+      sampleLines.extend([ f for f in map(fastq__mapFilename, fqFiles) if f ])
+
+    """ Write Output """
+    with open(output.map, 'a') as fmap:
+      fmap.write(
+        pypette.samples.listsToSamplesheet(
+          sampleLines, 
+          ','))
+    exshell(force=True, **vars())
+    cmd = f"""
+
+    """
+    exshell(**vars())
+
+localrules: seqrun__samplesheet, samples__seqrunFiles, samples__seqrunMap, samples__seqrunsFiles
