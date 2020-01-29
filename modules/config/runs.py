@@ -52,3 +52,14 @@ def runs__runFromFilepath(filepath):
       return run
     else:
       continue
+
+def runs__samplesheet(runid):
+  """
+  Retrieve the samplesheet used in the given :runid:.
+  """
+  return os.path.join(
+    runs__path(runid),
+    "samplesheet.csv")
+
+def runs__prjPath(runid):
+  return os.path.join(runs__path(runid), pypette.project)
