@@ -90,7 +90,7 @@ class PipelineManager(Manager):
     """ 
     Allows more clarity to Snakemake input definitions 
     """
-    return lambda wildcards: self.samples.map(*args, **wildcards, **kwargs)
+    return lambda wildcards: self.samples.map(*args, file="samples/all/runs/{sample_run}/samples.csv", **wildcards, **kwargs)
   
   # ----------------
   # Temporary files

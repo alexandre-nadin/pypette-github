@@ -2,7 +2,8 @@ import utils.configs, utils.samples, utils.manager
 from utils.dicts import toAddict, popFirst
 from utils.files import extension as extensionOf
 import addict
-import os
+import os, sys
+import pandas as pd
 
 class SamplesManager(utils.manager.Manager):
   """
@@ -74,6 +75,12 @@ class SamplesManager(utils.manager.Manager):
     else:
       self.data = self.configManager.load(file, **kwargs)
 
+  def dataSampleSheet(self, file, **kwargs):
+    """
+    Loads a :file: samplesheet.
+    """
+    return self.configManager.load(file, **kwargs)
+    
   def getFields(self, fields=[]):
     return self.data[fields]
 
@@ -83,8 +90,8 @@ class SamplesManager(utils.manager.Manager):
     """
     return f"{prefix}{s}{suffix}"
 
-  def map(self, s, mapSuffix=True, withResult=False, **kwargs):
-    self.load(once=True)
+  def map(self, s, mapSuffix=True, withResult=False, file=None, **kwargs):
+    self.load(once=True, file=file, **kwargs)
     if mapSuffix:
       res = self.buildStringFromKeywords(
               self.addStringFixes(s, **kwargs), 
@@ -193,13 +200,14 @@ class SamplesConfigManager(utils.configs.ConfigManagerTemplate):
   def configfileBase(self):
     return "samples/samples"
  
-  def load(self, file=None, indexlowcase_cols=True):
+  def load(self, file=None, indexlowcase_cols=True, **kwargs):
     """
     Loads a samples file into a pandas dataframe.
     If specified, lowercases the column names. 
     """
-    file = self.configFileDefault if file is None else file 
-    import pandas as pd
+    file = self.configFileDefault if file is None else file.format(**kwargs)
+    if not os.path.exists(file):
+      sys.exit(f"Sample file '{file}' does not exist.")
     data = pd.read_csv(
       file, 
       delimiter= self.extensionsDelimiters[extensionOf(file).strip()],
@@ -209,4 +217,4 @@ class SamplesConfigManager(utils.configs.ConfigManagerTemplate):
 
     """ Replace NaN with None """
     data = data.astype(object).where(pd.notnull(data), None)
-    return data 
+    return data
