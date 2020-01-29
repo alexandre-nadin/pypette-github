@@ -53,8 +53,8 @@ rule samples__map:
 samples__sampleTargetDir    = "samples/all/runs/{sample_run}"
 samples__ssheetTarget       = f"{samples__sampleTargetDir}/samplesheet.csv"
 samples__seqrunFilesTarget  = f"{samples__sampleTargetDir}/samples.txt"
-samples__seqrunsFilesTarget = f"{samples__sampleTargetDir}/samples.txt".format(sample_run="all")
 samples__seqrunCsvMapTarget = f"{samples__sampleTargetDir}/samples.csv"
+samples__seqrunsCsvMapTarget = f"{samples__sampleTargetDir}/samples.csv".format(sample_run="all")
 
 rule seqrun__samplesheet:
   input:
@@ -91,15 +91,18 @@ rule samples__seqrunFiles:
     """
     exshell(**vars())
 
-rule samples__seqrunsFiles:
+rule samples__seqrunsMap:
+  """
+  Concatenates each seqrun's samples map
+  """
   input:
-    files = lambda x: expand(samples__seqrunFilesTarget, sample_run=pypette.config.project.runIds)
+    maps = lambda x: expand(samples__seqrunCsvMapTarget, sample_run=pypette.config.project.runIds)
   output:
-    file  = samples__seqrunsFilesTarget
+    map   = samples__seqrunsCsvMapTarget
   run:
-    runs = " ".join(runs__projectPaths(pypette.project))
     cmd = f"""
-      cat {input.files} > {output.file}   
+      head -n 1 -q {input.maps[0]} > {output.map}
+      tail -n +2 -q {input.maps} >> {output.map}
     """
     exshell(**vars())
 
