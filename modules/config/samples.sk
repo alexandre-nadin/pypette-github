@@ -10,13 +10,13 @@ pypette.includeModules(
 # --------------
 # Samplesheets
 # --------------
-samples__sampleTargetDir    = "samples/all/runs/{sample_run}"
-samples__ssheetTarget       = f"{samples__sampleTargetDir}/samplesheet.csv"
-samples__seqrunFilesTarget  = f"{samples__sampleTargetDir}/samples.txt"
-samples__seqrunCsvMapTarget = f"{samples__sampleTargetDir}/samples.csv"
+samples__sampleTargetDir     = "samples/all/runs/{sample_run}"
+samples__ssheetTarget        = f"{samples__sampleTargetDir}/samplesheet.csv"
+samples__seqrunFilesTarget   = f"{samples__sampleTargetDir}/samples.txt"
+samples__seqrunCsvMapTarget  = f"{samples__sampleTargetDir}/samples.csv"
 samples__seqrunsCsvMapTarget = f"{samples__sampleTargetDir}/samples.csv".format(sample_run="all")
 
-rule seqrun__samplesheet:
+rule samples__seqrunSamplesheet:
   input:
     confs   = config__files,
     project = project__config,
@@ -34,6 +34,10 @@ rule seqrun__samplesheet:
     exshell(**vars())
 
 rule samples__seqrunFiles:
+  """
+  Takes a seqrun samplesheet and finds each fastq from the seqrun folder. 
+  Seqrun folder is deduced from the cluster configuration file.
+  """
   input:
     ssheet = samples__ssheetTarget
   output: 
@@ -51,22 +55,10 @@ rule samples__seqrunFiles:
     """
     exshell(**vars())
 
-rule samples__seqrunsMap:
-  """
-  Concatenates each seqrun's samples map
-  """
-  input:
-    maps = lambda x: expand(samples__seqrunCsvMapTarget, sample_run=pypette.config.project.runIds)
-  output:
-    map   = samples__seqrunsCsvMapTarget
-  run:
-    cmd = f"""
-      head -n 1 -q {input.maps[0]} > {output.map}
-      tail -n +2 -q {input.maps} >> {output.map}
-    """
-    exshell(**vars())
-
 rule samples__seqrunMap:
+  """
+  Creates a map of each sample's name's fields from given sample filenames.
+  """
   input:
     file = samples__seqrunFilesTarget
   output:
@@ -90,7 +82,21 @@ rule samples__seqrunMap:
     """
     exshell(**vars())
 
-localrules: seqrun__samplesheet, samples__seqrunFiles, samples__seqrunMap, samples__seqrunsFiles
+rule samples__seqrunsMap:
+  """
+  Concatenates each seqrun's samples map
+  """
+  input:
+    maps = lambda x: expand(samples__seqrunCsvMapTarget, sample_run=pypette.config.project.runIds)
+  output:
+    map   = samples__seqrunsCsvMapTarget
+  run:
+    cmd = f"""
+      head -n 1 -q {input.maps[0]} > {output.map}
+      tail -n +2 -q {input.maps} >> {output.map}
+    """
+    exshell(**vars())
+
 rule samples__mapAll:
   """   
   Links the samplemap for all the runs.
@@ -106,3 +112,4 @@ rule samples__mapAll:
     exshell(force=True, **vars())
 
 
+localrules: samples__seqrunSamplesheet, samples__seqrunFiles, samples__seqrunMap, samples__seqrunsMap, samples__mapAll
