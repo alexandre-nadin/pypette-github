@@ -7,46 +7,6 @@ pypette.includeModules(
   "fastq/fastq.py",
   "config/runs.py")
 
-rule samples__files:
-  """
-  Find all the fastq files in the RUN directories specified in the 
-  configuration.
-  """
-  input:
-    confs   = config__files,
-    project = project__config
-  output: 
-    file    = samples__files
-  run:
-    runs    = " ".join(runs__projectPaths(pypette.project))
-    cmd     = f"""
-      find -L {runs} -maxdepth 2 -name '*.fastq.gz' > {output.file}
-    """
-    exshell(force=True, **vars())
-
-rule samples__map:
-  """   
-  Maps all the illumina filenames' metadata in a file.
-  """
-  input: 
-    file = samples__files
-  output: 
-    file = samples__csvMap
-  run:
-    """ File Output Header """
-    sampleLines = [ FastqFile.fieldNames() ]
-    with open(input.file, 'r') as fqFiles:
-      """ Mapped Samples Lines """
-      sampleLines.extend([ f for f in map(fastq__mapFilename, fqFiles) if f ])
-
-    """ Write Output """
-    with open(output.file, 'a') as fmap:
-      fmap.write(
-        pypette.samples.listsToSamplesheet(
-          sampleLines, 
-          pypette.sampleExtensions[wildcards.extension]))
-    exshell(force=True, **vars())
-
 # --------------
 # Samplesheets
 # --------------
@@ -131,3 +91,18 @@ rule samples__seqrunMap:
     exshell(**vars())
 
 localrules: seqrun__samplesheet, samples__seqrunFiles, samples__seqrunMap, samples__seqrunsFiles
+rule samples__mapAll:
+  """   
+  Links the samplemap for all the runs.
+  """
+  input: 
+    map = samples__seqrunsCsvMapTarget
+  output: 
+    map = "samples/samples.csv"
+  run:
+    cmd = f"""
+      ln {input.map} {output.map} 
+    """
+    exshell(force=True, **vars())
+
+
