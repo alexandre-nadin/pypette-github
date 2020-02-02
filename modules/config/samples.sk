@@ -76,11 +76,8 @@ rule samples__seqrunMap:
         pypette.samples.listsToSamplesheet(
           sampleLines, 
           ',') + os.linesep)
+    cmd = ""
     exshell(force=True, **vars())
-    cmd = f"""
-
-    """
-    exshell(**vars())
 
 rule samples__seqrunsMap:
   """

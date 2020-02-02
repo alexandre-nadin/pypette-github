@@ -20,15 +20,19 @@ rule fastq_merging__mergeReads:
     read  = pypette.temp(fastq_merge__read)
   run:
     input.reads.sort()
+
     if len(input.reads) == 1:
       cmd = """
         ln.rel {input.reads[0]} {output.read}
       """
     else:
-      cmd = """
-        zcat {input.reads}   \
-         | gzip              \
+      cmd = f"""
+        zcat {input.reads} \
+         | gzip            \
          > {output.read}
+      """
+      cmd = f"""
+        zcat {input.reads} | gzip > {output.read}
       """
     exshell(**vars())
 

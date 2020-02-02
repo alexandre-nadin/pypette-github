@@ -434,8 +434,3 @@ class PipelineConfigManager(utils.configs.ConfigManagerTemplate):
     """
     import addict
     self.namespace['config'] = addict.Dict(self.namespace['config'])
-
-class Pipeline():
-  def __init__(self, path):
-    self.path = path
-    self.snakefile = None
