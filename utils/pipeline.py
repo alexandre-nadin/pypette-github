@@ -104,11 +104,14 @@ class PipelineManager(Manager):
     
 
   def isFileToKeep(self, name):
-    if self.keepFilesRegex                              \
-    and rh.isRegexInList(self.keepFilesRegex, [name,]):
-      return True
-    else:
-      return False
+    try:
+      if self.keepFilesRegex                              \
+      and rh.isRegexInList(self.keepFilesRegex, [name,]):
+        return True
+      else:
+        return False
+    except:
+      self.log.error(f"That regexp won't do: '{self.keepFilesRegex}'")
 
   def updateTempFiles(self, name):
     self.touchTempFilesFile()
