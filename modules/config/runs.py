@@ -42,13 +42,13 @@ def runs__checkRuns(runs=[]):
   if error: 
     raise
 
-def runs__runFromFilepath(filepath):
-  """ 
-  Retrieves a Run id from a file containing paths. 
+def runs__samplesheet(runid):
   """
-  for run in pypette.config.project.runIds:
-    run_path = runs__path(run)
-    if filepath.startswith(run_path):
-      return run
-    else:
-      continue
+  Retrieve the samplesheet used in the given :runid:.
+  """
+  return os.path.join(
+    runs__path(runid),
+    "samplesheet.csv")
+
+def runs__prjPath(runid):
+  return os.path.join(runs__path(runid), pypette.project)
