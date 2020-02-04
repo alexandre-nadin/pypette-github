@@ -306,6 +306,29 @@ class PipelineManager(Manager):
   def addModule(self, name):
     pass
 
+  # -------------------------
+  # Include Workflow Modules
+  # -------------------------
+  def includeWorkflow(self, *modules):
+    """
+    Includes all available workflow files related to the given list of workflow {modules}.
+    Target files {module}.targ are loaded first. They should contain variables for the pipeline.
+    Snakefiles {module}.sk are loaded afterwards. They should include Snakemake rules.A
+    Ex: Including the workflow "fastq/trimming" and "fastq/adapters" will:
+      - Load fastq/trimming.targ , fastq/adapters.targ
+      - Load fastq/trimming.sk   , fastq/adapters.sk
+    """
+    targets = [ f"{module}.targ" for module in modules ]
+    skfiles = [ f"{module}.sk"   for module in modules ]
+    self.includeWorkflowModules(*targets)
+    self.includeWorkflowModules(*skfiles)
+
+  def includeWorkflowModules(self, *modules):
+    """ Includes the given module names if they exist. """
+    self.includeModules(*list(
+      [ module for module in modules if self.isModule(module) ]
+    ))
+
   # -----------------------
   # Wildcards Constraints
   # -----------------------
