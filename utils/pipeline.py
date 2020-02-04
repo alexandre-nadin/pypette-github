@@ -281,7 +281,7 @@ class PipelineManager(Manager):
     self.include(os.path.join(self.pipelinesDir, name))
 
   def includeModule(self, name, *args, **kwargs):
-    self.include(os.path.join(self.modulesDir, name), **kwargs)
+    self.include(self.modulePath(name), **kwargs)
 
   def includeModules(self, *modules, withConfigFiles=False, **kwargs):
     """ Check required files """
@@ -291,6 +291,14 @@ class PipelineManager(Manager):
     else:
       for module in modules:
         self.includeModule(module, **kwargs)
+
+  def modulePath(self, name):
+    """ Returns the module path in pypette directories """
+    return os.path.join(self.modulesDir, name)
+
+  def isModule(self, name):
+    """ Checks if given {name} is in pypette modules """
+    return os.path.isfile(self.modulePath(name))
 
   def _loadModule(self, name):
     pass
