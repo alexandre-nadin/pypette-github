@@ -1,48 +1,112 @@
 samples__dir       = "samples/{sample_name}"
 samples__files     = "samples/samples.txt"
-samples__csvMap    = pipeman.samples.configManager.configfileBase + "{extension}"
-samples__csvMapDft = pipeman.samples.configManager.configFileDefault
+samples__csvMap    = pypette.samples.configManager.configfileBase + "{extension}"
+samples__csvMapDft = pypette.samples.configManager.configFileDefault
 
-pipeman.includeModules(
+pypette.includeModules(
   "fastq/fastq.py",
   "config/runs.py")
 
-rule samples__files:
-  """
-  Find all the fastq files in the RUN directories specified in the 
-  configuration.
-  """
+# --------------
+# Samplesheets
+# --------------
+samples__sampleTargetDir     = "samples/all/runs/{sample_run}"
+samples__ssheetTarget        = f"{samples__sampleTargetDir}/samplesheet.csv"
+samples__seqrunFilesTarget   = f"{samples__sampleTargetDir}/samples.txt"
+samples__seqrunCsvMapTarget  = f"{samples__sampleTargetDir}/samples.csv"
+samples__seqrunsCsvMapTarget = f"{samples__sampleTargetDir}/samples.csv".format(sample_run="all")
+
+rule samples__seqrunSamplesheet:
   input:
     confs   = config__files,
-    project = project__config
-  output: 
-    file    = samples__files
+    project = project__config,
+    ssheet  = runs__samplesheet("{sample_run}")
+  output:
+    ssheet = samples__ssheetTarget
   run:
-    runs    = " ".join(runs__projectPaths(pipeman.project))
-    cmd     = f"""
-      find -L {runs} -maxdepth 2 -name '*.fastq.gz' > {output.file}
+    cmd = f"""
+      source illumina.samplesheet.lib
+      cat {input.ssheet}                             \
+       | ssheet__projectFiltered "{pypette.project}" \
+       | ssheet__data                                \
+       > {output.ssheet}
     """
-    exshell(force=True, **vars())
+    exshell(**vars())
 
-rule samples__map:
-  """   
-  Maps all the illumina filenames' metadata in a file.
+rule samples__seqrunFiles:
   """
-  input: 
-    file = samples__files
+  Takes a seqrun samplesheet and finds each fastq from the seqrun folder. 
+  Seqrun folder is deduced from the cluster configuration file.
+  """
+  input:
+    ssheet = samples__ssheetTarget
   output: 
-    file = samples__csvMap
+    file   = samples__seqrunFilesTarget
+  run:
+    sampleNames = pypette.samples.dataSampleSheet(input.ssheet).sample_name
+    cmdRegex = (
+        ".*\("
+      + "\|".join(sampleNames)
+      + "\).*\.fastq\.gz")
+    runPath = runs__prjPath(wildcards.sample_run)
+  
+    cmd     = f"""
+      find -L {runPath} -maxdepth 2 -regex '{cmdRegex}' > {output.file}
+    """
+    exshell(**vars())
+
+rule samples__seqrunMap:
+  """
+  Creates a map of each sample's name's fields from given sample filenames.
+  """
+  input:
+    file = samples__seqrunFilesTarget
+  output:
+    map   = samples__seqrunCsvMapTarget
   run:
     """ File Output Header """
     sampleLines = [ FastqFile.fieldNames() ]
     with open(input.file, 'r') as fqFiles:
       """ Mapped Samples Lines """
-      sampleLines.extend([ f for f in map(fastq__mapFilename, fqFiles) if f ])
+      sampleLines.extend(fastq__mapFilenames(fqFiles, wildcards.sample_run))
 
     """ Write Output """
-    with open(output.file, 'a') as fmap:
+    with open(output.map, 'a') as fmap:
       fmap.write(
-        pipeman.samples.listsToSamplesheet(
+        pypette.samples.listsToSamplesheet(
           sampleLines, 
-          pipeman.sampleExtensions[wildcards.extension]))
+          ',') + os.linesep)
+    cmd = ""
     exshell(force=True, **vars())
+
+rule samples__seqrunsMap:
+  """
+  Concatenates each seqrun's samples map
+  """
+  input:
+    maps = lambda x: expand(samples__seqrunCsvMapTarget, sample_run=pypette.config.project.runIds)
+  output:
+    map   = samples__seqrunsCsvMapTarget
+  run:
+    cmd = f"""
+      head -n 1 -q {input.maps[0]} > {output.map}
+      tail -n +2 -q {input.maps} >> {output.map}
+    """
+    exshell(**vars())
+
+rule samples__mapAll:
+  """   
+  Links the samplemap for all the runs.
+  """
+  input: 
+    map = samples__seqrunsCsvMapTarget
+  output: 
+    map = "samples/samples.csv"
+  run:
+    cmd = f"""
+      ln {input.map} {output.map} 
+    """
+    exshell(force=True, **vars())
+
+
+localrules: samples__seqrunSamplesheet, samples__seqrunFiles, samples__seqrunMap, samples__seqrunsMap, samples__mapAll

@@ -61,11 +61,13 @@ dependencies:
   - cryptography=2.7=py36h72c5cf5_0
   - cryptography-vectors=2.7=py_0
   - curl=7.64.1=hf8cf82a_0
+  - cutadapt=2.7=py36h516909a_0
   - cycler=0.10.0=py_1
   - dataclasses=0.6=py_0
   - datrie=0.7.1=py36h14c3975_0
   - dbus=1.13.6=he372182_0
   - decorator=4.4.0=py_0
+  - dnaio=0.4.1=py36h516909a_0
   - docutils=0.14=py36_1001
   - dropbox=7.3.1=py36_0
   - easydev=0.9.36=py_1
@@ -172,6 +174,7 @@ dependencies:
   - pexpect=4.7.0=py36_0
   - picard=2.20.2=0
   - pickleshare=0.7.5=py36_1000
+  - pigz=2.3.4=0
   - pip=19.1.1=py36_0
   - pixman=0.34.0=h14c3975_1003
   - prettytable=0.7.2=py_2
@@ -342,6 +345,7 @@ dependencies:
   - wheel=0.33.4=py36_0
   - wrapt=1.11.1=py36h516909a_0
   - xmlrunner=1.7.7=py_0
+  - xopen=0.8.4=py36_0
   - xorg-kbproto=1.0.7=h14c3975_1002
   - xorg-libice=1.0.9=h516909a_1004
   - xorg-libsm=1.2.3=h84519dc_1000

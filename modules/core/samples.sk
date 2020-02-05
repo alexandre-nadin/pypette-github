@@ -5,7 +5,7 @@ rule listSamples:
   List all sample names.
   """
   run:
-    data = pipeman.samples.map("{sample_name}")
+    data = pypette.samples.map("{sample_name}")
     print(f"{data}")
 
 localrules: listSamples
@@ -15,7 +15,7 @@ localrules: listSamples
 # -----------
 rule samples__runs:
   input: 
-    pipeman.input(
+    pypette.input(
       'samples/{sample_name}/runs/{sample_run}/', 
       withResult=True)
   output:
@@ -28,7 +28,7 @@ rule samples__runs:
   
 rule samples__all:
   input: 
-    pipeman.input(
+    pypette.input(
       "samples/{sample_name}/runs/{sample_run}/", 
       withResult=True)
   output:

@@ -1,15 +1,15 @@
-pipeman.addTargets(
+pypette.addTargets(
   biotypes__pipeTarget   = "{counts_merged__pipeTarget}/biotypes",
   biotypes__sampleTarget = "{biotypes__pipeTarget}/{{sample_name}}")
 
 """ Assesses and plots biotypes distributions """
 rule biotypes:
   input: 
-    counts   = pipeman.input(f"{counts_merged__sampleTarget}.counts.gz"),
+    counts   = pypette.input(f"{counts_merged__sampleTarget}.counts.gz"),
     biotypes = annot__ebiBiotypes()
   output:
     dir      = directory(f"{biotypes__sampleTarget}")
   params: 
-    biotypes = pipeman.config.pipeline.modules.biotypes,
+    biotypes = pypette.config.pipeline.modules.biotypes,
   script:
     "plot-biotypes.R"

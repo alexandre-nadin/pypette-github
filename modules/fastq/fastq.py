@@ -2,15 +2,25 @@ import os
 from utils.fastq_helper import FastqFile
 from utils.files import touch
 
-pipeman.includeModule("cluster/cluster.py")
+pypette.includeModule("cluster/cluster.py")
 
-def fastq__mapFilename(filename):
+def fastq__mapFilenames(files=[], runid=""):
   """
-  Maps the illumina metadata based on the given filename.
+  Returns a map of valid fields from fastq file names
   """
-  fastqFile = FastqFile(
-    filename.strip(), 
-    run_name = runs__runFromFilepath(filename))
+  return [ file for file in fastq__mappedFilenames(files, runid) if file ]
+
+def fastq__mappedFilenames(files=[], runid=""):
+  """
+  Return a map of fields from fastq file names
+  """
+  return [ fastq__mapFilename(file, runid) for file in files ]
+
+def fastq__mapFilename(filename, runid):
+  """
+  Maps the filename's metadata fields
+  """
+  fastqFile = FastqFile(filename.strip(), run_name = runid)
   if fastqFile.isValid:
     return [ 
       fastqFile.__dict__[field]
@@ -20,5 +30,5 @@ def fastq__mapFilename(filename):
     return None
 
 def fastq__loadSamples(**kwargs):
-  if pipeman.samples.data is None:
-    pipeman.samples.load(**kwargs)
+  if pypette.samples.data is None:
+    pypette.samples.load(**kwargs)

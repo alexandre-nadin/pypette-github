@@ -1,4 +1,4 @@
-pipeman.addTargets(
+pypette.addTargets(
   vcf__pipeTarget   = "{bam__pipeTarget}varcall",
   vcf__sampleTarget = "{vcf__pipeTarget}/{{sample_name}}")
 
@@ -15,11 +15,11 @@ rule varcall__index:
 
 rule varcall__cnvkit:
   input:
-    bam = pipeman.input(
+    bam = pypette.input(
              f"{bam__sampleTarget}.bam",
              derefKwargs = ['sample_name',]),
     vcf = f"{vcf__sampleTarget}.ga.g.vcf.gz",
-    ref_genome_fa = lambda x: genome__fasta()
+    ref_genome_fa = lambda x: genome__ebiFasta()
   output:
     cns = f"{vcf__sampleTarget}.calls.cns"
   params:

@@ -1,13 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-#                             WARNING 
-#  
-# Hard Reset on the current branch is done here. 
-# Make sure you have all your modifications stashed BEFORE execution!
-#
-# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 function absPath() {  readlink -f "$1"; }
 
 script=$(absPath "${BASH_SOURCE[0]}")
@@ -42,7 +35,6 @@ function exportPipelineEnv() {
 }
 
 for pipeline in $(pipelines); do
-  envName="pypette-${pipeline}"
   exportPipelineEnv "$pipeline"     \
    > $(pipelineRequFile $pipeline)
 done

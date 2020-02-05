@@ -1,7 +1,7 @@
 __default__:
-  name: '{pipeman.jobName}'
+  name: '{pypette.jobName}'
   select: 1
   ncpus: 1
   mem: '1gb'
-  out: '{pipeman.jobExeBase}_{rule}.out'
-  err: '{pipeman.jobExeBase}_{rule}.err'
+  out: '{pypette.jobExeBase}_{rule}.out'
+  err: '{pypette.jobExeBase}_{rule}.err'

@@ -1,10 +1,11 @@
-pipeman.updateWildcardConstraints(
+pypette.updateWildcardConstraints(
   procFastqMerge = "(merged/)",
 )
-fastq_merge__dir        = fastq__sampleRunDir
-fastq_merge__pipeTarget = fastq_merge__dir + "/{procFastqMerge}"
-fastq_merge__readPrefix = fastq_merge__pipeTarget + "{sample_name}_{sample_read}"
-fastq_merge__read       = fastq_merge__readPrefix + "{sample_extension}"
+fastq_merge__dir          = fastq__sampleRunDir
+fastq_merge__pipeTarget   = fastq_merge__dir + "/{procFastqMerge}"
+fastq_merge__sampleTarget = fastq_merge__pipeTarget + "{sample_name}"
+fastq_merge__readPrefix   = fastq_merge__sampleTarget + "_{sample_read}"
+fastq_merge__read         = fastq_merge__readPrefix + "{sample_extension}"
 
 # ---------------
 # Merging Reads
@@ -14,20 +15,24 @@ rule fastq_merging__mergeReads:
   Merges sample reads filtered by the given wildcards.
   """
   input:
-    reads = pipeman.input(fastq__chunk)
+    reads = pypette.input(fastq__chunk)
   output:
-    read  = pipeman.temp(fastq_merge__read)
+    read  = pypette.temp(fastq_merge__read)
   run:
     input.reads.sort()
+
     if len(input.reads) == 1:
       cmd = """
         ln.rel {input.reads[0]} {output.read}
       """
     else:
-      cmd = """
-        zcat {input.reads}   \
-         | gzip              \
+      cmd = f"""
+        zcat {input.reads} \
+         | gzip            \
          > {output.read}
+      """
+      cmd = f"""
+        zcat {input.reads} | gzip > {output.read}
       """
     exshell(**vars())
 

@@ -90,7 +90,7 @@ class PipelineManager(Manager):
     """ 
     Allows more clarity to Snakemake input definitions 
     """
-    return lambda wildcards: self.samples.map(*args, **wildcards, **kwargs)
+    return lambda wildcards: self.samples.map(*args, file="samples/all/runs/{sample_run}/samples.csv", **wildcards, **kwargs)
   
   # ----------------
   # Temporary files
@@ -104,11 +104,14 @@ class PipelineManager(Manager):
     
 
   def isFileToKeep(self, name):
-    if self.keepFilesRegex                              \
-    and rh.isRegexInList(self.keepFilesRegex, [name,]):
-      return True
-    else:
-      return False
+    try:
+      if self.keepFilesRegex                              \
+      and rh.isRegexInList(self.keepFilesRegex, [name,]):
+        return True
+      else:
+        return False
+    except:
+      self.log.error(f"That regexp won't do: '{self.keepFilesRegex}'")
 
   def updateTempFiles(self, name):
     self.touchTempFilesFile()
@@ -434,8 +437,3 @@ class PipelineConfigManager(utils.configs.ConfigManagerTemplate):
     """
     import addict
     self.namespace['config'] = addict.Dict(self.namespace['config'])
-
-class Pipeline():
-  def __init__(self, path):
-    self.path = path
-    self.snakefile = None

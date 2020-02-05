@@ -13,7 +13,7 @@ config__files = tuple(
     "species.yaml",
    ))
 
-pipeman.addConfigFiles(*config__files)
+pypette.addConfigFiles(*config__files)
 
 # -----------------------
 # Internal Config files
@@ -26,7 +26,7 @@ rule config__internalConf:
   output:
     file = config__dir + "/{conf}.yaml"
   shell:"""
-    cp "{pipeman.pipelinesDir}/{pipeman.pipeName}/{wildcards.conf}.yaml" \
+    cp "{pypette.pipelinesDir}/{pypette.pipeName}/{wildcards.conf}.yaml" \
        "{output.file}"
   """
 
@@ -35,7 +35,7 @@ rule config__all:
   Generates all required configuration files.
   """
   input:
-    lambda x: pipeman.configFiles
+    lambda x: pypette.configFiles
   output:
     config__dir + "/all.done"
   run:
@@ -43,4 +43,4 @@ rule config__all:
 
 localrules: config__internalConf, config__all
     
-pipeman.toClean(config__dir + "/*.done")
+pypette.toClean(config__dir + "/*.done")

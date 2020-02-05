@@ -6,7 +6,7 @@ def getEvol(sample):
   Get next evolution
   """
   if sample.evol_id:
-    return pipeman.samples.queryFirstNameOrId(sample.evol_id) 
+    return pypette.samples.queryFirstNameOrId(sample.evol_id) 
 
 def getEvols(sample):
   """

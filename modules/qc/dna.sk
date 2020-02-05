@@ -1,17 +1,17 @@
-pipeman.includeModules("core/lang.py")
+pypette.includeModules("core/lang.py")
 
 rule qc_dna__multiqc:
   input:
-    fastqcs    = pipeman.input(
+    fastqcs    = pypette.input(
                    fastq_qc__readZip, 
                    derefKwargs=['sample_name', 'sample_run']),
-    mdMetrics  = pipeman.input(
+    mdMetrics  = pypette.input(
                    f"{bam__sampleTarget}.metrics",
                    derefKwargs=['sample_name',]),
-    hsMetrics  = pipeman.input(
+    hsMetrics  = pypette.input(
                    f"{bam__sampleTarget}_hsMetrics.txt",
                    derefKwargs=['sample_name',]),
-    flagstat   = pipeman.input(
+    flagstat   = pypette.input(
                    f"{bam__sampleTarget}_flagstat.txt",
                    derefKwargs=['sample_name',])
   output:

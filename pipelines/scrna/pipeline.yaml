@@ -35,6 +35,7 @@ pipeline:
             memJava: '10240M'
             headcrop: 0
           cutadapt:
+            cores: 8
           bbduk:
             cores: 8
             mem: '10gb'
@@ -47,7 +48,7 @@ pipeline:
         bcPattern: 'CCCCCCCCCCCCCCCCNNNNNNNNNNNN'
         setCellNumber: False
         cellNumber: 1000
-    anndata:
+    markerGenes:
       scanpy:
         verbosity: 3
         firstFilter:
