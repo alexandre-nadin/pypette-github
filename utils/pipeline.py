@@ -30,6 +30,7 @@ class PipelineManager(Manager):
     self.params        = []
     self.cleanables    = []
     self.targets       = OrderedDict({})
+    self.snakefiles    = []
     self.sampleManager = utils.samples.SamplesManager(self.pipeName, self.namespace)
     self.configManager = PipelineConfigManager(
                               config_prefix = self.pipeName, 
@@ -321,7 +322,7 @@ class PipelineManager(Manager):
     targets = [ f"{module}.targ" for module in modules ]
     skfiles = [ f"{module}.sk"   for module in modules ]
     self.includeWorkflowModules(*targets)
-    self.includeWorkflowModules(*skfiles)
+    self.snakefiles += skfiles
 
   def includeWorkflowModules(self, *modules):
     """ Includes the given module names if they exist. """
@@ -334,7 +335,13 @@ class PipelineManager(Manager):
   # -----------------------
   def updateWildcardConstraints(self, **wildcards):
     self.workflow.global_wildcard_constraints(**wildcards);
+  def loadSnakefiles(self):
+    self.includeWorkflowModules(*self.snakefiles)
 
+  def loadWorkflow(self):
+    self.formatAllTargets()
+    self.loadSnakefiles()
+    
   # ------------------
   # Fomatted Targets
   # 
@@ -346,7 +353,8 @@ class PipelineManager(Manager):
   def addTargets(self, **kwargs):
     """ Save the given strings and their associated values """
     self.targets.update(kwargs)
-    self.formatTargets(**kwargs)
+    for key, val in kwargs.items():
+      self.namespace[key] = val
 
   def formatTargets(self, **kwargs):
     """ Format and declare the given target dict. """
@@ -361,9 +369,14 @@ class PipelineManager(Manager):
 
   def formatAllTargets(self):
     """ Formats all the saved targets """
-    self.formatTargets(self.targets)
+    self.formatTargets(**self.targets)
 
-
+  # -----------------------
+  # Wildcards Constraints
+  # -----------------------
+  def updateWildcardConstraints(self, **wildcards):
+    self.workflow.global_wildcard_constraints(**wildcards);
+  
   # ------------
   # Parameters
   # ------------
