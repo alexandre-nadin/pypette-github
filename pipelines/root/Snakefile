@@ -11,3 +11,4 @@ pypette.includeModule('core/core.sk')
 
 """ Include requested pipeline """
 include: pypette.pipeSnake
+pypette.loadWorkflow()
