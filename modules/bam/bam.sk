@@ -1,34 +1,7 @@
-include: 'bam.py'
 pypette.includeModules(
   "genomes/genome.sk",
   "genomes/annotation.sk",
   "genomes/exome.sk")
-
-""" Allowed Sorting Processes """
-sortingTools = ('picard', 'samtools')
-pypette.updateWildcardConstraints(
-  procSorted    = "(sorted/({})/)?".format("|".join(sortingTools)),
-  procMarkDup   = "(markdup/)?",
-  procBamMerged = "(merged/)?",
-  procBamRecalib = "(recalib/)?"
-)
-
-""" Sample Run Reads Output Targets """
-pypette.addTargets(
-  bam_mapper__dir          = f"mapped/{bam__alignerDir()}",
-  bam_mapper__pipeTarget   = "{fastq__pipeTarget}{bam_mapper__dir}",
-  bam_mapper__sampleTarget = "{bam_mapper__pipeTarget}/{{sample_name}}",
-
-  bam__procs        = "{{procBamMerged}}{{procSorted}}{{procMarkDup}}{{procBamRecalib}}",
-  bam__pipeTarget   = "{bam_mapper__pipeTarget}/{bam__procs}",
-  bam__sampleTarget = "{bam__pipeTarget}{{sample_name}}",
-  bam__sample       = "{bam_mapper__sampleTarget}.bam" )
-
-# Note: Include the aligner module found in pipeline configuration file after this
-#       file's variables, as aligner's rules should depend on the variables 
-#       declared above.
-bam__includeAlignerModule()
-
 
 # -----------------
 # Mark Duplicates
