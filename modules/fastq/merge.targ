@@ -2,10 +2,13 @@ pypette.updateWildcardConstraints(
   procFastqMerge = "(merged/)",
 )
 
+fastq__procs_updated = fastq__procs + "{{procFastqMerge}}"
+
 pypette.addTargets(
-  fastq_merge__dir          = "{fastq__sampleRunDir}",
-  fastq_merge__pipeTarget   = "{fastq_merge__dir}/{{procFastqMerge}}",
+  fastq_merge__pipeTarget   = "{fastq__sampleRunDir}/" + fastq__procs_updated,
   fastq_merge__sampleTarget = "{fastq_merge__pipeTarget}{{sample_name}}",
   fastq_merge__readPrefix   = "{fastq_merge__sampleTarget}_{{sample_read}}",
   fastq_merge__read         = "{fastq_merge__readPrefix}{{sample_extension}}",
 )
+
+fastq__procs = fastq__procs_updated

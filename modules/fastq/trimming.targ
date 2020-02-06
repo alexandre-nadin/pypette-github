@@ -4,6 +4,12 @@ pypette.updateWildcardConstraints(
   procTrimming = "(trimmed/({})/)?".format('|'.join(trimmingTools)),
 )
 
+fastq__procs_updated = fastq__procs + "{{procTrimming}}"
+
 pypette.addTargets(
+  fastq_trimming__pipedTarget = "{fastq__sampleRunDir}/" + fastq__procs,
+  fastq_trimming__pipeTarget = "{fastq__sampleRunDir}/" + fastq__procs_updated,
   fastq_trimming__dir = "{fastq__sampleRunDir}/{{procFastqMerge}}trimmed"
 )
+
+fastq__procs = fastq__procs_updated
