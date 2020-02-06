@@ -11,7 +11,6 @@ rule clustering__pca:
   script:
     pypette.rscript("clustering/pca.R") 
 
-
 rule clustering__heatmap:
   """ performing heatmap on 500 most variant genes from expressed RPKM"""
   input:
@@ -24,5 +23,3 @@ rule clustering__heatmap:
     dge = lambda wildcards, input: dge__deseq2ParamsDft(input.metadata)
   script:
     pypette.rscript("clustering/heatmap.R")
-
-   

@@ -1,6 +1,5 @@
 include: 'bam.py'
 
-""" Allowed Sorting Processes """
 sortingTools = ('picard', 'samtools')
 pypette.updateWildcardConstraints(
   procSorted    = "(sorted/({})/)?".format("|".join(sortingTools)),
@@ -9,7 +8,6 @@ pypette.updateWildcardConstraints(
   procBamRecalib = "(recalib/)?"
 )
 
-""" Sample Run Reads Output Targets """
 pypette.addTargets(
   bam_mapper__pipeTarget   = "{fastq__pipeTarget}mapped/" + bam__alignerDir(),
   bam_mapper__sampleTarget = "{bam_mapper__pipeTarget}/{{sample_name}}",

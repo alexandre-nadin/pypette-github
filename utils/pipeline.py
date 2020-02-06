@@ -317,7 +317,7 @@ class PipelineManager(Manager):
     Snakefiles {module}.sk are loaded afterwards. They should include Snakemake rules.A
     Ex: Including the workflow "fastq/trimming" and "fastq/adapters" will:
       - Load fastq/trimming.targ , fastq/adapters.targ
-      - Load fastq/trimming.sk   , fastq/adapters.sk
+      - Cache fastq/trimming.sk   , fastq/adapters.sk
     """
     targets = [ f"{module}.targ" for module in modules ]
     skfiles = [ f"{module}.sk"   for module in modules ]
@@ -332,11 +332,6 @@ class PipelineManager(Manager):
       **kwargs
     )
 
-  # -----------------------
-  # Wildcards Constraints
-  # -----------------------
-  def updateWildcardConstraints(self, **wildcards):
-    self.workflow.global_wildcard_constraints(**wildcards);
   def loadSnakefiles(self):
     self.includeWorkflowModules(*self.snakefiles, withConfigFiles=True)
 
