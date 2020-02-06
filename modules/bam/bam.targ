@@ -1,8 +1,4 @@
 include: 'bam.py'
-pypette.includeModules(
-  "genomes/genome.sk",
-  "genomes/annotation.sk",
-  "genomes/exome.sk")
 
 """ Allowed Sorting Processes """
 sortingTools = ('picard', 'samtools')
