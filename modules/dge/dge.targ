@@ -1,0 +1,16 @@
+include: "dge.py"
+
+pypette.addTargets(
+  dge__pipeTarget   = "{counts_merged__pipeTarget}/dge",
+  dge__sampleTarget = "{dge__pipeTarget}/{{sample_name}}",
+
+  dge__contrastTarget       = "{dge__pipeTarget}/contrasts",
+  dge__contrastSampleTarget = "{dge__contrastTarget}/{{sample_name}}",
+
+  dge__plotTarget           = "{dge__pipeTarget}/plots",
+  dge__plotSampleTarget     = "{dge__plotTarget}/{{sample_name}}",
+
+  dge__enrichTarget         = "{dge__pipeTarget}/enrichR",
+  dge__enrichedSampleTarget = "{dge__enrichTarget}/{{sample_name}}"
+)
+

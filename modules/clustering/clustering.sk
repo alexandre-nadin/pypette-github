@@ -1,14 +1,3 @@
-pypette.addTargets(
-  clustering__pipeTarget   = "{counts_merged__pipeTarget}/clustering",
-  clustering__sampleTarget = "{clustering__pipeTarget}/{{sample_name}}",
-
-  clustering__pcaTarget       = "{clustering__pipeTarget}/pca",
-  clustering__pcaSampleTarget = "{clustering__pcaTarget}/{{sample_name}}",
-
-  clustering__heatmapTarget       = "{clustering__pipeTarget}/heatmap",
-  clustering__heatmapSampleTarget = "{clustering__heatmapTarget}/{{sample_name}}",
-)
-
 rule clustering__pca:
   """ performing pca of your samples - NB: it makes sense only for all samples """
   input:
