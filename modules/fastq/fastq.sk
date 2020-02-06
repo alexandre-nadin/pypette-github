@@ -1,33 +1,3 @@
-include: "fastq.py"
-  
-pypette.updateWildcardConstraints(
-  **FastqFile.regex_fields,
-  preprocesses = "(/\w+/)*?",
-  anyprefix    = ".*",
-  someprefix   = ".+",
-  extension    = "\.\w+",
-)
-
-fastq__sampleRunDir = samples__dir + "/runs/{sample_run}/fastq"
-
-fastq__chunkPrefix = fastq__sampleRunDir + "/{sample_chunkname}"
-fastq__chunk       = fastq__chunkPrefix + "{sample_extension}"
-fastq__readPrefix  = fastq__sampleRunDir + "/{procFastqMerge}{procTrimming}{procUmiExtract}{sample_name}_{sample_read}"
-fastq__read        = fastq__readPrefix + "{sample_extension}"
-
-pypette.includeModules(
-  "fastq/merge.sk",
-  "fastq/trimming.sk",
-  "fastq/qc.sk",
-  "fastq/adapter.sk")
-# TODO: manage better those inclusions -> pipeline specific
-
-pypette.addTargets(
-   fastq__procs      = "{{procFastqMerge}}{{procTrimming}}",
-   fastq__pipeTarget = "{fastq__sampleRunDir}/{fastq__procs}")
-
-ruleorder: fastq_trimming__bbduk > fastq_trimming__trimmomatic > fastq_trimming__cutadapt > fastq_merging__mergeReads
-
 # -----------------
 # Link fastq reads
 # -----------------

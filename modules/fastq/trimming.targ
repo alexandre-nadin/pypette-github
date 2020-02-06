@@ -1,0 +1,9 @@
+trimmingTools = ('trimmomatic', 'cutadapt', 'bbduk')
+
+pypette.updateWildcardConstraints(
+  procTrimming = "(trimmed/({})/)?".format('|'.join(trimmingTools)),
+)
+
+pypette.addTargets(
+  fastq_trimming__dir = "{fastq__sampleRunDir}/{{procFastqMerge}}trimmed"
+)

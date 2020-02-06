@@ -1,11 +1,3 @@
-include: "counts.py"
-pypette.includeModule('qc/rseqc.sk')
-
-pypette.addTargets(
-  counts__dir          = "featureCounts",
-  counts__pipeTarget   = "{bam__pipeTarget}{counts__dir}",
-  counts__sampleTarget = "{counts__pipeTarget}/{{sample_name}}",)
-
 # -------
 # Counts
 # -------
@@ -58,11 +50,6 @@ rule counts__featureCounts:
 # --------
 # Merged Counts
 # ---------
-pypette.addTargets(
-  counts_merged__dir          = "merged",
-  counts_merged__pipeTarget   = "{counts__pipeTarget}/{counts_merged__dir}",
-  counts_merged__sampleTarget = "{counts_merged__pipeTarget}/{{sample_name}}", )
-
 rule counts__mergeCounts:
   input:
     counts = pypette.input(

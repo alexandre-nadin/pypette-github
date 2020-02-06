@@ -1,0 +1,20 @@
+include: "fastq.py"
+  
+pypette.updateWildcardConstraints(
+  **FastqFile.regex_fields,
+  preprocesses = "(/\w+/)*?",
+  anyprefix    = ".*",
+  someprefix   = ".+",
+  extension    = "\.\w+",
+)
+
+pypette.addTargets(
+  fastq__sampleRunDir = "{samples__dir}/runs/{{sample_run}}/fastq",
+  fastq__chunkPrefix  = "{fastq__sampleRunDir}/{{sample_chunkname}}",
+  fastq__chunk        = "{fastq__chunkPrefix}{{sample_extension}}",
+  fastq__readPrefix   = "{fastq__sampleRunDir}/{{procFastqMerge}}{{procTrimming}}{{procUmiExtract}}{{sample_name}}_{{sample_read}}",
+  fastq__read         = "{fastq__readPrefix}{{sample_extension}}",
+  fastq__procs        = "{{procFastqMerge}}{{procTrimming}}",
+  fastq__pipeTarget   = "{fastq__sampleRunDir}/{fastq__procs}"
+)
+
