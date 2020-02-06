@@ -324,11 +324,13 @@ class PipelineManager(Manager):
     self.includeWorkflowModules(*targets)
     self.snakefiles += skfiles
 
-  def includeWorkflowModules(self, *modules):
+  def includeWorkflowModules(self, *modules, **kwargs):
     """ Includes the given module names if they exist. """
-    self.includeModules(*list(
-      [ module for module in modules if self.isModule(module) ]
-    ))
+    self.includeModules(
+      *list(
+        [ module for module in modules if self.isModule(module) ]),
+      **kwargs
+    )
 
   # -----------------------
   # Wildcards Constraints
@@ -336,7 +338,7 @@ class PipelineManager(Manager):
   def updateWildcardConstraints(self, **wildcards):
     self.workflow.global_wildcard_constraints(**wildcards);
   def loadSnakefiles(self):
-    self.includeWorkflowModules(*self.snakefiles)
+    self.includeWorkflowModules(*self.snakefiles, withConfigFiles=True)
 
   def loadWorkflow(self):
     self.formatAllTargets()
