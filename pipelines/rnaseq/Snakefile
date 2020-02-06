@@ -20,4 +20,8 @@ pypette.includeWorkflow(
   "bam/star",
   "qc/rseqc", # required for bam/counts
   "bam/counts",
-  "qc/rnaseq",)
+  "qc/rnaseq",
+  "dge/dge",
+  "clustering/clustering",
+  "biotypes/biotypes",
+)
