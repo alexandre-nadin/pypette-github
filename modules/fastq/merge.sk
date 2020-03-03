@@ -8,23 +8,24 @@ rule fastq_merging__mergeReads:
   input:
     reads = pypette.input(fastq__chunk)
   output:
-    read  = pypette.temp(fastq_merge__read)
+    read  = pypette.temp(f"{fastq__anyDir}/merged/{fastq__readBasename}")
   run:
-    input.reads.sort()
+    cmd = fastq_merging__mergeReadsCmd(input, output)
+    exshell(**vars())
 
-    if len(input.reads) == 1:
-      cmd = """
-        ln.rel {input.reads[0]} {output.read}
-      """
-    else:
-      cmd = f"""
-        zcat {input.reads} \
-         | gzip            \
-         > {output.read}
-      """
-      cmd = f"""
-        zcat {input.reads} | gzip > {output.read}
-      """
+rule fastq_merging__byRuns:
+  """
+  Merges sample fastq reads spread across all available sequencing runs.
+  """
+  input:
+    reads = pypette.input(
+              f"{fastq__anyDir}/{fastq__readBasename}",
+              derefKwargs = ['sample_run',],
+              withResult=True)
+  output:
+    read  = f"{fastq__anyDir}/byruns/{fastq__readBasename}"
+  run:
+    cmd = fastq_merging__mergeReadsCmd(input, output)
     exshell(**vars())
 
 ruleorder: samples__runs > fastq_merging__mergeReads

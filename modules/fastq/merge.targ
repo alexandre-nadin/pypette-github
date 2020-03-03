@@ -1,8 +1,11 @@
+include: "merge.py"
+
 pypette.updateWildcardConstraints(
-  procFastqMerge = "(merged/)",
+  procFastqMerge   = "(merged/)",
+  procFastqByRuns  = "(byruns/)?"
 )
 
-fastq_merge__procs = fastq__procs + "{procFastqMerge}"
+fastq_merge__procs = fastq__procs + "{procFastqMerge}{procFastqByRuns}"
 fastq__procs = fastq_merge__procs
 
 pypette.addTargets(
