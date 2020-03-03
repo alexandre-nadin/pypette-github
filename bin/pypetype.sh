@@ -35,6 +35,7 @@ function pypetype::manual() {
           --project PROJECT                              \ 
 	  --target TARGET                                \ 
           [ --cluster-rules FILE ]                       \ 
+          [ --no-cluster ]                               \ 
           [ --force ]                                    \ 
           [ --outdir ]                                   \ 
           [ --keep-files-regex REGEX ]                   \ 
@@ -51,6 +52,9 @@ function pypetype::manual() {
       -c|--cluster-rules
           Yaml file with all the pipeline's rules for cluster execution. 
           Default is $(pypetype::clusterRulesDft).
+
+      --no-cluster
+          Executes every job on this machine. Cluster options are not forwarded.
 
       -f|--force
           Forces the generation of the TARGET.
@@ -81,6 +85,7 @@ function pypetype::initParams() {
   PROJECT=""
   TARGET=""
   WORKDIR="$(pwd)"
+  USE_CLUSTER=true
 }
 
 function pypetype::parseParams() {
@@ -97,6 +102,10 @@ function pypetype::parseParams() {
 
         -c|--cluster-rules)
           CLUSTER_RULES="$2"          && shift
+          ;;
+
+      --no-cluster)
+          USE_CLUSTER=false
           ;;
 
         -f|--force)
@@ -199,7 +208,7 @@ function pypetype::smkOptionsCluster() {
 }
 
 function pypetype::smkUseClusterOptions() {
-  ! pypette::isParamGiven "DEBUG" 
+  ! pypette::isParamGiven "DEBUG" && $USE_CLUSTER
 }
 
 function pypetype::smkOptionsClusterStr() {
