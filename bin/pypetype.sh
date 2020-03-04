@@ -5,7 +5,7 @@ pypette::setManual pypetype::manual
 # ----------
 # Workflow
 # ----------
-function pypetype::runFlow() {
+pypetype::runFlow() {
   pypetype::initParams
   pypetype::parseParams "$@"
   pypetype::checkParams
@@ -13,7 +13,7 @@ function pypetype::runFlow() {
   pypetype::execPipeline
 }
 
-function pypetype::exportVarenvs() {
+pypetype::exportVarenvs() {
   export FORCE
   export DEBUG
   export VERBOSE
@@ -24,16 +24,16 @@ function pypetype::exportVarenvs() {
 # --------------
 pypetype__paramsMandatory=(PROJECT TARGET)
 
-function pypetype::manual() {
+pypetype::manual() {
   cat << eol
 
   DESCRIPTION
-      Launches the $(pypetype::pipeline) pipeline to produce a TARGET file for the given PROJECT.
+      Launches the $(pypetype::pipeline) pipeline to produce TARGET files for the given PROJECT.
 
   USAGE
       $ $0 \ 
           TARGET [TARGET ...]                            \ 
-          --project PROJECT                              \ 
+          --project|-p PROJECT                           \ 
           [ --cluster-rules FILE ]                       \ 
           [ --no-cluster ]                               \ 
           [ --cores|--jobs|-j N ]                        \ 
@@ -41,7 +41,7 @@ function pypetype::manual() {
           [ --outdir ]                                   \ 
           [ --keep-files-regex REGEX ]                   \ 
           [ --debug ]                                    \ 
-          [ --verbose ] 
+          [ --verbose ]
 
   OPTIONS
       TARGET
@@ -51,7 +51,7 @@ function pypetype::manual() {
           Name of the project to process.
 
       -c|--cluster-rules
-          Yaml file with all the pipeline's rules for cluster execution. 
+          Yaml file with all the pipeline's rules for cluster execution.
           Default is $(pypetype::clusterRulesDft).
 
       --no-cluster
@@ -65,7 +65,7 @@ function pypetype::manual() {
 
       -o|--outdir
           The directory where to write output results.
-  
+ 
       -k|--keep-files-regex
           The regex pattern of the temporary files to keep (ex.: '.*merged/.*bam').
 
@@ -85,7 +85,7 @@ eol
 # -----------
 # Parameters
 # -----------
-function pypetype::initParams() {
+pypetype::initParams() {
   PROJECT=""
   TARGET=()
   WORKDIR="$(pwd)"
@@ -93,95 +93,94 @@ function pypetype::initParams() {
   MAX_CORES=""
 }
 
-function pypetype::parseParams() {
-  while [ $# -ge 1 ]
-  do
-      case "$1" in
-        -p|--project)
-          PROJECT="$2"                && shift
-          ;;
+pypetype::parseParams() {
+  while [ $# -ge 1 ]; do
+    case "$1" in
+      -p|--project)
+        PROJECT="$2" && shift
+        ;;
 
-        -c|--cluster-rules)
-          CLUSTER_RULES="$2"          && shift
-          ;;
+      -c|--cluster-rules)
+        CLUSTER_RULES="$2" && shift
+        ;;
 
       --no-cluster)
-          USE_CLUSTER=false
-          ;;
+        USE_CLUSTER=false
+        ;;
 
-        --cores|--jobs|-j)
-          MAX_CORES="$2"              && shift
-          ;;
+      --cores|--jobs|-j)
+        MAX_CORES="$2" && shift
+        ;;
 
-        -f|--force)
-          FORCE=true
-          ;;
+      -f|--force)
+        FORCE=true
+        ;;
 
-        -o|--outdir)
-          WORKDIR=$(pypette::fullPath "$2") && shift
-          ;;
- 
-        -k|--keep-files-regex)
-          KEEP_FILES_REGEX="$2"       && shift
-          ;;
+      -o|--outdir)
+        WORKDIR=$(pypette::fullPath "$2") && shift
+        ;;
 
-        --debug)
-          DEBUG=true
-          ;;
+      -k|--keep-files-regex)
+        KEEP_FILES_REGEX="$2" && shift
+        ;;
 
-        -h|--help)
-          pypetype::manual            && exit
-          ;;
-  
-        -v|--verbose)
-          VERBOSE=true
-          ;;
-  
-        -*)
-          pypette::errorUnrecOpt "$1"
-          ;;
- 
-        *)
-          TARGET+=($1)
-          ;;
-  
-      esac
-      shift
+      --debug)
+        DEBUG=true
+        ;;
+
+      -h|--help)
+        pypetype::manual && exit
+        ;;
+
+      -v|--verbose)
+        VERBOSE=true
+        ;;
+
+      -*)
+        pypette::errorUnrecOpt "$1"
+        ;;
+
+      *)
+        TARGET+=($1)
+        ;;
+
+    esac
+    shift
   done
 }
 
-function pypetype::checkParams() {
+pypetype::checkParams() {
   pypette::requireParams ${pypetype__paramsMandatory[@]}
 }
 
 # -----------------------
 # Pipeline Type Specific
 # -----------------------
-function pypetype::pipeline() {
+pypetype::pipeline() {
   pypetype::name $(pypette::extless $(pypette::cmdName))
 }
 
-function pypetype::name() {
+pypetype::name() {
   printf "${1##$(pypetype::cmdPrefix)}"
 }
 
-function pypetype::cmdPrefix() {
+pypetype::cmdPrefix() {
   printf "pypette-"
 }
 
 # ---------------------
 # Pipeline Execution
 # ---------------------
-function pypetype::execPipeline() {
+pypetype::execPipeline() {
   pypette::infecho "\$ $(pypetype::cmdPipeline)"
   eval $(pypetype::cmdPipeline)
 }
 
-function pypetype::cmdPipeline() {
+pypetype::cmdPipeline() {
   cat << eol | tr '\n' ' '
     $(pypette::cmdDir)/pypette
    -p $(pypetype::pipeline)
-   --project $PROJECT 
+   --project $PROJECT
    ${WORKDIR:+--outdir ${WORKDIR}}
    ${KEEP_FILES_REGEX:+--keep-files-regex ${KEEP_FILES_REGEX}}
    --snakemake "$(pypetype::smkParams)"
@@ -191,47 +190,47 @@ eol
 # -------------------
 # Snakemake Options
 # -------------------
-function pypetype::smkParams() {
-   printf ' %s' "${TARGET[@]} $(pypetype::smkOptions) "
+pypetype::smkParams() {
+   printf ' %s' "${TARGET[@]} $(pypetype::smkOptions)"
 }
 
-function pypetype::smkOptions() {
+pypetype::smkOptions() {
   cat << eol
   $(pypetype::smkOptionsBase)
   $(pypetype::smkOptionsCluster)
 eol
 }
 
-function pypetype::smkOptionsBase() {
+pypetype::smkOptionsBase() {
   cat << eol
   ${MAX_CORES:+--jobs $MAX_CORES}
-  --latency-wait 30 
+  --latency-wait 30
   --rerun-incomplete
   ${FORCE:+--force}
   ${DEBUG:+--config debug=True}
 eol
 }
 
-function pypetype::smkOptionsCluster() {
+pypetype::smkOptionsCluster() {
   ! pypetype::smkUseClusterOptions || pypetype::smkOptionsClusterStr
 }
 
-function pypetype::smkUseClusterOptions() {
+pypetype::smkUseClusterOptions() {
   ! pypette::isParamGiven "DEBUG" && $USE_CLUSTER
 }
 
-function pypetype::smkOptionsClusterStr() {
+pypetype::smkOptionsClusterStr() {
   cat << eol
   --cluster-config $(pypetype::clusterRules)
   --cluster \'$(pypetype::cmdQsub)\'
 eol
 }
 
-function pypetype::cmdQsub() {
+pypetype::cmdQsub() {
   cat << "eol"
-  qsub 
-    -V 
-    -N {cluster.name} 
+  qsub
+    -V
+    -N {cluster.name}
     -l select={cluster.select}:ncpus={cluster.ncpus}:mem={cluster.mem}
     -o {cluster.out}
     -e {cluster.err}
@@ -242,16 +241,14 @@ eol
 # --------------------
 # Cluster Ressources
 # --------------------
-function pypetype::clusterRules() {
+pypetype::clusterRules() {
   printf "${CLUSTER_RULES:-$(pypetype::clusterRulesDft)}"
 }
 
-function pypetype::clusterRulesDft() {
+pypetype::clusterRulesDft() {
   pypette::fullPath "$(pypetype::clusterRulesDftTemplate)"
 }
 
-function pypetype::clusterRulesDftTemplate() {
+pypetype::clusterRulesDftTemplate() {
   printf "$(pypette::cmdDir)/../pipelines/$(pypetype::pipeline)/cluster-rules.yaml"
 }
-
-
