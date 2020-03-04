@@ -192,60 +192,59 @@ pypette::initParams() {
 }
 
 pypette::parseParams() {
-  while [ $# -ge 1 ]
-  do
-      case "$1" in
-        --project)
-          PROJECT="$2"                && shift
-          ;;
+  while [ $# -ge 1 ]; do
+    case "$1" in
+      --project)
+        PROJECT="$2" && shift
+        ;;
 
-        -p|--pipeline)
-          PIPELINE="$2"               && shift
-          ;;
+      -p|--pipeline)
+        PIPELINE="$2" && shift
+        ;;
  
-        --snakemake)
-          SNAKE_OPTIONS+=("$2")       && shift
-          ;;
+      --snakemake)
+        SNAKE_OPTIONS+=("$2") && shift
+        ;;
 
-        -c|--conda-env)
-          CONDA_ENV="$2"              && shift
-          ;;
+      -c|--conda-env)
+        CONDA_ENV="$2" && shift
+        ;;
  
-        -h|--help)
-          manual                      && exit
-          ;;
+      -h|--help)
+        manual && exit
+        ;;
  
-        --ls-pipes)
-          pypette::listPipelines      && exit
-          ;;
+      --ls-pipes)
+        pypette::listPipelines && exit
+        ;;
  
-        --ls-modules)
-          pypette::listModules
-          exit
-          ;;
+      --ls-modules)
+        pypette::listModules
+        exit
+        ;;
 
-        -o|--outdir)
-          WORKDIR=$(pypette::fullPath "$2") && shift
-          ;;
-            
-        -k|--keep-files-regex)
-          KEEP_FILES_REGEX="$2"       && shift
-          ;;
+      -o|--outdir)
+        WORKDIR=$(pypette::fullPath "$2") && shift
+        ;;
+          
+      -k|--keep-files-regex)
+        KEEP_FILES_REGEX="$2" && shift
+        ;;
 
-        -v|--verbose)
-          VERBOSE=true
-          ;;
+      -v|--verbose)
+        VERBOSE=true
+        ;;
  
-        *)
-          pypette::errorUnrecOpt "$1"
-          ;;
+      *)
+        pypette::errorUnrecOpt "$1"
+        ;;
 
-        *)
-          echo "Taking snakemake command: '$1'" >&2
-          ;;
+      *)
+        echo "Taking snakemake command: '$1'" >&2
+        ;;
  
-      esac
-      shift
+    esac
+    shift
   done
 }
 

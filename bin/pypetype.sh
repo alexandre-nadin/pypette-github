@@ -94,59 +94,58 @@ pypetype::initParams() {
 }
 
 pypetype::parseParams() {
-  while [ $# -ge 1 ]
-  do
-      case "$1" in
-        -p|--project)
-          PROJECT="$2"                && shift
-          ;;
+  while [ $# -ge 1 ]; do
+    case "$1" in
+      -p|--project)
+        PROJECT="$2" && shift
+        ;;
 
-        -c|--cluster-rules)
-          CLUSTER_RULES="$2"          && shift
-          ;;
+      -c|--cluster-rules)
+        CLUSTER_RULES="$2" && shift
+        ;;
 
-        --no-cluster)
-          USE_CLUSTER=false
-          ;;
+      --no-cluster)
+        USE_CLUSTER=false
+        ;;
 
-        --cores|--jobs|-j)
-          MAX_CORES="$2"              && shift
-          ;;
+      --cores|--jobs|-j)
+        MAX_CORES="$2" && shift
+        ;;
 
-        -f|--force)
-          FORCE=true
-          ;;
+      -f|--force)
+        FORCE=true
+        ;;
 
-        -o|--outdir)
-          WORKDIR=$(pypette::fullPath "$2") && shift
-          ;;
+      -o|--outdir)
+        WORKDIR=$(pypette::fullPath "$2") && shift
+        ;;
 
-        -k|--keep-files-regex)
-          KEEP_FILES_REGEX="$2"       && shift
-          ;;
+      -k|--keep-files-regex)
+        KEEP_FILES_REGEX="$2" && shift
+        ;;
 
-        --debug)
-          DEBUG=true
-          ;;
+      --debug)
+        DEBUG=true
+        ;;
 
-        -h|--help)
-          pypetype::manual            && exit
-          ;;
- 
-        -v|--verbose)
-          VERBOSE=true
-          ;;
- 
-        -*)
-          pypette::errorUnrecOpt "$1"
-          ;;
+      -h|--help)
+        pypetype::manual && exit
+        ;;
 
-        *)
-          TARGET+=($1)
-          ;;
- 
-      esac
-      shift
+      -v|--verbose)
+        VERBOSE=true
+        ;;
+
+      -*)
+        pypette::errorUnrecOpt "$1"
+        ;;
+
+      *)
+        TARGET+=($1)
+        ;;
+
+    esac
+    shift
   done
 }
 
