@@ -36,6 +36,7 @@ function pypetype::manual() {
 	  --target TARGET                                \ 
           [ --cluster-rules FILE ]                       \ 
           [ --no-cluster ]                               \ 
+          [ --cores|--jobs|-j N ]                        \ 
           [ --force ]                                    \ 
           [ --outdir ]                                   \ 
           [ --keep-files-regex REGEX ]                   \ 
@@ -55,6 +56,9 @@ function pypetype::manual() {
 
       --no-cluster
           Executes every job on this machine. Cluster options are not forwarded.
+
+      --cores|--jobs|-j
+          Max number of cores in parallel.
 
       -f|--force
           Forces the generation of the TARGET.
@@ -86,6 +90,7 @@ function pypetype::initParams() {
   TARGET=""
   WORKDIR="$(pwd)"
   USE_CLUSTER=true
+  MAX_CORES=""
 }
 
 function pypetype::parseParams() {
@@ -106,6 +111,10 @@ function pypetype::parseParams() {
 
       --no-cluster)
           USE_CLUSTER=false
+          ;;
+
+        --cores|--jobs|-j)
+          MAX_CORES="$2"              && shift
           ;;
 
         -f|--force)
@@ -195,7 +204,7 @@ eol
 
 function pypetype::smkOptionsBase() {
   cat << eol
-  --jobs 32 
+  ${MAX_CORES:+--jobs $MAX_CORES}
   --latency-wait 30 
   --rerun-incomplete
   ${FORCE:+--force}
