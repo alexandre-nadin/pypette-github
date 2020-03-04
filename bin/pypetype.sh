@@ -32,8 +32,8 @@ function pypetype::manual() {
 
   USAGE
       $ $0 \ 
+          TARGET [TARGET ...]                            \ 
           --project PROJECT                              \ 
-	  --target TARGET                                \ 
           [ --cluster-rules FILE ]                       \ 
           [ --no-cluster ]                               \ 
           [ --cores|--jobs|-j N ]                        \ 
@@ -44,11 +44,11 @@ function pypetype::manual() {
           [ --verbose ] 
 
   OPTIONS
+      TARGET
+          Targets to build. May be rules or files.
+
       -p|--project
           Name of the project to process.
-
-      -t|--target
-          Name of the target file to be produced by the pipeline.
 
       -c|--cluster-rules
           Yaml file with all the pipeline's rules for cluster execution. 
@@ -87,7 +87,7 @@ eol
 # -----------
 function pypetype::initParams() {
   PROJECT=""
-  TARGET=""
+  TARGET=()
   WORKDIR="$(pwd)"
   USE_CLUSTER=true
   MAX_CORES=""
@@ -99,10 +99,6 @@ function pypetype::parseParams() {
       case "$1" in
         -p|--project)
           PROJECT="$2"                && shift
-          ;;
-
-        -t|--target)
-          TARGET="$2"                 && shift 
           ;;
 
         -c|--cluster-rules)
@@ -143,6 +139,10 @@ function pypetype::parseParams() {
   
         -*)
           pypette::errorUnrecOpt "$1"
+          ;;
+ 
+        *)
+          TARGET+=($1)
           ;;
   
       esac
@@ -192,7 +192,7 @@ eol
 # Snakemake Options
 # -------------------
 function pypetype::smkParams() {
-  printf "$TARGET $(pypetype::smkOptions)"
+   printf ' %s' "${TARGET[@]} $(pypetype::smkOptions) "
 }
 
 function pypetype::smkOptions() {
