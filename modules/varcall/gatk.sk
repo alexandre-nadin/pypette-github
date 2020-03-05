@@ -1,5 +1,3 @@
-pypette.includeModules("varcall/varcall.sk")
-
 rule varcall__gatk:
   input:
     bam = pypette.input(
