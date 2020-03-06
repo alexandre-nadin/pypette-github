@@ -27,7 +27,7 @@ def genome__speciesDir(**kwargs):
     "{species.taxo}")
 
 def ensembl__buildVersion():
-  assembly = pypette.config.species[project__speciesGenome()].genome.assembly
+  assembly = pypette.config.species[project__speciesGenomeName()].genome.assembly
   return f"{assembly.buildName}.{assembly.ensemblRelease}"
 
 def genome__gatkDir(**kwargs):
