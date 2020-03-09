@@ -1,0 +1,22 @@
+pypette.includeModules("core/lang.py")
+
+rule qc_fastqc__multiqc:
+  input:
+    fastqcs   = pypette.input(
+      fastq_qc__readZip, 
+      derefKwargs=['sample_name',]),
+  output:
+    report   =           f"{fastq_merge__pipeTarget}multiqc_report.html",
+    data     = directory(f"{fastq_merge__pipeTarget}multiqc_data")
+  run:
+    outDir = fastq_merge__pipeTarget.format(**wildcards)
+    cmd  = f"""
+      export {core_lang__dft} 
+      multiqc              \
+        -f                 \
+        -o {outDir}        \
+        {input} 
+    """
+    exshell(**vars())
+
+ruleorder: qc_fastqc__multiqc > samples__all > samples__runs

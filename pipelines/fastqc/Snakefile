@@ -10,7 +10,9 @@ pypette.loadConfigFiles()
 Pipeline Workflow.
 Modules are loaded only if required configuration files above are present.
 """
-pypette.includeModules(
-  "fastq/fastq.sk",
-  "qc/fastqc.sk",
-  withConfigFiles=True)
+pypette.includeWorkflow(
+  "fastq/fastq",
+  "fastq/merge",
+  "fastq/qc",
+  "qc/fastqc"
+)
