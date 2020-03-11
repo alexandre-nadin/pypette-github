@@ -1,7 +1,3 @@
-pypette.includeModules(
-  "varcall/varcall.sk",
-  "core/lang.py")
-
 rule varcall__freebayes_merge:
   input:                                           
     bams = pypette.input(                        

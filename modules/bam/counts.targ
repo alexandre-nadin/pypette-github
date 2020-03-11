@@ -1,0 +1,7 @@
+include: "counts.py"
+
+pypette.addTargets(
+  counts__pipeTarget   = "{bam__pipeTarget}featureCounts",
+  counts__sampleTarget = "{counts__pipeTarget}/{{sample_name}}",
+  counts_merged__pipeTarget   = "{counts__pipeTarget}/merged",
+  counts_merged__sampleTarget = "{counts_merged__pipeTarget}/{{sample_name}}", )

@@ -1,12 +1,12 @@
 # bash
 trap pypette::onexit EXIT SIGKILL
 
-function pypette::onexit() {
+pypette::onexit() {
   pypette::setJobsDirPermissions
   pypette::cleanJobsDir
 }
 
-function pypette::fullPath() {
+pypette::fullPath() {
   readlink -f "$1"
 }
 
@@ -18,7 +18,7 @@ VARENVS_TAG="_PYPETTE_"
 # ---------
 # Workflow
 # ---------
-function pypette::runFlow() {
+pypette::runFlow() {
   pypette::initParams
   pypette::parseParams "$@"
   pypette::checkParams
@@ -30,43 +30,43 @@ function pypette::runFlow() {
 # -------------------------
 # Command Base Parameters
 # -------------------------
-function pypette::extless() {
+pypette::extless() {
   printf ${1%%.*}
 }
 
-function pypette::lastSource() {
+pypette::lastSource() {
   local idx=$(( ${#BASH_SOURCE[@]} - 1))
   printf ${BASH_SOURCE[$idx]}
 }
 
-function pypette::cmdName() {
+pypette::cmdName() {
   basename "$(pypette::cmdPath)"
 }
 
-function pypette::cmdPath() {
+pypette::cmdPath() {
   pypette::fullPath $(pypette::lastSource)
 }
 
-function pypette::cmdDir() {
+pypette::cmdDir() {
   dirname $(pypette::cmdPath)
 }
 
 # -------
 # Paths
 # -------
-function pypette::homeDir() {
+pypette::homeDir() {
   pypette::fullPath "$(pypette::cmdDir)/.."
 }
 
-function pypette::pathPipelines() {
+pypette::pathPipelines() {
   printf "$(pypette::homeDir)/pipelines"
 }
 
-function pypette::pathPipelineSnakefile() {
+pypette::pathPipelineSnakefile() {
   printf "$(pypette::pathPipelines)/${1}/${pypette__PIPELINE_SNAKEFILE}"
 }
 
-function pypette::pathModules() {
+pypette::pathModules() {
   printf "$(pypette::homeDir)/modules"
 }
 
@@ -75,11 +75,11 @@ function pypette::pathModules() {
 # --------------------
 pypette__PIPELINE_SNAKEFILE="Snakefile"
 
-function pypette::existsPipeline() {
+pypette::existsPipeline() {
   [ -f $(pypette::pathPipelineSnakefile ${1}) ]
 }
 
-function pypette::listPipelines() (
+pypette::listPipelines() (
   cd "$(pypette::pathPipelines)"
   set +f
   pypette::msgListPipelines
@@ -89,23 +89,23 @@ function pypette::listPipelines() (
    2>/dev/null
 )
 
-function pypette::msgListPipelines() {
+pypette::msgListPipelines() {
   cat << eol
-Available pipelines: 
+Available pipelines:
 eol
 }
 
-function pypette::listModules() (
+pypette::listModules() (
   cd "$(pypette::pathModules)"
   set +f
-  pypette::msgListModules 
+  pypette::msgListModules
   ls */{,*/}*.{sk,snake} \
     2> /dev/null
 )
 
-function pypette::msgListModules() {
+pypette::msgListModules() {
   cat << eol
-Available modules: 
+Available modules:
 eol
 }
 
@@ -113,15 +113,15 @@ eol
 # Manual
 # -------
 pypette__manual='manual'
-function pypette::setManual() {
+pypette::setManual() {
   pypette__manual="$1"
 }
 
-function pypette::manual() {
+pypette::manual() {
   $pypette__manual
 }
 
-function pypette::msgManual() {
+pypette::msgManual() {
   cat << eol
 Please consult the help: '\$ $(pypette::cmdName) --help'
 eol
@@ -129,9 +129,9 @@ eol
 
 pypette__paramsMandatory=(PROJECT PIPELINE)
 
-function manual() {
+manual() {
   cat << EOFMAN
-  
+ 
   DESCRIPTION
       Launches a CTGB PIPELINE for the given PROJECT.
       SNAKEMAKE_OPTIONs will be passed to the Snakemake command.
@@ -152,7 +152,7 @@ function manual() {
       -k|--keep-files-regex
           The regex pattern of the temporary files to keep (ex.: '.*merged/.*bam').
 
-          
+         
       --ls-pipes
           Lists available pipelines in ctgb-pipe.
 
@@ -160,7 +160,7 @@ function manual() {
           Lists available modules in ctgb-pipe.
 
       --snakemake
-          List of options to pass to Snakemake. 
+          List of options to pass to Snakemake.
 
       -c|--conda-env
           Specifies the conda environment in which the pipeline is to be executed.
@@ -171,7 +171,7 @@ function manual() {
 
       -h|--help
           Displays this help manual.
-    
+   
 
 
 EOFMAN
@@ -180,7 +180,7 @@ EOFMAN
 # -----------
 # Parameters
 # -----------
-function pypette::initParams() {
+pypette::initParams() {
   PROJECT=""
   PIPELINE=""
   SNAKE_OPTIONS=()
@@ -191,100 +191,99 @@ function pypette::initParams() {
   CONDA_ENV=""
 }
 
-function pypette::parseParams() {
-  while [ $# -ge 1 ]
-  do
-      case "$1" in
-        --project)
-          PROJECT="$2"                && shift
-          ;;
+pypette::parseParams() {
+  while [ $# -ge 1 ]; do
+    case "$1" in
+      --project)
+        PROJECT="$2" && shift
+        ;;
 
-        -p|--pipeline)
-          PIPELINE="$2"               && shift
-          ;;
-  
-        --snakemake)
-          SNAKE_OPTIONS+=("$2")       && shift
-          ;;
-
-        -c|--conda-env)
-          CONDA_ENV="$2"              && shift
-          ;;
-  
-        -h|--help)
-          manual                      && exit
-          ;;
-  
-        --ls-pipes)
-          pypette::listPipelines      && exit
-          ;;
-  
-        --ls-modules)
-          pypette::listModules
-          exit
-          ;;
-
-        -o|--outdir)
-          WORKDIR=$(pypette::fullPath "$2") && shift
-          ;;
-             
-        -k|--keep-files-regex)
-          KEEP_FILES_REGEX="$2"       && shift
-          ;;
-
-        -v|--verbose)
-          VERBOSE=true
-          ;;
-  
-        *)
-          pypette::errorUnrecOpt "$1"
-          ;;
+      -p|--pipeline)
+        PIPELINE="$2" && shift
+        ;;
  
-        *)
-          echo "Taking snakemake command: '$1'" >&2
-          ;;
-  
-      esac
-      shift
+      --snakemake)
+        SNAKE_OPTIONS+=("$2") && shift
+        ;;
+
+      -c|--conda-env)
+        CONDA_ENV="$2" && shift
+        ;;
+ 
+      -h|--help)
+        manual && exit
+        ;;
+ 
+      --ls-pipes)
+        pypette::listPipelines && exit
+        ;;
+ 
+      --ls-modules)
+        pypette::listModules
+        exit
+        ;;
+
+      -o|--outdir)
+        WORKDIR=$(pypette::fullPath "$2") && shift
+        ;;
+          
+      -k|--keep-files-regex)
+        KEEP_FILES_REGEX="$2" && shift
+        ;;
+
+      -v|--verbose)
+        VERBOSE=true
+        ;;
+ 
+      *)
+        pypette::errorUnrecOpt "$1"
+        ;;
+
+      *)
+        echo "Taking snakemake command: '$1'" >&2
+        ;;
+ 
+    esac
+    shift
   done
 }
 
-function pypette::checkParams() {
+pypette::checkParams() {
   pypette::requireParams ${pypette__paramsMandatory[@]}
   pypette::checkPipeline
 }
 
-function pypette::requireParams() {
+pypette::requireParams() {
   for param in "$@"; do
      pypette::requireParam "$param"
   done
 }
 
-function pypette::requireParam() {
+pypette::requireParam() {
   pypette::isParamGiven "$1" || pypette::errorParamNotGiven "$1"
 }
 
-function pypette::isParamGiven() {
-  [ ! -z ${!1:+x} ] 
+pypette::isParamGiven() {
+  [ ! -z ${!1:+x} ]
 }
 
-function pypette::checkPipeline() {
+pypette::checkPipeline() {
   pypette::existsPipeline "$PIPELINE" || pypette::errorPipelineNotExist "$PIPELINE"
 }
 
 # ------------------
 # Conda Environment
 # ------------------
-function pypette::envPipelineDft() {
+pypette::envPipelineDft() {
   printf "pypette-${PIPELINE}" \
    | tr '[[:upper:]]' '[[:lower:]]'
 }
 
-function pypette::envPipeline() {
+pypette::envPipeline() {
   printf "${CONDA_ENV:-$(pypette::envPipelineDft)}"
 }
 
-function pypette::envActivate() {
+pypette::envActivate() {
   pypette::infecho "Executing in '$(pypette::envPipeline)' conda environment."
   condactivate $(pypette::envPipeline)
 }
@@ -292,7 +291,7 @@ function pypette::envActivate() {
 # ------------------
 # Shell Environment
 # ------------------
-function pypette::exportVarenvs() {
+pypette::exportVarenvs() {
   pypette::exportVarenv "HOME" $(pypette::homeDir)
   pypette::exportVarenv "PROJECT" "$PROJECT"
   pypette::exportVarenv "PIPE_NAME" "$PIPELINE"
@@ -309,63 +308,63 @@ function pypette::exportVarenvs() {
   pypette::exportVarenv "EXE_TIME" "$(date '+%y%m%d-%H%M%S')"
 }
 
-function pypette::pythonSysPath() {
+pypette::pythonSysPath() {
   python -c 'import sys; print(" ".join(sys.path))'
 }
 
 pypette__varenvs=()
-function pypette::exportVarenv() {
+pypette::exportVarenv() {
   local var="$(pypette::varenvOf ${1})"
   if [ ${#pypette__varenvs[@]} -gt 0 ]; then
-    pypette__varenvs=(${pypette__varenvs[@]} "$var") 
+    pypette__varenvs=(${pypette__varenvs[@]} "$var")
   else
     pypette__varenvs=("$var")
   fi
   eval "export $(pypette::varenvOf ${1})=\"${2}\""
 }
 
-function pypette::varenvOf() {
+pypette::varenvOf() {
   printf "${VARENVS_TAG}${1}"
 }
 
 # --------------------
 # Snakemake Commands
 # --------------------
-function pypette::execSnakemake() {
+pypette::execSnakemake() {
   pypette::infecho "\$ $(pypette::cmdSnakemake)\n"
   eval "$(pypette::cmdSnakemake)"
 }
 
-function pypette::cmdSnakemake() {
-  cat << eol 
+pypette::cmdSnakemake() {
+  cat << eol
   \snakemake  \
    --snakefile $(pypette::pathPipelineSnakefile root) \
-   ${SNAKE_OPTIONS[@]}  
+   ${SNAKE_OPTIONS[@]} 
 eol
 }
 
 # -----------------
 # Jobs Directories
 # -----------------
-function pypette::jobsDir() {
+pypette::jobsDir() {
   printf "${WORKDIR}/jobs"
 }
 
-function pypette::hasJobsDir() {
+pypette::hasJobsDir() {
   [ -d "$(pypette::jobsDir)" ]
 }
 
-function pypette::jobsLogsDirs() {
+pypette::jobsLogsDirs() {
   pypette::hasJobsDir || return 0
   find $(pypette::jobsDir) -mindepth 1 -maxdepth 1 -type d \
    | xargs -I {} readlink -f {} ;
 }
 
-function pypette::hasJobsLogsDirs() {
+pypette::hasJobsLogsDirs() {
   [ $(pypette::jobsLogsDirs | wc -l) -gt 0 ]
 }
 
-function pypette::jobsLogs() {
+pypette::jobsLogs() {
   pypette::hasJobsDir || return 1
   find $(pypette::jobsDir)    \
     -mindepth 1               \
@@ -375,7 +374,7 @@ function pypette::jobsLogs() {
     -regex '.*\.err\|.*\.out'
 }
 
-function pypette::hasJobsLogs() {
+pypette::hasJobsLogs() {
   [ $(pypette::jobsLogs | wc -l) -gt 0 ]
 }
 
@@ -383,22 +382,22 @@ function pypette::hasJobsLogs() {
 # -----------
 # Jobs Logs
 # -----------
-function pypette::setJobsDirPermissions() {
+pypette::setJobsDirPermissions() {
   chmod -R u+rwX,g+rX $(pypette::jobsDir)
 }
 
-function pypette::cleanJobsDir() {
+pypette::cleanJobsDir() {
   pypette::cleanLogBashErrors
   pypette::rmEmptyJobsDirs
 }
 
-function pypette::cleanLogBashErrors() {
+pypette::cleanLogBashErrors() {
   pypette::hasJobsLogs || return 0
   pypette::jobsLogs            \
    | xargs sed -i '/^-bash:/d'
 }
 
-function pypette::rmEmptyJobsDirs() {
+pypette::rmEmptyJobsDirs() {
   pypette::hasJobsLogsDirs || return 0
   for jobDir in $(pypette::jobsLogsDirs); do
     if [ $(ls "$jobDir" | wc -l) -gt 0 ]; then
@@ -412,45 +411,45 @@ function pypette::rmEmptyJobsDirs() {
 # ---------------
 # Error messages
 # ---------------
-function pypette::errorParamNotGiven() {
+pypette::errorParamNotGiven() {
   pypette::errexit "$(pypette::msgParamNotGiven $1)"
 }
 
-function pypette::msgParamNotGiven() {
+pypette::msgParamNotGiven() {
   cat << eol
 Parameter ${1} not given.
 eol
 }
 
-function pypette::verbecho() {
-  ${VERBOSE} && printf "$@\n" || : 
+pypette::verbecho() {
+  ${VERBOSE} && printf "$@\n" || :
 }
 
-function pypette::infecho() {
+pypette::infecho() {
   printf "Info: $@\n"
 }
 
-function pypette::errexit() {
+pypette::errexit() {
   printf "Error: $@\n"
   pypette::msgManual
   exit 1
 }
 
-function pypette::msgUnrecOpt() {
+pypette::msgUnrecOpt() {
   cat << eol
 Unrecognized option '$@'.
 eol
 }
 
-function pypette::errorUnrecOpt() {
+pypette::errorUnrecOpt() {
   pypette::errexit "$(pypette::msgUnrecOpt $@)"
 }
 
-function pypette::errorPipelineNotExist() {
+pypette::errorPipelineNotExist() {
   pypette::errexit "$(pypette::msgPipelineNotExist $1)"
-} 
+}
 
-function pypette::msgPipelineNotExist() {
+pypette::msgPipelineNotExist() {
   cat << eol
 Pipeline "$(pypette::pathPipelineSnakefile ${1})" not found in '$(pypette::pathPipelines)/'.
 eol

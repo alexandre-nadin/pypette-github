@@ -1,0 +1,4 @@
+pypette.addTargets(
+  vcf__pipeTarget   = "{bam__pipeTarget}varcall",
+  vcf__sampleTarget = "{vcf__pipeTarget}/{{sample_name}}")
+

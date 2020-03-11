@@ -1,0 +1,4 @@
+pypette.addTargets(
+  biotypes__pipeTarget   = "{counts_merged__pipeTarget}/biotypes",
+  biotypes__sampleTarget = "{biotypes__pipeTarget}/{{sample_name}}"
+)
