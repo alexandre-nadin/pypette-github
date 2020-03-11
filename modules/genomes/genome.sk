@@ -11,6 +11,17 @@ rule genome__fa:
     """
     exshell(**vars())
 
+rule genome__fai:
+  input:
+    fa   = "{someprefix}.fa"
+  output:
+    fai  = pypette.temp("{someprefix}.fai")
+  run:
+    cmd = """
+      samtools faidx {input.fa} > {output.fai}
+    """
+    exshell(**vars())
+
 rule genome__ebiFaGz:
   output:
     fa  = genome__ebiFastaGz()
