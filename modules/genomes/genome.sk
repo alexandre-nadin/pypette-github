@@ -15,7 +15,7 @@ rule genome__fai:
   input:
     fa   = "{someprefix}.fa"
   output:
-    fai  = pypette.temp("{someprefix}.fai")
+    fai  = pypette.temp("{someprefix}.fa.fai")
   run:
     cmd = """
       samtools faidx {input.fa} > {output.fai}

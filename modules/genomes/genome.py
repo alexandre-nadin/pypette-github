@@ -95,7 +95,7 @@ def genome__ebiFastaGz(**kwargs):
 
 def genome__ebiFastaIdx(**kwargs):
   """ Produces the species' genome fasta. """
-  return f"{genome__ebiFastaBase(**kwargs)}.fai"
+  return f"{genome__ebiFastaBase(**kwargs)}.fa.fai"
 
 @genome__formatSpeciesCfg
 def genome__ebiFastaUrl():
@@ -119,7 +119,7 @@ def genome__ucscFasta(**kwargs):
 
 def genome__ucscFastaIdx(**kwargs):
   """ Produces the species' genome fasta. """
-  return f"{genome__ucscFastaBase(**kwargs)}.fai"
+  return f"{genome__ucscFastaBase(**kwargs)}.fa.fai"
 
 
 # -----------
