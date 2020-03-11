@@ -204,7 +204,7 @@ eol
 pypetype::smkOptionsBase() {
   cat << eol
   ${MAX_CORES:+--jobs $MAX_CORES}
-  --latency-wait 30
+  --latency-wait 90
   --rerun-incomplete
   ${FORCE:+--force}
   ${DEBUG:+--config debug=True}
