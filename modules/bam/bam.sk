@@ -136,8 +136,8 @@ rule bam__hsMetrics:
   output: 
     "{someprefix}_hsMetrics.txt"
   run:
-    baitIntervals   = exome__baitIntervals()
-    targetIntervals = exome__targetIntervals()
+    baitIntervals   = exome__baitIntervals(sharedDir=True)
+    targetIntervals = exome__targetIntervals(sharedDir=True)
     cmd = """
       picard CollectHsMetrics          \
         BI={baitIntervals}             \
