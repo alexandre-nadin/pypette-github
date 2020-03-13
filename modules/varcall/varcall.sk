@@ -21,7 +21,7 @@ rule varcall__cnvkit:
   params:
     var_dir = f"{vcf__pipeTarget}"
   run:
-    baitIntervals = exome__baitIntervals()
+    baitIntervals = exome__baitIntervals(sharedDir=True)
     cmd = f"""
       cnvkit.py batch {input.bam} \
         --n \
