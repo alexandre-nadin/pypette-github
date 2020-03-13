@@ -13,6 +13,7 @@ pypette::fullPath() {
 SCRIPT_PATH=$(pypette::fullPath "$0")
 SCRIPT_DIR=$(dirname "${SCRIPT_PATH}")
 EXE_DIR="$(pypette::fullPath $(pwd))"
+EXE_TIME=$(date '+%y%m%d-%H%M%S')
 VARENVS_TAG="_PYPETTE_"
 
 # ---------
@@ -22,6 +23,7 @@ pypette::runFlow() {
   pypette::initParams
   pypette::parseParams "$@"
   pypette::checkParams
+  pypette::setLogsDir
   pypette::envActivate
   pypette::exportVarenvs
   pypette::execSnakemake
@@ -338,13 +340,33 @@ pypette::cmdSnakemake() {
   cat << eol
   \snakemake  \
    --snakefile $(pypette::pathPipelineSnakefile root) \
-   ${SNAKE_OPTIONS[@]} 
+   ${SNAKE_OPTIONS[@]}
 eol
 }
 
 # -----------------
 # Jobs Directories
 # -----------------
+pypette::setLogsDir() {
+  pypette::mkExecDir
+}
+
+pypette::execLogOut() {
+  printf "$(pypette::execDir)/exec.out"
+}
+
+pypette::execLogErr() {
+  printf "$(pypette::execDir)/exec.err"
+}
+
+pypette::execDir() {
+  printf "$(pypette::jobsDir)/${EXE_TIME}"
+}
+
+pypette::mkExecDir() {
+  mkdir -p $(pypette::execDir)
+}
+
 pypette::jobsDir() {
   printf "${WORKDIR}/jobs"
 }
