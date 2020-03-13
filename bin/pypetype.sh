@@ -39,6 +39,7 @@ pypetype::manual() {
           [ --cores|--jobs|-j N ]                        \ 
           [ --force ]                                    \ 
           [ --outdir ]                                   \ 
+          [ --snake-opts SNAKE_OPTION ...]               \ 
           [ --keep-files-regex REGEX ]                   \ 
           [ --debug ]                                    \ 
           [ --verbose ]
@@ -66,6 +67,9 @@ pypetype::manual() {
       -o|--outdir
           The directory where to write output results.
  
+      --snake-opts
+          List of options to pass to Snakemake
+
       -k|--keep-files-regex
           The regex pattern of the temporary files to keep (ex.: '.*merged/.*bam').
 
@@ -88,6 +92,7 @@ eol
 pypetype::initParams() {
   PROJECT=""
   TARGET=()
+  SNAKE_OPTIONS=()
   WORKDIR="$(pwd)"
   USE_CLUSTER=true
   MAX_CORES=""
@@ -118,6 +123,10 @@ pypetype::parseParams() {
 
       -o|--outdir)
         WORKDIR=$(pypette::fullPath "$2") && shift
+        ;;
+
+      --snake-opts)
+        SNAKE_OPTIONS+=("$2") && shift
         ;;
 
       -k|--keep-files-regex)
@@ -204,8 +213,9 @@ eol
 pypetype::smkOptionsBase() {
   cat << eol
   ${MAX_CORES:+--jobs $MAX_CORES}
-  --latency-wait 30
+  --latency-wait 90
   --rerun-incomplete
+  ${SNAKE_OPTIONS[@]}
   ${FORCE:+--force}
   ${DEBUG:+--config debug=True}
 eol
