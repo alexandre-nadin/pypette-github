@@ -1,5 +1,5 @@
 pipeline:
-  name: 'dna'
+  name: 'dna-wes'
   modules:
     mapping:
       aligner:

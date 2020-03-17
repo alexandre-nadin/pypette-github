@@ -13,6 +13,7 @@ pypette::fullPath() {
 SCRIPT_PATH=$(pypette::fullPath "$0")
 SCRIPT_DIR=$(dirname "${SCRIPT_PATH}")
 EXE_DIR="$(pypette::fullPath $(pwd))"
+EXE_TIME=$(date '+%y%m%d-%H%M%S')
 VARENVS_TAG="_PYPETTE_"
 
 # ---------
@@ -22,6 +23,7 @@ pypette::runFlow() {
   pypette::initParams
   pypette::parseParams "$@"
   pypette::checkParams
+  pypette::setLogsDir
   pypette::envActivate
   pypette::exportVarenvs
   pypette::execSnakemake
@@ -292,38 +294,37 @@ pypette::envActivate() {
 # Shell Environment
 # ------------------
 pypette::exportVarenvs() {
-  pypette::exportVarenv "HOME" $(pypette::homeDir)
-  pypette::exportVarenv "PROJECT" "$PROJECT"
-  pypette::exportVarenv "PIPE_NAME" "$PIPELINE"
-  pypette::exportVarenv "PIPE_ENV" "$(pypette::envPipeline)"
-  pypette::exportVarenv "PIPE_SNAKE" $(pypette::pathPipelineSnakefile $PIPELINE)
-  pypette::exportVarenv "WORKDIR" "$WORKDIR"
-  pypette::exportVarenv "CLUSTER_MNT_POINT" "$CLUSTER_MNT_POINT"
-  pypette::exportVarenv "KEEP_FILES_REGEX" "$KEEP_FILES_REGEX"
+  pypette::exportExecVarenv "HOME" $(pypette::homeDir)
+  pypette::exportExecVarenv "PROJECT"
+  pypette::exportExecVarenv "PIPE_NAME" "$PIPELINE"
+  pypette::exportExecVarenv "PIPE_ENV" "$(pypette::envPipeline)"
+  pypette::exportExecVarenv "PIPE_SNAKE" $(pypette::pathPipelineSnakefile $PIPELINE)
+  pypette::exportExecVarenv "WORKDIR"
+  pypette::exportExecVarenv "CLUSTER_MNT_POINT"
+  pypette::exportExecVarenv "KEEP_FILES_REGEX"
   export TMPDIR=${TMPDIR:-/lustre2/scratch/tmp}
   export PATH="${SCRIPT_DIR}${PATH:+:${PATH}}"
   export PYTHONPATH=${PYTHONPATH:+${PYTHONPATH}":"}$(pypette::homeDir)
-  pypette::exportVarenv "PYTHON_SYSPATH" "$(pypette::pythonSysPath) ${PYTHONPATH:+${PYTHONPATH[@]}} $(pypette::homeDir)"
-  pypette::exportVarenv "EXE_DIR" "$EXE_DIR"
-  pypette::exportVarenv "EXE_TIME" "$(date '+%y%m%d-%H%M%S')"
+  pypette::exportExecVarenv "PYTHON_SYSPATH" "$(pypette::pythonSysPath) ${PYTHONPATH:+${PYTHONPATH[@]}} $(pypette::homeDir)"
+  pypette::exportExecVarenv "EXE_DIR"
+  pypette::exportExecVarenv "EXE_TIME"
 }
 
 pypette::pythonSysPath() {
   python -c 'import sys; print(" ".join(sys.path))'
 }
 
-pypette__varenvs=()
-pypette::exportVarenv() {
-  local var="$(pypette::varenvOf ${1})"
-  if [ ${#pypette__varenvs[@]} -gt 0 ]; then
-    pypette__varenvs=(${pypette__varenvs[@]} "$var")
-  else
-    pypette__varenvs=("$var")
-  fi
-  eval "export $(pypette::varenvOf ${1})=\"${2}\""
+pypette::exportExecVarenv() {
+  #
+  # Export the given varenv for the executable.
+  #
+  eval "export $(pypette::tagVarenv ${1})=\"${2:-${!1}}\""
 }
 
-pypette::varenvOf() {
+pypette::tagVarenv() {
+  #
+  # Sets tag to execution varenv name
+  #
   printf "${VARENVS_TAG}${1}"
 }
 
@@ -339,13 +340,33 @@ pypette::cmdSnakemake() {
   cat << eol
   \snakemake  \
    --snakefile $(pypette::pathPipelineSnakefile root) \
-   ${SNAKE_OPTIONS[@]} 
+   ${SNAKE_OPTIONS[@]}
 eol
 }
 
 # -----------------
 # Jobs Directories
 # -----------------
+pypette::setLogsDir() {
+  pypette::mkExecDir
+}
+
+pypette::execLogOut() {
+  printf "$(pypette::execDir)/exec.out"
+}
+
+pypette::execLogErr() {
+  printf "$(pypette::execDir)/exec.err"
+}
+
+pypette::execDir() {
+  printf "$(pypette::jobsDir)/${EXE_TIME}"
+}
+
+pypette::mkExecDir() {
+  mkdir -p $(pypette::execDir)
+}
+
 pypette::jobsDir() {
   printf "${WORKDIR}/jobs"
 }

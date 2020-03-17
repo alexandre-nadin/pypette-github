@@ -1,4 +1,4 @@
-name: pypette-dna
+name: pypette-dna-wes
 channels:
   - bioconda
   - conda-forge
@@ -321,5 +321,5 @@ dependencies:
     - sortedcontainers==2.1.0
     - wcwidth==0.1.7
     - zipp==0.6.0
-prefix: /lustre1/ctgb-usr/local/miniconda3/envs/pypette-dna
+prefix: /lustre1/ctgb-usr/local/miniconda3/envs/pypette-dna-wes
 
