@@ -1,6 +1,6 @@
 pypette.includeModules("core/lang.py")
 
-rule qc_dna__multiqc:
+rule qc_dna_wes__multiqc:
   input:
     fastqcs    = pypette.input(
                    fastq_qc__readZip, 
@@ -28,4 +28,4 @@ rule qc_dna__multiqc:
     """
     exshell(**vars())
 
-ruleorder: qc_dna__multiqc > samples__all > samples__runs
+ruleorder: qc_dna_wes__multiqc > samples__all > samples__runs

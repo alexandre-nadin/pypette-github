@@ -18,7 +18,7 @@ pypette.includeWorkflow(
   "fastq/qc",
   "bam/bam",
   "bam/bwa",
-  "qc/dna",
+  "qc/dna-wes",
   "varcall/varcall",
   "varcall/freebayes",
   "varcall/gatk",
