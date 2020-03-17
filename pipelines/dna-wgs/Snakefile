@@ -1,0 +1,25 @@
+""" Pipeline Configuration """
+pypette.includeModules(
+  "config/config.sk",
+  "config/project.sk",
+  "config/samples.sk"
+)
+pypette.loadConfigFiles()
+
+""" 
+Pipeline Workflow 
+Modules are loaded only if required configuration files above are present.
+"""
+pypette.includeWorkflow(
+  "fastq/fastq",
+  "fastq/merge",
+  "fastq/trimming",
+  "fastq/adapter",
+  "fastq/qc",
+  "bam/bam",
+  "bam/bwa",
+  "qc/dna-wgs",
+  "varcall/varcall",
+  "varcall/freebayes",
+  "varcall/gatk",
+)
