@@ -151,6 +151,25 @@ rule bam__hsMetrics:
 
 ruleorder: samples__all > bam__hsMetrics
 
+rule bam__wgsMetrics:
+  input:  
+    bam = "{someprefix}.bam",
+    fa  = genome__ebiFasta(),
+    fai = genome__ebiFastaIdx(),
+  output: 
+    "{someprefix}_wgsMetrics.txt"
+  run:
+    cmd = """
+      picard CollectWgsMetrics         \
+        I={input.bam}                  \
+        O={output}                     \
+        R={input.fa}                   \
+        VALIDATION_STRINGENCY=SILENT
+    """
+    exshell(**vars())
+
+ruleorder: samples__all > bam__wgsMetrics
+
 rule bam__flagstat:
   input:  "{someprefix}.bam"
   output: "{someprefix}_flagstat.txt"

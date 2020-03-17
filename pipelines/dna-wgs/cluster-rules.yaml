@@ -1,0 +1,111 @@
+__default__:
+  name: '{pypette.jobName}'
+  select: 1
+  ncpus: 1
+  mem: '1gb'
+  out: '{pypette.jobExeBase}_{rule}.out'
+  err: '{pypette.jobExeBase}_{rule}.err'
+
+fastq_trimming__trimmomatic:
+  do: True
+  ncpus: "{pypette.config.pipeline.modules.fastq.trimming.trimmers.trimmomatic.cores}"
+  mem: "{pypette.config.pipeline.modules.fastq.trimming.trimmers.trimmomatic.mem}"
+
+fastq_trimming__bbduk:
+  do: True
+  ncpus: "{pypette.config.pipeline.modules.fastq.trimming.trimmers.bbduk.cores}"
+  mem: "{pypette.config.pipeline.modules.fastq.trimming.trimmers.bbduk.mem}"
+
+fastq_trimming__cutadapt:
+  do: True
+  ncpus: "{pypette.config.pipeline.modules.fastq.trimming.trimmers.cutadapt.cores}"
+
+bam_bwa__alignReads:
+  do: True
+  ncpus: 8
+  mem: '64gb'
+
+bam__markDuplicates:
+  do: True
+  ncpus: 4
+  mem: '32gb'
+
+bam__sortSamplePicard:
+  do: True
+  ncpus: 4
+  mem: '32gb'
+
+bam__sortSampleSamtools:
+  do: True
+  ncpus: 4
+  mem: '32gb'
+
+bam__flagstat:
+  do: True
+  mem: "{pypette.config.pipeline.modules.mapping.flagstat.mem}"
+
+varcall__gatk:
+  do: True
+  ncpus: 12
+  mem: '64gb'
+
+varcall__mergeGVCF:
+  do: True
+  ncpus: 12
+  mem: '64gb'
+
+varcall__merge_BaseRecalibrator:
+  do: True
+  ncpus: 12
+  mem: '64gb'
+
+varcall__merge_IndelRecalibrator:
+  do: True
+  ncpus: 12
+  mem: '64gb'
+
+bam__baseRecalibrate:
+  do: True
+  ncpus: 12
+  mem: '64gb'
+
+bam__baseRecalibrator:
+  do: True
+  ncpus: 12
+  mem: '64gb'
+
+bam__mergeSample:
+  do: True
+  ncpus: 4
+  mem: '32gb'
+
+varcall__genmod:
+  do: True
+  ncpus: 4
+  mem: '12gb'
+
+varcall__annotate_fb_merged:
+  do: True
+  ncpus: 12
+  mem: '64gb'
+
+varcall__annotate_gatk_merged:
+  do: True
+  ncpus: 12
+  mem: '64gb'
+
+varcall__cnvkit:
+  do: True
+  ncpus: 12
+  mem: '64gb'
+
+varcall__filter_merged:
+  do: True
+  ncpus: 12
+  mem: '64gb'
+
+varcall__freebayes_merge:
+  do: True
+  ncpus: 12
+  mem: '64gb'
+
