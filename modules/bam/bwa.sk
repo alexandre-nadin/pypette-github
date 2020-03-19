@@ -19,7 +19,7 @@ rule bam_bwa__alignReads:
         {idxPref}            \
         {reads}              \
     | samtools view          \
-        -Su                  \
+        -Sn                  \
         > {output.bam}
     """
     exshell(**vars())
