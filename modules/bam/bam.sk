@@ -131,8 +131,8 @@ rule bam__makeIndex:
 rule bam__hsMetrics:
   input:  
     bam = "{someprefix}.bam",
-    fa  = genome__ebiFasta(),
-    fai = genome__ebiFastaIdx(),
+    fa  = genome__ucscFasta(),
+    fai = genome__ucscFastaIdx(),
   output: 
     "{someprefix}_hsMetrics.txt"
   run:
@@ -154,8 +154,8 @@ ruleorder: samples__all > bam__hsMetrics
 rule bam__wgsMetrics:
   input:  
     bam = "{someprefix}.bam",
-    fa  = genome__ebiFasta(),
-    fai = genome__ebiFastaIdx(),
+    fa  = genome__ucscFasta(),
+    fai = genome__ucscFastaIdx(),
   output: 
     "{someprefix}_wgsMetrics.txt"
   run:
