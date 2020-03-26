@@ -8,7 +8,7 @@ rule fastq__linkRead:
   input:
     read  = pypette.input("{sample_path}")
   output: 
-    chunk = fastq__chunk
+    chunk = pypette.temp(fastq__chunk)
   run:
     cmd = """
       ln {input.read} {output.chunk} 
