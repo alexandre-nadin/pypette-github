@@ -6,7 +6,7 @@ def fastq_merging__mergeReadsCmd(input, output):
   input.reads.sort()
   if len(input.reads) == 1:
     cmd = """
-      ln.rel {input.reads[0]} {output.read}
+      ln {input.reads[0]} {output.read}
     """
   else:
     cmd = f"""
