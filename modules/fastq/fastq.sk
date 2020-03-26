@@ -11,9 +11,7 @@ rule fastq__linkRead:
     chunk = fastq__chunk
   run:
     cmd = """
-      ln.rel \
-        {input.read} \
-        {output.chunk} 
+      ln {input.read} {output.chunk} 
     """
     exshell(**vars())
 
