@@ -1,19 +1,37 @@
 include: "star.py"
 
+
+rule bam_star__aligned:
+  """
+  Renames STAR outputs; Compresses STAR tab.
+  """
+  input:
+    bam    = pypette.input(f"{bam_mapper__pipeTarget}/Aligned.sortedByCoord.out.bam"),
+    logFin = pypette.input(f"{bam_mapper__pipeTarget}/Log.final.out"),
+    tab    = pypette.input(f"{bam_mapper__pipeTarget}/SJ.out.tab"),
+  output:
+    bam    = pypette.temp(f"{bam_mapper__sampleTarget}.bam"),
+    logFin = f"{bam_mapper__sampleTarget}.Log.final.out",
+    tabgz  = f"{bam_mapper__pipeTarget}/SJ.out.tab.gz",
+  run:
+    cmd = """
+      ln {input.bam} {output.bam}
+      ln {input.logFin} {output.logFin}
+      gzip -c {input.tab} > {output.tabgz}
+    """
+    exshell(**vars())
+
 rule bam_star__alignReads:
   input:
     r1     = pypette.input(fastq__read, sample_read="R1"),
     r2     = pypette.input(fastq__read, sample_read="R2"),
     idxDir = star__indexDir()
   output:
-    bam       = pypette.temp(f"{bam_mapper__sampleTarget}.bam"),
     tab       = pypette.temp(f"{bam_mapper__pipeTarget}/SJ.out.tab"),
-    tabgz     = f"{bam_mapper__pipeTarget}/SJ.out.tab.gz",
-    bamRaw    = pypette.temp(f"{bam_mapper__pipeTarget}/Aligned.sortedByCoord.out.bam"),
+    bam       = pypette.temp(f"{bam_mapper__pipeTarget}/Aligned.sortedByCoord.out.bam"),
     logOut    = f"{bam_mapper__pipeTarget}/Log.out",
     logPrOut  = f"{bam_mapper__pipeTarget}/Log.progress.out",
     logFinOut = f"{bam_mapper__pipeTarget}/Log.final.out",
-    logFin    = f"{bam_mapper__sampleTarget}.Log.final.out",
     log       = f"{bam_mapper__sampleTarget}.log"
   run:
     star   = bam__configAligner()
@@ -31,12 +49,6 @@ rule bam_star__alignReads:
        --outFilterMismatchNmax {star.outFilterMismatchNmax} \
        --readFilesCommand zcat                              \
       > {output.log}
-
-     ## Need sample names in output file for the workflow
-     ln {output.bamRaw} {output.bam}
-     ln {output.logFinOut} {output.logFin}
-
-     gzip -c {output.tab} > {output.tabgz}
     """
     exshell(**vars())
 
@@ -65,4 +77,4 @@ rule bam_star__index:
       output.idxDir)
     exshell(**vars())
 
-ruleorder: samples__runs > bam_star__alignReads
+ruleorder: samples__runs > bam_star__aligned
