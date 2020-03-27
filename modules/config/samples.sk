@@ -47,7 +47,7 @@ rule samples__seqrunFiles:
     cmdRegex = (
         ".*\("
       + "\|".join(sampleNames)
-      + "\).*\.fastq\.gz")
+      + "\)/.*\.fastq\.gz")
     runPath = runs__prjPath(wildcards.sample_run)
   
     cmd     = f"""
