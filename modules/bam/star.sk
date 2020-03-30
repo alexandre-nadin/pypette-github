@@ -27,12 +27,12 @@ rule bam_star__alignReads:
     r2     = pypette.input(fastq__read, sample_read="R2"),
     idxDir = star__indexDir()
   output:
-    tab       = pypette.temp(f"{bam_mapper__pipeTarget}/SJ.out.tab"),
     bam       = pypette.temp(f"{bam_mapper__pipeTarget}/Aligned.sortedByCoord.out.bam"),
+    tab       = pypette.temp(f"{bam_mapper__pipeTarget}/SJ.out.tab"),
     logOut    = f"{bam_mapper__pipeTarget}/Log.out",
     logPrOut  = f"{bam_mapper__pipeTarget}/Log.progress.out",
     logFinOut = f"{bam_mapper__pipeTarget}/Log.final.out",
-    log       = f"{bam_mapper__sampleTarget}.log"
+    log       = f"{bam_mapper__pipeTarget}/star.log"
   run:
     star   = bam__configAligner()
     prefix = bam_mapper__pipeTarget.format(**wildcards) + os.path.sep
