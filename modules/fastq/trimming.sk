@@ -21,7 +21,8 @@ rule fastq_trimming__trimmomatic:
     r1u      = pypette.temp(fastq_trimming__pipeTarget + "{sample_name}_R1_UNPAIRED.fastq.gz"),
     r2       = pypette.temp(fastq_trimming__pipeTarget + "{sample_name}_R2.fastq.gz"),
     r2u      = pypette.temp(fastq_trimming__pipeTarget + "{sample_name}_R2_UNPAIRED.fastq.gz"),
-    log      = fastq_trimming__pipeTarget + "{sample_name}_trimout.log",
+  log:
+    main     = fastq_trimming__pipeTarget + "{sample_name}_trim.log"
   wildcard_constraints:
     procTrimming = "trimmed/trimmomatic/"
   run:
@@ -52,7 +53,7 @@ rule fastq_trimming__trimmomatic:
         SLIDINGWINDOW:4:15                    \\
         MINLEN:15                             \\
         HEADCROP:{trimmomatic.headcrop}       \\
-        2> {output.log}
+        2> {log.main}
       touch {output}
     """
     exshell(**vars())
@@ -69,7 +70,8 @@ rule fastq_trimming__cutadapt:
   output: 
     r1      = pypette.temp(f"{fastq_trimming__pipeTarget}{{sample_name}}_R1.fastq.gz"),
     r2      = pypette.temp(f"{fastq_trimming__pipeTarget}{{sample_name}}_R2.fastq.gz"),
-    log     =              f"{fastq_trimming__pipeTarget}{{sample_name}}_trimout.log",
+  log:
+    main    = fastq_trimming__pipeTarget + "{sample_name}_trim.log"
   wildcard_constraints:
     procTrimming = "trimmed/cutadapt/"
   run:
@@ -91,10 +93,8 @@ rule fastq_trimming__cutadapt:
         {input.r2}       \
         {r1Opt}          \
         {r2Opt}          \
-       > "{output.log}"
+       > "{log.main}"
       touch {output}
-
-
     """
     exshell(**vars())
 
@@ -106,10 +106,12 @@ rule fastq_trimming__bbduk:
     r1       = pypette.input(fastq_merge__read, sample_read="R1"),
     r2       = pypette.input(fastq_merge__read, sample_read="R2"),
     adapters = "adapters/bbduk/adapters-pe.fa"
+  log:
+    main     = fastq_trimming__pipeTarget + "{sample_name}_trim.log",
+    out      = fastq_trimming__pipeTarget + "{sample_name}_trimout.log"
   output: 
     r1       = pypette.temp(fastq_trimming__pipeTarget + "{sample_name}_R1.fastq.gz"),
-    r2       = pypette.temp(fastq_trimming__pipeTarget + "{sample_name}_R2.fastq.gz"),
-    log      =              fastq_trimming__pipeTarget + "{sample_name}_trimout.log"
+    r2       = pypette.temp(fastq_trimming__pipeTarget + "{sample_name}_R2.fastq.gz")
   wildcard_constraints:
     procTrimming = "trimmed/bbduk/"
   run:
@@ -141,7 +143,8 @@ rule fastq_trimming__bbduk:
         forcetrimleft=0      \\
         forcetrimright2=0    \\
         overwrite=true       \\
-       > "{output.log}"
+        stats={log.main}     \\
+       2> "{log.out}"
       touch {output}
     """
     exshell(**vars())
