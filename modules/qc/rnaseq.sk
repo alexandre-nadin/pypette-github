@@ -20,8 +20,8 @@ rule qc_rnaseq__multiqc:
     starLogs  = pypette.input(
                   f"{bam_mapper__pipeTarget}/{{sample_name}}.Log.final.out",
                   derefKwargs=['sample_name', 'sample_run']),
-    trimout    = pypette.input(
-                  f"{fastq__pipeTarget}{{sample_name}}_trimout.log",
+    trimlog   = pypette.input(
+                  f"{fastq__pipeTarget}{{sample_name}}_trim.log",
                   requiredKeys=['procTrimming'],
                   derefKwargs=['sample_name', 'sample_run'])
   output:
