@@ -2,7 +2,7 @@ rule fastq_umi__whitelist:
   input:
     r1    = pypette.input(f"{fastq_umi__preSampleTarget}{{sample_extension}}", sample_read="R1")
   output:
-    wlist = f"{fastq_umi__pipeTarget}/whitelist.txt",
+    wlist = f"{fastq_umi__pipeTarget}whitelist.txt",
   run:
     umi = config.pipeline.modules.fastq.umi
     if umi.setCellNumber:
@@ -32,7 +32,7 @@ rule fastq_umi__extract:
     r2    = pypette.input(
               f"{fastq_umi__preSampleTarget}{{sample_extension}}",
               sample_read="R2"),
-    wlist = pypette.input(f"{fastq_umi__pipeTarget}/whitelist.txt")
+    wlist = pypette.input(f"{fastq_umi__pipeTarget}whitelist.txt")
   output: 
     r1 = pypette.temp(f"{fastq_umi__pipeTarget}{{sample_name}}_R1.fastq.gz"),
     r2 = pypette.temp(f"{fastq_umi__pipeTarget}{{sample_name}}_R2.fastq.gz")
@@ -50,4 +50,4 @@ rule fastq_umi__extract:
     """
     exshell(**vars()) 
 
-ruleorder: samples__runs > fastq_umi__whitelist > fastq_umi__extract
+ruleorder: samples__all > samples__runs > fastq_umi__whitelist > fastq_umi__extract
