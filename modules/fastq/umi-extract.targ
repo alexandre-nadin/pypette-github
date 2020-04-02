@@ -7,7 +7,6 @@ pypette.updateWildcardConstraints(
 fastq_umi__preprocs = fastq__procs
 fastq_umi__procs    = fastq_umi__preprocs + "{procUmiExtract}"
 fastq__procs        = fastq_umi__procs
-print(f"fastq_umi__procs: {fastq_umi__procs}")
 
 pypette.addTargets(
   fastq_umi__prePipeTarget   = "{fastq__sampleRunDir}/{fastq_umi__preprocs}",

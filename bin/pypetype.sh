@@ -215,7 +215,7 @@ pypetype::smkOptionsBase() {
   ${MAX_CORES:+--jobs $MAX_CORES}
   --latency-wait 90
   --rerun-incomplete
-  ${SNAKE_OPTIONS[@]}
+  ${SNAKE_OPTIONS:+${SNAKE_OPTIONS[@]}}
   ${FORCE:+--force}
   ${DEBUG:+--config debug=True}
 eol
