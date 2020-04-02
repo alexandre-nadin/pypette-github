@@ -11,7 +11,7 @@ rule fastq__linkRead:
     chunk = pypette.temp(fastq__chunk)
   run:
     cmd = """
-      ln {input.read} {output.chunk} 
+      ln -s {input.read} {output.chunk} 
     """
     exshell(**vars())
 
