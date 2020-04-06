@@ -3,7 +3,8 @@ include: "star.py"
 
 rule bam_star__aligned:
   """
-  Renames STAR outputs; Compresses STAR tab.
+  Renames STAR outputs to fit workflow conventions such as sample naming.
+  Compresses STAR tab.
   """
   input:
     bam    = pypette.input(f"{bam_mapper__pipeTarget}/Aligned.sortedByCoord.out.bam"),
