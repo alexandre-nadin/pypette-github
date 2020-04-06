@@ -25,6 +25,8 @@ pypette.addTargets(
   fastq__chunk        = "{fastq__chunkPrefix}{{sample_extension}}",
   fastq__readPrefix   = "{fastq__sampleRunDir}/{fastq__procs}{{sample_name}}_{{sample_read}}",
   fastq__read         = "{fastq__readPrefix}{{sample_extension}}",
+  fastq__readCheck    = "{fastq__sampleRunDir}/{fastq__procs}{{sample_name}}_{{sample_read}}.fastq.check",
+  fastq__readsCheck   = "{fastq__sampleRunDir}/{fastq__procs}{{sample_name}}.fastq.check",
   fastq__readBasename = "{{sample_name}}_{{sample_read}}{{sample_extension}}",
   fastq__pipeTarget   = "{fastq__sampleRunDir}/{fastq__procs}"
 )

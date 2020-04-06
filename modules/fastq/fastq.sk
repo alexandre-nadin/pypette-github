@@ -15,4 +15,44 @@ rule fastq__linkRead:
     """
     exshell(**vars())
 
+# ----------------
+# Fastq Checking
+# ----------------
+rule fastq__readCheck:
+  """
+  Check single fastq. Counts number of reads and checks it is multiple of 4.
+  """
+  input:
+    fqRead  = pypette.input(fastq__read)
+  output:
+    fqCheck = fastq__readCheck
+  run:
+    cmd = """
+      count=$(zcat {input.fqRead} | wc -l)
+      echo "$count" > {output.fqCheck}
+      [ $(( count % 4)) -eq 0 ]
+    """
+    exshell(**vars())
+
+rule fastq__readsCheck:
+  """
+  Checks fastq files are not corrupted. Check number equality if pairend,
+  """
+  input:
+    fqCheck1 = pypette.input(fastq__readCheck, sample_read="R1") if pypette.pipeName != 'scrna' else [],
+    fqCheck2 = pypette.input(fastq__readCheck, sample_read="R2")
+  output:
+    fqCheck  = fastq__readsCheck
+  run:
+    cmd = """
+      for read in {input.fqCheck1} {input.fqCheck2}; 
+      do
+        echo "$read: $(head -1 $read)" >> {output.fqCheck}
+      done
+    """
+    cmd += """
+      [ $(head -1 {input.fqCheck1}) -eq $(head -1 {input.fqCheck2}) ]
+    """ if input.fqCheck1 and input.fqCheck2 else ""
+    exshell(**vars())
+
 ruleorder: samples__all > samples__runs > fastq__linkRead

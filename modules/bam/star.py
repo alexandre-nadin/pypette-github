@@ -1,11 +1,9 @@
-def star__readsToString(R1=[], R2=[]):
+def star__readsToString(r1, r2):
   """  
   Takes arrays of reads 1 and 2.
   Builds the input string for Star's readFilesIn parameter. 
   """
-  return "{R1} {R2}".format(
-    R1=','.join(R1) if config.pipeline.name != 'scrna' else '', 
-    R2=','.join(R2))
+  return f"{r1} {r2}"
 
 def star__indexDir(**kwargs):
   """
