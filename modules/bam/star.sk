@@ -23,9 +23,10 @@ rule bam_star__aligned:
 
 rule bam_star__alignReads:
   input:
-    r1     = pypette.input(fastq__read, sample_read="R1"),
-    r2     = pypette.input(fastq__read, sample_read="R2"),
-    idxDir = star__indexDir()
+    fqCheck = pypette.input(fastq__readsCheck),
+    r1      = pypette.input(fastq__read, sample_read="R1") if pypette.pipeName != 'scrna' else [],
+    r2      = pypette.input(fastq__read, sample_read="R2"),
+    idxDir  = star__indexDir()
   output:
     bam       = pypette.temp(f"{bam_mapper__pipeTarget}/Aligned.sortedByCoord.out.bam"),
     tab       = pypette.temp(f"{bam_mapper__pipeTarget}/SJ.out.tab"),
