@@ -39,8 +39,8 @@ rule fastq__readsCheck:
   Checks fastq files are not corrupted. Check number equality if pairend,
   """
   input:
-    fqCheck1 = pypette.input(fastq__readCheck, sample_read="R1") if pypette.pipeName != 'scrna' else [],
-    fqCheck2 = pypette.input(fastq__readCheck, sample_read="R2")
+    fqCheck1 = pypette.input(fastq__readCheck, sample_read="_R1") if pypette.pipeName != 'scrna' else [],
+    fqCheck2 = pypette.input(fastq__readCheck, sample_read="_R2")
   output:
     fqCheck  = fastq__readsCheck
   run:

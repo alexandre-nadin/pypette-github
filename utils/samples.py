@@ -1,6 +1,8 @@
 import utils.configs, utils.samples, utils.manager
 from utils.dicts import toAddict, popFirst
 from utils.files import extension as extensionOf
+from utils.fastq_helper import FastqFile
+from utils.strings import StringFormatter
 import addict
 import os, sys
 import pandas as pd
@@ -116,7 +118,6 @@ class SamplesManager(utils.manager.Manager):
      - Building query based on :kwargs: keywords.
      - Querying sample DataFrame and selects matching columns.
     """
-    from utils.strings import StringFormatter
     queryFilter = dict(kwargs.items())
 
     for key in requiredKeys:
@@ -174,7 +175,9 @@ class SamplesManager(utils.manager.Manager):
     """
     Takes in a list of line lists and formats them to a Samplesheet output.
     """
-    return os.linesep.join(delimiter.join(line) for line in listLines)
+    return os.linesep.join(
+      delimiter.join([elem if elem else "" for elem in line]) 
+      for line in listLines)
 
 
 class SamplesConfigManager(utils.configs.ConfigManagerTemplate):
