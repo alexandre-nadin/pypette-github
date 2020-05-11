@@ -181,7 +181,6 @@ class PipelineManager(Manager):
     missingFiles = self.missingConfigFiles()
     if missingFiles:
       self.log.warning(f"Missing required files '{missingFiles}'")
-
     """ Load non missing config """
     for conf in self.configFiles:
       if conf not in missingFiles:
