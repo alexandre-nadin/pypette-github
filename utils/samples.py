@@ -175,7 +175,9 @@ class SamplesManager(utils.manager.Manager):
     """
     Takes in a list of line lists and formats them to a Samplesheet output.
     """
-    return os.linesep.join(delimiter.join(line) for line in listLines)
+    return os.linesep.join(
+      delimiter.join([elem if elem else "" for elem in line]) 
+      for line in listLines)
 
 
 class SamplesConfigManager(utils.configs.ConfigManagerTemplate):
