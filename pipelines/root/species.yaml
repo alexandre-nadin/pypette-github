@@ -5,8 +5,8 @@ species:
     genome:
       assembly:
         buildName: "GRCm38"
-        gencodeRelease: "M11"
-        ensemblRelease: "86"
+        gencodeRelease: "M22"
+        ensemblRelease: "97"
         ucscRef: "mm10"
       annotation:
         type: "basic"
@@ -16,8 +16,8 @@ species:
     genome:
       assembly:
         buildName: "GRCh38"
-        gencodeRelease: "25"
-        ensemblRelease: "86"
+        gencodeRelease: "31"
+        ensemblRelease: "97"
         ucscRef: "hg38"
       annotation:
         type: "basic"

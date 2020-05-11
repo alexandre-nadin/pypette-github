@@ -1,14 +1,14 @@
 """ Pipeline Configuration """
-pipeman.includeModules(
+pypette.includeModules(
   "config/config.sk",
   "config/seqrun.sk",
 )
-pipeman.loadConfigFiles()
+pypette.loadConfigFiles()
 
 """ 
 Pipeline Workflow 
 Loaded only if required configuration files are present.
 """
-pipeman.includeModules(
+pypette.includeModules(
   "qc/seqrun.sk",
   withConfigFiles=True)

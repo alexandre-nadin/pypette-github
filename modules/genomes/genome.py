@@ -7,13 +7,13 @@ def genome__formatSpeciesCfg(func):
     try:
       species = project__speciesGenome()
     except:
-      pipeman.log.error("Missing species in project configuration.")
+      pypette.log.error("Missing species in project configuration.")
     return func(*args, **kwargs).format(species=species)
   return wrapper
 
 @genome__formatSpeciesCfg
 def genome__baseDir(sharedDir=False, **kwargs):
-  return pipeman.config.cluster.genomeDir if sharedDir else "genomes"
+  return pypette.config.cluster.genomeDir if sharedDir else "genomes"
 
 @genome__formatSpeciesCfg
 def genome__dir(**kwargs):
@@ -27,7 +27,7 @@ def genome__speciesDir(**kwargs):
     "{species.taxo}")
 
 def ensembl__buildVersion():
-  assembly = pipeman.config.species[project__speciesGenome()].genome.assembly
+  assembly = pypette.config.species[project__speciesGenome()].genome.assembly
   return f"{assembly.buildName}.{assembly.ensemblRelease}"
 
 def genome__gatkDir(**kwargs):
@@ -47,42 +47,98 @@ def genome__baseRecalibSites(gnmName):
            for site in genome__baseRecalibSitesBasenames(gnmName)
          ]
   
+# ----------------
+# Release version
+# ----------------
+@genome__formatSpeciesCfg
+def genome__release():
+  return "{species.genome.assembly.gencodeRelease}"
+  
+def genome__ebiDir(**kwargs):
+  return os.path.join(
+    genome__dir(**kwargs),
+    "ebi")
+
+def genome__ebiReleaseDir(**kwargs):
+  return os.path.join(
+    genome__ebiDir(**kwargs),
+    genome__release())
+
+def genome__ebiReleaseUrl():
+  return os.path.join(
+    pypette.config.databases.ebi.gencodeUrl,
+    f"release_{genome__release()}")
 
 # -------------
 # Fasta Files
 # -------------
-@genome__formatSpeciesCfg   
-def genome__fastaBase(**kwargs):
+def genome__fastaDir(**kwargs):
+  return os.path.join(genome__dir(**kwargs), "fa")
+
+## EBI
+def genome__ebiFastaDir(**kwargs):
+  return os.path.join(genome__fastaDir(**kwargs), "ebi")
+
+@genome__formatSpeciesCfg
+def genome__ebiFastaBase(**kwargs):
   return os.path.join(
-    genome__dir(**kwargs),
-    "fa",
+    genome__ebiFastaDir(**kwargs),
+    pypette.config.databases.ebi.gencodeFaBaseName)
+
+def genome__ebiFasta(**kwargs):
+  """ Produces the species' genome fasta. """
+  return f"{genome__ebiFastaBase(**kwargs)}.fa"
+
+def genome__ebiFastaGz(**kwargs):
+  """ Produces the species' genome fasta. """
+  return f"{genome__ebiFasta(**kwargs)}.gz"
+
+def genome__ebiFastaIdx(**kwargs):
+  """ Produces the species' genome fasta. """
+  return f"{genome__ebiFastaBase(**kwargs)}.fai"
+
+@genome__formatSpeciesCfg
+def genome__ebiFastaUrl():
+  return os.path.join(
+    genome__ebiReleaseUrl(),
+    pypette.config.databases.ebi.gencodeFa)
+
+## UCSC 
+def genome__ucscFastaDir(**kwargs):
+  return os.path.join(genome__fastaDir(**kwargs), "ucsc")
+
+@genome__formatSpeciesCfg
+def genome__ucscFastaBase(**kwargs):
+  return os.path.join(
+    genome__ucscFastaDir(**kwargs),
     "{species.genome.assembly.ucscRef}")
 
-def genome__fasta(**kwargs):
+def genome__ucscFasta(**kwargs):
   """ Produces the species' genome fasta. """
-  return f"{genome__fastaBase(**kwargs)}.fa"
+  return f"{genome__ucscFastaBase(**kwargs)}.fa"
 
-def genome__fastaIdx(**kwargs):
+def genome__ucscFastaIdx(**kwargs):
   """ Produces the species' genome fasta. """
-  return f"{genome__fasta(**kwargs)}.fai"
+  return f"{genome__ucscFastaBase(**kwargs)}.fai"
+
 
 # -----------
 # 2bit Files
 # -----------
 @genome__formatSpeciesCfg   
-def genome__2bitBase(**kwargs):
+def genome__ucsc2bitBase(**kwargs):
   return os.path.join(
     genome__dir(**kwargs), 
     "2bit", 
     "{species.genome.assembly.ucscRef}")
 
-def genome__2bit(**kwargs):
+def genome__ucsc2bit(**kwargs):
   """ Produces the species' genome 2bit. """
-  return f"{genome__2bitBase(**kwargs)}.2bit"
+  return f"{genome__ucsc2bitBase(**kwargs)}.2bit"
 
 @genome__formatSpeciesCfg
 def genome__ucsc2bitUrl():
-  return pipeman.config.databases.ucsc.tbitUrl
+  return pypette.config.databases.ucsc.tbitUrl
 
 # -------------
 # Cell cycles

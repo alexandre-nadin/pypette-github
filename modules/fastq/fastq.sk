@@ -1,6 +1,6 @@
 include: "fastq.py"
   
-pipeman.updateWildcardConstraints(
+pypette.updateWildcardConstraints(
   **FastqFile.regex_fields,
   preprocesses = "(/\w+/)*?",
   anyprefix    = ".*",
@@ -15,14 +15,14 @@ fastq__chunk       = fastq__chunkPrefix + "{sample_extension}"
 fastq__readPrefix  = fastq__sampleRunDir + "/{procFastqMerge}{procTrimming}{procUmiExtract}{sample_name}_{sample_read}"
 fastq__read        = fastq__readPrefix + "{sample_extension}"
 
-pipeman.includeModules(
+pypette.includeModules(
   "fastq/merge.sk",
   "fastq/trimming.sk",
   "fastq/qc.sk",
   "fastq/adapter.sk")
 # TODO: manage better those inclusions -> pipeline specific
 
-pipeman.addTargets(
+pypette.addTargets(
    fastq__procs      = "{{procFastqMerge}}{{procTrimming}}",
    fastq__pipeTarget = "{fastq__sampleRunDir}/{fastq__procs}")
 
@@ -36,7 +36,7 @@ rule fastq__linkRead:
   Links original fastq file to the project directory.
   """
   input:
-    read  = pipeman.input("{sample_path}")
+    read  = pypette.input("{sample_path}")
   output: 
     chunk = fastq__chunk
   run:

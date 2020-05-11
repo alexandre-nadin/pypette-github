@@ -1,23 +1,24 @@
 __default__:
-  name: '{pipeman.jobName}'
+  name: '{pypette.jobName}'
   select: 1
   ncpus: 1
   mem: '1gb'
-  out: '{pipeman.jobExeBase}_{rule}.out'
-  err: '{pipeman.jobExeBase}_{rule}.err'
+  out: '{pypette.jobExeBase}_{rule}.out'
+  err: '{pypette.jobExeBase}_{rule}.err'
 
 fastq_trimming__trimmomatic:
   do: True
-  ncpus: "{pipeman.config.pipeline.modules.fastq.trimming.trimmers.trimmomatic.cores}"
-  mem: "{pipeman.config.pipeline.modules.fastq.trimming.trimmers.trimmomatic.mem}"
-
-fastq_trimming__cutadapt:
-  do: True
+  ncpus: "{pypette.config.pipeline.modules.fastq.trimming.trimmers.trimmomatic.cores}"
+  mem: "{pypette.config.pipeline.modules.fastq.trimming.trimmers.trimmomatic.mem}"
 
 fastq_trimming__bbduk:
   do: True
-  ncpus: "{pipeman.config.pipeline.modules.fastq.trimming.trimmers.bbduk.cores}"
-  mem: "{pipeman.config.pipeline.modules.fastq.trimming.trimmers.bbduk.mem}"
+  ncpus: "{pypette.config.pipeline.modules.fastq.trimming.trimmers.bbduk.cores}"
+  mem: "{pypette.config.pipeline.modules.fastq.trimming.trimmers.bbduk.mem}"
+
+fastq_trimming__cutadapt:
+  do: True
+  ncpus: "{pypette.config.pipeline.modules.fastq.trimming.trimmers.cutadapt.cores}"
 
 bam_bwa__alignReads:
   do: True
@@ -41,7 +42,7 @@ bam__sortSampleSamtools:
 
 bam__flagstat:
   do: True
-  mem: "{pipeman.config.pipeline.modules.mapping.flagstat.mem}"
+  mem: "{pypette.config.pipeline.modules.mapping.flagstat.mem}"
 
 varcall__gatk:
   do: True

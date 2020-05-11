@@ -5,7 +5,10 @@ suppressMessages(library(data.table))
 # ---------------
 # FeatureCounts
 # ---------------
-fCounts <- read.delim(file=smkin$counts, header=TRUE)
+fCounts <- read.delim(file=smkin$counts, 
+                      header=TRUE,
+                      check.names = FALSE)
+
 fCountsData <- fCounts[
   , 
   -which(
@@ -29,7 +32,7 @@ dds <- DESeqDataSetFromMatrix(
 filter <- rowSums(cpm(counts(dds)) >= smkp$dge$minCounts) >= smkp$dge$minSamples
 ddsFiltered <- dds[filter,]
 
-ddsFiltered$condition <- relevel(
+ddsFiltered[[smkp$dge$design$refFactor]] <- relevel(
   ddsFiltered[[smkp$dge$design$refFactor]], 
   ref = smkp$dge$design$refLevel)
 

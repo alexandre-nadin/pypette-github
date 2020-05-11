@@ -1,5 +1,5 @@
 def getStartersDict():
-  return pipeman.samples.query('prevol_id.isnull()')
+  return pypette.samples.query('prevol_id.isnull()')
 
 def msgStarters(samples):
   """

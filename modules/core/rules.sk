@@ -43,7 +43,7 @@ rule helpRule:
     name = ".+"
   run:
     name_rules = [ r for r in workflow.rules if r.name==wildcards.name ]
-    pipeman.log.info(helpRuleMsg(name_rules[0] if name_rules else None))
+    pypette.log.info(helpRuleMsg(name_rules[0] if name_rules else None))
     touch(output)
   
 rule helpRules:
@@ -56,7 +56,7 @@ rule helpRules:
     msg = ""
     for rule in workflow.rules:
       msg += helpRuleMsg(rule)
-    pipeman.log.info(msg)
+    pypette.log.info(msg)
     touch(output)
 
 rule listRules:
@@ -64,7 +64,7 @@ rule listRules:
   output:
     "rules.list"
   run:
-    pipeman.log.info(os.linesep + os.linesep.join(
+    pypette.log.info(os.linesep + os.linesep.join(
       [ f"  {rule}"
         for rule in workflow.rules
       ]
@@ -75,10 +75,10 @@ def config__hasKey(key, config=None):
   """ 
   Checks the given :key: exists in the given/default :config: .
   """
-  return config in pipeman.config.keys() \
-           and key in pipeman.config[config].keys() \
+  return config in pypette.config.keys() \
+           and key in pypette.config[config].keys() \
          or config is None  \
-           and key in pipeman.config 
+           and key in pypette.config 
 
 def config__valueFromKey(key, config=None):
   """
@@ -86,9 +86,9 @@ def config__valueFromKey(key, config=None):
   """
   if  config__hasKey(key, config):
     if config is None:
-      val = pipeman.config[key]
+      val = pypette.config[key]
     else:
-      val = pipeman.config[config][key]
+      val = pypette.config[config][key]
   else:
     val = None
   return val
@@ -148,8 +148,8 @@ def writeCmdLog(cmd=None, logFile=None, **kwargs):
   """ Keep sample's column names keywords if not specified """
   for kw in logCmd.keywords():
     if kw not in kwargs.keys() \
-    and pipeman.samples.data is not None \
-    and kw in pipeman.samples.data.columns:
+    and pypette.samples.data is not None \
+    and kw in pypette.samples.data.columns:
       kwargs[kw] = '{' + kw + "}"
 
   shell(logCmd, **kwargs)
@@ -179,7 +179,7 @@ def exshell(cmd='', isSubCmd=False, force=False, **kwargs):
   """
 
   cmd = f"""
-    condactivate pypette-{pipeman.pipeName};
+    condactivate pypette-{pypette.pipeName};
     {cmd}
   """
 
@@ -196,12 +196,12 @@ def exshell(cmd='', isSubCmd=False, force=False, **kwargs):
 
 def runScript(script, **kwargs):
   exshell(**kwargs)
-  rscript = pipeman.rscript(script)
+  rscript = pypette.rscript(script)
   script(rscript,
-         pipeman.modulesDir, input, output, params, wildcards, threads, resources, log, config, rule, conda_env, singularity_img, singularity_args, bench_record, jobid, bench_iteration, shadow_dir)
+         pypette.modulesDir, input, output, params, wildcards, threads, resources, log, config, rule, conda_env, singularity_img, singularity_args, bench_record, jobid, bench_iteration, shadow_dir)
   
 
-pipeman.toClean("rules.*")
+pypette.toClean("rules.*")
 
 # ----------------
 # PBS Ressources
@@ -241,7 +241,7 @@ HERE
     done
     """.format(
           output=output, _rules=" ".join(rules.__dict__.keys()), 
-          pbsname = "{{pipeman.config.project.bioinfo_pipeline}}",
+          pbsname = "{{pypette.config.project.bioinfo_pipeline}}",
           pbsout = "{{output[0]}}")
     shell(cmd)
 

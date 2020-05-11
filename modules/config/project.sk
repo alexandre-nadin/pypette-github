@@ -2,7 +2,7 @@ include: 'project.py'
 include: 'lims.sk'
 
 project__config = 'config/project.json'
-pipeman.addConfigFiles(project__config)
+pypette.addConfigFiles(project__config)
 
 # -----------------
 # Project Metadata
@@ -13,7 +13,7 @@ rule project__config:
   run:
     cmd = f"""
       curl                                         \
-        "{config_lims__URL_PRJ}/{pipeman.project}.json" \
+        "{config_lims__URL_PRJ}/{pypette.project}.json" \
        > {output.file}
     """
     exshell(force=True, **vars())

@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
 set -euf -o pipefail
+export HDF5_USE_FILE_LOCKING='FALSE'
 source pypetype.sh
 pypetype::runFlow "$@"

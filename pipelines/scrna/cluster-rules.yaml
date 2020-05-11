@@ -1,10 +1,10 @@
 __default__:
-  name: '{pipeman.jobName}'
+  name: '{pypette.jobName}'
   select: 1
   ncpus: 1
   mem: '1gb'
-  out: '{pipeman.jobExeBase}_{rule}.out'
-  err: '{pipeman.jobExeBase}_{rule}.err'
+  out: '{pypette.jobExeBase}_{rule}.out'
+  err: '{pypette.jobExeBase}_{rule}.err'
 
 fastq_umi__whitelist:
   select: 1
@@ -18,41 +18,42 @@ fastq_umi__extract:
 
 fastq_trimming__trimmomatic:
   do: True
-  ncpus: "{pipeman.config.pipeline.modules.fastq.trimming.trimmers.trimmomatic.cores}"
-  mem: "{pipeman.config.pipeline.modules.fastq.trimming.trimmers.trimmomatic.mem}"
-
-fastq_trimming__cutadapt:
-  do: True
+  ncpus: "{pypette.config.pipeline.modules.fastq.trimming.trimmers.trimmomatic.cores}"
+  mem: "{pypette.config.pipeline.modules.fastq.trimming.trimmers.trimmomatic.mem}"
 
 fastq_trimming__bbduk:
   do: True
-  ncpus: "{pipeman.config.pipeline.modules.fastq.trimming.trimmers.bbduk.cores}"
-  mem: "{pipeman.config.pipeline.modules.fastq.trimming.trimmers.bbduk.mem}"
+  ncpus: "{pypette.config.pipeline.modules.fastq.trimming.trimmers.bbduk.cores}"
+  mem: "{pypette.config.pipeline.modules.fastq.trimming.trimmers.bbduk.mem}"
+
+fastq_trimming__cutadapt:
+  do: True
+  ncpus: "{pypette.config.pipeline.modules.fastq.trimming.trimmers.cutadapt.cores}"
 
 fastq_qc__reads:
   do: True
-  ncpus: "{pipeman.config.pipeline.modules.fastq.qc.fastqc.cores}"
+  ncpus: "{pypette.config.pipeline.modules.fastq.qc.fastqc.cores}"
 
 bam_star__alignReads:
   do: True
-  ncpus: '{pipeman.config.pipeline.modules.mapping.aligner.cores}'
-  mem: '{pipeman.config.pipeline.modules.mapping.aligner.ram}'
+  ncpus: '{pypette.config.pipeline.modules.mapping.aligner.cores}'
+  mem: '{pypette.config.pipeline.modules.mapping.aligner.ram}'
 
 bam__markDuplicates:
   do: True
-  ncpus: "{pipeman.config.pipeline.modules.mapping.markdup.cores}"
-  mem: "{pipeman.config.pipeline.modules.mapping.markdup.mem}"
+  ncpus: "{pypette.config.pipeline.modules.mapping.markdup.cores}"
+  mem: "{pypette.config.pipeline.modules.mapping.markdup.mem}"
 
 bam__sortSamplePicard:
   do: True
-  ncpus: "{pipeman.config.pipeline.modules.mapping.sorter.picard.cores}"
-  mem: "{pipeman.config.pipeline.modules.mapping.sorter.picard.mem}"
+  ncpus: "{pypette.config.pipeline.modules.mapping.sorter.picard.cores}"
+  mem: "{pypette.config.pipeline.modules.mapping.sorter.picard.mem}"
 
 bam__sortSampleSamtools:
   do: True
-  ncpus: "{pipeman.config.pipeline.modules.mapping.sorter.samtools.cores}"
-  mem: "{pipeman.config.pipeline.modules.mapping.sorter.samtools.mem}"
+  ncpus: "{pypette.config.pipeline.modules.mapping.sorter.samtools.cores}"
+  mem: "{pypette.config.pipeline.modules.mapping.sorter.samtools.mem}"
 
 counts__sample:
   do: True
-  ncpus: "{pipeman.config.pipeline.modules.mapping.counter.cores}"
+  ncpus: "{pypette.config.pipeline.modules.mapping.counter.cores}"

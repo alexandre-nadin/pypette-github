@@ -1,17 +1,17 @@
 fastq_umi__dir = "umi-extracted"
 
-pipeman.updateWildcardConstraints(
+pypette.updateWildcardConstraints(
   procUmiExtract = f"({fastq_umi__dir}/)?",
 )
 
-pipeman.addTargets(
+pypette.addTargets(
   fastq_umi__pipeTarget = "{fastq__pipeTarget}{fastq_umi__dir}",
   fastq__pipeTarget = "{fastq__pipeTarget}{{procUmiExtract}}",
   )
 
 rule fastq_umi__whitelist:
   input:
-    r1    = pipeman.input(fastq__read, sample_read="R1")
+    r1    = pypette.input(fastq__read, sample_read="R1")
   output:
     wlist = f"{fastq_umi__pipeTarget}/whitelist.txt",
   run:
@@ -37,14 +37,14 @@ rule fastq_umi__whitelist:
 
 rule fastq_umi__extract:
   input:
-    r1    = pipeman.input(fastq__read, sample_read="R1"),
-    r2    = pipeman.input(fastq__read, sample_read="R2"),
-    wlist = pipeman.input(f"{fastq_umi__pipeTarget}/whitelist.txt")
+    r1    = pypette.input(fastq__read, sample_read="R1"),
+    r2    = pypette.input(fastq__read, sample_read="R2"),
+    wlist = pypette.input(f"{fastq_umi__pipeTarget}/whitelist.txt")
   output: 
-    r1 = pipeman.temp(f"{fastq_umi__pipeTarget}/{{sample_name}}_R1.fastq.gz"),
-    r2 = pipeman.temp(f"{fastq_umi__pipeTarget}/{{sample_name}}_R2.fastq.gz")
+    r1 = pypette.temp(f"{fastq_umi__pipeTarget}/{{sample_name}}_R1.fastq.gz"),
+    r2 = pypette.temp(f"{fastq_umi__pipeTarget}/{{sample_name}}_R2.fastq.gz")
   run:
-    umi = pipeman.config.pipeline.modules.fastq.umi
+    umi = pypette.config.pipeline.modules.fastq.umi
     cmd = f"""
       umi_tools extract              \
         --bc-pattern {umi.bcPattern} \

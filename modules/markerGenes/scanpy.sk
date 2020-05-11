@@ -1,5 +1,7 @@
-pipeman.addTargets(
-  scanpy__dir = "anndata/scanpy", 
+pypette.includeModule("genomes/genome.py")
+
+pypette.addTargets(
+  scanpy__dir = "markerGenes/scanpy", 
   scanpy__pipeTarget = "{counts_umi__pipeTarget}/{scanpy__dir}",
   scanpy__pipeSample = "{scanpy__pipeTarget}/{{sample_name}}", )
 
@@ -18,7 +20,7 @@ rule scanpy__readData10X:
 
     import scanpy as sc
     import pandas as pd
-    sconf = config.pipeline.modules.anndata.scanpy
+    sconf = config.pipeline.modules.markerGenes.scanpy
     sc.settings.verbosity = sconf.verbosity
 
     adata = sc.read(input.matrix, cache=True).T
@@ -37,7 +39,7 @@ rule scanpy__readDataUMI:
 
     import scanpy as sc
     import pandas as pd
-    sconf = config.pipeline.modules.anndata.scanpy
+    sconf = config.pipeline.modules.markerGenes.scanpy
     sc.settings.verbosity = sconf.verbosity
 
     adata = sc.read_umi_tools(input.counts, dtype='float32')
@@ -52,7 +54,7 @@ rule scanpy__firstFilter:
   run:
     exshell(cmd="", **vars())
     import scanpy as sc
-    sconf = config.pipeline.modules.anndata.scanpy
+    sconf = config.pipeline.modules.markerGenes.scanpy
 
     adata = sc.read(input.annot)
     sc.pp.filter_cells(adata, min_genes=sconf.firstFilter.minGenes)
@@ -75,15 +77,15 @@ rule scanpy__firstPlot:
     adata = sc.read(input.annot)
     mito_genes= [name for name in adata.var_names if name.startswith('MT-') ]
     adata.obs['percent_mito'] = (
-                                 np.sum(adata[:, mito_genes].X, axis=1).A1
-                               / np.sum(adata.X, axis=1).A1 )
-    adata.obs['n_counts'] = adata.X.sum(axis=1).A1
+                                 np.sum(adata[:, mito_genes].X, axis=1)
+                               / np.sum(adata.X, axis=1) )
+    adata.obs['n_counts'] = adata.X.sum(axis=1)
     sc.pl.violin(
-      adata, 
+      adata,
       ['n_genes', 'n_counts', 'percent_mito'],
       jitter=0.4,
       multi_panel=True,
-      save='_filter.pdf')
+      save='_filter_' + wildcards.sample_name + '.pdf')
     adata.write(output.annot)
 
 rule scanpy__secondFilter:
@@ -95,7 +97,7 @@ rule scanpy__secondFilter:
     exshell(cmd="", **vars())
 
     import scanpy as sc
-    sconf = config.pipeline.modules.anndata.scanpy
+    sconf = config.pipeline.modules.markerGenes.scanpy
 
     adata = sc.read(input.annot)
     adata = adata[adata.obs['n_genes'] < sconf.secondFilter.nGenes, :]
@@ -112,7 +114,7 @@ rule scanpy__normalize:
     exshell(cmd="", **vars())
 
     import scanpy as sc
-    ruleConf = config.pipeline.modules.anndata.scanpy.normalization
+    ruleConf = config.pipeline.modules.markerGenes.scanpy.normalization
 
     adata = sc.read(input.annot)
     sc.pp.normalize_per_cell(adata, counts_per_cell_after=ruleConf.countPerCellAfter)
@@ -125,19 +127,16 @@ rule scanpy__normalize:
       min_mean= ruleConf.highVarGen_minMean, 
       max_mean= ruleConf.highVarGen_maxMean, 
       min_disp= ruleConf.highVarGen_minDisp)
-    if ruleConf.keepOnlyHVG:
-      adata = adata[:, adata.var['highly_variable']]
-
+    sc.pp.filter_genes(adata, min_counts=1)
     sc.pp.regress_out(adata, ['n_counts', 'percent_mito'] )
     sc.pp.scale(adata, max_value=ruleConf.scale_maxVal )
 
     adata.write(output.annot)
 
-hsapiensCcGenesFile = "hsapiens_cell_cycle_genes.txt"
 rule scanpy__cellCycleScorePca:
   input:
     annot   = f"{scanpy__pipeSample}_n.h5ad",
-    ccGenes = hsapiensCcGenesFile
+    ccGenes = genome__speciesCellCycleFile(sharedDir=True)
   output:
     annot   = temp(f"{scanpy__pipeSample}_cc.h5ad")
   run:
@@ -147,18 +146,18 @@ rule scanpy__cellCycleScorePca:
     import matplotlib
     matplotlib.use('Agg')
 
-    ruleConf = config.pipeline.modules.anndata.scanpy.cellCycleScore
+    ruleConf = config.pipeline.modules.markerGenes.scanpy.cellCycleScore
     sc.settings.autosave=True
 
     adata = sc.read(input.annot)
-    cc_genes = [ gene.strip() for gene in open(input.cc_genes) ]
+    cc_genes = [ gene.strip() for gene in open(input.ccGenes) ]
     s_genes   = [g for g in cc_genes[:43] if g in adata.var_names]
     g2m_genes = [g for g in cc_genes[43:] if g in adata.var_names]
 
     sc.tl.score_genes_cell_cycle(adata, s_genes=s_genes, g2m_genes=g2m_genes, random_state=1)
 
     sc.tl.pca(adata, svd_solver='arpack', use_highly_variable=ruleConf.useOnlyHighlyVariable)
-    sc.pl.pca_scatter(adata, color='phase', save='_beforeCC.pdf')
+    sc.pl.pca_scatter(adata, color='phase', save='_beforeCC_' + wildcards.sample_name + '.pdf')
     adata.write(output.annot)
 
 rule scanpy__cellCycleScoreReg:
@@ -172,7 +171,7 @@ rule scanpy__cellCycleScoreReg:
     import scanpy as sc
     import matplotlib
     matplotlib.use('Agg')
-    ruleConf = config.pipeline.modules.anndata.scanpy.cellCycleScore
+    ruleConf = config.pipeline.modules.markerGenes.scanpy.cellCycleScore
     sc.settings.autosave=True
 
     adata = sc.read(input.annot)
@@ -180,7 +179,7 @@ rule scanpy__cellCycleScoreReg:
       sc.pp.regress_out(adata, ['S_score', 'G2M_score'])
       sc.pp.scale(adata)
       sc.tl.pca(adata, svd_solver='arpack', use_highly_variable=ruleConf.useOnlyHighlyVariable)
-      sc.pl.pca_scatter(adata, color='phase', save='_afterCC.pdf')
+      sc.pl.pca_scatter(adata, color='phase', save='_afterCC_' + wildcards.sample_name + '.pdf')
     adata.write(output.annot)
 
 rule scanpy__pcaElbowPlot:
@@ -193,10 +192,15 @@ rule scanpy__pcaElbowPlot:
     import scanpy as sc
     import matplotlib
     matplotlib.use('Agg')
+    ruleConf = config.pipeline.modules.markerGenes.scanpy.plot
     sc.settings.autosave = True
 
     adata = sc.read(input.annot)
-    sc.pl.pca_variance_ratio(adata, log=True, save='.pdf')
+
+    if ruleConf.keepOnlyHVG:
+      adata = adata[:, adata.var['highly_variable']]
+
+    sc.pl.pca_variance_ratio(adata, log=True, save='_' + wildcards.sample_name +'.pdf')
     adata.write(output.annot)
 
 rule scanpy__louvain:
@@ -206,7 +210,7 @@ rule scanpy__louvain:
     annot = temp(f"{scanpy__pipeSample}_lv.h5ad")
   run:
     exshell(cmd="", **vars())
-    ruleConf = config.pipeline.modules.anndata.scanpy.louvain
+    ruleConf = config.pipeline.modules.markerGenes.scanpy.louvain
 
     import scanpy as sc
     import louvain
@@ -223,7 +227,7 @@ rule scanpy__tsne:
     annot = temp(f"{scanpy__pipeSample}_ts.h5ad")
   run:
     exshell(cmd="", **vars())
-    ruleConf = config.pipeline.modules.anndata.scanpy.tsne
+    ruleConf = config.pipeline.modules.markerGenes.scanpy.tsne
 
     import scanpy as sc
     import igraph as ig
@@ -233,7 +237,7 @@ rule scanpy__tsne:
 
     adata = sc.read(input.annot)
     sc.tl.tsne(adata, random_state=ruleConf.randomState, n_pcs=ruleConf.nPC)
-    sc.pl.tsne(adata, color='louvain', save='.pdf')
+    sc.pl.tsne(adata, color='louvain', save='_' + wildcards.sample_name + '.pdf')
     adata.write(output.annot)
 
 rule scanpy__umap:
@@ -252,7 +256,7 @@ rule scanpy__umap:
 
     adata = sc.read(input.annot)
     sc.tl.umap(adata)
-    sc.pl.umap(adata, color='louvain', save='.pdf')
+    sc.pl.umap(adata, color='louvain', save='_' + wildcards.sample_name + '.pdf')
     adata.write(output.annot)
 
 rule scanpy__clusterMarkers:
@@ -263,7 +267,7 @@ rule scanpy__clusterMarkers:
     csv   = f"{scanpy__pipeSample}_cm.csv"
   run:
     exshell(cmd="", **vars())
-    ruleConf = config.pipeline.modules.anndata.scanpy.clusterMarkers
+    ruleConf = config.pipeline.modules.markerGenes.scanpy.clusterMarkers
 
     import scanpy as sc
     import pandas as pd
@@ -273,18 +277,18 @@ rule scanpy__clusterMarkers:
 
     adata = sc.read(input.annot)
     sc.tl.rank_genes_groups(
-      adata, 
-      'louvain', 
-      method=ruleConf.method, 
+      adata,
+      'louvain',
+      method=ruleConf.method,
       use_raw=ruleConf.useRaw)
     sc.tl.filter_rank_genes_groups(
-      adata, 
+      adata,
       use_raw=ruleConf.useRaw,
-      log=ruleConf.logValue, 
+      log=ruleConf.logValue,
       min_in_group_fraction=ruleConf.minInGroupFraction,
       min_fold_change=ruleConf.minFoldChange,
       max_out_group_fraction=ruleConf.maxOutGroupFraction)
-    sc.pl.rank_genes_groups(adata, n_genes=ruleConf.plot_nGenes, save='.pdf')
+    sc.pl.rank_genes_groups(adata, n_genes=ruleConf.plot_nGenes, save='_' + wildcards.sample_name + '.pdf')
     adata.write(output.annot)
 
     myDf_n = pd.DataFrame(adata.uns['rank_genes_groups']['names'])
@@ -345,4 +349,4 @@ rule scanpy__interestingGenes:
     intGenes = list(markGenes.loc[markGenes['d']==100].index)
     pd.DataFrame(intGenes).to_csv(output.genes, index=False, header=False)
 
-    sc.pl.violin(adata, intGenes, groupby='louvain', save='_group_comparison.pdf')
+    sc.pl.violin(adata, intGenes, groupby='louvain', save='_group_comparison_' + wildcards.sample_name + '.pdf')

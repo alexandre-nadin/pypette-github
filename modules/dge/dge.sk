@@ -1,6 +1,6 @@
 include: "dge.py"
 
-pipeman.addTargets(
+pypette.addTargets(
   dge__pipeTarget   = "{counts_merged__pipeTarget}/dge",
   dge__sampleTarget = "{dge__pipeTarget}/{{sample_name}}",
 
@@ -19,17 +19,15 @@ rule dge__plots:
     metadata    = "samples/metadata.tsv",
     counts      = f"{counts_merged__sampleTarget}.counts.gz"
   output:
-    pca         = f"{dge__plotSampleTarget}.pca.pdf",
     distEstims  = f"{dge__plotSampleTarget}.distEstimsPlot.png",
     maPlot      = f"{dge__plotSampleTarget}.maPlot.pdf",
     volcanoPlot = f"{dge__plotSampleTarget}.volcanoPlot.pdf",
-    pheatMap    = f"{dge__plotSampleTarget}.pheatMap.png",
     contrasts   = directory(f"{dge__contrastTarget}")
   params:
     fCountsDataCols = counts__stdCols(),
     dge = lambda wildcards, input: dge__deseq2ParamsDft(input.metadata)
   script: 
-    pipeman.rscript("dge/plots.R")
+    pypette.rscript("dge/plots.R")
 
 rule dge__enrichR:
   input: 
@@ -41,4 +39,4 @@ rule dge__enrichR:
     fCountsDataCols = counts__stdCols(),
     dge = lambda wildcards, input: dge__deseq2ParamsDft(input.metadata)
   script: 
-    pipeman.rscript("dge/enrichR.R")
+    pypette.rscript("dge/enrichR.R")
