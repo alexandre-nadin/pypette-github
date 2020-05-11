@@ -1,5 +1,5 @@
 pipeline:
-  name: 'rnaseq'
+  name: 'fastqc'
   javaXmx: &javaXmx '32g'
   modules:
     fastq:
