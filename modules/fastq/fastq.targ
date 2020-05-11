@@ -1,0 +1,32 @@
+include: "fastq.py"
+  
+pypette.updateWildcardConstraints(
+  **dict(FastqFile.fieldAttrsCls('name', 'regex')),
+  preprocesses = "(/\w+/)*?",
+  anyprefix    = ".*",
+  someprefix   = ".+",
+  extension    = "\.\w+",
+)
+
+"""
+Fastq Processes
+----------------
+fastq__procs is NOT a target and it has to be appended by each new process
+related to fastq. 
+{fastq__procs} can be used in targets (like below) in order to have it 
+substituted with it's FINAL value.
+"""
+fastq__procs = ""
+
+pypette.addTargets(
+  fastq__sampleRunDir = "{samples__dir}/runs/{{sample_run}}/fastq",
+  fastq__anyDir       = "{fastq__sampleRunDir}{{anyprefix}}",
+  fastq__chunkPrefix  = "{fastq__sampleRunDir}/{{sample_chunkname}}",
+  fastq__chunk        = "{fastq__chunkPrefix}{{sample_extension}}",
+  fastq__readPrefix   = "{fastq__sampleRunDir}/{fastq__procs}{{sample_name}}{{sample_read}}",
+  fastq__read         = "{fastq__readPrefix}{{sample_extension}}",
+  fastq__readCheck    = "{fastq__sampleRunDir}/{fastq__procs}{{sample_name}}{{sample_read}}.fastq.check",
+  fastq__readsCheck   = "{fastq__sampleRunDir}/{fastq__procs}{{sample_name}}.fastq.check",
+  fastq__readBasename = "{{sample_name}}{{sample_read}}{{sample_extension}}",
+  fastq__pipeTarget   = "{fastq__sampleRunDir}/{fastq__procs}"
+)

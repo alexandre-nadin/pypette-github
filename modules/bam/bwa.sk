@@ -2,8 +2,9 @@ include: "bwa.py"
 
 rule bam_bwa__alignReads:
   input: 
-    reads_1 = pypette.input(fastq__read, sample_read="R1"),
-    reads_2 = pypette.input(fastq__read, sample_read="R2"),
+    fqCheck = pypette.input(fastq__readsCheck),
+    reads_1 = pypette.input(fastq__read, sample_read="_R1"),
+    reads_2 = pypette.input(fastq__read, sample_read="_R2"),
     idxDir  = bam_bwa__indexDir(),
   output:
     bam     = pypette.temp(f"{bam_mapper__sampleTarget}.bam")
@@ -19,7 +20,7 @@ rule bam_bwa__alignReads:
         {idxPref}            \
         {reads}              \
     | samtools view          \
-        -Su                  \
+        -Sb                  \
         > {output.bam}
     """
     exshell(**vars())

@@ -30,6 +30,7 @@ class PipelineManager(Manager):
     self.params        = []
     self.cleanables    = []
     self.targets       = OrderedDict({})
+    self.snakefiles    = []
     self.sampleManager = utils.samples.SamplesManager(self.pipeName, self.namespace)
     self.configManager = PipelineConfigManager(
                               config_prefix = self.pipeName, 
@@ -180,7 +181,6 @@ class PipelineManager(Manager):
     missingFiles = self.missingConfigFiles()
     if missingFiles:
       self.log.warning(f"Missing required files '{missingFiles}'")
-
     """ Load non missing config """
     for conf in self.configFiles:
       if conf not in missingFiles:
@@ -281,7 +281,7 @@ class PipelineManager(Manager):
     self.include(os.path.join(self.pipelinesDir, name))
 
   def includeModule(self, name, *args, **kwargs):
-    self.include(os.path.join(self.modulesDir, name), **kwargs)
+    self.include(self.modulePath(name), **kwargs)
 
   def includeModules(self, *modules, withConfigFiles=False, **kwargs):
     """ Check required files """
@@ -292,18 +292,52 @@ class PipelineManager(Manager):
       for module in modules:
         self.includeModule(module, **kwargs)
 
+  def modulePath(self, name):
+    """ Returns the module path in pypette directories """
+    return os.path.join(self.modulesDir, name)
+
+  def isModule(self, name):
+    """ Checks if given {name} is in pypette modules """
+    return os.path.isfile(self.modulePath(name))
+
   def _loadModule(self, name):
     pass
  
   def addModule(self, name):
     pass
 
-  # -----------------------
-  # Wildcards Constraints
-  # -----------------------
-  def updateWildcardConstraints(self, **wildcards):
-    self.workflow.global_wildcard_constraints(**wildcards);
+  # -------------------------
+  # Include Workflow Modules
+  # -------------------------
+  def includeWorkflow(self, *modules):
+    """
+    Includes all available workflow files related to the given list of workflow {modules}.
+    Target files {module}.targ are loaded first. They should contain variables for the pipeline.
+    Snakefiles {module}.sk are loaded afterwards. They should include Snakemake rules.A
+    Ex: Including the workflow "fastq/trimming" and "fastq/adapters" will:
+      - Load fastq/trimming.targ , fastq/adapters.targ
+      - Cache fastq/trimming.sk   , fastq/adapters.sk
+    """
+    targets = [ f"{module}.targ" for module in modules ]
+    skfiles = [ f"{module}.sk"   for module in modules ]
+    self.includeWorkflowModules(*targets)
+    self.snakefiles += skfiles
 
+  def includeWorkflowModules(self, *modules, **kwargs):
+    """ Includes the given module names if they exist. """
+    self.includeModules(
+      *list(
+        [ module for module in modules if self.isModule(module) ]),
+      **kwargs
+    )
+
+  def loadSnakefiles(self):
+    self.includeWorkflowModules(*self.snakefiles, withConfigFiles=True)
+
+  def loadWorkflow(self):
+    self.formatAllTargets()
+    self.loadSnakefiles()
+    
   # ------------------
   # Fomatted Targets
   # 
@@ -315,7 +349,8 @@ class PipelineManager(Manager):
   def addTargets(self, **kwargs):
     """ Save the given strings and their associated values """
     self.targets.update(kwargs)
-    self.formatTargets(**kwargs)
+    for key, val in kwargs.items():
+      self.namespace[key] = val
 
   def formatTargets(self, **kwargs):
     """ Format and declare the given target dict. """
@@ -330,9 +365,14 @@ class PipelineManager(Manager):
 
   def formatAllTargets(self):
     """ Formats all the saved targets """
-    self.formatTargets(self.targets)
+    self.formatTargets(**self.targets)
 
-
+  # -----------------------
+  # Wildcards Constraints
+  # -----------------------
+  def updateWildcardConstraints(self, **wildcards):
+    self.workflow.global_wildcard_constraints(**wildcards);
+  
   # ------------
   # Parameters
   # ------------

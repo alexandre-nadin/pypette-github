@@ -1,9 +1,3 @@
-pypette.addTargets(
-  counts_umi__dir        = "umi-counts",
-  counts_umi__pipeDir    = "{counts__pipeTarget}/sorted/samtools",
-  counts_umi__pipeTarget = "{counts_umi__pipeDir}/{counts_umi__dir}",
-  counts_umi__pipeSample = "{counts_umi__pipeTarget}/{{sample_name}}")
-
 rule counts__umi:
   input:
     bam    = f"{counts_umi__pipeDir}/{{sample_name}}.bam",
@@ -21,4 +15,3 @@ rule counts__umi:
         -S {output.counts}
     """
     exshell(**vars())
-

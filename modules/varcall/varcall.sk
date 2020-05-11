@@ -1,7 +1,3 @@
-pypette.addTargets(
-  vcf__pipeTarget   = "{bam__pipeTarget}varcall",
-  vcf__sampleTarget = "{vcf__pipeTarget}/{{sample_name}}")
-
 rule varcall__index:
   input:
     vcf = "{someprefix}"
@@ -25,7 +21,7 @@ rule varcall__cnvkit:
   params:
     var_dir = f"{vcf__pipeTarget}"
   run:
-    baitIntervals = exome__baitIntervals()
+    baitIntervals = exome__baitIntervals(sharedDir=True)
     cmd = f"""
       cnvkit.py batch {input.bam} \
         --n \

@@ -1,5 +1,6 @@
 pipeline:
   name: 'scrna'
+  javaXmx: &javaXmx '32g'
   modules:
     mapping:
       aligner:
@@ -32,7 +33,7 @@ pipeline:
           trimmomatic:
             cores: 8
             mem: '10gb'
-            memJava: '10240M'
+            javaXmx: *javaXmx
             headcrop: 0
           cutadapt:
             cores: 8

@@ -1,10 +1,3 @@
-trimmingTools = ('trimmomatic', 'cutadapt', 'bbduk')
-pypette.updateWildcardConstraints(
-  procTrimming = "(trimmed/({})/)?".format('|'.join(trimmingTools)),
-)
-
-fastq_trimming__dir = fastq__sampleRunDir + "/{procFastqMerge}trimmed"
-
 # ------------
 # Trimmomatic
 # ------------
@@ -20,15 +13,18 @@ retaining the pipeline target system flexible.
 # HEADCROP: for QUANTSEQ, leave empty for TruSeq #
 rule fastq_trimming__trimmomatic:
   input: 
-    r1       = pypette.input(fastq__read, sample_read="R1"),
-    r2       = pypette.input(fastq__read, sample_read="R2"),
+    r1       = pypette.input(fastq_merge__read, sample_read="_R1"),
+    r2       = pypette.input(fastq_merge__read, sample_read="_R2"),
     adapters = "adapters/trimmomatic/adapters-pe.fa"
   output: 
-    r1       = pypette.temp(f"{fastq_trimming__dir}/trimmomatic/{{sample_name}}_R1.fastq.gz"),
-    r1u      = pypette.temp(f"{fastq_trimming__dir}/trimmomatic/{{sample_name}}_R1_UNPAIRED.fastq.gz"),
-    r2       = pypette.temp(f"{fastq_trimming__dir}/trimmomatic/{{sample_name}}_R2.fastq.gz"),
-    r2u      = pypette.temp(f"{fastq_trimming__dir}/trimmomatic/{{sample_name}}_R2_UNPAIRED.fastq.gz"),
-    log      = f"{fastq_trimming__dir}/trimmomatic/{{sample_name}}_trimout.log",
+    r1       = pypette.temp(fastq_trimming__pipeTarget + "{sample_name}_R1.fastq.gz"),
+    r1u      = pypette.temp(fastq_trimming__pipeTarget + "{sample_name}_R1_UNPAIRED.fastq.gz"),
+    r2       = pypette.temp(fastq_trimming__pipeTarget + "{sample_name}_R2.fastq.gz"),
+    r2u      = pypette.temp(fastq_trimming__pipeTarget + "{sample_name}_R2_UNPAIRED.fastq.gz"),
+  log:
+    main     = fastq_trimming__pipeTarget + "{sample_name}_trim.log"
+  wildcard_constraints:
+    procTrimming = "trimmed/trimmomatic/"
   run:
     inputReads = [ x for x in [ 
                      input.r1[0], 
@@ -57,7 +53,7 @@ rule fastq_trimming__trimmomatic:
         SLIDINGWINDOW:4:15                    \\
         MINLEN:15                             \\
         HEADCROP:{trimmomatic.headcrop}       \\
-        2> {output.log}
+        2> {log.main}
       touch {output}
     """
     exshell(**vars())
@@ -67,14 +63,17 @@ rule fastq_trimming__trimmomatic:
 # ---------
 rule fastq_trimming__cutadapt:
   input: 
-    r1      = pypette.input(fastq__read, sample_read="R1"),
-    r2      = pypette.input(fastq__read, sample_read="R2"),
+    r1      = pypette.input(fastq_merge__read, sample_read="_R1"),
+    r2      = pypette.input(fastq_merge__read, sample_read="_R2"),
     adptFwd = "adapters/cutadapt/adapters-fwd.fa",
     adptRev = "adapters/cutadapt/adapters-rev.fa"
   output: 
-    r1      = pypette.temp(f"{fastq_trimming__dir}/cutadapt/{{sample_name}}_R1.fastq.gz"),
-    r2      = pypette.temp(f"{fastq_trimming__dir}/cutadapt/{{sample_name}}_R2.fastq.gz"),
-    log     = f"{fastq_trimming__dir}/cutadapt/{{sample_name}}_trimout.log",
+    r1      = pypette.temp(f"{fastq_trimming__pipeTarget}{{sample_name}}_R1.fastq.gz"),
+    r2      = pypette.temp(f"{fastq_trimming__pipeTarget}{{sample_name}}_R2.fastq.gz"),
+  log:
+    main    = fastq_trimming__pipeTarget + "{sample_name}_trim.log"
+  wildcard_constraints:
+    procTrimming = "trimmed/cutadapt/"
   run:
     r1Opt      = f"-o {output.r1}" if input.r1 else ""
     r2Opt      = f"-p {output.r2}" if input.r2 else ""
@@ -94,10 +93,8 @@ rule fastq_trimming__cutadapt:
         {input.r2}       \
         {r1Opt}          \
         {r2Opt}          \
-       > "{output.log}"
+       > "{log.main}"
       touch {output}
-
-
     """
     exshell(**vars())
 
@@ -106,13 +103,17 @@ rule fastq_trimming__cutadapt:
 # ------
 rule fastq_trimming__bbduk:
   input: 
-    r1       = pypette.input(fastq_merge__read, sample_read="R1"),
-    r2       = pypette.input(fastq_merge__read, sample_read="R2"),
+    r1       = pypette.input(fastq_merge__read, sample_read="_R1"),
+    r2       = pypette.input(fastq_merge__read, sample_read="_R2"),
     adapters = "adapters/bbduk/adapters-pe.fa"
+  log:
+    main     = fastq_trimming__pipeTarget + "{sample_name}_trim.log",
+    out      = fastq_trimming__pipeTarget + "{sample_name}_trimout.log"
   output: 
-    r1       = pypette.temp(fastq_trimming__dir + "/bbduk/{sample_name}_R1.fastq.gz"),
-    r2       = pypette.temp(fastq_trimming__dir + "/bbduk/{sample_name}_R2.fastq.gz"),
-    log      =              fastq_trimming__dir + "/bbduk/{sample_name}_trimout.log"
+    r1       = pypette.temp(fastq_trimming__pipeTarget + "{sample_name}_R1.fastq.gz"),
+    r2       = pypette.temp(fastq_trimming__pipeTarget + "{sample_name}_R2.fastq.gz")
+  wildcard_constraints:
+    procTrimming = "trimmed/bbduk/"
   run:
     inputReads  = " \\\n".join(
       [ x for x in [ 
@@ -127,8 +128,9 @@ rule fastq_trimming__bbduk:
             else None ] 
         if x ])
 
-    cmd = """
+    cmd = f"""
       bbduk.sh               \\
+        -Xmx{config.pipeline.javaXmx} \\
         {inputReads}         \\
         {outputReads}        \\
         ref={input.adapters} \\
@@ -142,9 +144,10 @@ rule fastq_trimming__bbduk:
         forcetrimleft=0      \\
         forcetrimright2=0    \\
         overwrite=true       \\
-       > "{output.log}"
+        stats={log.main}     \\
+       2> "{log.out}"
       touch {output}
     """
     exshell(**vars())
 
-ruleorder: samples__runs > fastq_trimming__bbduk > fastq_trimming__trimmomatic > fastq_trimming__cutadapt
+ruleorder: samples__runs > fastq_trimming__bbduk > fastq_trimming__trimmomatic > fastq_trimming__cutadapt > fastq_merging__mergeReads

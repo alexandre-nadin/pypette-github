@@ -1,0 +1,16 @@
+include: "merge.py"
+
+pypette.updateWildcardConstraints(
+  procFastqMergeByRead = "(merge-by-read/)",
+  procFastqByRuns      = "(merge-by-run/)?"
+)
+
+fastq_merge__procs = fastq__procs + "{procFastqMergeByRead}{procFastqByRuns}"
+fastq__procs = fastq_merge__procs
+
+pypette.addTargets(
+  fastq_merge__pipeTarget   = "{fastq__sampleRunDir}/{fastq_merge__procs}",
+  fastq_merge__sampleTarget = "{fastq_merge__pipeTarget}{{sample_name}}",
+  fastq_merge__readPrefix   = "{fastq_merge__sampleTarget}{{sample_read}}",
+  fastq_merge__read         = "{fastq_merge__readPrefix}{{sample_extension}}",
+)

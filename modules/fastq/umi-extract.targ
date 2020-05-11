@@ -1,0 +1,15 @@
+fastq_umi__dir = "umi-extracted"
+
+pypette.updateWildcardConstraints(
+  procUmiExtract = f"({fastq_umi__dir}/)?",
+)
+
+fastq_umi__preprocs = fastq__procs
+fastq_umi__procs    = fastq_umi__preprocs + "{procUmiExtract}"
+fastq__procs        = fastq_umi__procs
+
+pypette.addTargets(
+  fastq_umi__prePipeTarget   = "{fastq__sampleRunDir}/{fastq_umi__preprocs}",
+  fastq_umi__preSampleTarget = "{fastq_umi__prePipeTarget}{{sample_name}}{{sample_read}}",
+  fastq_umi__pipeTarget      = "{fastq__sampleRunDir}/{fastq_umi__procs}",
+)

@@ -1,0 +1,55 @@
+pipeline:
+  name: 'dna-wes'
+  javaXmx: &javaXmx '32g'
+  modules:
+    mapping:
+      aligner:
+        name: "bwa"
+        command: "bwa"
+        version: "0.7.17-r1188"
+        cores: 8
+        ram: '64gb'
+      counter:
+        name: "featureCounts"
+        version: "1.6.4"
+        cores: 4
+      sorter:
+        picard:
+          cores: 4
+          mem: '32gb'
+        samtools:
+          cores: 4
+          mem: '32gb'
+      markdup:
+        cores: 4
+        mem: '32gb'
+      flagstat:
+        mem: '2gb'
+    fastq:
+      qc:
+        fastqc:
+          cores: 6        
+      trimming:
+        trimmers:
+          trimmomatic:
+            cores: 8
+            mem: '10gb'
+            javaXmx: *javaXmx
+            headcrop: 0
+          cutadapt:
+            cores: 8
+          bbduk:
+            cores: 8
+            mem: '10gb'
+      adapters:
+        base: &baseAdapters "Adapters.fasta"
+        cutadapt: *baseAdapters
+        trimmomatic: *baseAdapters
+        bbduk: "BBDUK/adapters.fa"
+  sequencing:
+    platform: 'Illumina'
+  center:
+    name: 'CTGB'
+  logCommands: True
+  outDir: 'projects'
+  tempFiles: 'kept-temp-files.txt'

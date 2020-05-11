@@ -1,16 +1,16 @@
-def exome__targetDir():
+def exome__targetDir(**kwargs):
   return os.path.join(
-    annot__dir(),
+    annot__dir(**kwargs),
     "exomes_targets")
 
-def exome__intervalListFmt():
+def exome__intervalListFmt(**kwargs):
   return os.path.join(
-    exome__targetDir(),
+    exome__targetDir(**kwargs),
     "agilent_v7_sureselect_{}.interval_list")
 
-def exome__targetIntervals():
-  return exome__intervalListFmt().format("Regions")
+def exome__targetIntervals(**kwargs):
+  return exome__intervalListFmt(**kwargs).format("Regions")
 
-def exome__baitIntervals():
-  return exome__intervalListFmt().format("MergedProbes")
+def exome__baitIntervals(**kwargs):
+  return exome__intervalListFmt(**kwargs).format("MergedProbes")
 

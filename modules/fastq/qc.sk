@@ -1,16 +1,3 @@
-# --------------
-# Input/Output
-# --------------
-fastq_qc__htmlExt     = "_fastqc.html"
-fastq_qc__zipExt      = "_fastqc.zip"
-
-fastq_qc__readPrefix = fastq_merge__readPrefix
-fastq_qc__readHtml   = fastq_qc__readPrefix + fastq_qc__htmlExt
-fastq_qc__readZip    = fastq_qc__readPrefix + fastq_qc__zipExt
-
-# --------------
-# Fastq Quality
-# --------------
 rule fastq_qc__reads:
   """
   Produces a Fastqc report for whatever the given fastq reads.

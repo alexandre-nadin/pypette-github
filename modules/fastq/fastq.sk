@@ -1,33 +1,3 @@
-include: "fastq.py"
-  
-pypette.updateWildcardConstraints(
-  **FastqFile.regex_fields,
-  preprocesses = "(/\w+/)*?",
-  anyprefix    = ".*",
-  someprefix   = ".+",
-  extension    = "\.\w+",
-)
-
-fastq__sampleRunDir = samples__dir + "/runs/{sample_run}/fastq"
-
-fastq__chunkPrefix = fastq__sampleRunDir + "/{sample_chunkname}"
-fastq__chunk       = fastq__chunkPrefix + "{sample_extension}"
-fastq__readPrefix  = fastq__sampleRunDir + "/{procFastqMerge}{procTrimming}{procUmiExtract}{sample_name}_{sample_read}"
-fastq__read        = fastq__readPrefix + "{sample_extension}"
-
-pypette.includeModules(
-  "fastq/merge.sk",
-  "fastq/trimming.sk",
-  "fastq/qc.sk",
-  "fastq/adapter.sk")
-# TODO: manage better those inclusions -> pipeline specific
-
-pypette.addTargets(
-   fastq__procs      = "{{procFastqMerge}}{{procTrimming}}",
-   fastq__pipeTarget = "{fastq__sampleRunDir}/{fastq__procs}")
-
-ruleorder: fastq_trimming__bbduk > fastq_trimming__trimmomatic > fastq_trimming__cutadapt > fastq_merging__mergeReads
-
 # -----------------
 # Link fastq reads
 # -----------------
@@ -38,13 +8,51 @@ rule fastq__linkRead:
   input:
     read  = pypette.input("{sample_path}")
   output: 
-    chunk = fastq__chunk
+    chunk = pypette.temp(fastq__chunk)
   run:
     cmd = """
-      ln.rel \
-        {input.read} \
-        {output.chunk} 
+      ln -s {input.read} {output.chunk} 
     """
+    exshell(**vars())
+
+# ----------------
+# Fastq Checking
+# ----------------
+rule fastq__readCheck:
+  """
+  Check single fastq. Counts number of reads and checks it is multiple of 4.
+  """
+  input:
+    fqRead  = pypette.input(fastq__read)
+  output:
+    fqCheck = fastq__readCheck
+  run:
+    cmd = """
+      count=$(zcat {input.fqRead} | wc -l)
+      echo "$count" > {output.fqCheck}
+      [ $(( count % 4)) -eq 0 ]
+    """
+    exshell(**vars())
+
+rule fastq__readsCheck:
+  """
+  Checks fastq files are not corrupted. Check number equality if pairend,
+  """
+  input:
+    fqCheck1 = pypette.input(fastq__readCheck, sample_read="_R1") if pypette.pipeName != 'scrna' else [],
+    fqCheck2 = pypette.input(fastq__readCheck, sample_read="_R2")
+  output:
+    fqCheck  = fastq__readsCheck
+  run:
+    cmd = """
+      for read in {input.fqCheck1} {input.fqCheck2}; 
+      do
+        echo "$read: $(head -1 $read)" >> {output.fqCheck}
+      done
+    """
+    cmd += """
+      [ $(head -1 {input.fqCheck1}) -eq $(head -1 {input.fqCheck2}) ]
+    """ if input.fqCheck1 and input.fqCheck2 else ""
     exshell(**vars())
 
 ruleorder: samples__all > samples__runs > fastq__linkRead

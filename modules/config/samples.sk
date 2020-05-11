@@ -20,7 +20,7 @@ rule samples__seqrunSamplesheet:
   input:
     confs   = config__files,
     project = project__config,
-    ssheet  = runs__samplesheet("{sample_run}")
+    ssheet  = lambda x: runs__samplesheet("{sample_run}")
   output:
     ssheet = samples__ssheetTarget
   run:
@@ -65,7 +65,7 @@ rule samples__seqrunMap:
     map   = samples__seqrunCsvMapTarget
   run:
     """ File Output Header """
-    sampleLines = [ FastqFile.fieldNames() ]
+    sampleLines = [ fastq__sampleHeader() ]
     with open(input.file, 'r') as fqFiles:
       """ Mapped Samples Lines """
       sampleLines.extend(fastq__mapFilenames(fqFiles, wildcards.sample_run))

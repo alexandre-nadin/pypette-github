@@ -1,5 +1,3 @@
-pypette.includeModules("varcall/varcall.sk")
-
 rule varcall__gatk:
   input:
     bam = pypette.input(
@@ -11,7 +9,7 @@ rule varcall__gatk:
   run:
     annotation_dir = annot__dir() + "_pypette"
     cmd = f"""
-      gatk -Xmx64g \
+      gatk -Xmx{config.pipeline.javaXmx} \
         -T HaplotypeCaller \
         -R {input.ref_genome_fa} \
         -I {input.bam} \
@@ -33,7 +31,7 @@ rule varcall__mergeGVCF:
     myvcfs = ' -V '.join(map(str, input.vcfs))
     annotation_dir = annot__dir() + "_pypette"
     cmd = f"""
-      gatk -Xmx64g \
+      gatk -Xmx{config.pipeline.javaXmx} \
         -T GenotypeGVCFs \
         -R {input.ref_genome_fa} \
         -V {myvcfs} \

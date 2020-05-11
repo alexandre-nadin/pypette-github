@@ -10,11 +10,15 @@ pypette.loadConfigFiles()
 Pipeline Workflow.
 Modules are loaded only if required configuration files above are present.
 """
-pypette.includeModules(
-  "fastq/fastq.sk",
-  "fastq/umi-extract.sk",
-  "bam/bam.sk",
-  "bam/counts.sk",
-  "bam/counts-umi.sk",
-  "markerGenes/scanpy.sk",
-  withConfigFiles=True)
+pypette.includeWorkflow(
+  "fastq/fastq",
+  "fastq/merge",
+  "fastq/qc",
+  "fastq/umi-extract",
+  "bam/bam",
+  "bam/star",
+  "qc/rseqc", # required for bam/counts
+  "bam/counts",
+  "bam/counts-umi",
+  "markerGenes/scanpy",
+)

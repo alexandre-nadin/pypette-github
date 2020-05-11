@@ -1,6 +1,7 @@
 import os
 from utils.fastq_helper import FastqFile
 from utils.files import touch
+from itertools import chain
 
 pypette.includeModule("cluster/cluster.py")
 
@@ -20,14 +21,14 @@ def fastq__mapFilename(filename, runid):
   """
   Maps the filename's metadata fields
   """
-  fastqFile = FastqFile(filename.strip(), run_name = runid)
+  fastqFile = FastqFile(filename.strip(), runId=runid)
   if fastqFile.isValid:
-    return [ 
-      fastqFile.__dict__[field]
-      for field in FastqFile.fieldNames()
-    ]
+    return list(chain.from_iterable(fastqFile.fieldAttrs('match')))
   else:
     return None
+
+def fastq__sampleHeader():
+  return list(chain.from_iterable(FastqFile.fieldAttrsCls('name')))
 
 def fastq__loadSamples(**kwargs):
   if pypette.samples.data is None:

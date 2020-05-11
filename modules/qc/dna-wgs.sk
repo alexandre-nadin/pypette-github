@@ -1,0 +1,35 @@
+pypette.includeModules("core/lang.py")
+
+rule qc_dna_wgs__multiqc:
+  input:
+    fastqcs    = pypette.input(
+                   fastq_qc__readZip, 
+                   derefKwargs=['sample_name', 'sample_run']),
+    mdMetrics  = pypette.input(
+                   f"{bam__sampleTarget}.metrics",
+                   derefKwargs=['sample_name',]),
+    wgsMetrics = pypette.input(
+                   f"{bam__sampleTarget}_wgsMetrics.txt",
+                   derefKwargs=['sample_name',]),
+    flagstat   = pypette.input(
+                   f"{bam__sampleTarget}_flagstat.txt",
+                   derefKwargs=['sample_name',]),
+    trimlog    = pypette.input(
+                   f"{fastq__pipeTarget}{{sample_name}}_trim.log",
+                   requiredKeys=['procTrimming'],
+                   derefKwargs=['sample_name', 'sample_run'])
+  output:
+    report   =           f"{bam__pipeTarget}multiqc_report.html",
+    data     = directory(f"{bam__pipeTarget}multiqc_data")
+  run:
+    outDir = bam__pipeTarget.format(**wildcards)
+    cmd  = f"""
+      export {core_lang__dft} 
+      multiqc              \
+        -f                 \
+        -o {outDir}        \
+        {input} 
+    """
+    exshell(**vars())
+
+ruleorder: qc_dna_wgs__multiqc > samples__all > samples__runs

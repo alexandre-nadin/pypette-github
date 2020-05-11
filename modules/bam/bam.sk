@@ -1,34 +1,7 @@
-include: 'bam.py'
 pypette.includeModules(
   "genomes/genome.sk",
   "genomes/annotation.sk",
   "genomes/exome.sk")
-
-""" Allowed Sorting Processes """
-sortingTools = ('picard', 'samtools')
-pypette.updateWildcardConstraints(
-  procSorted    = "(sorted/({})/)?".format("|".join(sortingTools)),
-  procMarkDup   = "(markdup/)?",
-  procBamMerged = "(merged/)?",
-  procBamRecalib = "(recalib/)?"
-)
-
-""" Sample Run Reads Output Targets """
-pypette.addTargets(
-  bam_mapper__dir          = f"mapped/{bam__alignerDir()}",
-  bam_mapper__pipeTarget   = "{fastq__pipeTarget}{bam_mapper__dir}",
-  bam_mapper__sampleTarget = "{bam_mapper__pipeTarget}/{{sample_name}}",
-
-  bam__procs        = "{{procBamMerged}}{{procSorted}}{{procMarkDup}}{{procBamRecalib}}",
-  bam__pipeTarget   = "{bam_mapper__pipeTarget}/{bam__procs}",
-  bam__sampleTarget = "{bam__pipeTarget}{{sample_name}}",
-  bam__sample       = "{bam_mapper__sampleTarget}.bam" )
-
-# Note: Include the aligner module found in pipeline configuration file after this
-#       file's variables, as aligner's rules should depend on the variables 
-#       declared above.
-bam__includeAlignerModule()
-
 
 # -----------------
 # Mark Duplicates
@@ -42,8 +15,9 @@ rule bam__markDuplicates:
     bai     = pypette.temp(f"{bam__sampleMarkdupPrefix}.bai"    ),
     metrics =      f"{bam__sampleMarkdupPrefix}.metrics"
   run:
-    cmd = """
+    cmd = f"""
       picard MarkDuplicates                           \
+      -Xmx{config.pipeline.javaXmx}                   \
       I={input.bam}                                   \
       O={output.bam}                                  \
       CREATE_INDEX=true                               \
@@ -158,15 +132,16 @@ rule bam__makeIndex:
 rule bam__hsMetrics:
   input:  
     bam = "{someprefix}.bam",
-    fa  = genome__ebiFasta(),
-    fai = genome__ebiFastaIdx(),
+    fa  = genome__ucscFasta(),
+    fai = genome__ucscFastaIdx(),
   output: 
     "{someprefix}_hsMetrics.txt"
   run:
-    baitIntervals   = exome__baitIntervals()
-    targetIntervals = exome__targetIntervals()
-    cmd = """
+    baitIntervals   = exome__baitIntervals(sharedDir=True)
+    targetIntervals = exome__targetIntervals(sharedDir=True)
+    cmd = f"""
       picard CollectHsMetrics          \
+        -Xmx{config.pipeline.javaXmx}  \
         BI={baitIntervals}             \
         TI={targetIntervals}           \
         I={input.bam}                  \
@@ -177,6 +152,26 @@ rule bam__hsMetrics:
     exshell(**vars())
 
 ruleorder: samples__all > bam__hsMetrics
+
+rule bam__wgsMetrics:
+  input:  
+    bam = "{someprefix}.bam",
+    fa  = genome__ucscFasta(),
+    fai = genome__ucscFastaIdx(),
+  output: 
+    "{someprefix}_wgsMetrics.txt"
+  run:
+    cmd = f"""
+      picard CollectWgsMetrics         \
+        -Xmx{config.pipeline.javaXmx}  \
+        I={input.bam}                  \
+        O={output}                     \
+        R={input.fa}                   \
+        VALIDATION_STRINGENCY=SILENT
+    """
+    exshell(**vars())
+
+ruleorder: samples__all > bam__wgsMetrics
 
 rule bam__flagstat:
   input:  "{someprefix}.bam"
