@@ -1,7 +1,7 @@
 include: "fastq.py"
   
 pypette.updateWildcardConstraints(
-  **FastqFile.regex_fields,
+  **dict(FastqFile.fieldAttrsCls('name', 'regex')),
   preprocesses = "(/\w+/)*?",
   anyprefix    = ".*",
   someprefix   = ".+",
@@ -23,10 +23,10 @@ pypette.addTargets(
   fastq__anyDir       = "{fastq__sampleRunDir}{{anyprefix}}",
   fastq__chunkPrefix  = "{fastq__sampleRunDir}/{{sample_chunkname}}",
   fastq__chunk        = "{fastq__chunkPrefix}{{sample_extension}}",
-  fastq__readPrefix   = "{fastq__sampleRunDir}/{fastq__procs}{{sample_name}}_{{sample_read}}",
+  fastq__readPrefix   = "{fastq__sampleRunDir}/{fastq__procs}{{sample_name}}{{sample_read}}",
   fastq__read         = "{fastq__readPrefix}{{sample_extension}}",
-  fastq__readCheck    = "{fastq__sampleRunDir}/{fastq__procs}{{sample_name}}_{{sample_read}}.fastq.check",
+  fastq__readCheck    = "{fastq__sampleRunDir}/{fastq__procs}{{sample_name}}{{sample_read}}.fastq.check",
   fastq__readsCheck   = "{fastq__sampleRunDir}/{fastq__procs}{{sample_name}}.fastq.check",
-  fastq__readBasename = "{{sample_name}}_{{sample_read}}{{sample_extension}}",
+  fastq__readBasename = "{{sample_name}}{{sample_read}}{{sample_extension}}",
   fastq__pipeTarget   = "{fastq__sampleRunDir}/{fastq__procs}"
 )

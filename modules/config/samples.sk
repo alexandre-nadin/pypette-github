@@ -47,7 +47,7 @@ rule samples__seqrunFiles:
     cmdRegex = (
         ".*\("
       + "\|".join(sampleNames)
-      + "\)/.*\.fastq\.gz")
+      + "\).*\.fastq\.gz")
     runPath = runs__prjPath(wildcards.sample_run)
   
     cmd     = f"""
@@ -65,7 +65,7 @@ rule samples__seqrunMap:
     map   = samples__seqrunCsvMapTarget
   run:
     """ File Output Header """
-    sampleLines = [ FastqFile.fieldNames() ]
+    sampleLines = [ fastq__sampleHeader() ]
     with open(input.file, 'r') as fqFiles:
       """ Mapped Samples Lines """
       sampleLines.extend(fastq__mapFilenames(fqFiles, wildcards.sample_run))
