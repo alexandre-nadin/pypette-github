@@ -1,5 +1,6 @@
 pipeline:
   name: 'dna-wes'
+  javaXmx: &javaXmx '64g'
   modules:
     mapping:
       aligner:
@@ -33,7 +34,7 @@ pipeline:
           trimmomatic:
             cores: 8
             mem: '10gb'
-            memJava: '10240M'
+            javaXmx: *javaXmx
             headcrop: 0
           cutadapt:
             cores: 8

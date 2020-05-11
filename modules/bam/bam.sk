@@ -15,8 +15,9 @@ rule bam__markDuplicates:
     bai     = pypette.temp(f"{bam__sampleMarkdupPrefix}.bai"    ),
     metrics =      f"{bam__sampleMarkdupPrefix}.metrics"
   run:
-    cmd = """
+    cmd = f"""
       picard MarkDuplicates                           \
+      -Xmx{config.pipeline.javaXmx}                   \
       I={input.bam}                                   \
       O={output.bam}                                  \
       CREATE_INDEX=true                               \
@@ -138,8 +139,9 @@ rule bam__hsMetrics:
   run:
     baitIntervals   = exome__baitIntervals(sharedDir=True)
     targetIntervals = exome__targetIntervals(sharedDir=True)
-    cmd = """
+    cmd = f"""
       picard CollectHsMetrics          \
+        -Xmx{config.pipeline.javaXmx}  \
         BI={baitIntervals}             \
         TI={targetIntervals}           \
         I={input.bam}                  \
@@ -159,8 +161,9 @@ rule bam__wgsMetrics:
   output: 
     "{someprefix}_wgsMetrics.txt"
   run:
-    cmd = """
+    cmd = f"""
       picard CollectWgsMetrics         \
+        -Xmx{config.pipeline.javaXmx}  \
         I={input.bam}                  \
         O={output}                     \
         R={input.fa}                   \
