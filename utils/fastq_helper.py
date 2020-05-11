@@ -155,6 +155,14 @@ class PathName(FileName):
       [ field.name for field in self.fields ],
       [ runId, self.fileName, self.baseName, None])
 
+  def matchFields(self):
+    """
+    This class is not abou Illumina convention.
+    This method has to be disabled otherwise it will be set as an unvalid file.
+    """
+    pass
+
+
 class FastqFile(object):
   """
   This class helps to get a fastq file name's information.
