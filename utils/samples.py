@@ -1,6 +1,7 @@
 import utils.configs, utils.samples, utils.manager
 from utils.dicts import toAddict, popFirst
 from utils.files import extension as extensionOf
+from utils.fastq_helper import FastqFile
 import addict
 import os, sys
 import pandas as pd
