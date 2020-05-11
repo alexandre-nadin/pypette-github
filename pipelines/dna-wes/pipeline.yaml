@@ -1,6 +1,6 @@
 pipeline:
   name: 'dna-wes'
-  javaXmx: &javaXmx '64g'
+  javaXmx: &javaXmx '32g'
   modules:
     mapping:
       aligner:
