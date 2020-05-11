@@ -118,7 +118,6 @@ class SamplesManager(utils.manager.Manager):
      - Building query based on :kwargs: keywords.
      - Querying sample DataFrame and selects matching columns.
     """
-    from utils.strings import StringFormatter
     queryFilter = dict(kwargs.items())
 
     for key in requiredKeys:
