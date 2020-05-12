@@ -13,8 +13,8 @@ retaining the pipeline target system flexible.
 # HEADCROP: for QUANTSEQ, leave empty for TruSeq #
 rule fastq_trimming__trimmomatic:
   input: 
-    r1       = pypette.input(fastq_merge__read, sample_read="_R1"),
-    r2       = pypette.input(fastq_merge__read, sample_read="_R2"),
+    r1       = pypette.input(fastq_merge__read, sample_read="R1"),
+    r2       = pypette.input(fastq_merge__read, sample_read="R2"),
     adapters = "adapters/trimmomatic/adapters-pe.fa"
   output: 
     r1       = pypette.temp(fastq_trimming__pipeTarget + "{sample_name}_R1.fastq.gz"),
@@ -63,8 +63,8 @@ rule fastq_trimming__trimmomatic:
 # ---------
 rule fastq_trimming__cutadapt:
   input: 
-    r1      = pypette.input(fastq_merge__read, sample_read="_R1"),
-    r2      = pypette.input(fastq_merge__read, sample_read="_R2"),
+    r1      = pypette.input(fastq_merge__read, sample_read="R1"),
+    r2      = pypette.input(fastq_merge__read, sample_read="R2"),
     adptFwd = "adapters/cutadapt/adapters-fwd.fa",
     adptRev = "adapters/cutadapt/adapters-rev.fa"
   output: 
@@ -103,8 +103,8 @@ rule fastq_trimming__cutadapt:
 # ------
 rule fastq_trimming__bbduk:
   input: 
-    r1       = pypette.input(fastq_merge__read, sample_read="_R1"),
-    r2       = pypette.input(fastq_merge__read, sample_read="_R2"),
+    r1       = pypette.input(fastq_merge__read, sample_read="R1"),
+    r2       = pypette.input(fastq_merge__read, sample_read="R2"),
     adapters = "adapters/bbduk/adapters-pe.fa"
   log:
     main     = fastq_trimming__pipeTarget + "{sample_name}_trim.log",
