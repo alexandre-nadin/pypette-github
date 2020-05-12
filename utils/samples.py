@@ -135,7 +135,7 @@ class SamplesManager(utils.manager.Manager):
     # Ensures required fastq fields are with their field separator
     fqFieldsWithSep = { key: FastqFile.fieldWithSepCls(key, val)
                             for key, val in kwargs.items()
-                          }
+                      }
     fs = StringFormatter(s).formatPartialMap(keepMissingKeys=True, **fqFieldsWithSep)
 
     """ Required Columns """
