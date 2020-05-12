@@ -40,6 +40,18 @@ class Field(object):
     """ Returns the field value without field separator. """
     return self.match[1:] if self.match and self.withSeparator else self.match
 
+  def valueNoSep(self, val):
+    if val and self.withSeparator and val.startswith(self.SEPARATOR):
+      return val[1:] 
+    else:
+      return val
+
+  def valueWithSep(self, val):
+    if val and self.withSeparator and not val.startswith(self.SEPARATOR):
+      return self.SEPARATOR + val 
+    else:
+      return val
+
 class FileName(object):
   """
   A FileName instance can comprise instances of Field, each one can be optional.
@@ -196,3 +208,27 @@ class FastqFile(object):
   @classmethod
   def fieldAttrsCls(cls, *attrs):
     return IlluminaName.fieldAttrsCls(*attrs) + PathName.fieldAttrsCls(*attrs)
+ 
+  @classmethod
+  def fieldsCls(cls):
+    return IlluminaName.fieldsCls() + PathName.fieldsCls()
+
+  @classmethod
+  def fieldsFilter(cls, name):
+    return [ field for field in cls.fieldsCls() if field.name==name ]
+ 
+  @classmethod
+  def fieldNoSepCls(cls, field, val):
+    fqFields = cls.fieldsFilter(field)
+    if fqFields:
+      return fqFields[0].valueNoSep(val)
+    else:
+      return val
+
+  @classmethod
+  def fieldWithSepCls(cls, field, val):
+    fqFields = cls.fieldsFilter(field)
+    if fqFields:
+      return fqFields[0].valueWithSep(val)
+    else:
+      return val

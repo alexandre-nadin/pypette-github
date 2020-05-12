@@ -132,32 +132,33 @@ class SamplesManager(utils.manager.Manager):
           kwargs.pop(col, None) 
 
     """ Formatted String """
-    fs = StringFormatter(s).formatPartialMap(keepMissingKeys=True, **kwargs)
+    # Ensures required fastq fields are with their field separator
+    fqFieldsWithSep = { key: FastqFile.fieldWithSepCls(key, val)
+                            for key, val in kwargs.items()
+                      }
+    fs = StringFormatter(s).formatPartialMap(keepMissingKeys=True, **fqFieldsWithSep)
 
     """ Required Columns """
     required_cols = [ col 
       for col in self.data.columns 
       if col in fs.keywords() 
     ]
-    
+   
     """ Set Query Dict """
-    query_dict = {
-      key: val
+    # Get correct value if field is part of FastqFile fields.
+    fqFieldsQuery = {
+      key: FastqFile.fieldNoSepCls(key, val)
       for key, val in queryFilter.items()
       if key in self.data.columns 
     }
 
-    if query_dict:
-      query = " and ".join([
-        "{}=='{}'".format(key, val)
-        for key, val in query_dict.items()
-      ])
+    if fqFieldsQuery:
+      query = " and ".join([ f"{key}=='{val}'" for key, val in fqFieldsQuery.items()])
     else:
       query = ""
     
     """ Query DataFrame """
     samples = self.query(query, selectedCols=required_cols)
-
     ret = [
       fs.formatPartialMap(
         keepMissingKeys=False,
