@@ -214,12 +214,12 @@ class FastqFile(object):
     return IlluminaName.fieldsCls() + PathName.fieldsCls()
 
   @classmethod
-  def fieldFilter(cls, field):
-    return [ field for field in cls.fieldsCls() if field.name==field ]
+  def fieldsFilter(cls, name):
+    return [ field for field in cls.fieldsCls() if field.name==name ]
  
   @classmethod
   def fieldNoSepCls(cls, field, val):
-    fqFields = cls.fieldFilter(field)
+    fqFields = cls.fieldsFilter(field)
     if fqFields:
       return fqFields[0].valueNoSep(val)
     else:
@@ -227,7 +227,7 @@ class FastqFile(object):
 
   @classmethod
   def fieldWithSepCls(cls, field, val):
-    fqFields = cls.fieldFilter(field)
+    fqFields = cls.fieldsFilter(field)
     if fqFields:
       return fqFields[0].valueWithSep(val)
     else:
