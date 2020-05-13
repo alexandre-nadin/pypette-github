@@ -30,7 +30,6 @@ class SamplesManager(utils.manager.Manager):
     if query:
       data = data.query(query)
       if data.empty:
-        self.log.info(f"No sample found for filters '{query}'.")
         return data
 
     """ Select Columns """
