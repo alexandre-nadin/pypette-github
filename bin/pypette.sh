@@ -114,6 +114,10 @@ eol
 # -------
 # Manual
 # -------
+pypette::version() {
+  cat "$(pypette::homeDir)/version.txt"
+}
+
 pypette__manual='manual'
 pypette::setManual() {
   pypette__manual="$1"
@@ -133,6 +137,8 @@ pypette__paramsMandatory=(PROJECT PIPELINE)
 
 manual() {
   cat << EOFMAN
+
+  PYPETTE v$(pypette::version)
  
   DESCRIPTION
       Launches a CTGB PIPELINE for the given PROJECT.

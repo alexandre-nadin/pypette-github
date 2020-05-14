@@ -27,6 +27,8 @@ pypetype__paramsMandatory=(PROJECT TARGET)
 pypetype::manual() {
   cat << eol
 
+  PYPETTE v$(pypette::version)
+
   DESCRIPTION
       Launches the $(pypetype::pipeline) pipeline to produce TARGET files for the given PROJECT.
 
