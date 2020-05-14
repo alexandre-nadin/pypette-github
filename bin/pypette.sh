@@ -1,5 +1,8 @@
 # bash
-trap pypette::onexit EXIT SIGKILL
+
+pypette::setTraps() {
+  trap pypette::onexit EXIT SIGKILL
+}
 
 pypette::onexit() {
   pypette::setJobsDirPermissions
@@ -20,6 +23,7 @@ VARENVS_TAG="_PYPETTE_"
 # Workflow
 # ---------
 pypette::runFlow() {
+  pypette::setTraps
   pypette::initParams
   pypette::parseParams "$@"
   pypette::checkParams
