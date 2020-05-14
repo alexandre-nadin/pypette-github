@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+source pypette.sh
+
+# Update version
+sed -i "1s/^.*$/# pypette v$(pypette::version)/" \
+  "$(pypette::homeDir)/wiki/Home.md"
