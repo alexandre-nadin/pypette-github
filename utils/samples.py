@@ -3,6 +3,7 @@ from utils.dicts import toAddict, popFirst
 from utils.files import extension as extensionOf
 from utils.fastq_helper import FastqFile
 from utils.strings import StringFormatter
+from itertools import chain
 import addict
 import os, sys
 import pandas as pd
@@ -161,8 +162,13 @@ class SamplesManager(utils.manager.Manager):
     ret = [
       fs.formatPartialMap(
         keepMissingKeys=False,
-        **dict(zip(required_cols, values)))
-      for values in samples.values
+        **dict({ key: FastqFile.fieldWithSepCls(key, val) 
+                 for key, val in dict(zip(required_cols,
+                                          list(chain.from_iterable(samples.values))
+                                 )).items()
+              })
+      )
+      for values in list(chain.from_iterable(samples.values))
       if not samples.empty
     ]
 
