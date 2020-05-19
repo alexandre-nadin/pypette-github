@@ -159,17 +159,23 @@ class SamplesManager(utils.manager.Manager):
     
     """ Query DataFrame """
     samples = self.query(query, selectedCols=required_cols)
-    ret = [
-      fs.formatPartialMap(
-        keepMissingKeys=False,
-        **dict({ key: FastqFile.fieldWithSepCls(key, val) 
-                 for key, val in dict(zip(required_cols,
-                                          list(chain.from_iterable(samples.values))
-                                 )).items()
-              })
-      )
-      for values in list(chain.from_iterable(samples.values))
+    rawQueries = [
+      dict(zip(required_cols, values))
+      for values in samples.values
       if not samples.empty
+    ]
+
+    fieldQueries = [ 
+      { key: FastqFile.fieldWithSepCls(key, val)
+        for key, val in fieldQuery.items()
+      }
+      for fieldQuery in rawQueries
+    ]
+    ret = [
+       fs.formatPartialMap(
+         keepMissingKeys=False,
+         **fieldQuery)
+       for fieldQuery in fieldQueries 
     ]
 
     if unique:
