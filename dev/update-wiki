@@ -4,4 +4,15 @@ source pypette.sh
 
 # Update version
 sed -i "1s/^.*$/# pypette v$(pypette::version)/" \
-  "$(pypette::homeDir)/wiki/Home.md"
+  "$(pypette::homeDir)/wiki/home.md"
+
+# Versions Updates
+
+rawUpdates=$(cat versions.txt)
+updates="${rawUpdates//
+/\\n}"
+
+sed "s|\${UPDATES}|${updates}|" \
+  "$(pypette::homeDir)/wiki/versions-updates-template.md" \
+  > "$(pypette::homeDir)/wiki/versions-updates.md"
+
