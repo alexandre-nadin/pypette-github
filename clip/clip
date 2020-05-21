@@ -1,11 +1,19 @@
 #!/usr/bin/env bash
+CLIP_DIR=$(dirname $(readlink -f ${BASH_SOURCE[0]}))
 OUTDIR=$(pwd)
 PRJ=$(basename $OUTDIR)
 RUN=190610_M00571_0401_000000000-C92M3
 #PYPETTE_DIR=/lustre1/ctgb-usr/src/pypette
 
 cat << eol
-PRJ   : $PRJ
-OUTDIR: $OUTDIR
-RUN   : $RUN
+CLIP_DIR : $CLIP_DIR
+PRJ     : $PRJ
+OUTDIR  : $OUTDIR
+RUN     : $RUN
 eol
+
+source "${CLIP_DIR}/utils.sh"
+source "${CLIP_DIR}/config.sh"
+source "${CLIP_DIR}/samples.sh"
+source "${CLIP_DIR}/targets.sh"
+source "${CLIP_DIR}/commands.sh"
