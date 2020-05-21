@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+pypette=$(readlink -f $(dirname "${BASH_SOURCE[0]}"))
+source "${pypette}/../bin/src-export.sh"
+source pypette.sh
+
+versionUpdates() {
+  local version=$(pypette::version)
+  cat << eol
+# pypette v[$version](versions-updates##markdown-header-$version)
+eol
+}
+
+# Update version
+sed -i "1s/^.*$/$(versionUpdates)/" \
+  "$(pypette::homeDir)/wiki/Home.md"
+
+# Versions Updates
+
+rawUpdates=$(cat versions-updates.txt)
+updates="${rawUpdates//
+/\\n}"
+
+sed "s|\${UPDATES}|${updates}|" \
+  "$(pypette::homeDir)/wiki/versions-updates-template.md" \
+  > "$(pypette::homeDir)/wiki/versions-updates.md"
+
