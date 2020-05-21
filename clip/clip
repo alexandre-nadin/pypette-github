@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+OUTDIR=$(pwd)
+PRJ=$(basename $OUTDIR)
+RUN=190610_M00571_0401_000000000-C92M3
+#PYPETTE_DIR=/lustre1/ctgb-usr/src/pypette
+
+cat << eol
+PRJ   : $PRJ
+OUTDIR: $OUTDIR
+RUN   : $RUN
+eol
