@@ -23,7 +23,7 @@ def fastq__mapFilename(filename, runid):
   """
   fastqFile = FastqFile(filename.strip(), runId=runid)
   if fastqFile.isValid:
-    return list(chain.from_iterable(fastqFile.fieldAttrs('match')))
+    return list(chain.from_iterable(fastqFile.fieldAttrs('value')))
   else:
     return None
 

@@ -1,0 +1,9 @@
+## 0.0.1 :fire:
+  - Can merge fastq files between sequencing runs ([Inter-run Merging](targets#markdown-header-inter-run-merging) ).
+  - Can execute targets interactively ([Clusterless Execution](cluster-execution#markdown-header-clusterless-execution))
+  - Can limit number of jobs/cores per node ([Maximum Jobs](cluster-execution#markdown-header-maximum-jobs))
+  - Can give multiple targets per command ([Targets](targets))
+  - Tolerance to custom input fastq filenames ([Flexible Fastq Inputs](targets#markdown-header-flexible-fastq-inputs))
+
+## 0.0.0
+  - And so it begins.

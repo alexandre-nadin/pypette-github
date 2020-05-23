@@ -1,5 +1,8 @@
 # bash
-trap pypette::onexit EXIT SIGKILL
+
+pypette::setTraps() {
+  trap pypette::onexit EXIT SIGKILL
+}
 
 pypette::onexit() {
   pypette::setJobsDirPermissions
@@ -20,6 +23,7 @@ VARENVS_TAG="_PYPETTE_"
 # Workflow
 # ---------
 pypette::runFlow() {
+  pypette::setTraps
   pypette::initParams
   pypette::parseParams "$@"
   pypette::checkParams
@@ -114,6 +118,10 @@ eol
 # -------
 # Manual
 # -------
+pypette::version() {
+  cat "$(pypette::homeDir)/version.txt"
+}
+
 pypette__manual='manual'
 pypette::setManual() {
   pypette__manual="$1"
@@ -133,6 +141,8 @@ pypette__paramsMandatory=(PROJECT PIPELINE)
 
 manual() {
   cat << EOFMAN
+
+  PYPETTE v$(pypette::version)
  
   DESCRIPTION
       Launches a CTGB PIPELINE for the given PROJECT.

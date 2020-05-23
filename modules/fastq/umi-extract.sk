@@ -1,6 +1,6 @@
 rule fastq_umi__whitelist:
   input:
-    r1    = pypette.input(f"{fastq_umi__preSampleTarget}{{sample_extension}}", sample_read="_R1")
+    r1    = pypette.input(f"{fastq_umi__preSampleTarget}{{sample_extension}}", sample_read="R1")
   output:
     wlist = f"{fastq_umi__pipeTarget}whitelist.txt",
   run:
@@ -28,10 +28,10 @@ rule fastq_umi__extract:
   input:
     r1    = pypette.input(
               f"{fastq_umi__preSampleTarget}{{sample_extension}}",
-              sample_read="_R1"),
+              sample_read="R1"),
     r2    = pypette.input(
               f"{fastq_umi__preSampleTarget}{{sample_extension}}",
-              sample_read="_R2"),
+              sample_read="R2"),
     wlist = pypette.input(f"{fastq_umi__pipeTarget}whitelist.txt")
   output: 
     r1 = pypette.temp(f"{fastq_umi__pipeTarget}{{sample_name}}_R1.fastq.gz"),
