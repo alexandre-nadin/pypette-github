@@ -13,7 +13,7 @@ pypette.includeModules(
 samples__sampleTargetDir     = "samples/all/runs/{sample_run}"
 samples__ssheetTarget        = f"{samples__sampleTargetDir}/samplesheet.csv"
 samples__seqrunFilesTarget   = f"{samples__sampleTargetDir}/samples.txt"
-samples__seqrunCsvMapTarget  = f"{samples__sampleTargetDir}/samples.csv"
+samples__seqrunCsvMapTarget  = f"{samples__sampleTargetDir}/samples-run.csv"
 samples__seqrunsCsvMapTarget = f"{samples__sampleTargetDir}/samples.csv".format(sample_run="all")
 
 rule samples__seqrunSamplesheet:
@@ -76,7 +76,9 @@ rule samples__seqrunMap:
         pypette.samples.listsToSamplesheet(
           sampleLines, 
           ',') + os.linesep)
-    cmd = ""
+    cmd = """
+      ln -s ./$(basename {output.map}) $(dirname {output.map})/samples.csv
+    """
     exshell(force=True, **vars())
 
 rule samples__seqrunsMap:
