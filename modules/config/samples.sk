@@ -13,16 +13,16 @@ pypette.includeModules(
 samples__sampleTargetDir     = "samples/all/runs/{sample_run}"
 samples__ssheetTarget        = f"{samples__sampleTargetDir}/samplesheet.csv"
 samples__seqrunFilesTarget   = f"{samples__sampleTargetDir}/samples.txt"
-samples__seqrunCsvMapTarget  = f"{samples__sampleTargetDir}/samples.csv"
+samples__seqrunCsvMapTarget  = f"{samples__sampleTargetDir}/samples-run.csv"
 samples__seqrunsCsvMapTarget = f"{samples__sampleTargetDir}/samples.csv".format(sample_run="all")
 
 rule samples__seqrunSamplesheet:
   input:
     confs   = config__files,
     project = project__config,
-    ssheet  = lambda x: runs__samplesheet("{sample_run}")
+    ssheet  = lambda wildcards: runs__samplesheet(wildcards.sample_run)
   output:
-    ssheet = samples__ssheetTarget
+    ssheet  = samples__ssheetTarget
   run:
     cmd = f"""
       source illumina.samplesheet.lib
@@ -62,7 +62,7 @@ rule samples__seqrunMap:
   input:
     file = samples__seqrunFilesTarget
   output:
-    map   = samples__seqrunCsvMapTarget
+    map  = samples__seqrunCsvMapTarget
   run:
     """ File Output Header """
     sampleLines = [ fastq__sampleHeader() ]
@@ -76,7 +76,9 @@ rule samples__seqrunMap:
         pypette.samples.listsToSamplesheet(
           sampleLines, 
           ',') + os.linesep)
-    cmd = ""
+    cmd = """
+      ln -sf ./$(basename {output.map}) $(dirname {output.map})/samples.csv
+    """
     exshell(force=True, **vars())
 
 rule samples__seqrunsMap:
@@ -86,7 +88,7 @@ rule samples__seqrunsMap:
   input:
     maps = lambda x: expand(samples__seqrunCsvMapTarget, sample_run=pypette.config.project.runIds)
   output:
-    map   = samples__seqrunsCsvMapTarget
+    map  = samples__seqrunsCsvMapTarget
   run:
     cmd = f"""
       head -n 1 -q {input.maps[0]} > {output.map}
@@ -107,6 +109,5 @@ rule samples__mapAll:
       ln {input.map} {output.map} 
     """
     exshell(force=True, **vars())
-
 
 localrules: samples__seqrunSamplesheet, samples__seqrunFiles, samples__seqrunMap, samples__seqrunsMap, samples__mapAll

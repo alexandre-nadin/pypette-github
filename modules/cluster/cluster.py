@@ -4,5 +4,5 @@ def cluster__prefixMountPoint(func):
     path = func(*args, **kwargs)
     if mntpoint:
       path = path.lstrip(os.path.sep) 
-    return os.path.join(mntpoint, path)
+    return os.path.join(mntpoint, path) if path else None
   return wrapper

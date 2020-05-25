@@ -24,10 +24,20 @@ def runs__paths(check_runs=False):
 def runs__path(runid):
   """
   Builds the path of the given runid.
-  """
-  return os.path.join(
-    pypette.config.cluster.sequencingRuns.rawDir, 
-    runid)
+  If :runid: found in several rawDirs, considers the first valid path found.
+  Accepts a single path as well as a list of paths.
+  """ 
+  runPath = None
+  rawDirs = pypette.config.cluster.sequencingRuns.rawDirs
+  rawDirs = [ rawDirs ] if type(rawDirs) is str else rawDirs
+  for rawDir in rawDirs:
+    runPathTmp = os.path.join(rawDir, runid)
+    if os.path.exists(runPathTmp):
+      runPath = runPathTmp
+      break
+  if not runPath:
+    pypette.log.info(f"No path found for run '{runid}'. Check your rawDirs in your cluster configuration ({rawDirs}).")
+  return runPath
    
 def runs__checkRuns(runs=[]):
   """
@@ -46,9 +56,11 @@ def runs__samplesheet(runid):
   """
   Retrieve the samplesheet used in the given :runid:.
   """
-  return os.path.join(
-    runs__path(runid),
-    "samplesheet.csv")
+  runPath = runs__path(runid)
+  ssheet = None
+  if runPath:
+    ssheet = os.path.join(runPath, "samplesheet.csv")
+  return ssheet
 
 def runs__prjPath(runid):
   return os.path.join(runs__path(runid), pypette.project)
