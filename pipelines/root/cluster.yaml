@@ -4,7 +4,9 @@ cluster:
   sampleSheetDir: "/lustre1/SampleSheets"
   stdAnalysisDir: "/lustre2/standard-analysis"
   sequencingRuns:
-    rawDir: "/lustre2/raw_data"
+    rawDirs: 
+      - "/lustre1/raw_data"
+      - "/lustre2/raw_data"
     outDir: "sequencing-runs"
   genomeDir: "/lustre1/genomes"
   tmpdir: "/lustre2/scratch/tmp"
