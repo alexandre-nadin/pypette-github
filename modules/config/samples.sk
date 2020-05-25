@@ -77,7 +77,7 @@ rule samples__seqrunMap:
           sampleLines, 
           ',') + os.linesep)
     cmd = """
-      ln -s ./$(basename {output.map}) $(dirname {output.map})/samples.csv
+      ln -sf ./$(basename {output.map}) $(dirname {output.map})/samples.csv
     """
     exshell(force=True, **vars())
 
