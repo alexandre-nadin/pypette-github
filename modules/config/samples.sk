@@ -20,7 +20,7 @@ rule samples__seqrunSamplesheet:
   input:
     confs   = config__files,
     project = project__config,
-    ssheet  = lambda x: runs__samplesheet("{sample_run}")
+    ssheet  = lambda wildcards: runs__samplesheet(wildcards.sample_run)
   output:
     ssheet = samples__ssheetTarget
   run:
