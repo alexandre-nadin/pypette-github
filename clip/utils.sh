@@ -25,3 +25,27 @@ maxCores() {
    | sort -t= -nr -k3 \
    | head -1
 }
+
+vars-declaration()
+  #
+  # Show shell declaration for the given variables. Reads from STDIN.
+  #
+{
+  while read -r line; do
+    for var in $line; do 
+      printf "$var='${!var}'\n"
+    done
+  done < <(cat /dev/stdin)
+}
+
+vars-ls()
+  #
+  # Lists given variables. Reads from STDIN.
+  #
+{
+  while read -r line; do
+    for var in $line; do 
+      printf "$var: ${!var}\n"
+    done
+  done < <(cat /dev/stdin)
+}
