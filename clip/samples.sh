@@ -43,9 +43,32 @@ samples ()
   echo -e "$samples"
 }
 
+samples-less ()
+#
+# Excludes the samples given in STDIN.
+#
+{
+  local samples="$(
+          grep -v "$(cat /dev/stdin | sed '/^$/d' | orRegex)" \
+            < <(samples) \
+          || samples)"
+  samplesSelected=$(echo $samples)
+  clip-save-session
+  echo -e "$samples"
+}
+
+samples-to-index ()
+#
+# Gets the serial number of the given :sample: name.
+#
+{
+  local sample=$(cat /dev/stdin)
+  samples-ls | grep ":${sample}\$" | cut -d: -f1
+}
+
 samples-selected ()
 {
   clip-load
   echo -e "samplesSelected: '$samplesSelected'" >&2
-  echo $samplesSelected
+  tr ' ' '\n' <<< "$samplesSelected"
 }
