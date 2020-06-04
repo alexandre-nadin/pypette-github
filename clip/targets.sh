@@ -16,6 +16,15 @@ target-process()
   printf "$targetProcess"
 }
 
+target-samples ()
+#
+# Gets the indexes of the selected samples.
+# Links them in one string.
+#
+{
+  samples-selected | tr '\n' '_' | sed 's/_$//'
+}
+
 target-build-function ()
   #
   # Creates the recipe for a pipeable function that builds the given :target:

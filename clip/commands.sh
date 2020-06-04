@@ -54,7 +54,7 @@ eol
 cmd-log ()
 {
   clip-load
-  printf "${LOG_DIR}/$(target-process)_$(target-run)_$(samples-selected)_$(timestamp).out"
+  printf "${LOG_DIR}/$(target-process)__run_$(target-run)__spls_$(target-samples)__$(timestamp).out"
 }
 
 # Register all wrappers to pypette executables
