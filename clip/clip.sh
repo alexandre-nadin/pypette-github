@@ -11,7 +11,24 @@ clip-init ()
 # Initializes a clip session.
 #
 {
-  [ -f "$CLIP_SNAPSHOT" ] || touch "$CLIP_SNAP_SHOT"
+  clip-set-logs
+  clip-load
+}
+
+clip-set-logs ()
+#
+# Initializes log directory
+#
+{
+  mkdir -p "$LOG_DIR"
+}
+
+clip-load ()
+#
+# Loads a clip session
+#
+{
+  [ -f "$CLIP_SNAPSHOT" ] || touch "$CLIP_SNAPSHOT"
   source "$CLIP_SNAPSHOT"
 }
 

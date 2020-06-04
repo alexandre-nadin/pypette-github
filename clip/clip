@@ -6,6 +6,8 @@ RUN=190610_M00571_0401_000000000-C92M3
 #PYPETTE_DIR=/lustre1/ctgb-usr/src/pypette
 
 CLIP_SNAPSHOT='.clip.sh'
+LOG_DIR='logs'
+
 source "${CLIP_DIR}/clip.sh"
 
 clip-init
