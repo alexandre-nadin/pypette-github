@@ -1,4 +1,20 @@
 #bash
+targetProcess=""
+
+target-run ()
+{
+  printf "$RUN"
+}
+
+target-set-process()
+{
+  targetProcess="$1"
+}
+
+target-process()
+{
+  printf "$targetProcess"
+}
 
 target-build-function ()
   #
@@ -10,6 +26,9 @@ target-build-function ()
 target-${name} ()
 {
   while read -r sample_name; do
+    clip-load
+    target-set-process "$name" 
+    clip-save-session
     printf "${target}\n"
   done 
 }

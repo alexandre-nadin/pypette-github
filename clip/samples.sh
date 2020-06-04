@@ -1,3 +1,6 @@
+#bash
+samplesSelected=()
+
 samples-csv ()
 {
   printf "samples/all/runs/${RUN}/samples.csv"
@@ -31,7 +34,18 @@ samples ()
   # Lists all available sample names. 
   # Index filtering is available.
   #
-  samples-ls $@ \
-  | cut -d: -f2
+  local samples="$(samples-ls $@ | cut -d: -f2)"
+  samplesSelected=$(echo $samples)
+  echo -e "\n[samples]" >&2
+  clip-save-session
+  echo -e "[samples]" >&2
+  echo -e "  samples: '$samples'" >&2
+  echo -e "$samples"
 }
 
+samples-selected ()
+{
+  clip-load
+  echo -e "samplesSelected: '$samplesSelected'" >&2
+  echo $samplesSelected
+}

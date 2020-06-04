@@ -42,6 +42,6 @@ clip-save ()
 
 clip-vars() 
 {
-  echo CLIP_DIR PRJ OUTDIR RUN
+  echo CLIP_DIR PRJ OUTDIR RUN targetProcess samplesSelected
 }
 
