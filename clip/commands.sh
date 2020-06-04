@@ -47,11 +47,18 @@ cmd-parameters ()
     -p $PRJ -o $OUTDIR      \
     --snake-opts "$snkOpts" \
     $targets                \
-    2>&1 | tee $log
+    2>&1 | tee $(cmd-log)
 eol
+}
+
+cmd-log ()
+{
+  clip-load
+  printf "${LOG_DIR}/$(target-process)_$(target-run)_$(samples-selected)_$(timestamp).out"
 }
 
 # Register all wrappers to pypette executables
 for cmd in $(cmds-pypette); do 
   cmd-register "$cmd"
 done
+

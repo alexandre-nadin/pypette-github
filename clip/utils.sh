@@ -26,6 +26,11 @@ maxCores() {
    | head -1
 }
 
+timestamp ()
+{
+  date +%Y-%m-%d-%H-%M-%S
+}
+
 vars-declaration()
   #
   # Show shell declaration for the given variables. Reads from STDIN.
