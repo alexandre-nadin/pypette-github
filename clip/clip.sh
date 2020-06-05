@@ -49,7 +49,7 @@ clip-load ()
 
 clip-snapshot-file ()
 {
-  printf "${CLIP_SNAPDIR}/${CLIP_SNAPSHOT}"
+  printf -- "${CLIP_SNAPDIR}/${CLIP_SNAPSHOT}"
 }
 
 clip-save-session () 
@@ -95,7 +95,7 @@ clip-ls-vars ()
 
 clip-run ()
 {
-  printf "$CLIP_RUN"
+  printf -- "$CLIP_RUN"
 }
 
 clip-set-run ()

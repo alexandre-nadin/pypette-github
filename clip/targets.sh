@@ -9,7 +9,7 @@ target-set-process()
 
 target-process()
 {
-  printf "$TARGET_PROCESS"
+  printf -- "$TARGET_PROCESS"
 }
 
 target-samples ()
@@ -35,7 +35,7 @@ target-${name} ()
     clip-load
     target-set-process "$name" 
     clip-save-session
-    printf "${target}\n"
+    printf -- "${target}\n"
   done 
 }
 eol
