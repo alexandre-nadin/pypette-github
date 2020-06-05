@@ -1,9 +1,9 @@
 #bash
-samplesSelected=()
+SAMPLES_SELECTED=()
 
 samples-csv ()
 {
-  printf "samples/all/runs/${RUN}/samples.csv"
+  printf "samples/all/runs/${CLIP_RUN}/samples.csv"
 }
 
 samples-read ()
@@ -35,8 +35,8 @@ samples ()
   # Index filtering is available.
   #
   local samples="$(samples-ls $@ | cut -d: -f2)"
-  samplesSelected=$(echo $samples)
   echo -e "\n[samples]" >&2
+  SAMPLES_SELECTED=$(echo $samples)
   clip-save-session
   echo -e "[samples]" >&2
   echo -e "  samples: '$samples'" >&2
@@ -52,7 +52,7 @@ samples-less ()
           grep -v "$(cat /dev/stdin | sed '/^$/d' | orRegex)" \
             < <(samples) \
           || samples)"
-  samplesSelected=$(echo $samples)
+  SAMPLES_SELECTED=$(echo $samples)
   clip-save-session
   echo -e "$samples"
 }
@@ -69,6 +69,6 @@ samples-to-index ()
 samples-selected ()
 {
   clip-load
-  echo -e "samplesSelected: '$samplesSelected'" >&2
-  tr ' ' '\n' <<< "$samplesSelected"
+  echo -e "SAMPLES_SELECTED: '$SAMPLES_SELECTED'" >&2
+  tr ' ' '\n' <<< "$SAMPLES_SELECTED"
 }

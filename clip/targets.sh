@@ -1,19 +1,19 @@
 #bash
-targetProcess=""
+TARGET_PROCESS=""
 
 target-run ()
 {
-  printf "$RUN"
+  printf "$CLIP_RUN"
 }
 
 target-set-process()
 {
-  targetProcess="$1"
+  TARGET_PROCESS="$1"
 }
 
 target-process()
 {
-  printf "$targetProcess"
+  printf "$TARGET_PROCESS"
 }
 
 target-samples ()
@@ -52,8 +52,8 @@ target-register ()
   eval "$(target-build-function $@)"
 }
 
-target-register multiqc-rnaseq 'samples/${sample_name}/runs/${RUN}/fastq/merge-by-read/mapped/STAR/multiqc_report.html'
+target-register multiqc-rnaseq 'samples/${sample_name}/runs/${CLIP_RUN}/fastq/merge-by-read/mapped/STAR/multiqc_report.html'
 
-target-register multiqc-dna-wes 'samples/${sample_name}/runs/${RUN}/fastq/merge-by-read/trimmed/bbduk/mapped/bwa/sorted/picard/markdup/multiqc_report.html'
+target-register multiqc-dna-wes 'samples/${sample_name}/runs/${CLIP_RUN}/fastq/merge-by-read/trimmed/bbduk/mapped/bwa/sorted/picard/markdup/multiqc_report.html'
 
-target-register multiqc-dna-wgs 'samples/${sample_name}/runs/${RUN}/fastq/merge-by-read/trimmed/bbduk/mapped/bwa/sorted/picard/markdup/multiqc_report.html'
+target-register multiqc-dna-wgs 'samples/${sample_name}/runs/${CLIP_RUN}/fastq/merge-by-read/trimmed/bbduk/mapped/bwa/sorted/picard/markdup/multiqc_report.html'

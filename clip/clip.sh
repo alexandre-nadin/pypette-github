@@ -1,4 +1,10 @@
 #bash
+CLIP_SNAPSHOT='.clip.sh'
+CLIP_LOGDIR='logs'
+  
+CLIP_OUTDIR=${CLIP_OUTDIR:-$(pwd)}
+CLIP_PRJ=${CLIP_PRJ:-$(basename "$CLIP_OUTDIR")}
+CLIP_RUN=${CLIP_RUN:-all}
 
 source "${CLIP_DIR}/utils.sh"
 source "${CLIP_DIR}/config.sh"
@@ -20,7 +26,7 @@ clip-set-logs ()
 # Initializes log directory
 #
 {
-  mkdir -p "$LOG_DIR"
+  mkdir -p "$CLIP_LOGDIR"
 }
 
 clip-load ()
@@ -59,6 +65,9 @@ clip-save ()
 
 clip-vars() 
 {
-  echo CLIP_DIR PRJ OUTDIR RUN targetProcess samplesSelected
+  cat << eol | xargs
+    CLIP_DIR CLIP_OUTDIR CLIP_PRJ CLIP_RUN 
+    TARGET_PROCESS SAMPLES_SELECTED
+eol
 }
 
