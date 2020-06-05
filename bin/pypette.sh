@@ -303,6 +303,7 @@ pypette::envActivate() {
 # ------------------
 # Shell Environment
 # ------------------
+source "$(pypette::homeDir)/clip/utils.sh"
 pypette::exportVarenvs() {
   pypette::exportExecVarenv "HOME" $(pypette::homeDir)
   pypette::exportExecVarenv "PROJECT"
@@ -315,6 +316,7 @@ pypette::exportVarenvs() {
   export TMPDIR=${TMPDIR:-/lustre2/scratch/tmp}
   export PATH="${SCRIPT_DIR}${PATH:+:${PATH}}"
   export PYTHONPATH=${PYTHONPATH:+${PYTHONPATH}":"}$(pypette::homeDir)
+  export OPENBLAS_NUM_THREADS=$(maxCores)
   pypette::exportExecVarenv "PYTHON_SYSPATH" "$(pypette::pythonSysPath) ${PYTHONPATH:+${PYTHONPATH[@]}} $(pypette::homeDir)"
   pypette::exportExecVarenv "EXE_DIR"
   pypette::exportExecVarenv "EXE_TIME"
