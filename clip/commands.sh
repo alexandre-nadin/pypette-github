@@ -2,7 +2,7 @@
 snkOpts="-n"
 
 CMD_LAST=''
-CMD_JOBS=
+CMD_JOBS=1
 
 cmd-set-last ()
 #

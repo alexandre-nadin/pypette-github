@@ -18,7 +18,7 @@ target-samples ()
 # Links them in one string.
 #
 {
-  samples-selected | tr '\n' '_' | sed 's/_$//'
+  samples-selected | samples-to-index| tr '\n' '_' | sed 's/_$//'
 }
 
 target-build-function ()
@@ -29,7 +29,8 @@ target-build-function ()
   local name="$1" target="$2"
   cat << eol
 target-${name} ()
-{
+{ 
+  local sample_run="\$(clip-run)"
   while read -r sample_name; do
     clip-load
     target-set-process "$name" 
@@ -48,8 +49,8 @@ target-register ()
   eval "$(target-build-function $@)"
 }
 
-target-register multiqc-rnaseq 'samples/${sample_name}/runs/${CLIP_RUN}/fastq/merge-by-read/mapped/STAR/multiqc_report.html'
+target-register multiqc-rnaseq 'samples/${sample_name}/runs/${sample_run}/fastq/merge-by-read/mapped/STAR/multiqc_report.html'
 
-target-register multiqc-dna-wes 'samples/${sample_name}/runs/${CLIP_RUN}/fastq/merge-by-read/trimmed/bbduk/mapped/bwa/sorted/picard/markdup/multiqc_report.html'
+target-register multiqc-dna-wes 'samples/${sample_name}/runs/${sample_run}/fastq/merge-by-read/trimmed/bbduk/mapped/bwa/sorted/picard/markdup/multiqc_report.html'
 
-target-register multiqc-dna-wgs 'samples/${sample_name}/runs/${CLIP_RUN}/fastq/merge-by-read/trimmed/bbduk/mapped/bwa/sorted/picard/markdup/multiqc_report.html'
+target-register multiqc-dna-wgs 'samples/${sample_name}/runs/${sample_run}/fastq/merge-by-read/trimmed/bbduk/mapped/bwa/sorted/picard/markdup/multiqc_report.html'
