@@ -81,6 +81,11 @@ clip-vars()
 eol
 }
 
+clip-ls-vars ()
+{
+  clip-vars | vars-ls
+}
+
 clip-run ()
 {
   printf "$CLIP_RUN"
