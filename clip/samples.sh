@@ -3,7 +3,7 @@ SAMPLES_SELECTED=()
 
 samples-csv ()
 {
-  printf "samples/all/runs/${CLIP_RUN}/samples.csv"
+  printf -- "samples/all/runs/${CLIP_RUN}/samples.csv"
 }
 
 samples-read ()

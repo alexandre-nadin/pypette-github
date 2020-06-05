@@ -1,8 +1,7 @@
 #bash
-snkOpts="-n"
-
 CMD_LAST=''
 CMD_JOBS=1
+CMD_SNAKE_OPTS=""
 
 cmd-set-last ()
 #
@@ -66,9 +65,9 @@ cmd-parameters ()
   #
 {
   cat << 'eol'
-    --no-cluster -j $(cmd-jobs)  \
-    -p $CLIP_PRJ -o $CLIP_OUTDIR      \
-    --snake-opts "$snkOpts" \
+    --no-cluster -j $(cmd-jobs)      \
+    -p $CLIP_PRJ -o $CLIP_OUTDIR     \
+    --snake-opts "$(cmd-snake-opts)" \
     $targets                \
     2>&1 | tee $(cmd-log)
 eol
@@ -77,7 +76,7 @@ eol
 cmd-log ()
 {
   clip-load
-  printf "${CLIP_LOGDIR}/$(target-process)__run_$(clip-run)__spls_$(target-samples)__$(timestamp).out"
+  printf -- "${CLIP_LOGDIR}/$(target-process)__run_$(clip-run)__spls_$(target-samples)__$(timestamp).out"
 }
 
 cmd-set-jobs ()
@@ -96,7 +95,18 @@ cmd-jobs ()
   else
     jobs=1
   fi
-  printf ${CMD_JOBS:-$jobs}
+  printf -- ${CMD_JOBS:-$jobs}
+}
+
+cmd-snake-opts ()
+{
+  printf -- "$CMD_SNAKE_OPTS"
+}
+
+cmd-set-snake-opts ()
+{
+  CMD_SNAKE_OPTS="$1"
+  clip-save-session
 }
 
 for cmd in $(cmds-pypette); do 

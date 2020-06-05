@@ -1,5 +1,5 @@
 #bash
-CLIP_SNAPSHOT=${1:-'.clip.sh'}
+CLIP_SNAPSHOT=${1:-'clip.sh'}
 CLIP_LOGDIR='logs'
 CLIP_SNAPDIR='clip'
   
@@ -49,7 +49,7 @@ clip-load ()
 
 clip-snapshot-file ()
 {
-  printf "${CLIP_SNAPDIR}/${CLIP_SNAPSHOT}"
+  printf -- "${CLIP_SNAPDIR}/${CLIP_SNAPSHOT}"
 }
 
 clip-save-session () 
@@ -84,7 +84,7 @@ clip-vars()
     CLIP_DIR CLIP_SNAPSHOT
     CLIP_OUTDIR CLIP_PRJ CLIP_RUN 
     TARGET_PROCESS SAMPLES_SELECTED
-    CMD_LAST CMD_JOBS
+    CMD_LAST CMD_JOBS CMD_SNAKE_OPTS
 eol
 }
 
@@ -95,7 +95,7 @@ clip-ls-vars ()
 
 clip-run ()
 {
-  printf "$CLIP_RUN"
+  printf -- "$CLIP_RUN"
 }
 
 clip-set-run ()
