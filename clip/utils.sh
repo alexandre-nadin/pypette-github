@@ -23,7 +23,8 @@ maxCores() {
    | grep '^cpu core' \
    | cut -d: -f2      \
    | sort -t= -nr -k3 \
-   | head -1
+   | head -1          \
+   | sed 's/ //'
 }
 
 freeMem ()
