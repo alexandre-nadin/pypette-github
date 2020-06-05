@@ -29,7 +29,7 @@ maxCores() {
 freeMem ()
 {
   free -g | grep 'buffers/cache' | cut -d: -f2 | awk '{print $2}' \
-  || printf 0
+  || printf -- 0
 }
 
 timestamp ()
@@ -44,7 +44,7 @@ vars-declaration()
 {
   while read -r line; do
     for var in $line; do 
-      printf "$var='${!var}'\n"
+      printf -- "$var='${!var}'\n"
     done
   done < <(cat /dev/stdin)
 }
@@ -56,7 +56,7 @@ vars-ls()
 {
   while read -r line; do
     for var in $line; do 
-      printf "$var: ${!var}\n"
+      printf -- "$var: ${!var}\n"
     done
   done < <(cat /dev/stdin)
 }
