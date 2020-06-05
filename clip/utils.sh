@@ -1,5 +1,10 @@
 #bash
 
+grepLineNbRegex ()
+{
+  cat /dev/stdin | sed -e 's/^/\^/' -e 's/$/:/'
+}
+
 orRegex() {
   cat /dev/stdin | tr '\n' '|' | sed -e 's/|$//' -e 's/|/\\|/g'
 }

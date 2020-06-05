@@ -11,21 +11,20 @@ samples-read ()
   cut -d, -f1 $(samples-csv) \
   | tail -n +2               \
   | sort | uniq 
-
 }
 
 samples-ls () 
-{
   #
   # Lists available samples with their indexes.
   # Can filter on the specified indexes.
   #
+{
   local idxes idxRegex
   idxes=$(tr ' ' '\n' <<< "$@")
-  idxRegex=$(orRegex <<< "$idxes")
+  idxRegex=$(grepLineNbRegex <<< "$idxes" | orRegex)
   samples-read  \
   | grep -n '^' \
-  | grep "${idxRegex:+$idxRegex}"
+  | grep "${idxes:+$idxRegex}"
 }
 
 samples ()
