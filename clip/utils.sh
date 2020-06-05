@@ -26,6 +26,12 @@ maxCores() {
    | head -1
 }
 
+freeMem ()
+{
+  free -g | grep 'buffers/cache' | cut -d: -f2 | awk '{print $2}' \
+  || printf 0
+}
+
 timestamp ()
 {
   date +%Y-%m-%d-%H-%M-%S

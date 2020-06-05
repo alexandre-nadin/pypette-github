@@ -1,9 +1,8 @@
 #bash
-nJobs=2
-log="log.out"
 snkOpts="-n"
 
 CMD_LAST=''
+CMD_JOBS=
 
 cmd-set-last ()
 #
@@ -67,7 +66,7 @@ cmd-parameters ()
   #
 {
   cat << 'eol'
-    --no-cluster -j $nJobs  \
+    --no-cluster -j $(cmd-jobs)  \
     -p $CLIP_PRJ -o $CLIP_OUTDIR      \
     --snake-opts "$snkOpts" \
     $targets                \
@@ -81,8 +80,25 @@ cmd-log ()
   printf "${CLIP_LOGDIR}/$(target-process)__run_$(clip-run)__spls_$(target-samples)__$(timestamp).out"
 }
 
-# Register all wrappers to pypette executables
+cmd-set-jobs ()
+{
+  CMD_JOBS="$1"
+  clip-save-session
+}
+
+cmd-jobs ()
+{
+  local maxMem freeMem jobs
+  maxMem=32
+  freeMem=$(freeMem)
+  if [ $freeMem -gt 0 ]; then
+    jobs=$((freeMem/maxMem))
+  else
+    jobs=1
+  fi
+  printf ${CMD_JOBS:-$jobs}
+}
+
 for cmd in $(cmds-pypette); do 
   cmd-register "$cmd"
 done
-
