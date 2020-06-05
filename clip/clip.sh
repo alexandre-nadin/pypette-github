@@ -1,5 +1,5 @@
 #bash
-CLIP_SNAPSHOT='.clip.sh'
+CLIP_SNAPSHOT=${1:-'.clip.sh'}
 CLIP_LOGDIR='logs'
   
 CLIP_OUTDIR=${CLIP_OUTDIR:-$(pwd)}
@@ -18,6 +18,7 @@ clip-init ()
 #
 {
   clip-set-logs
+  clip-init-session
   clip-load
 }
 
@@ -29,12 +30,19 @@ clip-set-logs ()
   mkdir -p "$CLIP_LOGDIR"
 }
 
+clip-init-session ()
+#
+# Ensures the clip session is created.
+#
+{
+  [ -f "$CLIP_SNAPSHOT" ] || clip-save-session
+}
+
 clip-load ()
 #
 # Loads a clip session
 #
 {
-  [ -f "$CLIP_SNAPSHOT" ] || touch "$CLIP_SNAPSHOT"
   source "$CLIP_SNAPSHOT"
 }
 
@@ -66,7 +74,8 @@ clip-save ()
 clip-vars() 
 {
   cat << eol | xargs
-    CLIP_DIR CLIP_OUTDIR CLIP_PRJ CLIP_RUN 
+    CLIP_DIR CLIP_SNAPSHOT
+    CLIP_OUTDIR CLIP_PRJ CLIP_RUN 
     TARGET_PROCESS SAMPLES_SELECTED CMD_LAST
 eol
 }
