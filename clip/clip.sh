@@ -1,6 +1,7 @@
 #bash
 CLIP_SNAPSHOT=${1:-'.clip.sh'}
 CLIP_LOGDIR='logs'
+CLIP_SNAPDIR='clip'
   
 CLIP_OUTDIR=${CLIP_OUTDIR:-$(pwd)}
 CLIP_PRJ=${CLIP_PRJ:-$(basename "$CLIP_OUTDIR")}
@@ -35,7 +36,7 @@ clip-init-session ()
 # Ensures the clip session is created.
 #
 {
-  [ -f "$CLIP_SNAPSHOT" ] || clip-save-session
+  [ -f "$(clip-snapshot-file)" ] || clip-save-session
 }
 
 clip-load ()
@@ -43,7 +44,12 @@ clip-load ()
 # Loads a clip session
 #
 {
-  source "$CLIP_SNAPSHOT"
+  source "$(clip-snapshot-file)"
+}
+
+clip-snapshot-file ()
+{
+  printf "${CLIP_SNAPDIR}/${CLIP_SNAPSHOT}"
 }
 
 clip-save-session () 
@@ -68,7 +74,8 @@ clip-save ()
 # Saves the SDIN in the clip snapshot file.
 #
 {
-  cat /dev/stdin > $CLIP_SNAPSHOT
+  mkdir -p "$CLIP_SNAPDIR"
+  cat /dev/stdin > "$(clip-snapshot-file)"
 }
 
 clip-vars() 
