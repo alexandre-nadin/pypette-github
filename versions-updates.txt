@@ -1,9 +1,15 @@
-## 0.0.1 :fire:
+## 0.0.2 - *25/05/2020* :fire:
+  - Now can use multiple paths for sequencing runs' fastq directories ([Project Configuration](project-config#markdown-header-mapping-available-samples)).
+## 0.0.1 - *21/05/2020*
   - Can merge fastq files between sequencing runs ([Inter-run Merging](targets#markdown-header-inter-run-merging) ).
   - Can execute targets interactively ([Clusterless Execution](cluster-execution#markdown-header-clusterless-execution))
   - Can limit number of jobs/cores per node ([Maximum Jobs](cluster-execution#markdown-header-maximum-jobs))
   - Can give multiple targets per command ([Targets](targets))
   - Tolerance to custom input fastq filenames ([Flexible Fastq Inputs](targets#markdown-header-flexible-fastq-inputs))
 
-## 0.0.0
-  - And so it begins.
+## X.Y.Z - *--/--/--*
+  - 
+  - Embarrassing Void
+  -
+## 0.0.0 - *30/10/2017*
+  - And so it begun.
