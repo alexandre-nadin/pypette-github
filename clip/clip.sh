@@ -67,7 +67,18 @@ clip-vars()
 {
   cat << eol | xargs
     CLIP_DIR CLIP_OUTDIR CLIP_PRJ CLIP_RUN 
-    TARGET_PROCESS SAMPLES_SELECTED
+    TARGET_PROCESS SAMPLES_SELECTED CMD_LAST
 eol
+}
+
+clip-run ()
+{
+  printf "$CLIP_RUN"
+}
+
+clip-set-run ()
+{
+  CLIP_RUN="$1"
+  clip-save-session
 }
 

@@ -3,6 +3,27 @@ nJobs=2
 log="log.out"
 snkOpts="-n"
 
+CMD_LAST=''
+
+cmd-set-last ()
+#
+# Sets and saves the last command executed.
+#
+{
+  CMD_LAST="$1"
+  clip-save-session
+}
+
+cmd-last ()
+#
+# Prints the last command executed.
+# Selected samples, target process and last command have to be registered.
+#
+{
+  clip-load
+  samples-selected | target-$(target-process) | cmd-${CMD_LAST}
+}
+
 cmds-pypette ()
   #
   # Lists available pypette commands
@@ -30,6 +51,9 @@ cmd-build-func ()
 cmd-${cmd} ()
 {
   local targets=\$(cat /dev/stdin | xargs)
+  clip-load
+  cmd-set-last ${cmd}
+  clip-save-session
   cat << _eol
   time ${cmd} $(cmd-parameters)
 _eol
@@ -54,7 +78,7 @@ eol
 cmd-log ()
 {
   clip-load
-  printf "${CLIP_LOGDIR}/$(target-process)__run_$(target-run)__spls_$(target-samples)__$(timestamp).out"
+  printf "${CLIP_LOGDIR}/$(target-process)__run_$(clip-run)__spls_$(target-samples)__$(timestamp).out"
 }
 
 # Register all wrappers to pypette executables
