@@ -34,11 +34,8 @@ samples ()
   # Index filtering is available.
   #
   local samples="$(samples-ls $@ | cut -d: -f2)"
-  echo -e "\n[samples]" >&2
   SAMPLES_SELECTED=$(echo $samples)
   clip-save-session
-  echo -e "[samples]" >&2
-  echo -e "  samples: '$samples'" >&2
   echo -e "$samples"
 }
 
@@ -68,6 +65,5 @@ samples-to-index ()
 samples-selected ()
 {
   clip-load
-  echo -e "SAMPLES_SELECTED: '$SAMPLES_SELECTED'" >&2
   tr ' ' '\n' <<< "$SAMPLES_SELECTED"
 }
