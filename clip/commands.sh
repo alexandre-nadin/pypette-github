@@ -105,7 +105,7 @@ cmd-snake-opts ()
 
 cmd-set-snake-opts ()
 {
-  CMD_SNAKE_OPTS="$1"
+  CMD_SNAKE_OPTS="$@"
   clip-save-session
 }
 
