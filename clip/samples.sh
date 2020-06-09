@@ -58,8 +58,9 @@ samples-to-index ()
 # Gets the serial number of the given :sample: name.
 #
 {
-  local sample=$(cat /dev/stdin)
-  samples-ls | grep ":${sample}\$" | cut -d: -f1
+  while read -r sample; do
+    samples-ls | grep ":${sample}\$" | cut -d: -f1
+  done < <(cat /dev/stdin)
 }
 
 samples-selected ()
