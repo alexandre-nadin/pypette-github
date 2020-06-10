@@ -73,8 +73,24 @@ samples-to-index ()
   done < <(cat /dev/stdin)
 }
 
+samples-count ()
+{
+  samples | wc -l
+}
+
 samples-selected ()
+#
+# Lists all previously selected samples.
+#
 {
   clip-load
   tr ' ' '\n' <<< "$SAMPLES_SELECTED"
+}
+
+samples-are-all-selected ()
+#
+# Tells whether all the samples were previously selected.
+#
+{
+  [ $(samples-selected | wc -l) -eq $(samples | wc -l) ]
 }

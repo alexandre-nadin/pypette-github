@@ -18,7 +18,11 @@ target-samples ()
 # Links them in one string.
 #
 {
-  samples-selected | samples-to-index| tr '\n' '_' | sed 's/_$//'
+  if samples-are-all-selected; then
+    printf 'all'
+  else
+    samples-selected | samples-to-index | str-join '_'
+  fi
 }
 
 target-build-function ()
