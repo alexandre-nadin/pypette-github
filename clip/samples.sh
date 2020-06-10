@@ -33,7 +33,16 @@ samples ()
   # Lists all available sample names. 
   # Index filtering is available.
   #
-  local samples="$(samples-ls $@ | cut -d: -f2)"
+  samples-ls $@ | cut -d: -f2
+}
+
+samples-select ()
+#
+# Selects the samples with the given indexes.
+# Updates sample selection.
+#
+{
+  local samples="$(samples $@)"
   SAMPLES_SELECTED=$(echo $samples)
   clip-save-session
   echo -e "$samples"
@@ -42,6 +51,7 @@ samples ()
 samples-less ()
 #
 # Excludes the samples given in STDIN.
+# Updates sample selection.
 #
 {
   local samples="$(
@@ -63,8 +73,24 @@ samples-to-index ()
   done < <(cat /dev/stdin)
 }
 
+samples-count ()
+{
+  samples | wc -l
+}
+
 samples-selected ()
+#
+# Lists all previously selected samples.
+#
 {
   clip-load
   tr ' ' '\n' <<< "$SAMPLES_SELECTED"
+}
+
+samples-are-all-selected ()
+#
+# Tells whether all the samples were previously selected.
+#
+{
+  [ $(samples-selected | wc -l) -eq $(samples | wc -l) ]
 }

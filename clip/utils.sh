@@ -66,3 +66,9 @@ vars-ls()
     done
   done < <(cat /dev/stdin)
 }
+
+str-join ()
+{
+  local sep="${1:-_}"
+  cat /dev/stdin | tr '\n' "${sep[0]}" | sed "s/${sep[0]}\$//"
+}
