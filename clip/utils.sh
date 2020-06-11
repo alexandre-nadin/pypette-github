@@ -10,10 +10,10 @@ orRegex() {
 }
 
 frame() {
-  #
-  # Narrows the STDIN list.
-  # Requires index to start and number of following elements.
-  #
+#
+# Narrows the STDIN list.
+# Requires index to start and number of following elements.
+#
   cat /dev/stdin             \
   | tail -n +$((0+${1:-1}))  \
   | head -n ${2:--0}
@@ -44,9 +44,9 @@ timestamp ()
 }
 
 vars-declaration()
-  #
-  # Show shell declaration for the given variables. Reads from STDIN.
-  #
+#
+# Show shell declaration for the given variables. Reads from STDIN.
+#
 {
   while read -r line; do
     for var in $line; do 
@@ -56,9 +56,9 @@ vars-declaration()
 }
 
 vars-ls()
-  #
-  # Lists given variables. Reads from STDIN.
-  #
+#
+# Lists given variables. Reads from STDIN.
+#
 {
   local vars=$(cat /dev/stdin) indent=${1:-0} indentStr='' maxLen=0 indentVar
   if [ $indent -gt 0 ]; then

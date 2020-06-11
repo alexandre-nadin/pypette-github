@@ -14,10 +14,10 @@ samples-read ()
 }
 
 samples-ls () 
-  #
-  # Lists available samples with their indexes.
-  # Can filter on the specified indexes.
-  #
+#
+# Lists available samples with their indexes.
+# Can filter on the specified indexes.
+#
 {
   local idxes idxRegex
   idxes=$(tr ' ' '\n' <<< "$@")
@@ -29,10 +29,10 @@ samples-ls ()
 
 samples ()
 {
-  #
-  # Lists all available sample names. 
-  # Index filtering is available.
-  #
+#
+# Lists all available sample names. 
+# Index filtering is available.
+#
   samples-ls $@ | cut -d: -f2
 }
 

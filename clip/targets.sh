@@ -26,9 +26,9 @@ target-samples ()
 }
 
 target-build-function ()
-  #
-  # Creates the recipe for a pipeable function that builds the given :target:
-  #
+#
+# Creates the recipe for a pipeable function that builds the given :target:
+#
 {
   local name="$1" target="$2"
   cat << eol
@@ -46,9 +46,9 @@ eol
 }
 
 target-register ()
-  #
-  # Registers the given :target: in a function.
-  #
+#
+# Registers the given :target: in a function.
+#
 {
   eval "$(target-build-function $@)"
 }

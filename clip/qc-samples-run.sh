@@ -13,10 +13,10 @@ toRegexOr() {
 }
 
 frame() {
-  #
-  # Narrows the STDIN list.
-  # Requires index to start and number of following elements.
-  #
+#
+# Narrows the STDIN list.
+# Requires index to start and number of following elements.
+#
   cat /dev/stdin             \
   | tail -n +$((0+${1:-1}))  \
   | head -n ${2:--0}
@@ -48,36 +48,36 @@ setRawDir() {
 # Targets
 # --------
 mqcTarget() {
-  #
-  # Unique multiqc target for all samples.
-  # Type has to be specified.
-  #
+#
+# Unique multiqc target for all samples.
+# Type has to be specified.
+#
   ${1}MqcTarget <<< 'all'
 }
 
 mqcTargets() {
-  #
-  # Qc target for each sample;
-  # Type has to be specified first.
-  # Target indowing available. 
-  #
+#
+# Qc target for each sample;
+# Type has to be specified first.
+# Target indowing available. 
+#
   local type="$1" && shift
   samples $@ | ${type}MqcTarget
 }
 
 mqcTargetsSamples() {
-  #
-  # Qc target for each given sample.
-  # Type has to be specified first.
-  # Sample list is expected in STDIN
-  #
+#
+# Qc target for each given sample.
+# Type has to be specified first.
+# Sample list is expected in STDIN
+#
   ${1}MqcTarget < /dev/stdin
 }
 
 samples() {
-  #
-  # Lists all available samples. Frame can be specified.
-  #
+#
+# Lists all available samples. Frame can be specified.
+#
   readSamples | frame ${1:+$1} ${2:+$2}
 }
 
@@ -87,18 +87,18 @@ sample-to-idx() {
 }
 
 samplesIdx() {
-  #
-  # Retrieves sample names by their index.
-  #
+#
+# Retrieves sample names by their index.
+#
   for i in $@; do
     samples $i 1
   done
 }
 
 samples-() {
-  #
-  # Lists available samples excluding selection from STDIN
-  #
+#
+# Lists available samples excluding selection from STDIN
+#
   grep -v "$(cat /dev/stdin | toRegexOr)" \
    < <(samples) \
   || samples;  
@@ -277,9 +277,9 @@ logsErrors() {
 }
 
 logsLast() {
-  #
-  # Gets the last try log for each log.
-  #
+#
+# Gets the last try log for each log.
+#
   logs \
    | sed 's/try.*out$//' \
    | sort | uniq \

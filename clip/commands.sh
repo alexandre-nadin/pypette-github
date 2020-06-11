@@ -23,26 +23,26 @@ cmd-last ()
 }
 
 cmds-pypette ()
-  #
-  # Lists available pypette commands
-  #
+#
+# Lists available pypette commands
+#
 {
   \ls ${CLIP_DIR}/../bin/pypette-* \
   | xargs -I{} basename {}
 }
 
 cmd-register ()
-  #
-  # Registers the given :cmd: in a wrapper function.
-  #
+#
+# Registers the given :cmd: in a wrapper function.
+#
 {
   eval "$(cmd-build-func $1)"
 }
 
 cmd-build-func ()
-  #
-  # Creates the recipe for a pipeable function that wraps the given executable :cmd: name.
-  #
+#
+# Creates the recipe for a pipeable function that wraps the given executable :cmd: name.
+#
 {
   local cmd="$1"
   cat << eol
@@ -60,9 +60,9 @@ eol
 }
 
 cmd-parameters ()
-  #
-  # Returns the default parameters for a pypette command.
-  #
+#
+# Returns the default parameters for a pypette command.
+#
 {
   cat << 'eol'
     --no-cluster -j $(cmd-jobs)      \
@@ -74,6 +74,9 @@ eol
 }
 
 cmd-log ()
+#
+# Sets the command log for the piped command.
+#
 {
   clip-load
   printf -- "${CLIP_LOGDIR}/$(target-process)__run_$(clip-run)__spls_$(target-samples)__$(timestamp).out"
@@ -109,6 +112,7 @@ cmd-set-snake-opts ()
   clip-save-session
 }
 
+# Register all wrappers for pypette executables
 for cmd in $(cmds-pypette); do 
   cmd-register "$cmd"
 done
