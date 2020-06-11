@@ -90,7 +90,10 @@ eol
 
 clip-ls-vars ()
 {
-  clip-vars | vars-ls
+  cat << eol >&2
+*** SESSION VARIABLES ***
+$(clip-vars | vars-ls 2)
+eol
 }
 
 clip-run ()

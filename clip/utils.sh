@@ -60,11 +60,38 @@ vars-ls()
   # Lists given variables. Reads from STDIN.
   #
 {
+  local vars=$(cat /dev/stdin) indent=${1:-0} indentStr='' maxLen=0 indentVar
+  if [ $indent -gt 0 ]; then
+    indentStr=$(str-repeat $indent <<< ' ')
+  fi 
+
+  maxLen=$(tr ' ' '\n' <<< "$vars" | str-len | nb-max)
+  for var in $vars; do 
+    indentVar=$(str-repeat $((maxLen + 1 - ${#var})) <<< ' ')
+    printf -- "${indentStr}${var}${indentVar}: ${!var}\n"
+  done
+}
+
+str-len ()
+{
   while read -r line; do
-    for var in $line; do 
-      printf -- "$var: ${!var}\n"
-    done
-  done < <(cat /dev/stdin)
+    printf "${#line}\n"
+  done
+}
+
+str-repeat ()
+{
+  local str=$(cat /dev/stdin) times=${1:-1}
+  printf "${str}%.0s" $(seq $times)
+}
+
+nb-max ()
+{
+  local max=1
+  while read -r nb; do
+    [ $nb -gt $max ] && max=$nb || :
+  done
+  printf $max
 }
 
 str-join ()
