@@ -1,13 +1,13 @@
 #bash
 TARGET_PROCESS=""
 
-target-set-process()
+target-set-process ()
 {
   TARGET_PROCESS="$1"
   clip-save-session
 }
 
-target-process()
+target-process ()
 {
   printf -- "$TARGET_PROCESS"
 }

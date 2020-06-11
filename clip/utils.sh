@@ -5,25 +5,29 @@ grepLineNbRegex ()
   cat /dev/stdin | sed -e 's/^/\^/' -e 's/$/:/'
 }
 
-orRegex() {
+orRegex ()
+{
   cat /dev/stdin | tr '\n' '|' | sed -e 's/|$//' -e 's/|/\\|/g'
 }
 
-frame() {
+frame ()
 #
 # Narrows the STDIN list.
 # Requires index to start and number of following elements.
 #
+{
   cat /dev/stdin             \
   | tail -n +$((0+${1:-1}))  \
   | head -n ${2:--0}
 }
 
-procNb() {
+procNb ()
+{
   cat /proc/cpuinfo | grep '^processor'
 }
 
-maxCores() {
+maxCores ()
+{
   cat /proc/cpuinfo   \
    | grep '^cpu core' \
    | cut -d: -f2      \
@@ -43,7 +47,7 @@ timestamp ()
   date +%Y-%m-%d-%H-%M-%S
 }
 
-vars-declaration()
+vars-declaration ()
 #
 # Show shell declaration for the given variables. Reads from STDIN.
 #
@@ -55,7 +59,7 @@ vars-declaration()
   done < <(cat /dev/stdin)
 }
 
-vars-ls()
+vars-ls ()
 #
 # Lists given variables. Reads from STDIN.
 #

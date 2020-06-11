@@ -78,7 +78,7 @@ clip-save ()
   cat /dev/stdin > "$(clip-snapshot-file)"
 }
 
-clip-vars() 
+clip-vars () 
 {
   cat << eol | xargs
     CLIP_DIR CLIP_SNAPSHOT
