@@ -7,16 +7,9 @@ CLIP_OUTDIR=${CLIP_OUTDIR:-$(pwd)}
 CLIP_PRJ=${CLIP_PRJ:-$(basename "$CLIP_OUTDIR")}
 CLIP_RUN=${CLIP_RUN:-all}
 
-CLIP_MODULES=(
-  clip.sh
-  config.sh
-  samples.sh
-  targets.sh
-  commands.sh
-  utils.sh
-)
-
-CLIP_USER_CMDS=()
+# ---------------
+# CLIP Session
+# ---------------
 
 clip-init ()
 #
@@ -27,43 +20,6 @@ clip-init ()
   clip-set-logs
   clip-init-session
   clip-load
-}
-
-clip-source-modules ()
-#
-# Sources all the clip module.
-#
-{
-  for module in $(clip-modules-path); do
-    source $module
-  done
-}
-
-clip-modules-path ()
-#
-# Lists the absolute path for all clip modules.
-#
-{
-  clip-modules | clip-module-path
-}
-
-clip-modules ()
-#
-# Lists all the clip modules.
-#
-{
-  tr ' ' '\n' <<< ${CLIP_MODULES[@]}
-}
-
-clip-module-path ()
-#
-# Gives the absolute path of the given clip module.
-# Reads from STDIN.
-#
-{
-  while read -r module; do
-    printf "${CLIP_DIR}/${module}\n"
-  done < <(cat -)
 }
 
 clip-set-logs ()
@@ -124,17 +80,79 @@ clip-save ()
   cat /dev/stdin > "$(clip-snapshot-file)"
 }
 
+# --------
+# Modules
+# --------
+CLIP_MODULES=(
+  clip.sh
+  config.sh
+  samples.sh
+  genomes.sh
+  targets.sh
+  commands.sh
+  utils.sh
+)
+
+clip-source-modules ()
+#
+# Sources all the clip modules.
+#
+{
+  for module in $(clip-modules-path); do
+    source $module
+  done
+}
+
+clip-modules-path ()
+#
+# Lists the absolute path for all clip modules.
+#
+{
+  clip-modules | clip-module-path
+}
+
+clip-modules ()
+#
+# Lists all the clip modules.
+#
+{
+  tr ' ' '\n' <<< ${CLIP_MODULES[@]}
+}
+
+clip-module-path ()
+#
+# Gives the absolute path of the given clip module.
+# Reads from STDIN.
+#
+{
+  while read -r module; do
+    printf "${CLIP_DIR}/${module}\n"
+  done < <(cat -)
+}
+
+# -------------------
+# Session Variables
+# -------------------
+
+CLIP_SESSION_VARS=(
+  CLIP_DIR 
+  CLIP_OUTDIR
+  CLIP_SNAPSHOT
+  CLIP_PRJ
+  CLIP_RUN 
+  TARGET_PROCESS
+  SAMPLES_SELECTED
+  CMD_JOBS 
+  CMD_SNAKE_OPTS
+  CMD_LAST
+)
+
 clip-vars () 
 #
 # Prints all clip variables in use.
 #
 {
-  cat << eol | xargs
-    CLIP_DIR CLIP_SNAPSHOT
-    CLIP_OUTDIR CLIP_PRJ CLIP_RUN 
-    TARGET_PROCESS SAMPLES_SELECTED
-    CMD_LAST CMD_JOBS CMD_SNAKE_OPTS
-eol
+  echo ${CLIP_SESSION_VARS[@]}
 }
 
 clip-session ()
@@ -214,6 +232,11 @@ Doc & Tutorial: https://bitbucket.org/cosrhsr/pypette/wiki/clip
 eol
 }
 
+# ---------
+# Commands
+# ---------
+CLIP_USER_CMDS=()
+
 clip-cmds ()
 #
 # Lists clip user functions with documentation.
@@ -238,6 +261,9 @@ clip-cmds-all ()
   cat $(clip-modules-path) | func-doc $@
 }
 
-clip-add-usr-cmds \
+# --------------
+# User Commands
+# --------------
+clip-add-usr-cmds                    \
   clip-manual clip-session clip-cmds \
   clip-run clip-set-run 

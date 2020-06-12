@@ -2,12 +2,18 @@
 TARGET_PROCESS=""
 
 target-set-process ()
+#
+# Sets the current process.
+#
 {
   TARGET_PROCESS="$1"
   clip-save-session
 }
 
 target-process ()
+#
+# Shows the current target process.
+#
 {
   printf -- "$TARGET_PROCESS"
 }
@@ -63,10 +69,16 @@ target-register ()
   eval "$(target-build-function $@)"
 }
 
+# --------------
+# User Commands
+# --------------
 clip-add-usr-cmds                   \
   target-process target-set-process \
   target-register
 
+# -----------------
+# Standard Targets
+# -----------------
 target-register multiqc-rnaseq 'samples/${sample_name}/runs/${sample_run}/fastq/merge-by-read/mapped/STAR/multiqc_report.html'
 
 target-register multiqc-dna-wes 'samples/${sample_name}/runs/${sample_run}/fastq/merge-by-read/trimmed/bbduk/mapped/bwa/sorted/picard/markdup/multiqc_report.html'

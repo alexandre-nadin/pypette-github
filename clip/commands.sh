@@ -130,6 +130,9 @@ for cmd in $(cmds-pypette); do
   cmd-register "$cmd"
 done
 
+# --------------
+# User Commands
+# --------------
 clip-add-usr-cmds       \
   cmd-last              \
   cmd-jobs cmd-set-jobs \

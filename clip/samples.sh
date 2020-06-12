@@ -134,27 +134,10 @@ sample-rm-tmps ()
   cat /dev/stdin | sample-tmps | xargs rm
 }
 
-GNMS_TMP_EXTS='gz\|bed\|gtf\|fa\|fasta'
-genomes-tmps()
-#
-# Lists all temporaries for genomes.
-#
-{
-  find genomes -type f -regex ".*\(${GNMS_TMP_EXTS}\)"
-}
-
-genomes-rm-temps()
-#
-# Removes all temporaries for genomes.
-#
-{
-  genomes-tmps | xargs rm
-}
-
+# --------------
+# User Commands
+# --------------
 clip-add-usr-cmds                                 \
   samples-ls samples samples-select samples-less  \
   samples-to-index samples-count samples-selected \
-  samples-tmps samples-rm-tmps                    \
-  genomes-tmps genomes-rm-tmps
-  
-
+  samples-tmps samples-rm-tmps
