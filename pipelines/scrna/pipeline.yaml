@@ -83,6 +83,11 @@ pipeline:
           minInGroupFraction: 0.25
           minFoldChange: 1.19
           maxOutGroupFraction: 0.5
+          newClusterNames: [] # a list with the names for the clusters, sorted from cluster 0 to max  for example: ['CD4 T', 'CD14 Monocytes','B', 'CD8 T','NK', 'FCGR3A Monocytes','Dendritic', 'Megakaryocytes']
+          showGeneLabelsInHeatmap: False
+          stackedViolinTopGenes: 2 # 2 or 3 for top 2 or top 3 markers genes in stackedViolinPlot
+          dotTopGenes: 2 # 2 or 3 for top 2 or top 3 markers genes in dotPlot
+          markerGenesDict: {} # dictionary to characterize cell types in dotPlot. Choose custom marker genes. For example: {'B-cell': ['CD79A', 'MS4A1'],'T-cell': 'CD3D','T-cell CD8+': ['CD8A', 'CD8B'],'NK': ['GNLY', 'NKG7'],'Myeloid': ['CST3', 'LYZ'],'Monocytes': ['FCGR3A'],'Dendritic': ['FCER1A']}
   sequencing:
     platform: 'Illumina'
   center:

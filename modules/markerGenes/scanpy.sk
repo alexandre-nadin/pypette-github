@@ -253,7 +253,7 @@ rule scanpy__clusterMarkers:
   input:
     annot = f"{scanpy__pipeSample}_um.h5ad",
   output:
-    annot = temp(f"{scanpy__pipeSample}_cm.h5ad"),
+    annot = f"{scanpy__pipeSample}_cm.h5ad",
     csv   = f"{scanpy__pipeSample}_cm.csv"
   run:
     exshell(cmd="", **vars())
@@ -300,7 +300,7 @@ rule scanpy__interestingGenes:
     annot = f"{scanpy__pipeSample}_cm.h5ad",
     csv   = f"{scanpy__pipeSample}_cm.csv"
   output:
-    genes = temp(f"{scanpy__pipeSample}_interestingGenes.txt"),
+    genes = f"{scanpy__pipeSample}_interestingGenes.txt"
   run:
     exshell(cmd="", **vars())
 
@@ -340,3 +340,57 @@ rule scanpy__interestingGenes:
     pd.DataFrame(intGenes).to_csv(output.genes, index=False, header=False)
 
     sc.pl.violin(adata, intGenes, groupby='louvain', save='_group_comparison_' + wildcards.sample_name + '.pdf')
+
+rule scanpy__markersGenesPlots:
+  input:
+    annot = f"{scanpy__pipeSample}_cm.h5ad"
+  output:
+    csv   = f"{scanpy__pipeSample}_markerGenes.csv"
+  run:
+    exshell(cmd="", **vars())
+    ruleConf = config.pipeline.modules.markerGenes.scanpy.clusterMarkers
+
+    import scanpy as sc
+    import pandas as pd
+    import matplotlib
+    matplotlib.use('Agg')
+    sc.settings.autosave = True
+
+    adata = sc.read(input.annot)
+
+    topMG=pd.DataFrame(adata.uns['rank_genes_groups']['names']).head(10)
+    mg10=[]
+    for (columnName, columnData) in topMG.iteritems():
+      for gene in columnData.values:
+        mg10.append(gene)
+
+    mg3=[]
+    for (columnName, columnData) in topMG.head(3).iteritems():
+      for gene in columnData.values:
+        mg3.append(gene)
+
+    mg2=[]
+    for (columnName, columnData) in topMG.head(2).iteritems():
+      for gene in columnData.values:
+        mg2.append(gene)
+
+    if len(ruleConf.newClusterNames)>0:
+      adata.rename_categories('louvain', ruleConf.newClusterNames)
+      sc.pl.umap(adata, color='louvain', legend_loc='on data', save='_' + wildcards.sample_name + '.pdf')
+
+    sc.pl.heatmap(adata,mg10, groupby='louvain', swap_axes=True, show_gene_labels=ruleConf.showGeneLabelsInHeatmap)
+
+    if ruleConf.stackedViolinTopGene==2:
+      sc.pl.stacked_violin(adata, mg2, groupby='louvain', swap_axes=True, save='_' + wildcards.sample_name + '.pdf')
+    else:
+      sc.pl.stacked_violin(adata, mg3, groupby='louvain', swap_axes=True, save='_' + wildcards.sample_name + '.pdf')
+
+    if len(ruleConf.markerGenesDict)>0:
+      sc.pl.dotplot(adata, ruleConf.markerGenesDict, groupby='louvain', standard_scale='var', save='_' + wildcards.sample_name + '.pdf')
+    else:
+      if ruleConf.dotTopGenes==2:
+        sc.pl.dotplot(adata, mg2, groupby='louvain', standard_scale='var', save='_' + wildcards.sample_name + '.pdf')
+      else:
+        sc.pl.dotplot(adata, mg3, groupby='louvain', standard_scale='var', save='_' + wildcards.sample_name + '.pdf')
+
+    topMG.to_csv(output.csv, index=True, header=True)
