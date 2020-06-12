@@ -1,4 +1,8 @@
-## 0.0.2 - *25/05/2020* :fire:
+## 0.0.3 - *12/06/2020* :fire:
+  - Added graphics for scanpy in rnaseq pipeline.
+  - Added CLIP - Command Line Interface for sugar-manipulating samples, targets and pipeline commands.
+
+## 0.0.2 - *25/05/2020*
   - Now can use multiple paths for sequencing runs' fastq directories ([Project Configuration](project-config#markdown-header-mapping-available-samples)).
 ## 0.0.1 - *21/05/2020*
   - Can merge fastq files between sequencing runs ([Inter-run Merging](targets#markdown-header-inter-run-merging) ).
