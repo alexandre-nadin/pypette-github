@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+set -o pipefail
+CLIP_DIR=$(dirname $(readlink -f ${BASH_SOURCE[0]}))
+#PYPETTE_DIR=/lustre1/ctgb-usr/src/pypette
+
+source "${CLIP_DIR}/clip.sh" $@
+
+clip-init
+clip-manual
+clip-session
