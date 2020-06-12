@@ -7,20 +7,61 @@ CLIP_OUTDIR=${CLIP_OUTDIR:-$(pwd)}
 CLIP_PRJ=${CLIP_PRJ:-$(basename "$CLIP_OUTDIR")}
 CLIP_RUN=${CLIP_RUN:-all}
 
-source "${CLIP_DIR}/utils.sh"
-source "${CLIP_DIR}/config.sh"
-source "${CLIP_DIR}/samples.sh"
-source "${CLIP_DIR}/targets.sh"
-source "${CLIP_DIR}/commands.sh"
+CLIP_MODULES=(
+  clip.sh
+  config.sh
+  samples.sh
+  targets.sh
+  commands.sh
+  utils.sh
+)
 
 clip-init ()
 #
 # Initializes a clip session.
 #
 {
+  clip-source-modules
   clip-set-logs
   clip-init-session
   clip-load
+}
+
+clip-source-modules ()
+#
+# Sources all the clip module.
+#
+{
+  for module in $(clip-modules-path); do
+    source $module
+  done
+}
+
+clip-modules-path ()
+#
+# Lists the absolute path for all clip modules.
+#
+{
+  clip-modules | clip-module-path
+}
+
+clip-modules ()
+#
+# Lists all the clip modules.
+#
+{
+  tr ' ' '\n' <<< ${CLIP_MODULES[@]}
+}
+
+clip-module-path ()
+#
+# Gives the absolute path of the given clip module.
+# Reads from STDIN.
+#
+{
+  while read -r module; do
+    printf "${CLIP_DIR}/${module}\n"
+  done < <(cat -)
 }
 
 clip-set-logs ()
