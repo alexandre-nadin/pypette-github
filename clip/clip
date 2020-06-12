@@ -6,4 +6,5 @@ CLIP_DIR=$(dirname $(readlink -f ${BASH_SOURCE[0]}))
 source "${CLIP_DIR}/clip.sh" $@
 
 clip-init
-clip-ls-vars
+clip-manual
+clip-session

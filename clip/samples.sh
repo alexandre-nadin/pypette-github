@@ -2,11 +2,17 @@
 SAMPLES_SELECTED=()
 
 samples-csv ()
+#
+# Path for the current sample file.
+#
 {
   printf -- "samples/all/runs/${CLIP_RUN}/samples.csv"
 }
 
 samples-read ()
+#
+# Reads samples from csv
+#
 {
   cut -d, -f1 $(samples-csv) \
   | tail -n +2               \
@@ -14,10 +20,10 @@ samples-read ()
 }
 
 samples-ls () 
-  #
-  # Lists available samples with their indexes.
-  # Can filter on the specified indexes.
-  #
+#
+# Lists available samples with their indexes.
+# Can filter on the specified indexes.
+#
 {
   local idxes idxRegex
   idxes=$(tr ' ' '\n' <<< "$@")
@@ -28,11 +34,11 @@ samples-ls ()
 }
 
 samples ()
+#
+# Lists all available sample names. 
+# Index filtering is available.
+#
 {
-  #
-  # Lists all available sample names. 
-  # Index filtering is available.
-  #
   samples-ls $@ | cut -d: -f2
 }
 
@@ -74,6 +80,9 @@ samples-to-index ()
 }
 
 samples-count ()
+#
+# Counts all available samples for the run.
+#
 {
   samples | wc -l
 }
@@ -94,3 +103,41 @@ samples-are-all-selected ()
 {
   [ $(samples-selected | wc -l) -eq $(samples | wc -l) ]
 }
+
+# ------------
+# Temporaries
+# ------------
+SPLS_TMP_EXTS='gz\|bam'
+sample-tmps ()
+#
+# Lists all temporaries for the samples given in stdin
+#
+{
+  for spl in $(cat /dev/stdin); do
+    find samples/${spl}/runs/$(clip-run) -type f -regex ".*\.\(${SPLS_TMP_EXTS}\)"
+  done
+}
+
+samples-tmps ()
+#
+# Lists all the temporaries for all samples.
+#
+{
+  samples | sample-tmps
+}
+
+sample-rm-tmps ()
+#
+# Removes all temporaries for samples given in STDIN.
+#
+{
+  cat /dev/stdin | sample-tmps | xargs rm
+}
+
+# --------------
+# User Commands
+# --------------
+clip-add-usr-cmds                                 \
+  samples-ls samples samples-select samples-less  \
+  samples-to-index samples-count samples-selected \
+  samples-tmps samples-rm-tmps

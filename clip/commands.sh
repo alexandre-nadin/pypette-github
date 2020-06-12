@@ -23,26 +23,26 @@ cmd-last ()
 }
 
 cmds-pypette ()
-  #
-  # Lists available pypette commands
-  #
+#
+# Lists available pypette commands
+#
 {
   \ls ${CLIP_DIR}/../bin/pypette-* \
   | xargs -I{} basename {}
 }
 
 cmd-register ()
-  #
-  # Registers the given :cmd: in a wrapper function.
-  #
+#
+# Registers the given :cmd: in a wrapper function.
+#
 {
   eval "$(cmd-build-func $1)"
 }
 
 cmd-build-func ()
-  #
-  # Creates the recipe for a pipeable function that wraps the given executable :cmd: name.
-  #
+#
+# Creates the recipe for a pipeable function that wraps the given executable :cmd: name.
+#
 {
   local cmd="$1"
   cat << eol
@@ -60,9 +60,9 @@ eol
 }
 
 cmd-parameters ()
-  #
-  # Returns the default parameters for a pypette command.
-  #
+#
+# Returns the default parameters for a pypette command.
+#
 {
   cat << 'eol'
     --no-cluster -j $(cmd-jobs)      \
@@ -74,18 +74,27 @@ eol
 }
 
 cmd-log ()
+#
+# Produces a command log for the piped command.
+#
 {
   clip-load
   printf -- "${CLIP_LOGDIR}/$(target-process)__run_$(clip-run)__spls_$(target-samples)__$(timestamp).out"
 }
 
 cmd-set-jobs ()
+#
+# Sets the default number of jobs to execute sumltaneously (cores).
+#
 {
   CMD_JOBS="$1"
   clip-save-session
 }
 
 cmd-jobs ()
+#
+# Show the number of jobs set for piped commands.
+#
 {
   local maxMem freeMem jobs
   maxMem=32
@@ -99,16 +108,33 @@ cmd-jobs ()
 }
 
 cmd-snake-opts ()
+#
+# Options to be passed to Snakemake.
+#
 {
   printf -- "$CMD_SNAKE_OPTS"
 }
 
 cmd-set-snake-opts ()
+#
+# Sets custom snakemake options.
+# Check snakemake --help for available options.
+#
 {
   CMD_SNAKE_OPTS="$@"
   clip-save-session
 }
 
+# Register all wrappers for pypette executables
 for cmd in $(cmds-pypette); do 
   cmd-register "$cmd"
 done
+
+# --------------
+# User Commands
+# --------------
+clip-add-usr-cmds       \
+  cmd-last              \
+  cmd-jobs cmd-set-jobs \
+  cmd-snake-opts cmd-set-snake-opts
+  

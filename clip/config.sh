@@ -1,5 +1,6 @@
 #bash
-set-raw-dir() {
+set-raw-dir ()
+{
   local lustre="${1:-2}"
   local rawDir='    rawDir:'
   local rawDirLine="^${rawDir}.*\$"
