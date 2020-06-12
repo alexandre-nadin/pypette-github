@@ -16,6 +16,8 @@ CLIP_MODULES=(
   utils.sh
 )
 
+CLIP_USER_CMDS=()
+
 clip-init ()
 #
 # Initializes a clip session.
@@ -132,8 +134,12 @@ eol
 clip-ls-vars ()
 {
   cat << eol >&2
-*** SESSION VARIABLES ***
+*********************
+* SESSION VARIABLES *
+*********************
 $(clip-vars | vars-ls 2)
+
+
 eol
 }
 
@@ -148,3 +154,71 @@ clip-set-run ()
   clip-save-session
 }
 
+# ---------------
+# Documentation
+# ---------------
+clip-manual ()
+#
+# Manual for CLIP
+#
+{
+  cat << eol
+
+*********************************************
+*
+* CLIP - Command Line Interface for Pypette
+*
+*********************************************
+
+------------
+- SYNOPSIS -
+------------
+
+Clip provides pipeable tools to apply pypette pipelines to specific samples.
+
+Clip helps you to:
+  * Filter pypette samples
+  * Generate standard and custom process targets
+  * Declare pipeable functions to create custom template targets
+  * Produce a pypette command with default options
+  * Produce a default log file registering all the command output
+
+---------------
+- GET STARTED -
+---------------
+Functions:
+  clip-manual  : displays this manual
+  clip-cmds    : displays available functions with their documentation
+  clip-session : displays variable info about current CLIP session 
+
+-------------
+- MORE INFO -
+-------------
+Doc & Tutorial: https://bitbucket.org/cosrhsr/pypette/wiki/clip
+
+eol
+}
+
+clip-cmds ()
+#
+# Lists clip user functions with documentation.
+#
+{
+  clip-cmds-all ${CLIP_USER_CMDS[@]}
+}
+
+clip-add-usr-cmds ()
+#
+# Adds a command to the list of available user commands.
+#
+{
+  CLIP_USER_CMDS+=($@)
+}
+
+clip-cmds-all ()
+#
+# Lists exhaustively all clip functions with documentation.
+#
+{
+  cat $(clip-modules-path) | func-doc $@
+}

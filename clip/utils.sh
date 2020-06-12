@@ -115,3 +115,25 @@ str-join ()
   local sep="${1:-_}"
   cat /dev/stdin | tr '\n' "${sep[0]}" | sed "s/${sep[0]}\$//"
 }
+
+# -----------
+# Functions
+# -----------
+func-doc ()
+# Filters the function names given in argument.
+# Fetches lines with (), stops at code block
+# Removes code block
+# Removes function's ()
+# Removes empty comments
+# Spaces documentation lines
+# Adds newline before each function
+{
+  local funcNames=$(tr ' ' '\n' <<< "$@" | orRegex)
+  cat -                   \
+  | sed -n "/\(${funcNames}\)[ ]*()/,/^{/p" \
+  | grep -v '^{'          \
+  | sed 's/()//'          \
+  | sed '/^#\s*$/d'       \
+  | sed 's/^#/  /'        \
+  | sed 's/^\(\w\)/\n\1/'
+}
