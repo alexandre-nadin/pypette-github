@@ -1,15 +1,5 @@
 #bash
 
-grepLineNbRegex ()
-{
-  cat /dev/stdin | sed -e 's/^/\^/' -e 's/$/:/'
-}
-
-orRegex ()
-{
-  cat /dev/stdin | tr '\n' '|' | sed -e 's/|$//' -e 's/|/\\|/g'
-}
-
 frame ()
 #
 # Narrows the STDIN list.
@@ -21,6 +11,22 @@ frame ()
   | head -n ${2:--0}
 }
 
+# ---------
+# Regexes
+# ---------
+grepLineNbRegex ()
+{
+  cat /dev/stdin | sed -e 's/^/\^/' -e 's/$/:/'
+}
+
+orRegex ()
+{
+  cat /dev/stdin | tr '\n' '|' | sed -e 's/|$//' -e 's/|/\\|/g'
+}
+
+# --------
+# System
+# --------
 procNb ()
 {
   cat /proc/cpuinfo | grep '^processor'
@@ -47,6 +53,9 @@ timestamp ()
   date +%Y-%m-%d-%H-%M-%S
 }
 
+# -----------
+# Variables
+# -----------
 vars-declaration ()
 #
 # Show shell declaration for the given variables. Reads from STDIN.
@@ -76,6 +85,18 @@ vars-ls ()
   done
 }
 
+nb-max ()
+{
+  local max=1
+  while read -r nb; do
+    [ $nb -gt $max ] && max=$nb || :
+  done
+  printf $max
+}
+
+# --------
+# Strings
+# --------
 str-len ()
 {
   while read -r line; do
@@ -87,15 +108,6 @@ str-repeat ()
 {
   local str=$(cat /dev/stdin) times=${1:-1}
   printf "${str}%.0s" $(seq $times)
-}
-
-nb-max ()
-{
-  local max=1
-  while read -r nb; do
-    [ $nb -gt $max ] && max=$nb || :
-  done
-  printf $max
 }
 
 str-join ()
