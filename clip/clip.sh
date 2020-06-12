@@ -91,6 +91,9 @@ clip-load ()
 }
 
 clip-snapshot-file ()
+#
+# Prints the path of the current clip snapshot session.
+#
 {
   printf -- "${CLIP_SNAPDIR}/${CLIP_SNAPSHOT}"
 }
@@ -114,7 +117,7 @@ clip-snapshot ()
 
 clip-save ()
 #
-# Saves the SDIN in the clip snapshot file.
+# Saves the STDIN in the clip snapshot file.
 #
 {
   mkdir -p "$CLIP_SNAPDIR"
@@ -122,6 +125,9 @@ clip-save ()
 }
 
 clip-vars () 
+#
+# Prints all clip variables in use.
+#
 {
   cat << eol | xargs
     CLIP_DIR CLIP_SNAPSHOT
@@ -131,7 +137,10 @@ clip-vars ()
 eol
 }
 
-clip-ls-vars ()
+clip-session ()
+#
+# Lists all clip session variables in use.
+#
 {
   cat << eol >&2
 *********************
@@ -144,11 +153,17 @@ eol
 }
 
 clip-run ()
+#
+# Shows the current sequencing run.
+#
 {
   printf -- "$CLIP_RUN"
 }
 
 clip-set-run ()
+#
+# Sets the sequencing run.
+#
 {
   CLIP_RUN="$1"
   clip-save-session
@@ -222,3 +237,7 @@ clip-cmds-all ()
 {
   cat $(clip-modules-path) | func-doc $@
 }
+
+clip-add-usr-cmds \
+  clip-manual clip-session clip-cmds \
+  clip-run clip-set-run 

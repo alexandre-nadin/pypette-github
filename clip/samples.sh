@@ -2,11 +2,17 @@
 SAMPLES_SELECTED=()
 
 samples-csv ()
+#
+# Path for the current sample file.
+#
 {
   printf -- "samples/all/runs/${CLIP_RUN}/samples.csv"
 }
 
 samples-read ()
+#
+# Reads samples from csv
+#
 {
   cut -d, -f1 $(samples-csv) \
   | tail -n +2               \
@@ -28,11 +34,11 @@ samples-ls ()
 }
 
 samples ()
-{
 #
 # Lists all available sample names. 
 # Index filtering is available.
 #
+{
   samples-ls $@ | cut -d: -f2
 }
 
@@ -74,6 +80,9 @@ samples-to-index ()
 }
 
 samples-count ()
+#
+# Counts all available samples for the run.
+#
 {
   samples | wc -l
 }
@@ -141,3 +150,11 @@ genomes-rm-temps()
 {
   genomes-tmps | xargs rm
 }
+
+clip-add-usr-cmds                                 \
+  samples-ls samples samples-select samples-less  \
+  samples-to-index samples-count samples-selected \
+  samples-tmps samples-rm-tmps                    \
+  genomes-tmps genomes-rm-tmps
+  
+

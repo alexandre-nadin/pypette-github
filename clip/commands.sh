@@ -75,7 +75,7 @@ eol
 
 cmd-log ()
 #
-# Sets the command log for the piped command.
+# Produces a command log for the piped command.
 #
 {
   clip-load
@@ -83,12 +83,18 @@ cmd-log ()
 }
 
 cmd-set-jobs ()
+#
+# Sets the default number of jobs to execute sumltaneously (cores).
+#
 {
   CMD_JOBS="$1"
   clip-save-session
 }
 
 cmd-jobs ()
+#
+# Show the number of jobs set for piped commands.
+#
 {
   local maxMem freeMem jobs
   maxMem=32
@@ -102,11 +108,18 @@ cmd-jobs ()
 }
 
 cmd-snake-opts ()
+#
+# Options to be passed to Snakemake.
+#
 {
   printf -- "$CMD_SNAKE_OPTS"
 }
 
 cmd-set-snake-opts ()
+#
+# Sets custom snakemake options.
+# Check snakemake --help for available options.
+#
 {
   CMD_SNAKE_OPTS="$@"
   clip-save-session
@@ -116,3 +129,9 @@ cmd-set-snake-opts ()
 for cmd in $(cmds-pypette); do 
   cmd-register "$cmd"
 done
+
+clip-add-usr-cmds       \
+  cmd-last              \
+  cmd-jobs cmd-set-jobs \
+  cmd-snake-opts cmd-set-snake-opts
+  
