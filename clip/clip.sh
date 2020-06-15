@@ -85,7 +85,6 @@ clip-save ()
 # --------
 CLIP_MODULES=(
   clip.sh
-  config.sh
   samples.sh
   genomes.sh
   targets.sh
