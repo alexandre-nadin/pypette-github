@@ -1,7 +1,7 @@
 #bash
 CMD_LAST=''
 CMD_JOBS=1
-CMD_SNAKE_OPTS=""
+CMD_SNAKE_OPTS="--nolock"
 
 cmd-set-last ()
 #

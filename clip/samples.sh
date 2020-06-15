@@ -52,6 +52,7 @@ samples-select ()
   SAMPLES_SELECTED=$(echo $samples)
   clip-save-session
   echo -e "$samples"
+  clip-load
 }
 
 samples-less ()
