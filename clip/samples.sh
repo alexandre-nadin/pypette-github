@@ -111,13 +111,22 @@ samples-are-all-selected ()
 SPLS_TMP_EXTS='gz\|bam'
 sample-tmps ()
 #
-# Lists all temporaries for the samples given in stdin
+# Lists all temporaries for the samples given in STDIN.
 #
 {
   for spl in $(cat /dev/stdin); do
     find samples/${spl}/runs/$(clip-run) -type f -regex ".*\.\(${SPLS_TMP_EXTS}\)"
   done
 }
+
+sample-rm-tmps ()
+#
+# Removes all temporaries for the samples given in STDIN.
+#
+{
+  cat /dev/stdin | sample-tmps | xargs rm
+}
+
 
 samples-tmps ()
 #
@@ -127,12 +136,12 @@ samples-tmps ()
   samples | sample-tmps
 }
 
-sample-rm-tmps ()
+samples-rm-tmps ()
 #
-# Removes all temporaries for samples given in STDIN.
+# Removes all temporary files for all the samples.
 #
 {
-  cat /dev/stdin | sample-tmps | xargs rm
+  samples-tmps | xargs rm
 }
 
 # --------------
@@ -141,4 +150,5 @@ sample-rm-tmps ()
 clip-add-usr-cmds                                 \
   samples-ls samples samples-select samples-less  \
   samples-to-index samples-count samples-selected \
+  sample-tmps sample-rm-tmps                      \
   samples-tmps samples-rm-tmps
