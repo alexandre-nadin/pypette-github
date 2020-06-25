@@ -1,5 +1,5 @@
 #bash
-CLIP_SNAPSHOT=${1:-'clip.sh'}
+CLIP_SNAPSHOT=${1:-'clip'}
 CLIP_LOGDIR='logs'
 CLIP_SNAPDIR='clip'
   
@@ -20,6 +20,7 @@ clip-init ()
   clip-set-logs
   clip-init-session
   clip-load
+  target-load-custom
 }
 
 clip-set-logs ()
@@ -51,7 +52,7 @@ clip-snapshot-file ()
 # Prints the path of the current clip snapshot session.
 #
 {
-  printf -- "${CLIP_SNAPDIR}/${CLIP_SNAPSHOT}"
+  printf -- "${CLIP_SNAPDIR}/${CLIP_SNAPSHOT}.sh"
 }
 
 clip-save-session () 
@@ -85,7 +86,6 @@ clip-save ()
 # --------
 CLIP_MODULES=(
   clip.sh
-  config.sh
   samples.sh
   genomes.sh
   targets.sh
@@ -99,7 +99,7 @@ clip-source-modules ()
 #
 {
   for module in $(clip-modules-path); do
-    source $module
+    source $module $CLIP_SNAPSHOT
   done
 }
 
